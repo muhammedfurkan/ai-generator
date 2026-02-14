@@ -266,9 +266,9 @@ export default function PromptCompiler() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-gray-300 text-lg">Yükleniyor...</p>
         </div>
       </div>
@@ -281,7 +281,7 @@ export default function PromptCompiler() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#0B0F19]">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-zinc-800">
         <div className="container flex items-center justify-between h-16">
@@ -290,16 +290,18 @@ export default function PromptCompiler() {
               variant="ghost"
               size="icon"
               onClick={() => navigate("/")}
-              className="text-zinc-400 hover:text-white"
+              className="text-zinc-400 hover:text-[#F9FAFB]"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#CCFF00] to-green-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-brand to-green-500 flex items-center justify-center">
                 <Wand2 className="w-5 h-5 text-black" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">Prompt Ustası</h1>
+                <h1 className="text-lg font-bold text-[#F9FAFB]">
+                  Prompt Ustası
+                </h1>
                 <p className="text-xs text-zinc-500">TR → Master Prompt (EN)</p>
               </div>
             </div>
@@ -314,8 +316,8 @@ export default function PromptCompiler() {
             {/* Input Block */}
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader className="pb-3">
-                <CardTitle className="text-white flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[#CCFF00]" />
+                <CardTitle className="text-[#F9FAFB] flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-neon-brand" />
                   Ne Üretmek İstiyorsun?
                 </CardTitle>
               </CardHeader>
@@ -324,7 +326,7 @@ export default function PromptCompiler() {
                   value={inputTr}
                   onChange={e => setInputTr(e.target.value)}
                   placeholder={t("promptCompiler.example")}
-                  className="min-h-[120px] bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 resize-none"
+                  className="min-h-[120px] bg-zinc-800 border-zinc-700 text-[#F9FAFB] placeholder:text-zinc-500 resize-none"
                 />
 
                 {/* Demo buttons */}
@@ -336,7 +338,7 @@ export default function PromptCompiler() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleDemo(demo)}
-                      className="text-xs border-zinc-700 hover:bg-zinc-800 hover:border-[#CCFF00]/50"
+                      className="text-xs border-zinc-700 hover:bg-zinc-800 hover:border-neon-brand/50"
                     >
                       {demo.title}
                     </Button>
@@ -348,8 +350,8 @@ export default function PromptCompiler() {
             {/* Settings Block */}
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader className="pb-3">
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Settings className="w-5 h-5 text-[#CCFF00]" />
+                <CardTitle className="text-[#F9FAFB] flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-neon-brand" />
                   Hızlı Ayarlar
                 </CardTitle>
               </CardHeader>
@@ -364,7 +366,7 @@ export default function PromptCompiler() {
                         onClick={() => setMode(m.value as Mode)}
                         className={`p-3 rounded-xl border transition-all ${
                           mode === m.value
-                            ? "bg-[#CCFF00]/10 border-[#CCFF00] text-[#CCFF00]"
+                            ? "bg-neon-brand/10 border-neon-brand text-neon-brand"
                             : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                         }`}
                       >
@@ -385,7 +387,7 @@ export default function PromptCompiler() {
                         onClick={() => setAspectRatio(ar.value as AspectRatio)}
                         className={`px-4 py-2 rounded-lg border transition-all ${
                           aspectRatio === ar.value
-                            ? "bg-[#CCFF00]/10 border-[#CCFF00] text-[#CCFF00]"
+                            ? "bg-neon-brand/10 border-neon-brand text-neon-brand"
                             : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                         }`}
                       >
@@ -408,7 +410,7 @@ export default function PromptCompiler() {
                         onClick={() => setStyle(s.value as Style)}
                         className={`px-3 py-2 rounded-lg border transition-all ${
                           style === s.value
-                            ? "bg-[#CCFF00]/10 border-[#CCFF00] text-[#CCFF00]"
+                            ? "bg-neon-brand/10 border-neon-brand text-neon-brand"
                             : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                         }`}
                       >
@@ -429,7 +431,7 @@ export default function PromptCompiler() {
                         onClick={() => setQuality(q.value as Quality)}
                         className={`flex-1 px-4 py-2 rounded-lg border transition-all ${
                           quality === q.value
-                            ? "bg-[#CCFF00]/10 border-[#CCFF00] text-[#CCFF00]"
+                            ? "bg-neon-brand/10 border-neon-brand text-neon-brand"
                             : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-600"
                         }`}
                       >
@@ -445,7 +447,7 @@ export default function PromptCompiler() {
                 {/* No Identity Toggle */}
                 <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-xl">
                   <div>
-                    <div className="text-sm font-medium text-white">
+                    <div className="text-sm font-medium text-[#F9FAFB]">
                       Kimlik Koruma
                     </div>
                     <div className="text-xs text-zinc-500">
@@ -455,7 +457,7 @@ export default function PromptCompiler() {
                   <button
                     onClick={() => setNoIdentity(!noIdentity)}
                     className={`w-12 h-6 rounded-full transition-all ${
-                      noIdentity ? "bg-[#CCFF00]" : "bg-zinc-600"
+                      noIdentity ? "bg-neon-brand" : "bg-zinc-600"
                     }`}
                   >
                     <div
@@ -470,7 +472,7 @@ export default function PromptCompiler() {
                 <Button
                   onClick={handleCompile}
                   disabled={compileMutation.isPending || !inputTr.trim()}
-                  className="w-full h-12 bg-[#CCFF00] hover:bg-[#b8e600] text-black font-bold text-base"
+                  className="w-full h-12 bg-neon-brand hover:bg-[#00F5FF] text-black font-bold text-base"
                 >
                   {compileMutation.isPending ? (
                     <>
@@ -496,8 +498,8 @@ export default function PromptCompiler() {
           <div className="space-y-6">
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader className="pb-3">
-                <CardTitle className="text-white flex items-center gap-2">
-                  <ListChecks className="w-5 h-5 text-[#CCFF00]" />
+                <CardTitle className="text-[#F9FAFB] flex items-center gap-2">
+                  <ListChecks className="w-5 h-5 text-neon-brand" />
                   Çıktı Paneli
                 </CardTitle>
               </CardHeader>
@@ -540,7 +542,7 @@ export default function PromptCompiler() {
 
                         <TabsContent value="master" className="mt-4">
                           <div className="relative">
-                            <div className="p-4 bg-zinc-800 rounded-xl text-white text-sm leading-relaxed min-h-[200px]">
+                            <div className="p-4 bg-zinc-800 rounded-xl text-[#F9FAFB] text-sm leading-relaxed min-h-[200px]">
                               {result.master_prompt_en}
                             </div>
                             <Button
@@ -572,7 +574,7 @@ export default function PromptCompiler() {
                                     onClick={() => handleVariant(variant)}
                                     className="w-full p-3 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-left text-sm text-zinc-300 transition-colors"
                                   >
-                                    <span className="text-[#CCFF00] font-medium mr-2">
+                                    <span className="text-neon-brand font-medium mr-2">
                                       #{i + 1}
                                     </span>
                                     {variant.slice(0, 100)}...
@@ -585,7 +587,7 @@ export default function PromptCompiler() {
 
                         <TabsContent value="negative" className="mt-4">
                           <div className="relative">
-                            <div className="p-4 bg-zinc-800 rounded-xl text-white text-sm leading-relaxed min-h-[200px]">
+                            <div className="p-4 bg-zinc-800 rounded-xl text-[#F9FAFB] text-sm leading-relaxed min-h-[200px]">
                               {result.negative_prompt_en}
                             </div>
                             <Button
@@ -639,9 +641,9 @@ export default function PromptCompiler() {
                               {result.tr_summary.map((item, i) => (
                                 <li
                                   key={i}
-                                  className="flex items-start gap-3 text-white text-sm"
+                                  className="flex items-start gap-3 text-[#F9FAFB] text-sm"
                                 >
-                                  <span className="w-6 h-6 rounded-full bg-[#CCFF00]/20 text-[#CCFF00] flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                  <span className="w-6 h-6 rounded-full bg-neon-brand/20 text-neon-brand flex items-center justify-center text-xs font-bold flex-shrink-0">
                                     {i + 1}
                                   </span>
                                   {item}
@@ -720,9 +722,9 @@ export default function PromptCompiler() {
             </Card>
 
             {/* Tips Card */}
-            <Card className="bg-gradient-to-br from-[#CCFF00]/10 to-transparent border-[#CCFF00]/20">
+            <Card className="bg-gradient-to-br from-neon-brand/10 to-transparent border-neon-brand/20">
               <CardContent className="pt-6">
-                <h3 className="text-[#CCFF00] font-bold mb-3 flex items-center gap-2">
+                <h3 className="text-neon-brand font-bold mb-3 flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   İpuçları
                 </h3>

@@ -47,17 +47,23 @@ export default function AdminVideos() {
   const videosQuery = trpc.adminPanel.getVideos.useQuery({
     limit: 100,
     offset: 0,
-    status: statusFilter !== "all" ? statusFilter as any : undefined,
+    status: statusFilter !== "all" ? (statusFilter as any) : undefined,
   });
 
   const videos = videosQuery.data?.videos || [];
-  const stats = videosQuery.data?.stats || { total: 0, completed: 0, processing: 0, failed: 0 };
+  const stats = videosQuery.data?.stats || {
+    total: 0,
+    completed: 0,
+    processing: 0,
+    failed: 0,
+  };
 
   // Filter by search
-  const filteredVideos = videos.filter((v) =>
-    v.prompt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    v.id.toString().includes(searchQuery)
+  const filteredVideos = videos.filter(
+    v =>
+      v.prompt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.id.toString().includes(searchQuery)
   );
 
   const paginatedVideos = filteredVideos.slice(
@@ -101,14 +107,16 @@ export default function AdminVideos() {
 
   const getModelBadge = (model: string) => {
     const colors: Record<string, string> = {
-      "veo-3.1": "bg-purple-500/20 text-purple-400",
-      "kling-2.6": "bg-blue-500/20 text-blue-400",
-      "kling": "bg-blue-500/20 text-blue-400",
-      "grok": "bg-orange-500/20 text-orange-400",
-      "sora2": "bg-green-500/20 text-green-400",
+      "veo-3.1": "bg-[#7C3AED]/20 text-[#7C3AED]",
+      "kling-2.6": "bg-[#00F5FF]/20 text-[#00F5FF]",
+      kling: "bg-[#00F5FF]/20 text-[#00F5FF]",
+      grok: "bg-orange-500/20 text-orange-400",
+      sora2: "bg-green-500/20 text-green-400",
     };
     return (
-      <span className={`px-2 py-0.5 rounded text-xs ${colors[model] || "bg-zinc-500/20 text-zinc-400"}`}>
+      <span
+        className={`px-2 py-0.5 rounded text-xs ${colors[model] || "bg-zinc-500/20 text-zinc-400"}`}
+      >
         {model}
       </span>
     );
@@ -123,7 +131,7 @@ export default function AdminVideos() {
           <Input
             placeholder="Prompt veya kullanıcı ara..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="pl-12 bg-zinc-900 border-white/10"
           />
         </div>
@@ -131,7 +139,7 @@ export default function AdminVideos() {
           <Filter className="h-4 w-4 text-zinc-500" />
           <select
             value={statusFilter}
-            onChange={(e) => {
+            onChange={e => {
               setStatusFilter(e.target.value);
               setCurrentPage(0);
             }}
@@ -148,7 +156,9 @@ export default function AdminVideos() {
           size="icon"
           onClick={() => videosQuery.refetch()}
         >
-          <RefreshCw className={`h-4 w-4 ${videosQuery.isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 ${videosQuery.isFetching ? "animate-spin" : ""}`}
+          />
         </Button>
       </div>
 
@@ -160,8 +170,8 @@ export default function AdminVideos() {
           className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/20">
-              <Video className="h-5 w-5 text-blue-400" />
+            <div className="p-2 rounded-lg bg-[#00F5FF]/20">
+              <Video className="h-5 w-5 text-[#00F5FF]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.total}</p>
@@ -180,7 +190,9 @@ export default function AdminVideos() {
               <CheckCircle className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-green-400">{stats.completed}</p>
+              <p className="text-2xl font-bold text-green-400">
+                {stats.completed}
+              </p>
               <p className="text-xs text-zinc-500">Tamamlanan</p>
             </div>
           </div>
@@ -196,7 +208,9 @@ export default function AdminVideos() {
               <Clock className="h-5 w-5 text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-yellow-400">{stats.processing}</p>
+              <p className="text-2xl font-bold text-yellow-400">
+                {stats.processing}
+              </p>
               <p className="text-xs text-zinc-500">İşleniyor</p>
             </div>
           </div>
@@ -240,7 +254,7 @@ export default function AdminVideos() {
               </tr>
             </thead>
             <tbody>
-              {paginatedVideos.map((video) => (
+              {paginatedVideos.map(video => (
                 <tr
                   key={video.id}
                   className="border-b border-white/5 hover:bg-white/5 transition-colors"
@@ -258,7 +272,7 @@ export default function AdminVideos() {
                           <Video className="h-4 w-4 text-zinc-600" />
                         )}
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Play className="h-4 w-4 text-white" />
+                          <Play className="h-4 w-4 text-[#F9FAFB]" />
                         </div>
                       </div>
                       <div className="max-w-[200px]">
@@ -272,23 +286,25 @@ export default function AdminVideos() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <User className="h-3 w-3 text-zinc-500" />
-                      <span className="text-xs">{video.userName || `#${video.userId}`}</span>
+                      <span className="text-xs">
+                        {video.userName || `#${video.userId}`}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-4 py-3">
-                    {getModelBadge(video.model)}
-                  </td>
+                  <td className="px-4 py-3">{getModelBadge(video.model)}</td>
                   <td className="px-4 py-3">
                     <span className="text-zinc-400">{video.duration}s</span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-lime-400 font-medium">{video.creditsCost}</span>
+                    <span className="text-[#00F5FF] font-medium">
+                      {video.creditsCost}
+                    </span>
                   </td>
-                  <td className="px-4 py-3">
-                    {getStatusBadge(video.status)}
-                  </td>
+                  <td className="px-4 py-3">{getStatusBadge(video.status)}</td>
                   <td className="px-4 py-3 text-zinc-500 text-xs">
-                    {format(new Date(video.createdAt), "d MMM HH:mm", { locale: tr })}
+                    {format(new Date(video.createdAt), "d MMM HH:mm", {
+                      locale: tr,
+                    })}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
@@ -338,16 +354,18 @@ export default function AdminVideos() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-white/10">
             <p className="text-sm text-zinc-500">
-              {filteredVideos.length} videodan{" "}
-              {currentPage * itemsPerPage + 1}-
-              {Math.min((currentPage + 1) * itemsPerPage, filteredVideos.length)}{" "}
+              {filteredVideos.length} videodan {currentPage * itemsPerPage + 1}-
+              {Math.min(
+                (currentPage + 1) * itemsPerPage,
+                filteredVideos.length
+              )}{" "}
               gösteriliyor
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
                 disabled={currentPage === 0}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -358,7 +376,9 @@ export default function AdminVideos() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                onClick={() =>
+                  setCurrentPage(p => Math.min(totalPages - 1, p + 1))
+                }
                 disabled={currentPage === totalPages - 1}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -369,7 +389,10 @@ export default function AdminVideos() {
       </motion.div>
 
       {/* Video Detail Dialog */}
-      <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
+      <Dialog
+        open={!!selectedVideo}
+        onOpenChange={() => setSelectedVideo(null)}
+      >
         <DialogContent className="bg-zinc-900 border-white/10 max-w-2xl">
           <DialogHeader>
             <DialogTitle>Video Detayları</DialogTitle>
@@ -403,7 +426,9 @@ export default function AdminVideos() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Kullanıcı</p>
-                  <p className="text-sm">{selectedVideo.userName || `#${selectedVideo.userId}`}</p>
+                  <p className="text-sm">
+                    {selectedVideo.userName || `#${selectedVideo.userId}`}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Model</p>
@@ -411,7 +436,9 @@ export default function AdminVideos() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Mod</p>
-                  <p className="text-sm capitalize">{selectedVideo.mode?.replace("-", " ")}</p>
+                  <p className="text-sm capitalize">
+                    {selectedVideo.mode?.replace("-", " ")}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Süre</p>
@@ -423,14 +450,20 @@ export default function AdminVideos() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Kredi</p>
-                  <p className="text-sm text-lime-400 font-medium">{selectedVideo.creditsCost}</p>
+                  <p className="text-sm text-[#00F5FF] font-medium">
+                    {selectedVideo.creditsCost}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Oluşturulma</p>
                   <p className="text-sm">
-                    {format(new Date(selectedVideo.createdAt), "d MMMM yyyy HH:mm", {
-                      locale: tr,
-                    })}
+                    {format(
+                      new Date(selectedVideo.createdAt),
+                      "d MMMM yyyy HH:mm",
+                      {
+                        locale: tr,
+                      }
+                    )}
                   </p>
                 </div>
               </div>
@@ -460,7 +493,9 @@ export default function AdminVideos() {
                   <Button
                     variant="outline"
                     className="flex-1 gap-2"
-                    onClick={() => window.open(selectedVideo.videoUrl, "_blank")}
+                    onClick={() =>
+                      window.open(selectedVideo.videoUrl, "_blank")
+                    }
                   >
                     <ExternalLink className="h-4 w-4" />
                     Videoyu Aç

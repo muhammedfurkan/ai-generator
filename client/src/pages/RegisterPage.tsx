@@ -213,11 +213,11 @@ export function RegisterPage() {
   // Verification Code UI
   if (showVerification) {
     return (
-      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900">
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900">
         {/* Animated Background */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
-          <div className="absolute w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
+          <div className="absolute w-[500px] h-[500px] bg-[#00F5FF]/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+          <div className="absolute w-[500px] h-[500px] bg-[#00F5FF]/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
         </div>
 
         {/* Back Button */}
@@ -227,7 +227,7 @@ export function RegisterPage() {
             onClick={() => {
               setShowVerification(false);
             }}
-            className="text-white hover:bg-white/10"
+            className="text-[#F9FAFB] hover:bg-white/10"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             {t("auth.verify.back")}
@@ -244,14 +244,16 @@ export function RegisterPage() {
             <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
               {/* Header */}
               <div className="mb-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-[#F9FAFB]" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">
+                <h2 className="text-2xl font-bold text-[#F9FAFB] mb-2">
                   {t("auth.verify.title")}
                 </h2>
                 <p className="text-gray-300">
-                  <span className="font-medium text-white">{pendingEmail}</span>{" "}
+                  <span className="font-medium text-[#F9FAFB]">
+                    {pendingEmail}
+                  </span>{" "}
                   {t("auth.verify.emailSentTo")}
                 </p>
               </div>
@@ -271,7 +273,7 @@ export function RegisterPage() {
                         e.target.value.replace(/\D/g, "").slice(0, 6)
                       )
                     }
-                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-14 text-center text-2xl tracking-widest"
+                    className="bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-14 text-center text-2xl tracking-widest"
                     disabled={isSubmitting}
                     maxLength={6}
                     autoFocus
@@ -280,7 +282,7 @@ export function RegisterPage() {
 
                 <Button
                   onClick={handleVerifyCode}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white h-12 text-base font-medium"
+                  className="w-full bg-gradient-to-r from-[#00F5FF] to-[#7C3AED] hover:from-[#00F5FF] hover:to-[#7C3AED] text-[#F9FAFB] h-12 text-base font-medium"
                   disabled={isSubmitting || verificationCode.length < 6}
                 >
                   {isSubmitting ? (
@@ -296,7 +298,7 @@ export function RegisterPage() {
                 <div className="text-center pt-2">
                   <button
                     onClick={handleResendCode}
-                    className="text-sm text-blue-400 hover:text-blue-300"
+                    className="text-sm text-[#00F5FF] hover:text-[#00F5FF]"
                   >
                     {t("auth.verify.notReceived")}
                   </button>
@@ -317,12 +319,12 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
-        <div className="absolute w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
-        <div className="absolute w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse delay-500"></div>
+        <div className="absolute w-[500px] h-[500px] bg-[#00F5FF]/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+        <div className="absolute w-[500px] h-[500px] bg-[#00F5FF]/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
+        <div className="absolute w-[300px] h-[300px] bg-[#7C3AED]/10 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse delay-500"></div>
       </div>
 
       {/* Back to Home Button */}
@@ -330,7 +332,7 @@ export function RegisterPage() {
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
-          className="text-white hover:bg-white/10"
+          className="text-[#F9FAFB] hover:bg-white/10"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("auth.register.home")}
@@ -345,12 +347,12 @@ export function RegisterPage() {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="hidden lg:block text-white"
+            className="hidden lg:block text-[#F9FAFB]"
           >
             <div className="flex items-center gap-3 mb-6">
               <img src="/Logo-01.png" alt="Amonify" className="h-16 w-auto" />
             </div>
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-[#00F5FF] via-[#7C3AED] to-[#FF2E97] bg-clip-text text-transparent">
               {t("auth.register.branding.title")}
             </h1>
             <p className="text-xl text-gray-300 mb-8">
@@ -364,8 +366,8 @@ export function RegisterPage() {
                 transition={{ delay: 0.3 }}
                 className="flex items-start gap-4 bg-white/5 rounded-xl p-4 border border-white/10"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0">
-                  <Gift className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center flex-shrink-0">
+                  <Gift className="w-6 h-6 text-[#F9FAFB]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-1">
@@ -383,8 +385,8 @@ export function RegisterPage() {
                 transition={{ delay: 0.4 }}
                 className="flex items-start gap-4 bg-white/5 rounded-xl p-4 border border-white/10"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                  <Zap className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#7C3AED] flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-6 h-6 text-[#F9FAFB]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-1">
@@ -402,8 +404,8 @@ export function RegisterPage() {
                 transition={{ delay: 0.5 }}
                 className="flex items-start gap-4 bg-white/5 rounded-xl p-4 border border-white/10"
               >
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center flex-shrink-0">
+                  <Users className="w-6 h-6 text-[#F9FAFB]" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-1">
@@ -416,7 +418,7 @@ export function RegisterPage() {
               </motion.div>
             </div>
 
-            <div className="mt-8 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/20">
+            <div className="mt-8 p-4 bg-gradient-to-r from-[#00F5FF]/10 to-[#FF2E97]/10 rounded-xl border border-[#00F5FF]/20">
               <p className="text-sm text-gray-300">
                 <Sparkles className="inline w-4 h-4 mr-1" />
                 <strong>10,000+</strong>{" "}
@@ -440,7 +442,7 @@ export function RegisterPage() {
                   alt="Amonify"
                   className="h-12 w-auto mx-auto mb-4 lg:hidden"
                 />
-                <h2 className="text-3xl font-bold text-white mb-2">
+                <h2 className="text-3xl font-bold text-[#F9FAFB] mb-2">
                   Hesap Oluştur
                 </h2>
                 <p className="text-gray-300">
@@ -464,7 +466,7 @@ export function RegisterPage() {
                           placeholder={t("auth.register.namePlaceholder")}
                           value={name}
                           onChange={e => setName(e.target.value)}
-                          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                          className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                           disabled={isSubmitting}
                           required
                         />
@@ -483,7 +485,7 @@ export function RegisterPage() {
                           placeholder="ornek@email.com"
                           value={email}
                           onChange={e => setEmail(e.target.value)}
-                          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                          className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                           disabled={isSubmitting}
                           required
                         />
@@ -505,7 +507,7 @@ export function RegisterPage() {
                           placeholder="En az 8 karakter"
                           value={password}
                           onChange={e => setPassword(e.target.value)}
-                          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                          className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                           disabled={isSubmitting}
                           required
                           minLength={8}
@@ -533,7 +535,7 @@ export function RegisterPage() {
                           )}
                           value={confirmPassword}
                           onChange={e => setConfirmPassword(e.target.value)}
-                          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                          className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                           disabled={isSubmitting}
                           required
                           minLength={8}
@@ -543,7 +545,7 @@ export function RegisterPage() {
 
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white h-12 text-base font-medium mt-6"
+                      className="w-full bg-gradient-to-r from-[#00F5FF] to-[#7C3AED] hover:from-[#00F5FF] hover:to-[#7C3AED] text-[#F9FAFB] h-12 text-base font-medium mt-6"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -615,7 +617,7 @@ export function RegisterPage() {
                   {t("auth.register.haveAccount")}{" "}
                   <button
                     onClick={() => navigate("/login")}
-                    className="text-blue-400 hover:text-blue-300 font-medium"
+                    className="text-[#00F5FF] hover:text-[#00F5FF] font-medium"
                   >
                     {t("auth.register.signIn")}
                   </button>

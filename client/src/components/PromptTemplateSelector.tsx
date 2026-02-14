@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PROMPT_TEMPLATES, TEMPLATE_CATEGORIES } from "@shared/const";
 import { Sparkles, Trash2, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -29,7 +34,7 @@ export default function PromptTemplateSelector({
       toast.success("Şablon silindi");
       utils.userTemplates.list.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Şablon silinemedi");
     },
   });
@@ -41,10 +46,15 @@ export default function PromptTemplateSelector({
 
   const filteredTemplates =
     selectedCategory === "Tümü"
-      ? [...userTemplates.map(t => ({ ...t, isUserTemplate: true })), ...systemTemplates.map(t => ({ ...t, isUserTemplate: false }))]
+      ? [
+          ...userTemplates.map(t => ({ ...t, isUserTemplate: true })),
+          ...systemTemplates.map(t => ({ ...t, isUserTemplate: false })),
+        ]
       : selectedCategory === "Kendi Şablonlarım"
-      ? userTemplates.map(t => ({ ...t, isUserTemplate: true }))
-      : systemTemplates.filter(t => t.category === selectedCategory).map(t => ({ ...t, isUserTemplate: false }));
+        ? userTemplates.map(t => ({ ...t, isUserTemplate: true }))
+        : systemTemplates
+            .filter(t => t.category === selectedCategory)
+            .map(t => ({ ...t, isUserTemplate: false }));
 
   const handleSelectTemplate = (template: any) => {
     onSelectTemplate({
@@ -78,7 +88,7 @@ export default function PromptTemplateSelector({
 
         {/* Category Filters - Horizontal Scroll */}
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-          {allCategories.map((category) => (
+          {allCategories.map(category => (
             <Button
               key={category}
               variant={selectedCategory === category ? "default" : "outline"}
@@ -122,18 +132,20 @@ export default function PromptTemplateSelector({
                 >
                   {/* Header: Category & Actions */}
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
-                      template.isUserTemplate
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-primary/20 text-primary"
-                    }`}>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
+                        template.isUserTemplate
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-primary/20 text-primary"
+                      }`}
+                    >
                       {template.isUserTemplate ? "Kendi" : template.category}
                     </span>
-                    
+
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       {template.isUserTemplate && (
                         <button
-                          onClick={(e) => handleDeleteTemplate(e, template.id)}
+                          onClick={e => handleDeleteTemplate(e, template.id)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/20"
                           disabled={deleteTemplateMutation.isPending}
                           title="Sil"

@@ -52,10 +52,10 @@ const MODE_ICONS: Record<EnhancementMode, React.ReactNode> = {
 };
 
 const MODE_COLORS: Record<EnhancementMode, string> = {
-  natural_clean: "from-emerald-500/20 to-teal-500/20 border-emerald-500/30",
+  natural_clean: "from-[#00F5FF]/20 to-[#7C3AED]/20 border-[#00F5FF]/30",
   soft_glow: "from-amber-500/20 to-orange-500/20 border-amber-500/30",
-  studio_look: "from-violet-500/20 to-purple-500/20 border-violet-500/30",
-  no_makeup_real: "from-cyan-500/20 to-blue-500/20 border-cyan-500/30",
+  studio_look: "from-[#7C3AED]/20 to-[#FF2E97]/20 border-[#7C3AED]/30",
+  no_makeup_real: "from-[#00F5FF]/20 to-[#7C3AED]/20 border-[#00F5FF]/30",
 };
 
 export default function SkinEnhancement() {
@@ -286,7 +286,7 @@ export default function SkinEnhancement() {
           </div>
         </div>
         <div className="px-4 pb-3">
-          <h1 className="text-lg font-bold text-white">Cilt İyileştirme</h1>
+          <h1 className="text-lg font-bold text-[#F9FAFB]">Cilt İyileştirme</h1>
           <p className="text-xs text-white/60">Doğal görünümlü cilt düzeltme</p>
         </div>
       </div>
@@ -599,10 +599,10 @@ export default function SkinEnhancement() {
                       </div>
 
                       {/* Labels */}
-                      <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/50 text-white text-sm">
+                      <div className="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/50 text-[#F9FAFB] text-sm">
                         Öncesi
                       </div>
-                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 text-white text-sm">
+                      <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/50 text-[#F9FAFB] text-sm">
                         Sonrası
                       </div>
                     </div>
@@ -621,11 +621,11 @@ export default function SkinEnhancement() {
                 </Card>
 
                 {/* Info Card */}
-                <Card className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20">
+                <Card className="bg-gradient-to-r from-[#00F5FF]/10 to-[#7C3AED]/10 border-[#00F5FF]/20">
                   <CardContent className="flex items-start gap-4 p-4">
-                    <Info className="w-5 h-5 text-emerald-500 mt-0.5" />
+                    <Info className="w-5 h-5 text-[#00F5FF] mt-0.5" />
                     <div className="text-sm">
-                      <p className="font-semibold text-emerald-500 mb-1">
+                      <p className="font-semibold text-[#00F5FF] mb-1">
                         Doğal İyileştirme
                       </p>
                       <p className="text-muted-foreground">

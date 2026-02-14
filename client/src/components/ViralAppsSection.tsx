@@ -6,13 +6,14 @@ import { trpc } from "@/lib/trpc";
 
 export default function ViralAppsSection() {
   // Fetch popular apps from database
-  const { data: popularApps, isLoading } = trpc.settings.getPopularViralApps.useQuery();
+  const { data: popularApps, isLoading } =
+    trpc.settings.getPopularViralApps.useQuery();
 
   if (isLoading) {
     return (
       <section className="container py-20">
         <div className="flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-pink-400" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#FF2E97]" />
         </div>
       </section>
     );
@@ -37,15 +38,18 @@ export default function ViralAppsSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/30 mb-6">
-            <Play className="w-4 h-4 text-pink-400" />
-            <span className="text-sm font-medium text-pink-300">Viral Video Uygulamaları</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#FF2E97]/20 to-[#FF2E97]/20 border border-[#FF2E97]/30 mb-6">
+            <Play className="w-4 h-4 text-[#FF2E97]" />
+            <span className="text-sm font-medium text-[#FF2E97]">
+              Viral Video Uygulamaları
+            </span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#F9FAFB] mb-4">
             Tek Fotoğrafla Viral Videolar
           </h2>
           <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Fotoğrafınızı yükleyin, uygulama seçin, saniyeler içinde viral video oluşturun
+            Fotoğrafınızı yükleyin, uygulama seçin, saniyeler içinde viral video
+            oluşturun
           </p>
         </motion.div>
 
@@ -69,12 +73,16 @@ export default function ViralAppsSection() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                        <Play className="w-8 h-8 text-white fill-white" />
+                        <Play className="w-8 h-8 text-[#F9FAFB] fill-white" />
                       </div>
                     </div>
                     <div className="absolute bottom-3 left-3 right-3">
-                      <h3 className="text-white font-semibold text-lg">{app.title}</h3>
-                      <p className="text-white/70 text-sm line-clamp-1">{app.description}</p>
+                      <h3 className="text-[#F9FAFB] font-semibold text-lg">
+                        {app.title}
+                      </h3>
+                      <p className="text-white/70 text-sm line-clamp-1">
+                        {app.description}
+                      </p>
                     </div>
                     <div className="absolute top-3 right-3 bg-primary/90 text-primary-foreground px-2 py-1 rounded-full text-xs font-medium">
                       {app.credits} Kredi
@@ -98,7 +106,7 @@ export default function ViralAppsSection() {
               size="lg"
               className="rounded-full border-white/20 hover:bg-white/10 group"
             >
-              <Sparkles className="w-5 h-5 mr-2 text-pink-400" />
+              <Sparkles className="w-5 h-5 mr-2 text-[#FF2E97]" />
               Tüm Uygulamaları Gör
               <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -108,4 +116,3 @@ export default function ViralAppsSection() {
     </motion.section>
   );
 }
-

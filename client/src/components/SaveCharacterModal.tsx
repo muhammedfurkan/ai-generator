@@ -141,8 +141,8 @@ export default function SaveCharacterModal({
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/20 rounded-xl">
-                    <User className="h-5 w-5 text-blue-400" />
+                  <div className="p-2 bg-[#00F5FF]/20 rounded-xl">
+                    <User className="h-5 w-5 text-[#00F5FF]" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-foreground">
@@ -174,13 +174,13 @@ export default function SaveCharacterModal({
               )}
 
               {/* Skip and Generate Button - Prominent */}
-              <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl p-4 border border-purple-500/30">
+              <div className="bg-gradient-to-r from-[#7C3AED]/20 to-[#7C3AED]/20 rounded-2xl p-4 border border-[#7C3AED]/30">
                 <p className="text-sm text-muted-foreground mb-3">
                   Karakteri kaydetmeden hemen görsel oluşturmak ister misiniz?
                 </p>
                 <Button
                   onClick={handleSkipAndGenerate}
-                  className="w-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="w-full rounded-full bg-gradient-to-r from-[#7C3AED] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#7C3AED]"
                   disabled={isLoading}
                 >
                   {isSkipping ? (
@@ -200,7 +200,9 @@ export default function SaveCharacterModal({
               {/* Divider */}
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-white/10" />
-                <span className="text-xs text-muted-foreground">veya kaydedin</span>
+                <span className="text-xs text-muted-foreground">
+                  veya kaydedin
+                </span>
                 <div className="flex-1 h-px bg-white/10" />
               </div>
 
@@ -213,7 +215,7 @@ export default function SaveCharacterModal({
                   </label>
                   <Input
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={e => setName(e.target.value)}
                     placeholder="Örn: Maya, Alex, Luna..."
                     className="glass-card border-0 bg-white/8"
                     maxLength={100}
@@ -224,11 +226,12 @@ export default function SaveCharacterModal({
                 {/* Description */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Açıklama <span className="text-muted-foreground">(Opsiyonel)</span>
+                    Açıklama{" "}
+                    <span className="text-muted-foreground">(Opsiyonel)</span>
                   </label>
                   <Textarea
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={e => setDescription(e.target.value)}
                     placeholder="Karakterinizi tanımlayın..."
                     className="glass-card border-0 bg-white/8 min-h-[80px] resize-none"
                     maxLength={500}
@@ -239,17 +242,20 @@ export default function SaveCharacterModal({
                 {/* Gender */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Cinsiyet <span className="text-muted-foreground">(Opsiyonel)</span>
+                    Cinsiyet{" "}
+                    <span className="text-muted-foreground">(Opsiyonel)</span>
                   </label>
                   <div className="flex gap-2">
                     {[
                       { value: "female", label: "Kadın" },
                       { value: "male", label: "Erkek" },
                       { value: "other", label: "Diğer" },
-                    ].map((option) => (
+                    ].map(option => (
                       <Button
                         key={option.value}
-                        variant={gender === option.value ? "default" : "outline"}
+                        variant={
+                          gender === option.value ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setGender(option.value as any)}
                         className="flex-1 rounded-full"
@@ -264,21 +270,24 @@ export default function SaveCharacterModal({
                 {/* Style */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Stil <span className="text-muted-foreground">(Opsiyonel)</span>
+                    Stil{" "}
+                    <span className="text-muted-foreground">(Opsiyonel)</span>
                   </label>
                   <div className="flex flex-wrap gap-2">
-                    {["Gerçekçi", "Anime", "Çizgi Film", "3D", "Sanatsal"].map((s) => (
-                      <Button
-                        key={s}
-                        variant={style === s ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setStyle(style === s ? "" : s)}
-                        className="rounded-full"
-                        disabled={isLoading}
-                      >
-                        {s}
-                      </Button>
-                    ))}
+                    {["Gerçekçi", "Anime", "Çizgi Film", "3D", "Sanatsal"].map(
+                      s => (
+                        <Button
+                          key={s}
+                          variant={style === s ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setStyle(style === s ? "" : s)}
+                          className="rounded-full"
+                          disabled={isLoading}
+                        >
+                          {s}
+                        </Button>
+                      )
+                    )}
                   </div>
                 </div>
               </div>

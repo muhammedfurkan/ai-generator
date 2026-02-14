@@ -260,6 +260,13 @@
       "when": 1768123692571,
       "tag": "0036_odd_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "5",
+      "when": 1771081278769,
+      "tag": "0037_youthful_goblin_queen",
+      "breakpoints": true
     }
   ]
 }

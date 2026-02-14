@@ -38,14 +38,14 @@ const MenuItem = memo(function MenuItem({
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${
         isLogout
           ? "text-red-400 active:bg-red-500/10"
-          : "text-white active:bg-white/10"
+          : "text-[#F9FAFB] active:bg-white/10"
       }`}
     >
       <Icon className={`h-5 w-5 ${isLogout ? "" : "text-gray-400"}`} />
       <span className="flex items-center gap-2">
         {label}
         {badge && (
-          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#CCFF00] text-black rounded">
+          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-brand text-black rounded">
             {badge}
           </span>
         )}
@@ -70,9 +70,7 @@ const LanguageButton = memo(function LanguageButton({
     <button
       onClick={onClick}
       className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl ${
-        isActive
-          ? "bg-[#CCFF00]/20 text-[#CCFF00] border border-[#CCFF00]/50"
-          : "border border-white/10 text-white"
+        isActive ? "ai-lang-active" : "border border-white/10 text-[#F9FAFB]"
       }`}
     >
       <span className="text-lg">{flag}</span>
@@ -114,7 +112,7 @@ function MobileMenuContent({ isOpen, onClose }: MobileMenuProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="border-t border-white/10 bg-black">
+    <div className="border-t border-white/10 bg-[#0B0F19]">
       <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
         {isAuthenticated ? (
           <>
@@ -209,7 +207,7 @@ function MobileMenuContent({ isOpen, onClose }: MobileMenuProps) {
 
             <button
               onClick={handleLogin}
-              className="w-full bg-[#CCFF00] active:bg-[#CCFF00]/90 text-black font-semibold rounded-xl py-3"
+              className="w-full bg-neon-brand active:bg-neon-brand/90 text-black font-semibold rounded-xl py-3"
             >
               {t("common.login")}
             </button>

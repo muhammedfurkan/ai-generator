@@ -57,7 +57,7 @@ const BANNERS = [
     description: "E-ticaret için profesyonel videolar",
     image: "/covers/product-promo.jpg",
     badge: "NEW",
-    badgeColor: "bg-fuchsia-500",
+    badgeColor: "bg-[#7C3AED]",
     path: "/product-promo",
   },
   // {
@@ -87,7 +87,7 @@ const BANNERS = [
     description: "Türkçe yaz, profesyonel prompt al",
     image: "/covers/prompt-compiler.jpg",
     badge: "YENİ",
-    badgeColor: "bg-[#CCFF00]",
+    badgeColor: "bg-neon-brand",
     path: "/prompt-compiler",
   },
   {
@@ -97,7 +97,7 @@ const BANNERS = [
     description: "Profesyonel cilt düzeltme",
     image: "/covers/skin-enhancement.jpg",
     badge: "YENİ",
-    badgeColor: "bg-pink-500",
+    badgeColor: "bg-[#FF2E97]",
     path: "/skin-enhancement",
   },
 ];
@@ -111,7 +111,7 @@ const AI_TOOLS = [
     icon: "🎨",
     badge: "ÖNE ÇIKAN",
     badgeColor: "bg-green-500",
-    bgColor: "bg-gradient-to-br from-orange-500 to-red-600",
+    bgColor: "bg-gradient-to-br from-[#7C3AED] to-[#FF2E97]",
     path: "/generate",
   },
   {
@@ -120,8 +120,8 @@ const AI_TOOLS = [
     description: "Veo 3.1, Sora 2, Kling",
     icon: "🎬",
     badge: "POPÜLER",
-    badgeColor: "bg-blue-500",
-    bgColor: "bg-gradient-to-br from-pink-500 to-purple-600",
+    badgeColor: "bg-sky-500",
+    bgColor: "bg-gradient-to-br from-sky-500 to-[#FF2E97]",
     path: "/video-generate",
   },
   {
@@ -131,7 +131,7 @@ const AI_TOOLS = [
     icon: "🎭",
     badge: "YENİ",
     badgeColor: "bg-yellow-500",
-    bgColor: "bg-gradient-to-br from-purple-600 to-pink-600",
+    bgColor: "bg-gradient-to-br from-[#00F5FF] to-[#FF2E97]",
     path: "/motion-control",
   },
   {
@@ -141,7 +141,7 @@ const AI_TOOLS = [
     icon: "👤",
     badge: "YENİ",
     badgeColor: "bg-green-500",
-    bgColor: "bg-gradient-to-br from-green-500 to-teal-600",
+    bgColor: "bg-gradient-to-br from-[#00F5FF] to-[#7C3AED]",
     path: "/ai-influencer",
   },
   {
@@ -149,7 +149,7 @@ const AI_TOOLS = [
     title: "UPSCALE",
     description: "8K'ya yükselt",
     icon: "⚡",
-    bgColor: "bg-gradient-to-br from-cyan-500 to-blue-600",
+    bgColor: "bg-gradient-to-br from-slate-500 to-sky-500",
     path: "/upscale",
   },
   {
@@ -159,7 +159,7 @@ const AI_TOOLS = [
     icon: "📸",
     badge: "YENİ",
     badgeColor: "bg-green-500",
-    bgColor: "bg-gradient-to-br from-purple-500 to-indigo-600",
+    bgColor: "bg-gradient-to-br from-[#7C3AED] to-sky-500",
     path: "/multi-angle",
   },
   {
@@ -169,7 +169,7 @@ const AI_TOOLS = [
     icon: "🛍️",
     badge: "YENİ",
     badgeColor: "bg-green-500",
-    bgColor: "bg-gradient-to-br from-amber-500 to-orange-600",
+    bgColor: "bg-gradient-to-br from-[#00F5FF] to-[#7C3AED]",
     path: "/product-promo",
   },
   {
@@ -179,7 +179,7 @@ const AI_TOOLS = [
     icon: "✨",
     badge: "YENİ",
     badgeColor: "bg-yellow-500",
-    bgColor: "bg-gradient-to-br from-yellow-400 to-lime-500",
+    bgColor: "bg-gradient-to-br from-sky-500 to-[#7C3AED]",
     path: "/logo-generator",
   },
   {
@@ -188,8 +188,8 @@ const AI_TOOLS = [
     description: "Doğal cilt düzeltme",
     icon: "💆",
     badge: "YENİ",
-    badgeColor: "bg-pink-500",
-    bgColor: "bg-gradient-to-br from-rose-400 to-pink-600",
+    badgeColor: "bg-[#FF2E97]",
+    bgColor: "bg-gradient-to-br from-[#00F5FF] to-[#7C3AED]",
     path: "/skin-enhancement",
   },
 ];
@@ -294,11 +294,11 @@ export default function MobileHome() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black pb-24">
+    <div className="ai-page-bg min-h-screen pb-24">
       {/* Hoş Geldin Popup - Yeni kullanıcılar için */}
       {isAuthenticated && <WelcomePopup isNewUser={isNewUser} />}
       {/* Mobile Header */}
-      <div className="sticky top-0 z-40 bg-black border-b border-white/10">
+      <div className="ai-page-bg sticky top-0 z-40 border-b border-white/10">
         <div className="flex items-center justify-between px-4 py-3">
           <img src="/Logo-02.png" alt="Amonify" className="h-10" />
           <div className="flex items-center gap-2">
@@ -308,7 +308,7 @@ export default function MobileHome() {
                   ? navigate("/packages")
                   : (window.location.href = getLoginUrl())
               }
-              className="px-3 py-1.5 bg-[#CCFF00] text-black text-sm font-bold rounded-full"
+              className="px-3 py-1.5 bg-neon-brand text-black text-sm font-bold rounded-full"
             >
               {t("common.buyCredits")}
             </button>
@@ -320,9 +320,9 @@ export default function MobileHome() {
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-[#F9FAFB]" />
               ) : (
-                <Menu className="w-6 h-6 text-white" />
+                <Menu className="w-6 h-6 text-[#F9FAFB]" />
               )}
             </button>
           </div>
@@ -350,12 +350,12 @@ export default function MobileHome() {
                   src={banner.image}
                   alt={banner.title}
                   className="w-full h-full"
-                  placeholderColor="#1a1a1a"
+                  placeholderColor="#111827"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 <div className="absolute top-3 left-3">
                   <span
-                    className={`px-2 py-1 ${banner.badgeColor} text-white text-[10px] font-bold rounded`}
+                    className={`px-2 py-1 ${banner.badgeColor} text-[#F9FAFB] text-[10px] font-bold rounded`}
                   >
                     {banner.badge}
                   </span>
@@ -364,7 +364,7 @@ export default function MobileHome() {
                   <div className="text-[10px] text-white/60 uppercase tracking-wider">
                     {banner.title}
                   </div>
-                  <div className="text-lg font-bold text-white">
+                  <div className="text-lg font-bold text-[#F9FAFB]">
                     {banner.subtitle}
                   </div>
                   <div className="text-xs text-white/70">
@@ -381,7 +381,7 @@ export default function MobileHome() {
             <div
               key={i}
               className={`h-1.5 rounded-full transition-all ${
-                i === activeSlide ? "w-4 bg-[#CCFF00]" : "w-1.5 bg-white/30"
+                i === activeSlide ? "w-4 bg-neon-brand" : "w-1.5 bg-white/30"
               }`}
             />
           ))}
@@ -391,7 +391,7 @@ export default function MobileHome() {
       {/* AI Tools Section */}
       <div className="pt-4 px-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-[#CCFF00]">
+          <h2 className="text-lg font-bold text-neon-brand">
             {t("home.aiTools")}
           </h2>
           <button
@@ -413,13 +413,13 @@ export default function MobileHome() {
             >
               {tool.badge && (
                 <span
-                  className={`absolute top-1 right-1 px-1.5 py-0.5 ${tool.badgeColor} text-white text-[8px] font-bold rounded`}
+                  className={`absolute top-1 right-1 px-1.5 py-0.5 ${tool.badgeColor} text-[#F9FAFB] text-[8px] font-bold rounded`}
                 >
                   {tool.badge}
                 </span>
               )}
               <div className="text-2xl mb-1">{tool.icon}</div>
-              <div className="text-[10px] font-bold text-white leading-tight">
+              <div className="text-[10px] font-bold text-[#F9FAFB] leading-tight">
                 {tool.title}
               </div>
               <div className="text-[8px] text-white/70 truncate">
@@ -439,7 +439,7 @@ export default function MobileHome() {
             {publicModels.imageModels.length > 0 && (
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-bold text-[#CCFF00]">
+                  <h2 className="text-lg font-bold text-neon-brand">
                     {t("home.imageGenModels")}
                   </h2>
                   <button
@@ -460,7 +460,7 @@ export default function MobileHome() {
                       onClick={() => handleNavigation("/generate")}
                       className="flex-shrink-0 w-40 rounded-xl overflow-hidden relative active:opacity-80"
                     >
-                      <div className="aspect-[3/4] relative bg-gradient-to-br from-purple-900/30 to-pink-900/30">
+                      <div className="ai-model-surface-image aspect-[3/4] relative">
                         {model.coverImageMobile || model.coverImageDesktop ? (
                           <img
                             src={
@@ -475,8 +475,8 @@ export default function MobileHome() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                         <div className="absolute bottom-2 left-2 right-2">
                           <div className="flex items-center gap-1 mb-1">
-                            <Sparkles className="h-3 w-3 text-[#CCFF00]" />
-                            <div className="text-xs font-bold text-white truncate">
+                            <Sparkles className="h-3 w-3 text-neon-brand" />
+                            <div className="text-xs font-bold text-[#F9FAFB] truncate">
                               {model.modelName}
                             </div>
                           </div>
@@ -495,7 +495,7 @@ export default function MobileHome() {
             {publicModels.videoModels.length > 0 && (
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-bold text-[#CCFF00]">
+                  <h2 className="text-lg font-bold text-neon-brand">
                     {t("home.videoGenModels")}
                   </h2>
                   <button
@@ -516,7 +516,7 @@ export default function MobileHome() {
                       onClick={() => handleNavigation("/video-generate")}
                       className="flex-shrink-0 w-40 rounded-xl overflow-hidden relative active:opacity-80"
                     >
-                      <div className="aspect-[3/4] relative bg-gradient-to-br from-blue-900/30 to-cyan-900/30">
+                      <div className="ai-model-surface-video aspect-[3/4] relative">
                         {model.coverImageMobile || model.coverImageDesktop ? (
                           <img
                             src={
@@ -531,8 +531,8 @@ export default function MobileHome() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                         <div className="absolute bottom-2 left-2 right-2">
                           <div className="flex items-center gap-1 mb-1">
-                            <Play className="h-3 w-3 text-[#CCFF00]" />
-                            <div className="text-xs font-bold text-white truncate">
+                            <Play className="h-3 w-3 text-neon-brand" />
+                            <div className="text-xs font-bold text-[#F9FAFB] truncate">
                               {model.modelName}
                             </div>
                           </div>
@@ -557,7 +557,7 @@ export default function MobileHome() {
       {/* AI Gallery Section - Masonry */}
       <div className="mt-8 px-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-[#CCFF00]">
+          <h2 className="text-lg font-bold text-neon-brand">
             {t("home.createdWithAi")}
           </h2>
           <button
@@ -585,7 +585,7 @@ export default function MobileHome() {
                 src={img}
                 alt={`AI Generated ${i + 1}`}
                 className="w-full h-full"
-                placeholderColor="#1a1a1a"
+                placeholderColor="#111827"
               />
             </div>
           ))}
@@ -595,7 +595,7 @@ export default function MobileHome() {
       {/* Video Gallery Section */}
       <div className="mt-8 px-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-[#CCFF00]">
+          <h2 className="text-lg font-bold text-neon-brand">
             {t("home.aiVideoGallery")}
           </h2>
           <button
@@ -621,15 +621,15 @@ export default function MobileHome() {
                   src={video.thumbnail}
                   alt={video.title}
                   className="w-full h-full"
-                  placeholderColor="#1a1a1a"
+                  placeholderColor="#111827"
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 bg-[#CCFF00] rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-neon-brand rounded-full flex items-center justify-center">
                     <Play className="h-5 w-5 text-black fill-black ml-0.5" />
                   </div>
                 </div>
                 <div className="absolute bottom-2 left-2 right-2">
-                  <div className="text-[10px] font-medium text-white">
+                  <div className="text-[10px] font-medium text-[#F9FAFB]">
                     {video.title}
                   </div>
                 </div>
@@ -640,7 +640,7 @@ export default function MobileHome() {
       </div>
 
       {/* Viral Apps Section - Lime Green */}
-      {/* <div className="mt-8 bg-[#CCFF00] py-6 px-4">
+      {/* <div className="mt-8 bg-neon-brand py-6 px-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-black">VİRAL VİDEO UYGULAMALARI</h2>
           <button
@@ -659,13 +659,13 @@ export default function MobileHome() {
             <div
               key={app.id}
               onClick={() => navigate("/apps")}
-              className="flex-shrink-0 w-20 bg-black rounded-xl p-3 text-center active:scale-95 transition-transform"
+              className="flex-shrink-0 w-20 bg-[#0B0F19] rounded-xl p-3 text-center active:scale-95 transition-transform"
             >
               {app.hot && (
                 <span className="text-[8px] font-bold text-red-500 block mb-1">HOT</span>
               )}
               <div className="text-2xl mb-1">{app.emoji}</div>
-              <div className="text-[10px] font-medium text-white">{app.name}</div>
+              <div className="text-[10px] font-medium text-[#F9FAFB]">{app.name}</div>
             </div>
           ))}
         </div>
@@ -675,8 +675,8 @@ export default function MobileHome() {
       <div className="mt-8 px-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-[#CCFF00]" />
-            <h2 className="text-lg font-bold text-[#CCFF00]">
+            <Users className="h-4 w-4 text-neon-brand" />
+            <h2 className="text-lg font-bold text-neon-brand">
               {t("home.communityGallery")}
             </h2>
           </div>
@@ -711,11 +711,11 @@ export default function MobileHome() {
                   src={char.characterImageUrl}
                   alt={char.name}
                   className="w-full h-full"
-                  placeholderColor="#1a1a1a"
+                  placeholderColor="#111827"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <div className="absolute bottom-2 left-2 right-2">
-                  <div className="text-xs font-bold text-white truncate">
+                  <div className="text-xs font-bold text-[#F9FAFB] truncate">
                     {char.name}
                   </div>
                   <div className="text-[10px] text-white/60">
@@ -729,7 +729,7 @@ export default function MobileHome() {
       </div>
 
       {/* CTA Section - Lime Green */}
-      <div className="mt-8 bg-[#CCFF00] py-8 px-4 text-center">
+      <div className="mt-8 bg-neon-brand py-8 px-4 text-center">
         <h2 className="text-2xl font-black text-black mb-2">
           {t("home.cta.title")}
         </h2>
@@ -740,7 +740,7 @@ export default function MobileHome() {
               ? navigate("/generate")
               : (window.location.href = getLoginUrl())
           }
-          className="px-8 py-3 bg-black text-[#CCFF00] font-bold rounded-xl flex items-center justify-center gap-2 mx-auto active:opacity-80"
+          className="px-8 py-3 bg-[#0B0F19] text-neon-brand font-bold rounded-xl flex items-center justify-center gap-2 mx-auto active:opacity-80"
         >
           {t("home.cta.button")}
           <ArrowRight className="h-4 w-4" />

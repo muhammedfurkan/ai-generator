@@ -47,17 +47,23 @@ export default function AdminImages() {
   const imagesQuery = trpc.adminPanel.getImages.useQuery({
     limit: 100,
     offset: 0,
-    status: statusFilter !== "all" ? statusFilter as any : undefined,
+    status: statusFilter !== "all" ? (statusFilter as any) : undefined,
   });
 
   const images = imagesQuery.data?.images || [];
-  const stats = imagesQuery.data?.stats || { total: 0, completed: 0, processing: 0, failed: 0 };
+  const stats = imagesQuery.data?.stats || {
+    total: 0,
+    completed: 0,
+    processing: 0,
+    failed: 0,
+  };
 
   // Filter by search
-  const filteredImages = images.filter((img) =>
-    img.prompt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    img.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    img.id.toString().includes(searchQuery)
+  const filteredImages = images.filter(
+    img =>
+      img.prompt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      img.userName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      img.id.toString().includes(searchQuery)
   );
 
   const paginatedImages = filteredImages.slice(
@@ -108,7 +114,7 @@ export default function AdminImages() {
           <Input
             placeholder="Prompt veya kullanıcı ara..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
             className="pl-12 bg-zinc-900 border-white/10"
           />
         </div>
@@ -116,7 +122,7 @@ export default function AdminImages() {
           <Filter className="h-4 w-4 text-zinc-500" />
           <select
             value={statusFilter}
-            onChange={(e) => {
+            onChange={e => {
               setStatusFilter(e.target.value);
               setCurrentPage(0);
             }}
@@ -133,7 +139,9 @@ export default function AdminImages() {
           size="icon"
           onClick={() => imagesQuery.refetch()}
         >
-          <RefreshCw className={`h-4 w-4 ${imagesQuery.isFetching ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`h-4 w-4 ${imagesQuery.isFetching ? "animate-spin" : ""}`}
+          />
         </Button>
       </div>
 
@@ -145,8 +153,8 @@ export default function AdminImages() {
           className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-500/20">
-              <ImageIcon className="h-5 w-5 text-purple-400" />
+            <div className="p-2 rounded-lg bg-[#7C3AED]/20">
+              <ImageIcon className="h-5 w-5 text-[#7C3AED]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{stats.total}</p>
@@ -165,7 +173,9 @@ export default function AdminImages() {
               <CheckCircle className="h-5 w-5 text-green-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-green-400">{stats.completed}</p>
+              <p className="text-2xl font-bold text-green-400">
+                {stats.completed}
+              </p>
               <p className="text-xs text-zinc-500">Tamamlanan</p>
             </div>
           </div>
@@ -181,7 +191,9 @@ export default function AdminImages() {
               <Clock className="h-5 w-5 text-yellow-400" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-yellow-400">{stats.processing}</p>
+              <p className="text-2xl font-bold text-yellow-400">
+                {stats.processing}
+              </p>
               <p className="text-xs text-zinc-500">İşleniyor</p>
             </div>
           </div>
@@ -217,10 +229,10 @@ export default function AdminImages() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {paginatedImages.map((image) => (
+            {paginatedImages.map(image => (
               <div
                 key={image.id}
-                className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-800 cursor-pointer hover:ring-2 hover:ring-lime-500/50 transition-all"
+                className="group relative aspect-square rounded-xl overflow-hidden bg-zinc-800 cursor-pointer hover:ring-2 hover:ring-[#00F5FF]/50 transition-all"
                 onClick={() => setSelectedImage(image)}
               >
                 {/* Image */}
@@ -239,8 +251,12 @@ export default function AdminImages() {
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <p className="text-xs text-white truncate">{image.prompt?.slice(0, 40)}...</p>
-                    <p className="text-xs text-zinc-400">{image.userName || `#${image.userId}`}</p>
+                    <p className="text-xs text-[#F9FAFB] truncate">
+                      {image.prompt?.slice(0, 40)}...
+                    </p>
+                    <p className="text-xs text-zinc-400">
+                      {image.userName || `#${image.userId}`}
+                    </p>
                   </div>
                 </div>
 
@@ -255,7 +271,7 @@ export default function AdminImages() {
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 bg-black/50 hover:bg-black/70"
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation();
                       setSelectedImage(image);
                     }}
@@ -279,16 +295,19 @@ export default function AdminImages() {
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/10">
             <p className="text-sm text-zinc-500">
-              {filteredImages.length} görselden{" "}
-              {currentPage * itemsPerPage + 1}-
-              {Math.min((currentPage + 1) * itemsPerPage, filteredImages.length)}{" "}
+              {filteredImages.length} görselden {currentPage * itemsPerPage + 1}
+              -
+              {Math.min(
+                (currentPage + 1) * itemsPerPage,
+                filteredImages.length
+              )}{" "}
               gösteriliyor
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(0, p - 1))}
+                onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
                 disabled={currentPage === 0}
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -299,7 +318,9 @@ export default function AdminImages() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages - 1, p + 1))}
+                onClick={() =>
+                  setCurrentPage(p => Math.min(totalPages - 1, p + 1))
+                }
                 disabled={currentPage === totalPages - 1}
               >
                 <ChevronRight className="h-4 w-4" />
@@ -310,7 +331,10 @@ export default function AdminImages() {
       </motion.div>
 
       {/* Image Detail Dialog */}
-      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+      <Dialog
+        open={!!selectedImage}
+        onOpenChange={() => setSelectedImage(null)}
+      >
         <DialogContent className="bg-zinc-900 border-white/10 max-w-2xl">
           <DialogHeader>
             <DialogTitle>Görsel Detayları</DialogTitle>
@@ -338,7 +362,9 @@ export default function AdminImages() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Kullanıcı</p>
-                  <p className="text-sm">{selectedImage.userName || `#${selectedImage.userId}`}</p>
+                  <p className="text-sm">
+                    {selectedImage.userName || `#${selectedImage.userId}`}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Durum</p>
@@ -346,14 +372,20 @@ export default function AdminImages() {
                 </div>
                 <div>
                   <p className="text-xs text-zinc-500 mb-1">Kredi</p>
-                  <p className="text-sm text-lime-400 font-medium">{selectedImage.creditsCost}</p>
+                  <p className="text-sm text-[#00F5FF] font-medium">
+                    {selectedImage.creditsCost}
+                  </p>
                 </div>
                 <div className="col-span-2">
                   <p className="text-xs text-zinc-500 mb-1">Oluşturulma</p>
                   <p className="text-sm">
-                    {format(new Date(selectedImage.createdAt), "d MMMM yyyy HH:mm", {
-                      locale: tr,
-                    })}
+                    {format(
+                      new Date(selectedImage.createdAt),
+                      "d MMMM yyyy HH:mm",
+                      {
+                        locale: tr,
+                      }
+                    )}
                   </p>
                 </div>
               </div>
@@ -384,7 +416,9 @@ export default function AdminImages() {
                     <Button
                       variant="outline"
                       className="flex-1 gap-2"
-                      onClick={() => window.open(selectedImage.generatedImageUrl, "_blank")}
+                      onClick={() =>
+                        window.open(selectedImage.generatedImageUrl, "_blank")
+                      }
                     >
                       <ExternalLink className="h-4 w-4" />
                       Görseli Aç

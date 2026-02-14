@@ -37,7 +37,7 @@ export default function AdminFeedback() {
   const feedbacksQuery = trpc.adminPanel.getFeedbacks.useQuery({
     limit: 100,
     offset: 0,
-    status: statusFilter !== "all" ? statusFilter as any : undefined,
+    status: statusFilter !== "all" ? (statusFilter as any) : undefined,
   });
 
   const updateMutation = trpc.adminPanel.updateFeedbackStatus.useMutation({
@@ -46,7 +46,7 @@ export default function AdminFeedback() {
       feedbacksQuery.refetch();
       setSelectedFeedback(null);
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const getTypeIcon = (type: string) => {
@@ -67,7 +67,7 @@ export default function AdminFeedback() {
       case "bug":
         return "bg-red-500/20 text-red-400";
       case "suggestion":
-        return "bg-blue-500/20 text-blue-400";
+        return "bg-[#00F5FF]/20 text-[#00F5FF]";
       case "complaint":
         return "bg-orange-500/20 text-orange-400";
       default:
@@ -95,7 +95,7 @@ export default function AdminFeedback() {
       case "new":
         return "bg-yellow-500/20 text-yellow-400";
       case "in_progress":
-        return "bg-blue-500/20 text-blue-400";
+        return "bg-[#00F5FF]/20 text-[#00F5FF]";
       case "resolved":
         return "bg-green-500/20 text-green-400";
       case "closed":
@@ -105,7 +105,9 @@ export default function AdminFeedback() {
     }
   };
 
-  const handleUpdateStatus = (status: "new" | "in_progress" | "resolved" | "closed") => {
+  const handleUpdateStatus = (
+    status: "new" | "in_progress" | "resolved" | "closed"
+  ) => {
     if (!selectedFeedback) return;
     updateMutation.mutate({
       id: selectedFeedback.id,
@@ -116,10 +118,12 @@ export default function AdminFeedback() {
 
   // Count by status
   const statusCounts = {
-    new: feedbacksQuery.data?.filter((f) => f.status === "new").length || 0,
-    in_progress: feedbacksQuery.data?.filter((f) => f.status === "in_progress").length || 0,
-    resolved: feedbacksQuery.data?.filter((f) => f.status === "resolved").length || 0,
-    closed: feedbacksQuery.data?.filter((f) => f.status === "closed").length || 0,
+    new: feedbacksQuery.data?.filter(f => f.status === "new").length || 0,
+    in_progress:
+      feedbacksQuery.data?.filter(f => f.status === "in_progress").length || 0,
+    resolved:
+      feedbacksQuery.data?.filter(f => f.status === "resolved").length || 0,
+    closed: feedbacksQuery.data?.filter(f => f.status === "closed").length || 0,
   };
 
   return (
@@ -128,43 +132,56 @@ export default function AdminFeedback() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <button
           onClick={() => setStatusFilter("new")}
-          className={`p-4 rounded-xl border transition-all ${statusFilter === "new"
+          className={`p-4 rounded-xl border transition-all ${
+            statusFilter === "new"
               ? "bg-yellow-500/20 border-yellow-500/50"
               : "bg-zinc-900/50 border-white/10 hover:border-yellow-500/30"
-            }`}
+          }`}
         >
-          <p className="text-2xl font-bold text-yellow-400">{statusCounts.new}</p>
+          <p className="text-2xl font-bold text-yellow-400">
+            {statusCounts.new}
+          </p>
           <p className="text-xs text-zinc-500">Yeni</p>
         </button>
         <button
           onClick={() => setStatusFilter("in_progress")}
-          className={`p-4 rounded-xl border transition-all ${statusFilter === "in_progress"
-              ? "bg-blue-500/20 border-blue-500/50"
-              : "bg-zinc-900/50 border-white/10 hover:border-blue-500/30"
-            }`}
+          className={`p-4 rounded-xl border transition-all ${
+            statusFilter === "in_progress"
+              ? "bg-[#00F5FF]/20 border-[#00F5FF]/50"
+              : "bg-zinc-900/50 border-white/10 hover:border-[#00F5FF]/30"
+          }`}
         >
-          <p className="text-2xl font-bold text-blue-400">{statusCounts.in_progress}</p>
+          <p className="text-2xl font-bold text-[#00F5FF]">
+            {statusCounts.in_progress}
+          </p>
           <p className="text-xs text-zinc-500">İnceleniyor</p>
         </button>
         <button
           onClick={() => setStatusFilter("resolved")}
-          className={`p-4 rounded-xl border transition-all ${statusFilter === "resolved"
+          className={`p-4 rounded-xl border transition-all ${
+            statusFilter === "resolved"
               ? "bg-green-500/20 border-green-500/50"
               : "bg-zinc-900/50 border-white/10 hover:border-green-500/30"
-            }`}
+          }`}
         >
-          <p className="text-2xl font-bold text-green-400">{statusCounts.resolved}</p>
+          <p className="text-2xl font-bold text-green-400">
+            {statusCounts.resolved}
+          </p>
           <p className="text-xs text-zinc-500">Çözüldü</p>
         </button>
         <button
           onClick={() => setStatusFilter("all")}
-          className={`p-4 rounded-xl border transition-all ${statusFilter === "all"
+          className={`p-4 rounded-xl border transition-all ${
+            statusFilter === "all"
               ? "bg-zinc-700/50 border-zinc-500/50"
               : "bg-zinc-900/50 border-white/10 hover:border-zinc-500/30"
-            }`}
+          }`}
         >
           <p className="text-2xl font-bold">
-            {statusCounts.new + statusCounts.in_progress + statusCounts.resolved + statusCounts.closed}
+            {statusCounts.new +
+              statusCounts.in_progress +
+              statusCounts.resolved +
+              statusCounts.closed}
           </p>
           <p className="text-xs text-zinc-500">Toplam</p>
         </button>
@@ -176,10 +193,10 @@ export default function AdminFeedback() {
         animate={{ opacity: 1, y: 0 }}
         className="space-y-4"
       >
-        {feedbacksQuery.data?.map((feedback) => (
+        {feedbacksQuery.data?.map(feedback => (
           <div
             key={feedback.id}
-            className="bg-zinc-900/50 rounded-2xl border border-white/10 p-5 cursor-pointer hover:border-lime-500/30 transition-all"
+            className="bg-zinc-900/50 rounded-2xl border border-white/10 p-5 cursor-pointer hover:border-[#00F5FF]/30 transition-all"
             onClick={() => {
               setSelectedFeedback(feedback);
               setAdminNotes(feedback.adminNotes || "");
@@ -187,7 +204,9 @@ export default function AdminFeedback() {
           >
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
-                <div className={`p-2 rounded-lg ${getTypeColor(feedback.type)}`}>
+                <div
+                  className={`p-2 rounded-lg ${getTypeColor(feedback.type)}`}
+                >
                   {getTypeIcon(feedback.type)}
                 </div>
                 <div>
@@ -196,20 +215,28 @@ export default function AdminFeedback() {
                       <User className="h-3 w-3" />
                       {feedback.userName || "Anonim"}
                     </span>
-                    <span className="text-xs text-zinc-500">{feedback.userEmail}</span>
+                    <span className="text-xs text-zinc-500">
+                      {feedback.userEmail}
+                    </span>
                   </div>
-                  <p className="text-sm text-zinc-300">{feedback.description}</p>
+                  <p className="text-sm text-zinc-300">
+                    {feedback.description}
+                  </p>
                   <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500">
                     <span>
-                      {format(new Date(feedback.createdAt), "d MMM yyyy HH:mm", { locale: tr })}
+                      {format(
+                        new Date(feedback.createdAt),
+                        "d MMM yyyy HH:mm",
+                        { locale: tr }
+                      )}
                     </span>
                     {feedback.screenshotUrl && (
                       <a
                         href={feedback.screenshotUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-blue-400 hover:underline"
-                        onClick={(e) => e.stopPropagation()}
+                        className="flex items-center gap-1 text-[#00F5FF] hover:underline"
+                        onClick={e => e.stopPropagation()}
                       >
                         <ExternalLink className="h-3 w-3" />
                         Ekran görüntüsü
@@ -220,16 +247,28 @@ export default function AdminFeedback() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${getTypeColor(feedback.type)}`}>
-                  {feedback.type === "bug" ? "Hata" :
-                    feedback.type === "suggestion" ? "Öneri" :
-                      feedback.type === "complaint" ? "Şikayet" : "Diğer"}
+                <span
+                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${getTypeColor(feedback.type)}`}
+                >
+                  {feedback.type === "bug"
+                    ? "Hata"
+                    : feedback.type === "suggestion"
+                      ? "Öneri"
+                      : feedback.type === "complaint"
+                        ? "Şikayet"
+                        : "Diğer"}
                 </span>
-                <span className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${getStatusColor(feedback.status)}`}>
+                <span
+                  className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${getStatusColor(feedback.status)}`}
+                >
                   {getStatusIcon(feedback.status)}
-                  {feedback.status === "new" ? "Yeni" :
-                    feedback.status === "in_progress" ? "İnceleniyor" :
-                      feedback.status === "resolved" ? "Çözüldü" : "Kapatıldı"}
+                  {feedback.status === "new"
+                    ? "Yeni"
+                    : feedback.status === "in_progress"
+                      ? "İnceleniyor"
+                      : feedback.status === "resolved"
+                        ? "Çözüldü"
+                        : "Kapatıldı"}
                 </span>
               </div>
             </div>
@@ -245,7 +284,10 @@ export default function AdminFeedback() {
       </motion.div>
 
       {/* Detail Dialog */}
-      <Dialog open={!!selectedFeedback} onOpenChange={() => setSelectedFeedback(null)}>
+      <Dialog
+        open={!!selectedFeedback}
+        onOpenChange={() => setSelectedFeedback(null)}
+      >
         <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
           <DialogHeader>
             <DialogTitle>Geri Bildirim Detayı</DialogTitle>
@@ -253,12 +295,18 @@ export default function AdminFeedback() {
           {selectedFeedback && (
             <div className="space-y-4 mt-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${getTypeColor(selectedFeedback.type)}`}>
+                <div
+                  className={`p-2 rounded-lg ${getTypeColor(selectedFeedback.type)}`}
+                >
                   {getTypeIcon(selectedFeedback.type)}
                 </div>
                 <div>
-                  <p className="font-medium">{selectedFeedback.userName || "Anonim"}</p>
-                  <p className="text-xs text-zinc-500">{selectedFeedback.userEmail}</p>
+                  <p className="font-medium">
+                    {selectedFeedback.userName || "Anonim"}
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    {selectedFeedback.userEmail}
+                  </p>
                 </div>
               </div>
 
@@ -271,7 +319,7 @@ export default function AdminFeedback() {
                   href={selectedFeedback.screenshotUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-sm text-blue-400 hover:underline"
+                  className="flex items-center gap-1 text-sm text-[#00F5FF] hover:underline"
                 >
                   <ExternalLink className="h-4 w-4" />
                   Ekran görüntüsünü görüntüle
@@ -279,10 +327,12 @@ export default function AdminFeedback() {
               )}
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Admin Notu</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Admin Notu
+                </label>
                 <Textarea
                   value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
+                  onChange={e => setAdminNotes(e.target.value)}
                   placeholder="Notlarınız..."
                   className="bg-zinc-800 border-white/10"
                 />

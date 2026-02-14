@@ -4,15 +4,49 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowLeft, LogOut, Loader2, MessageCircle, Bug, Send, X, Upload, Image as ImageIcon, Gift, Copy, Share2, Users, Check, History, Plus, Minus, CreditCard, Shield, Sun, Moon } from "lucide-react";
+import {
+  ArrowLeft,
+  LogOut,
+  Loader2,
+  MessageCircle,
+  Bug,
+  Send,
+  X,
+  Upload,
+  Image as ImageIcon,
+  Gift,
+  Copy,
+  Share2,
+  Users,
+  Check,
+  History,
+  Plus,
+  Minus,
+  CreditCard,
+  Shield,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import Header from "@/components/Header";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -29,9 +63,13 @@ export default function Profile() {
 
   // Feedback modal state
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [feedbackType, setFeedbackType] = useState<"bug" | "suggestion" | "complaint" | "other">("bug");
+  const [feedbackType, setFeedbackType] = useState<
+    "bug" | "suggestion" | "complaint" | "other"
+  >("bug");
   const [feedbackDescription, setFeedbackDescription] = useState("");
-  const [feedbackScreenshot, setFeedbackScreenshot] = useState<string | null>(null);
+  const [feedbackScreenshot, setFeedbackScreenshot] = useState<string | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Referral state
@@ -40,9 +78,12 @@ export default function Profile() {
   const [copied, setCopied] = useState(false);
 
   // Referral queries
-  const referralCodeQuery = trpc.referral.getMyReferralCode.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
+  const referralCodeQuery = trpc.referral.getMyReferralCode.useQuery(
+    undefined,
+    {
+      enabled: isAuthenticated,
+    }
+  );
   const referralStatsQuery = trpc.referral.getMyStats.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -53,12 +94,12 @@ export default function Profile() {
     enabled: isAuthenticated,
   });
   const applyReferralMutation = trpc.referral.applyReferralCode.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message || t("profile.codeApplied"));
       setReferralCodeInput("");
       profileQuery.refetch();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || t("profile.codeError"));
     },
   });
@@ -81,7 +122,7 @@ export default function Profile() {
       setFeedbackDescription("");
       setFeedbackScreenshot(null);
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || t("profile.feedbackModal.error"));
     },
   });
@@ -105,7 +146,9 @@ export default function Profile() {
     }
   };
 
-  const handleScreenshotUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleScreenshotUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
@@ -122,7 +165,10 @@ export default function Profile() {
 
   const WHATSAPP_NUMBER = "905519287034";
   const openWhatsApp = () => {
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Merhaba, Nano Influencer hakkında bir sorum var.`, "_blank");
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=Merhaba, Nano Influencer hakkında bir sorum var.`,
+      "_blank"
+    );
   };
 
   const copyReferralCode = () => {
@@ -157,7 +203,9 @@ export default function Profile() {
     }
     setIsApplyingCode(true);
     try {
-      await applyReferralMutation.mutateAsync({ code: referralCodeInput.trim() });
+      await applyReferralMutation.mutateAsync({
+        code: referralCodeInput.trim(),
+      });
     } finally {
       setIsApplyingCode(false);
     }
@@ -165,9 +213,9 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-gray-300 text-lg">{t("common.loading")}</p>
         </div>
       </div>
@@ -233,7 +281,7 @@ export default function Profile() {
             className="flex items-center justify-center py-20"
             variants={itemVariants}
           >
-            <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#00F5FF]" />
           </motion.div>
         ) : (
           <motion.div
@@ -247,21 +295,36 @@ export default function Profile() {
                 className="liquid-glass rounded-3xl p-8"
                 variants={itemVariants}
               >
-                <h2 className="mb-6 text-xl font-semibold">{t("profile.userInfo")}</h2>
+                <h2 className="mb-6 text-xl font-semibold">
+                  {t("profile.userInfo")}
+                </h2>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t("profile.name")}</p>
-                    <p className="text-lg font-medium">{profile?.name || user?.name || t("profile.notSpecified")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.name")}
+                    </p>
+                    <p className="text-lg font-medium">
+                      {profile?.name || user?.name || t("profile.notSpecified")}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">{t("profile.email")}</p>
-                    <p className="text-lg font-medium">{profile?.email || user?.email || t("profile.notSpecified")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.email")}
+                    </p>
+                    <p className="text-lg font-medium">
+                      {profile?.email ||
+                        user?.email ||
+                        t("profile.notSpecified")}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">{t("profile.loginMethod")}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("profile.loginMethod")}
+                    </p>
                     <p className="text-lg font-medium">
                       {(() => {
-                        const method = profile?.loginMethod || user?.loginMethod;
+                        const method =
+                          profile?.loginMethod || user?.loginMethod;
                         if (method === "google") return t("profile.google");
                         if (method === "email") return t("profile.password");
                         return method || t("profile.unknown");
@@ -276,23 +339,31 @@ export default function Profile() {
                 className="liquid-glass rounded-3xl p-8"
                 variants={itemVariants}
               >
-                <h2 className="mb-6 text-xl font-semibold">{t("profile.creditInfo")}</h2>
+                <h2 className="mb-6 text-xl font-semibold">
+                  {t("profile.creditInfo")}
+                </h2>
                 <div className="space-y-4">
                   <div className="glass-card p-6 text-center">
-                    <p className="text-sm text-muted-foreground mb-2">{t("profile.remainingCredits")}</p>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {t("profile.remainingCredits")}
+                    </p>
                     <p className="text-4xl font-bold gradient-text">
                       {profile?.credits ?? 0}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="glass-card p-4 text-center">
-                      <p className="text-sm text-muted-foreground">{t("profile.generatedCount")}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("profile.generatedCount")}
+                      </p>
                       <p className="text-2xl font-bold mt-2">
                         {profile?.generatedCount ?? 0}
                       </p>
                     </div>
                     <div className="glass-card p-4 text-center">
-                      <p className="text-sm text-muted-foreground">{t("profile.spentCredits")}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {t("profile.spentCredits")}
+                      </p>
                       <p className="text-2xl font-bold mt-2">
                         {(profile?.generatedCount ?? 0) * 10}
                       </p>
@@ -307,25 +378,38 @@ export default function Profile() {
                 variants={itemVariants}
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500">
-                    <Gift className="h-5 w-5 text-white" />
+                  <div className="p-2 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#7C3AED]">
+                    <Gift className="h-5 w-5 text-[#F9FAFB]" />
                   </div>
-                  <h2 className="text-xl font-semibold">{t("profile.referralTitle")}</h2>
+                  <h2 className="text-xl font-semibold">
+                    {t("profile.referralTitle")}
+                  </h2>
                 </div>
 
                 <div className="space-y-6">
                   {/* Bonus Info */}
-                  <div className="glass-card p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
+                  <div className="glass-card p-4 bg-gradient-to-r from-[#7C3AED]/10 to-[#7C3AED]/10 border-[#7C3AED]/20">
                     <p className="text-sm text-center">
-                      {t("profile.referralPart1")} <span className="font-bold text-purple-400">{bonusInfoQuery.data?.referrerBonus || 50}</span> {t("profile.referralPart2")}
+                      {t("profile.referralPart1")}{" "}
+                      <span className="font-bold text-[#7C3AED]">
+                        {bonusInfoQuery.data?.referrerBonus || 50}
+                      </span>{" "}
+                      {t("profile.referralPart2")}
                       <br />
-                      <span className="text-muted-foreground">{t("profile.referralFriendDesc", { referredBonus: bonusInfoQuery.data?.referredBonus || 20 })}</span>
+                      <span className="text-muted-foreground">
+                        {t("profile.referralFriendDesc", {
+                          referredBonus:
+                            bonusInfoQuery.data?.referredBonus || 20,
+                        })}
+                      </span>
                     </p>
                   </div>
 
                   {/* My Referral Code */}
                   <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">{t("profile.yourReferralCode")}</Label>
+                    <Label className="text-sm text-muted-foreground">
+                      {t("profile.yourReferralCode")}
+                    </Label>
                     <div className="flex gap-2">
                       <div className="flex-1 glass-card px-4 py-3 font-mono text-lg tracking-wider text-center">
                         {referralCodeQuery.isLoading ? (
@@ -340,7 +424,11 @@ export default function Profile() {
                         onClick={copyReferralCode}
                         className="glass-card"
                       >
-                        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                        {copied ? (
+                          <Check className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -368,35 +456,51 @@ export default function Profile() {
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="glass-card p-4 text-center">
-                      <Users className="h-5 w-5 mx-auto mb-2 text-purple-400" />
-                      <p className="text-2xl font-bold">{referralStatsQuery.data?.totalReferrals || 0}</p>
-                      <p className="text-xs text-muted-foreground">{t("profile.totalReferrals")}</p>
+                      <Users className="h-5 w-5 mx-auto mb-2 text-[#7C3AED]" />
+                      <p className="text-2xl font-bold">
+                        {referralStatsQuery.data?.totalReferrals || 0}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("profile.totalReferrals")}
+                      </p>
                     </div>
                     <div className="glass-card p-4 text-center">
-                      <Gift className="h-5 w-5 mx-auto mb-2 text-pink-400" />
-                      <p className="text-2xl font-bold">{referralStatsQuery.data?.totalBonusEarned || 0}</p>
-                      <p className="text-xs text-muted-foreground">{t("profile.totalBonus")}</p>
+                      <Gift className="h-5 w-5 mx-auto mb-2 text-[#FF2E97]" />
+                      <p className="text-2xl font-bold">
+                        {referralStatsQuery.data?.totalBonusEarned || 0}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {t("profile.totalBonus")}
+                      </p>
                     </div>
                   </div>
 
                   {/* Apply Referral Code (if user hasn't used one yet) */}
                   {!profile?.referredBy && (
                     <div className="space-y-2 pt-4 border-t border-border/50">
-                      <Label className="text-sm text-muted-foreground">{t("profile.haveReferralCode")}</Label>
+                      <Label className="text-sm text-muted-foreground">
+                        {t("profile.haveReferralCode")}
+                      </Label>
                       <div className="flex gap-2">
                         <Input
                           placeholder={t("profile.enterCode")}
                           value={referralCodeInput}
-                          onChange={(e) => setReferralCodeInput(e.target.value.toUpperCase())}
+                          onChange={e =>
+                            setReferralCodeInput(e.target.value.toUpperCase())
+                          }
                           className="glass-card font-mono tracking-wider"
                           maxLength={8}
                         />
                         <Button
                           onClick={handleApplyReferralCode}
                           disabled={isApplyingCode || !referralCodeInput.trim()}
-                          className="gradient-button text-white"
+                          className="gradient-button text-[#F9FAFB]"
                         >
-                          {isApplyingCode ? <Loader2 className="h-4 w-4 animate-spin" /> : t("profile.apply")}
+                          {isApplyingCode ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            t("profile.apply")
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -413,61 +517,84 @@ export default function Profile() {
                 variants={itemVariants}
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500">
-                    <History className="h-5 w-5 text-white" />
+                  <div className="p-2 rounded-full bg-gradient-to-r from-[#00F5FF] to-[#7C3AED]">
+                    <History className="h-5 w-5 text-[#F9FAFB]" />
                   </div>
-                  <h2 className="text-xl font-semibold">{t("profile.paymentHistory")}</h2>
+                  <h2 className="text-xl font-semibold">
+                    {t("profile.paymentHistory")}
+                  </h2>
                 </div>
 
                 <div className="space-y-3">
                   {paymentHistoryQuery.isLoading ? (
                     <div className="flex justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin text-blue-400" />
+                      <Loader2 className="h-6 w-6 animate-spin text-[#00F5FF]" />
                     </div>
-                  ) : paymentHistoryQuery.data && paymentHistoryQuery.data.length > 0 ? (
+                  ) : paymentHistoryQuery.data &&
+                    paymentHistoryQuery.data.length > 0 ? (
                     <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-                      {paymentHistoryQuery.data.map((transaction) => (
+                      {paymentHistoryQuery.data.map(transaction => (
                         <div
                           key={transaction.id}
                           className="glass-card p-4 flex items-center justify-between"
                         >
                           <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-full ${transaction.type === 'add' || transaction.type === 'purchase'
-                              ? 'bg-green-500/20'
-                              : 'bg-red-500/20'
-                              }`}>
-                              {transaction.type === 'add' || transaction.type === 'purchase' ? (
-                                <Plus className={`h-4 w-4 ${transaction.type === 'purchase' ? 'text-blue-400' : 'text-green-400'
-                                  }`} />
+                            <div
+                              className={`p-2 rounded-full ${
+                                transaction.type === "add" ||
+                                transaction.type === "purchase"
+                                  ? "bg-green-500/20"
+                                  : "bg-red-500/20"
+                              }`}
+                            >
+                              {transaction.type === "add" ||
+                              transaction.type === "purchase" ? (
+                                <Plus
+                                  className={`h-4 w-4 ${
+                                    transaction.type === "purchase"
+                                      ? "text-[#00F5FF]"
+                                      : "text-green-400"
+                                  }`}
+                                />
                               ) : (
                                 <Minus className="h-4 w-4 text-red-400" />
                               )}
                             </div>
                             <div>
                               <p className="font-medium text-sm">
-                                {transaction.reason || (
-                                  transaction.type === 'add' ? t("profile.creditLoad") :
-                                    transaction.type === 'purchase' ? t("profile.packagePurchase") :
-                                      t("profile.creditUsage")
-                                )}
+                                {transaction.reason ||
+                                  (transaction.type === "add"
+                                    ? t("profile.creditLoad")
+                                    : transaction.type === "purchase"
+                                      ? t("profile.packagePurchase")
+                                      : t("profile.creditUsage"))}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(transaction.createdAt).toLocaleDateString('tr-TR', {
-                                  day: 'numeric',
-                                  month: 'long',
-                                  year: 'numeric',
-                                  hour: '2-digit',
-                                  minute: '2-digit'
+                                {new Date(
+                                  transaction.createdAt
+                                ).toLocaleDateString("tr-TR", {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                  hour: "2-digit",
+                                  minute: "2-digit",
                                 })}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className={`font-bold ${transaction.type === 'add' || transaction.type === 'purchase'
-                              ? 'text-green-400'
-                              : 'text-red-400'
-                              }`}>
-                              {transaction.type === 'add' || transaction.type === 'purchase' ? '+' : '-'}
+                            <p
+                              className={`font-bold ${
+                                transaction.type === "add" ||
+                                transaction.type === "purchase"
+                                  ? "text-green-400"
+                                  : "text-red-400"
+                              }`}
+                            >
+                              {transaction.type === "add" ||
+                              transaction.type === "purchase"
+                                ? "+"
+                                : "-"}
                               {transaction.amount} {t("nav.creditsSuffix")}
                             </p>
                             <p className="text-xs text-muted-foreground">
@@ -480,10 +607,12 @@ export default function Profile() {
                   ) : (
                     <div className="text-center py-8">
                       <CreditCard className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
-                      <p className="text-muted-foreground">{t("profile.noTransactions")}</p>
+                      <p className="text-muted-foreground">
+                        {t("profile.noTransactions")}
+                      </p>
                       <Button
-                        onClick={() => navigate('/packages')}
-                        className="mt-4 gradient-button text-white"
+                        onClick={() => navigate("/packages")}
+                        className="mt-4 gradient-button text-[#F9FAFB]"
                       >
                         {t("profile.buyCredits")}
                       </Button>
@@ -497,7 +626,9 @@ export default function Profile() {
                 className="liquid-glass rounded-3xl p-8"
                 variants={itemVariants}
               >
-                <h2 className="mb-6 text-xl font-semibold">{t("profile.supportTitle")}</h2>
+                <h2 className="mb-6 text-xl font-semibold">
+                  {t("profile.supportTitle")}
+                </h2>
                 <div className="space-y-3">
                   <Button
                     onClick={() => setFeedbackOpen(true)}
@@ -519,24 +650,21 @@ export default function Profile() {
                     href="https://t.me/nanoinfluencer"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-start gap-2 w-full rounded-full py-3 px-4 text-sm font-medium border border-[#0088cc]/30 bg-[#0088cc]/10 hover:bg-[#0088cc]/20 transition-colors"
+                    className="inline-flex items-center justify-start gap-2 w-full rounded-full py-3 px-4 text-sm font-medium border border-[#00F5FF]/30 bg-[#00F5FF]/10 hover:bg-[#00F5FF]/20 transition-colors"
                   >
-                    <Send className="h-4 w-4 text-[#0088cc]" />
+                    <Send className="h-4 w-4 text-[#00F5FF]" />
                     {t("profile.telegramChannel")}
                   </a>
                 </div>
               </motion.div>
 
               {/* Actions */}
-              <motion.div
-                className="space-y-3"
-                variants={containerVariants}
-              >
+              <motion.div className="space-y-3" variants={containerVariants}>
                 {/* Admin Panel Button - Only for admins */}
                 {user?.role === "admin" && (
                   <Button
                     onClick={() => navigate("/admin")}
-                    className="w-full rounded-full py-3 gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                    className="w-full rounded-full py-3 gap-2 bg-gradient-to-r from-[#7C3AED] to-[#FF2E97] hover:from-[#7C3AED] hover:to-[#FF2E97] text-[#F9FAFB]"
                   >
                     <Shield className="h-4 w-4" />
                     {t("profile.adminPanel")}
@@ -544,7 +672,7 @@ export default function Profile() {
                 )}
                 <Button
                   onClick={() => navigate("/generate")}
-                  className="gradient-button w-full rounded-full py-3 text-white"
+                  className="gradient-button w-full rounded-full py-3 text-[#F9FAFB]"
                 >
                   {t("profile.generateImage")}
                 </Button>
@@ -594,15 +722,26 @@ export default function Profile() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>{t("profile.feedbackModal.type")}</Label>
-              <Select value={feedbackType} onValueChange={(v) => setFeedbackType(v as typeof feedbackType)}>
+              <Select
+                value={feedbackType}
+                onValueChange={v => setFeedbackType(v as typeof feedbackType)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="bug">{t("profile.feedbackModal.types.bug")}</SelectItem>
-                  <SelectItem value="suggestion">{t("profile.feedbackModal.types.suggestion")}</SelectItem>
-                  <SelectItem value="complaint">{t("profile.feedbackModal.types.complaint")}</SelectItem>
-                  <SelectItem value="other">{t("profile.feedbackModal.types.other")}</SelectItem>
+                  <SelectItem value="bug">
+                    {t("profile.feedbackModal.types.bug")}
+                  </SelectItem>
+                  <SelectItem value="suggestion">
+                    {t("profile.feedbackModal.types.suggestion")}
+                  </SelectItem>
+                  <SelectItem value="complaint">
+                    {t("profile.feedbackModal.types.complaint")}
+                  </SelectItem>
+                  <SelectItem value="other">
+                    {t("profile.feedbackModal.types.other")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -612,7 +751,7 @@ export default function Profile() {
               <Textarea
                 placeholder={t("profile.feedbackModal.placeholder")}
                 value={feedbackDescription}
-                onChange={(e) => setFeedbackDescription(e.target.value)}
+                onChange={e => setFeedbackDescription(e.target.value)}
                 rows={4}
                 className="resize-none"
               />
@@ -642,7 +781,9 @@ export default function Profile() {
               ) : (
                 <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-muted-foreground/25 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
                   <Upload className="h-6 w-6 text-muted-foreground mb-1" />
-                  <span className="text-sm text-muted-foreground">{t("profile.feedbackModal.upload")}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("profile.feedbackModal.upload")}
+                  </span>
                   <input
                     type="file"
                     accept="image/*"
@@ -663,7 +804,7 @@ export default function Profile() {
               {t("profile.feedbackModal.cancel")}
             </Button>
             <Button
-              className="flex-1 gradient-button text-white"
+              className="flex-1 gradient-button text-[#F9FAFB]"
               onClick={handleSubmitFeedback}
               disabled={isSubmitting || feedbackDescription.length < 10}
             >

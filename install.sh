@@ -222,7 +222,7 @@ echo "   docker-compose up -d"
 echo ""
 
 echo -e "${BLUE}5. Veritabanı migration'larını çalıştırın:${NC}"
-echo "   docker-compose exec app pnpm db:push"
+echo "   docker-compose exec app npm run db:push"
 echo ""
 
 echo -e "${BLUE}6. Logları kontrol edin:${NC}"

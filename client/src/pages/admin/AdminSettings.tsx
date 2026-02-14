@@ -40,10 +40,14 @@ import {
 
 export default function AdminSettings() {
   const [activeCategory, setActiveCategory] = useState<string>("general");
-  const [editedValues, setEditedValues] = useState<Record<string, string | null>>({});
+  const [editedValues, setEditedValues] = useState<
+    Record<string, string | null>
+  >({});
   const [isAddingOpen, setIsAddingOpen] = useState(false);
 
-  const settingsQuery = trpc.adminPanel.getSiteSettings.useQuery({ category: activeCategory });
+  const settingsQuery = trpc.adminPanel.getSiteSettings.useQuery({
+    category: activeCategory,
+  });
   const utils = trpc.useUtils();
 
   const updateMutation = trpc.adminPanel.updateSiteSetting.useMutation({
@@ -51,7 +55,7 @@ export default function AdminSettings() {
       toast.success("Ayar güncellendi");
       settingsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const createMutation = trpc.adminPanel.createSiteSetting.useMutation({
@@ -60,18 +64,58 @@ export default function AdminSettings() {
       setIsAddingOpen(false);
       settingsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const categories = [
-    { id: "general", label: "Genel", icon: Settings, description: "Site adı, logo ve temel ayarlar" },
-    { id: "seo", label: "SEO", icon: Globe, description: "Arama motoru optimizasyonu" },
-    { id: "contact", label: "İletişim", icon: Mail, description: "İletişim bilgileri" },
-    { id: "social", label: "Sosyal Medya", icon: Users, description: "Sosyal medya linkleri" },
-    { id: "email", label: "E-posta", icon: Mail, description: "E-posta ayarları ve SMTP" },
-    { id: "notification", label: "Bildirimler", icon: Bell, description: "Bildirim tercihleri" },
-    { id: "security", label: "Güvenlik", icon: Shield, description: "Güvenlik ayarları" },
-    { id: "maintenance", label: "Bakım", icon: Wrench, description: "Bakım modu ve uyarılar" },
+    {
+      id: "general",
+      label: "Genel",
+      icon: Settings,
+      description: "Site adı, logo ve temel ayarlar",
+    },
+    {
+      id: "seo",
+      label: "SEO",
+      icon: Globe,
+      description: "Arama motoru optimizasyonu",
+    },
+    {
+      id: "contact",
+      label: "İletişim",
+      icon: Mail,
+      description: "İletişim bilgileri",
+    },
+    {
+      id: "social",
+      label: "Sosyal Medya",
+      icon: Users,
+      description: "Sosyal medya linkleri",
+    },
+    {
+      id: "email",
+      label: "E-posta",
+      icon: Mail,
+      description: "E-posta ayarları ve SMTP",
+    },
+    {
+      id: "notification",
+      label: "Bildirimler",
+      icon: Bell,
+      description: "Bildirim tercihleri",
+    },
+    {
+      id: "security",
+      label: "Güvenlik",
+      icon: Shield,
+      description: "Güvenlik ayarları",
+    },
+    {
+      id: "maintenance",
+      label: "Bakım",
+      icon: Wrench,
+      description: "Bakım modu ve uyarılar",
+    },
   ];
 
   const handleSave = (key: string) => {
@@ -80,7 +124,7 @@ export default function AdminSettings() {
       key,
       value: editedValues[key],
     });
-    setEditedValues((prev) => {
+    setEditedValues(prev => {
       const newValues = { ...prev };
       delete newValues[key];
       return newValues;
@@ -88,14 +132,17 @@ export default function AdminSettings() {
   };
 
   const handleSaveAll = () => {
-    Object.keys(editedValues).forEach((key) => {
+    Object.keys(editedValues).forEach(key => {
       updateMutation.mutate({ key, value: editedValues[key] });
     });
     setEditedValues({});
   };
 
   const renderInput = (setting: any) => {
-    const value = editedValues[setting.key] !== undefined ? editedValues[setting.key] : setting.value;
+    const value =
+      editedValues[setting.key] !== undefined
+        ? editedValues[setting.key]
+        : setting.value;
     const hasChanges = editedValues[setting.key] !== undefined;
 
     switch (setting.inputType) {
@@ -104,12 +151,19 @@ export default function AdminSettings() {
           <div className="flex items-center gap-3">
             <Switch
               checked={value === "true" || value === true}
-              onCheckedChange={(checked) =>
-                setEditedValues({ ...editedValues, [setting.key]: checked ? "true" : "false" })
+              onCheckedChange={checked =>
+                setEditedValues({
+                  ...editedValues,
+                  [setting.key]: checked ? "true" : "false",
+                })
               }
             />
             {hasChanges && (
-              <Button size="sm" onClick={() => handleSave(setting.key)} className="bg-lime-500 text-black hover:bg-lime-600">
+              <Button
+                size="sm"
+                onClick={() => handleSave(setting.key)}
+                className="bg-[#00F5FF] text-black hover:bg-[#00F5FF]"
+              >
                 Kaydet
               </Button>
             )}
@@ -121,12 +175,21 @@ export default function AdminSettings() {
           <div className="space-y-2">
             <Textarea
               value={value || ""}
-              onChange={(e) => setEditedValues({ ...editedValues, [setting.key]: e.target.value })}
+              onChange={e =>
+                setEditedValues({
+                  ...editedValues,
+                  [setting.key]: e.target.value,
+                })
+              }
               className="bg-zinc-800 border-white/10 font-mono text-sm"
               rows={4}
             />
             {hasChanges && (
-              <Button size="sm" onClick={() => handleSave(setting.key)} className="bg-lime-500 text-black hover:bg-lime-600">
+              <Button
+                size="sm"
+                onClick={() => handleSave(setting.key)}
+                className="bg-[#00F5FF] text-black hover:bg-[#00F5FF]"
+              >
                 <Save className="h-4 w-4 mr-1" />
                 Kaydet
               </Button>
@@ -139,11 +202,20 @@ export default function AdminSettings() {
             <Input
               type="number"
               value={value || ""}
-              onChange={(e) => setEditedValues({ ...editedValues, [setting.key]: e.target.value })}
+              onChange={e =>
+                setEditedValues({
+                  ...editedValues,
+                  [setting.key]: e.target.value,
+                })
+              }
               className="bg-zinc-800 border-white/10 max-w-xs"
             />
             {hasChanges && (
-              <Button size="sm" onClick={() => handleSave(setting.key)} className="bg-lime-500 text-black hover:bg-lime-600">
+              <Button
+                size="sm"
+                onClick={() => handleSave(setting.key)}
+                className="bg-[#00F5FF] text-black hover:bg-[#00F5FF]"
+              >
                 Kaydet
               </Button>
             )}
@@ -155,12 +227,21 @@ export default function AdminSettings() {
             <Input
               type="url"
               value={value || ""}
-              onChange={(e) => setEditedValues({ ...editedValues, [setting.key]: e.target.value })}
+              onChange={e =>
+                setEditedValues({
+                  ...editedValues,
+                  [setting.key]: e.target.value,
+                })
+              }
               className="bg-zinc-800 border-white/10"
               placeholder="https://"
             />
             {hasChanges && (
-              <Button size="sm" onClick={() => handleSave(setting.key)} className="bg-lime-500 text-black hover:bg-lime-600">
+              <Button
+                size="sm"
+                onClick={() => handleSave(setting.key)}
+                className="bg-[#00F5FF] text-black hover:bg-[#00F5FF]"
+              >
                 Kaydet
               </Button>
             )}
@@ -172,12 +253,21 @@ export default function AdminSettings() {
             <Input
               type="email"
               value={value || ""}
-              onChange={(e) => setEditedValues({ ...editedValues, [setting.key]: e.target.value })}
+              onChange={e =>
+                setEditedValues({
+                  ...editedValues,
+                  [setting.key]: e.target.value,
+                })
+              }
               className="bg-zinc-800 border-white/10"
               placeholder="ornek@domain.com"
             />
             {hasChanges && (
-              <Button size="sm" onClick={() => handleSave(setting.key)} className="bg-lime-500 text-black hover:bg-lime-600">
+              <Button
+                size="sm"
+                onClick={() => handleSave(setting.key)}
+                className="bg-[#00F5FF] text-black hover:bg-[#00F5FF]"
+              >
                 Kaydet
               </Button>
             )}
@@ -188,11 +278,20 @@ export default function AdminSettings() {
           <div className="flex items-center gap-2">
             <Input
               value={value || ""}
-              onChange={(e) => setEditedValues({ ...editedValues, [setting.key]: e.target.value })}
+              onChange={e =>
+                setEditedValues({
+                  ...editedValues,
+                  [setting.key]: e.target.value,
+                })
+              }
               className="bg-zinc-800 border-white/10"
             />
             {hasChanges && (
-              <Button size="sm" onClick={() => handleSave(setting.key)} className="bg-lime-500 text-black hover:bg-lime-600">
+              <Button
+                size="sm"
+                onClick={() => handleSave(setting.key)}
+                className="bg-[#00F5FF] text-black hover:bg-[#00F5FF]"
+              >
                 Kaydet
               </Button>
             )}
@@ -201,7 +300,7 @@ export default function AdminSettings() {
     }
   };
 
-  const currentCategory = categories.find((c) => c.id === activeCategory);
+  const currentCategory = categories.find(c => c.id === activeCategory);
 
   return (
     <div className="space-y-6">
@@ -213,7 +312,10 @@ export default function AdminSettings() {
         </div>
         <div className="flex gap-2">
           {Object.keys(editedValues).length > 0 && (
-            <Button onClick={handleSaveAll} className="bg-lime-500 hover:bg-lime-600 text-black gap-2">
+            <Button
+              onClick={handleSaveAll}
+              className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
+            >
               <Save className="h-4 w-4" />
               Tümünü Kaydet ({Object.keys(editedValues).length})
             </Button>
@@ -227,16 +329,17 @@ export default function AdminSettings() {
 
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => {
+        {categories.map(cat => {
           const Icon = cat.icon;
           return (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${activeCategory === cat.id
-                  ? "bg-lime-500/20 text-lime-400 border border-lime-500/30"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
+                activeCategory === cat.id
+                  ? "bg-[#00F5FF]/20 text-[#00F5FF] border border-[#00F5FF]/30"
                   : "bg-zinc-900 text-zinc-400 border border-white/10 hover:border-white/20"
-                }`}
+              }`}
             >
               <Icon className="h-4 w-4" />
               {cat.label}
@@ -248,10 +351,12 @@ export default function AdminSettings() {
       {/* Category Description */}
       {currentCategory && (
         <div className="flex items-center gap-3 p-4 bg-zinc-900/50 rounded-xl border border-white/10">
-          <currentCategory.icon className="h-5 w-5 text-lime-400" />
+          <currentCategory.icon className="h-5 w-5 text-[#00F5FF]" />
           <div>
             <p className="font-medium">{currentCategory.label}</p>
-            <p className="text-sm text-zinc-500">{currentCategory.description}</p>
+            <p className="text-sm text-zinc-500">
+              {currentCategory.description}
+            </p>
           </div>
         </div>
       )}
@@ -279,21 +384,34 @@ export default function AdminSettings() {
           </div>
         ) : (
           <div className="divide-y divide-white/5">
-            {settingsQuery.data?.map((setting) => (
-              <div key={setting.id} className="p-6 hover:bg-white/5 transition-colors">
+            {settingsQuery.data?.map(setting => (
+              <div
+                key={setting.id}
+                className="p-6 hover:bg-white/5 transition-colors"
+              >
                 <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                   <div className="lg:w-1/3">
                     <p className="font-medium">{setting.label}</p>
                     {setting.description && (
-                      <p className="text-xs text-zinc-500 mt-1">{setting.description}</p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        {setting.description}
+                      </p>
                     )}
-                    <p className="text-xs text-zinc-600 font-mono mt-1">{setting.key}</p>
+                    <p className="text-xs text-zinc-600 font-mono mt-1">
+                      {setting.key}
+                    </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className={`text-xs px-2 py-0.5 rounded ${setting.inputType === "boolean" ? "bg-purple-500/20 text-purple-400" :
-                          setting.inputType === "textarea" ? "bg-blue-500/20 text-blue-400" :
-                            setting.inputType === "number" ? "bg-orange-500/20 text-orange-400" :
-                              "bg-zinc-500/20 text-zinc-400"
-                        }`}>
+                      <span
+                        className={`text-xs px-2 py-0.5 rounded ${
+                          setting.inputType === "boolean"
+                            ? "bg-[#7C3AED]/20 text-[#7C3AED]"
+                            : setting.inputType === "textarea"
+                              ? "bg-[#00F5FF]/20 text-[#00F5FF]"
+                              : setting.inputType === "number"
+                                ? "bg-orange-500/20 text-orange-400"
+                                : "bg-zinc-500/20 text-zinc-400"
+                        }`}
+                      >
                         {setting.inputType}
                       </span>
                       {setting.isPublic && (
@@ -319,7 +437,7 @@ export default function AdminSettings() {
           </DialogHeader>
           <AddSettingForm
             category={activeCategory}
-            onSubmit={(data) => createMutation.mutate(data)}
+            onSubmit={data => createMutation.mutate(data)}
             isPending={createMutation.isPending}
           />
         </DialogContent>
@@ -352,10 +470,12 @@ function AddSettingForm({
     <div className="space-y-4 mt-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="text-sm text-zinc-400 mb-1 block">Ayar Anahtarı *</label>
+          <label className="text-sm text-zinc-400 mb-1 block">
+            Ayar Anahtarı *
+          </label>
           <Input
             value={formData.key}
-            onChange={(e) => setFormData({ ...formData, key: e.target.value })}
+            onChange={e => setFormData({ ...formData, key: e.target.value })}
             placeholder="site_name"
             className="bg-zinc-800 border-white/10 font-mono"
           />
@@ -364,7 +484,7 @@ function AddSettingForm({
           <label className="text-sm text-zinc-400 mb-1 block">Etiket *</label>
           <Input
             value={formData.label}
-            onChange={(e) => setFormData({ ...formData, label: e.target.value })}
+            onChange={e => setFormData({ ...formData, label: e.target.value })}
             placeholder="Site Adı"
             className="bg-zinc-800 border-white/10"
           />
@@ -374,7 +494,9 @@ function AddSettingForm({
         <label className="text-sm text-zinc-400 mb-1 block">Açıklama</label>
         <Input
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={e =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           placeholder="Bu ayarın ne işe yaradığını açıklayın"
           className="bg-zinc-800 border-white/10"
         />
@@ -384,7 +506,9 @@ function AddSettingForm({
           <label className="text-sm text-zinc-400 mb-1 block">Giriş Tipi</label>
           <Select
             value={formData.inputType}
-            onValueChange={(v: any) => setFormData({ ...formData, inputType: v })}
+            onValueChange={(v: any) =>
+              setFormData({ ...formData, inputType: v })
+            }
           >
             <SelectTrigger className="bg-zinc-800 border-white/10">
               <SelectValue />
@@ -404,7 +528,9 @@ function AddSettingForm({
           <label className="text-sm text-zinc-400 mb-1 block">Kategori</label>
           <Select
             value={formData.category}
-            onValueChange={(v: any) => setFormData({ ...formData, category: v })}
+            onValueChange={(v: any) =>
+              setFormData({ ...formData, category: v })
+            }
           >
             <SelectTrigger className="bg-zinc-800 border-white/10">
               <SelectValue />
@@ -423,10 +549,12 @@ function AddSettingForm({
         </div>
       </div>
       <div>
-        <label className="text-sm text-zinc-400 mb-1 block">Varsayılan Değer</label>
+        <label className="text-sm text-zinc-400 mb-1 block">
+          Varsayılan Değer
+        </label>
         <Input
           value={formData.value}
-          onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+          onChange={e => setFormData({ ...formData, value: e.target.value })}
           placeholder="Değer girilmezse boş kalır"
           className="bg-zinc-800 border-white/10"
         />
@@ -438,14 +566,16 @@ function AddSettingForm({
         </div>
         <Switch
           checked={formData.isPublic}
-          onCheckedChange={(checked) => setFormData({ ...formData, isPublic: checked })}
+          onCheckedChange={checked =>
+            setFormData({ ...formData, isPublic: checked })
+          }
         />
       </div>
       <DialogFooter>
         <Button
           onClick={() => onSubmit(formData)}
           disabled={isPending || !formData.key || !formData.label}
-          className="bg-lime-500 hover:bg-lime-600 text-black"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
         >
           {isPending ? "Ekleniyor..." : "Ayar Ekle"}
         </Button>

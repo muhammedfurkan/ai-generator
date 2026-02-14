@@ -41,34 +41,55 @@ interface StatCardProps {
   value: number | string;
   icon: React.ElementType;
   trend?: number;
-  color: "blue" | "green" | "purple" | "pink" | "orange" | "red" | "yellow" | "lime" | "cyan";
+  color:
+    | "blue"
+    | "green"
+    | "purple"
+    | "pink"
+    | "orange"
+    | "red"
+    | "yellow"
+    | "lime"
+    | "cyan";
   suffix?: string;
   subtitle?: string;
 }
 
-function StatCard({ title, value, icon: Icon, trend, color, suffix, subtitle }: StatCardProps) {
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  color,
+  suffix,
+  subtitle,
+}: StatCardProps) {
   const colorClasses: Record<string, string> = {
-    blue: "from-blue-500/20 to-blue-600/10 border-blue-500/30 text-blue-400",
-    green: "from-green-500/20 to-green-600/10 border-green-500/30 text-green-400",
-    purple: "from-purple-500/20 to-purple-600/10 border-purple-500/30 text-purple-400",
-    pink: "from-pink-500/20 to-pink-600/10 border-pink-500/30 text-pink-400",
-    orange: "from-orange-500/20 to-orange-600/10 border-orange-500/30 text-orange-400",
+    blue: "from-[#00F5FF]/20 to-[#7C3AED]/10 border-[#00F5FF]/30 text-[#00F5FF]",
+    green:
+      "from-green-500/20 to-green-600/10 border-green-500/30 text-green-400",
+    purple:
+      "from-[#7C3AED]/20 to-[#FF2E97]/10 border-[#7C3AED]/30 text-[#7C3AED]",
+    pink: "from-[#FF2E97]/20 to-[#7C3AED]/10 border-[#FF2E97]/30 text-[#FF2E97]",
+    orange:
+      "from-orange-500/20 to-orange-600/10 border-orange-500/30 text-orange-400",
     red: "from-red-500/20 to-red-600/10 border-red-500/30 text-red-400",
-    yellow: "from-yellow-500/20 to-yellow-600/10 border-yellow-500/30 text-yellow-400",
-    lime: "from-lime-500/20 to-lime-600/10 border-lime-500/30 text-lime-400",
-    cyan: "from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 text-cyan-400",
+    yellow:
+      "from-yellow-500/20 to-yellow-600/10 border-yellow-500/30 text-yellow-400",
+    lime: "from-[#00F5FF]/20 to-[#7C3AED]/10 border-[#00F5FF]/30 text-[#00F5FF]",
+    cyan: "from-[#00F5FF]/20 to-[#7C3AED]/10 border-[#00F5FF]/30 text-[#00F5FF]",
   };
 
   const iconBgClasses: Record<string, string> = {
-    blue: "bg-blue-500/20 text-blue-400",
+    blue: "bg-[#00F5FF]/20 text-[#00F5FF]",
     green: "bg-green-500/20 text-green-400",
-    purple: "bg-purple-500/20 text-purple-400",
-    pink: "bg-pink-500/20 text-pink-400",
+    purple: "bg-[#7C3AED]/20 text-[#7C3AED]",
+    pink: "bg-[#FF2E97]/20 text-[#FF2E97]",
     orange: "bg-orange-500/20 text-orange-400",
     red: "bg-red-500/20 text-red-400",
     yellow: "bg-yellow-500/20 text-yellow-400",
-    lime: "bg-lime-500/20 text-lime-400",
-    cyan: "bg-cyan-500/20 text-cyan-400",
+    lime: "bg-[#00F5FF]/20 text-[#00F5FF]",
+    cyan: "bg-[#00F5FF]/20 text-[#00F5FF]",
   };
 
   return (
@@ -83,14 +104,20 @@ function StatCard({ title, value, icon: Icon, trend, color, suffix, subtitle }: 
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-zinc-400 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-white">
+          <p className="text-3xl font-bold text-[#F9FAFB]">
             {typeof value === "number" ? value.toLocaleString("tr-TR") : value}
             {suffix && <span className="text-lg ml-1">{suffix}</span>}
           </p>
           {subtitle && <p className="text-xs text-zinc-500 mt-1">{subtitle}</p>}
           {trend !== undefined && (
-            <div className={`flex items-center gap-1 mt-2 text-sm ${trend >= 0 ? "text-green-400" : "text-red-400"}`}>
-              {trend >= 0 ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+            <div
+              className={`flex items-center gap-1 mt-2 text-sm ${trend >= 0 ? "text-green-400" : "text-red-400"}`}
+            >
+              {trend >= 0 ? (
+                <ArrowUpRight className="h-4 w-4" />
+              ) : (
+                <ArrowDownRight className="h-4 w-4" />
+              )}
               <span>{Math.abs(trend)}% bu hafta</span>
             </div>
           )}
@@ -111,20 +138,28 @@ interface QuickActionProps {
   color: string;
 }
 
-function QuickAction({ label, description, icon: Icon, onClick, color }: QuickActionProps) {
+function QuickAction({
+  label,
+  description,
+  icon: Icon,
+  onClick,
+  color,
+}: QuickActionProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-4 p-4 rounded-xl bg-zinc-900/50 border border-white/10 hover:border-lime-500/30 hover:bg-zinc-800/50 transition-all group text-left w-full"
+      className="flex items-center gap-4 p-4 rounded-xl bg-zinc-900/50 border border-white/10 hover:border-[#00F5FF]/30 hover:bg-zinc-800/50 transition-all group text-left w-full"
     >
       <div className={`p-3 rounded-xl ${color}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div className="flex-1">
-        <p className="font-medium group-hover:text-lime-400 transition-colors">{label}</p>
+        <p className="font-medium group-hover:text-[#00F5FF] transition-colors">
+          {label}
+        </p>
         <p className="text-xs text-zinc-500">{description}</p>
       </div>
-      <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-lime-400 transition-colors" />
+      <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-[#00F5FF] transition-colors" />
     </button>
   );
 }
@@ -134,7 +169,9 @@ export default function AdminDashboard() {
   const [period, setPeriod] = useState<"daily" | "weekly" | "monthly">("daily");
 
   const overviewQuery = trpc.adminPanel.getDashboardOverview.useQuery();
-  const advancedStatsQuery = trpc.adminPanel.getAdvancedDashboardStats.useQuery({ period });
+  const advancedStatsQuery = trpc.adminPanel.getAdvancedDashboardStats.useQuery(
+    { period }
+  );
   const recentActivityQuery = trpc.adminPanel.getRecentActivity.useQuery();
 
   const stats = overviewQuery.data;
@@ -153,7 +190,9 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">Dashboard</h2>
-          <p className="text-sm text-zinc-500">Genel sistem durumu ve istatistikler</p>
+          <p className="text-sm text-zinc-500">
+            Genel sistem durumu ve istatistikler
+          </p>
         </div>
         <Select value={period} onValueChange={(v: any) => setPeriod(v)}>
           <SelectTrigger className="w-32 bg-zinc-800 border-white/10">
@@ -245,7 +284,10 @@ export default function AdminDashboard() {
           />
           <StatCard
             title="Kuyruk Durumu"
-            value={advancedStats.queueStatus.pending + advancedStats.queueStatus.processing}
+            value={
+              advancedStats.queueStatus.pending +
+              advancedStats.queueStatus.processing
+            }
             icon={Clock}
             color="cyan"
             subtitle={`${advancedStats.queueStatus.processing} işleniyor, ${advancedStats.queueStatus.pending} bekliyor`}
@@ -274,7 +316,9 @@ export default function AdminDashboard() {
           />
           <StatCard
             title="Aktif Model"
-            value={advancedStats.modelStats.filter((m: any) => m.isActive).length}
+            value={
+              advancedStats.modelStats.filter((m: any) => m.isActive).length
+            }
             icon={Cpu}
             color="blue"
             subtitle={`${advancedStats.modelStats.length} toplam model`}
@@ -291,7 +335,7 @@ export default function AdminDashboard() {
             className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
           >
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-lime-400" />
+              <BarChart3 className="h-5 w-5 text-[#00F5FF]" />
               En Çok Kullanılan Modeller
             </h3>
             <div className="space-y-3">
@@ -300,13 +344,19 @@ export default function AdminDashboard() {
                   <span className="text-xs text-zinc-500 w-4">{idx + 1}.</span>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{model.modelName}</span>
-                      <span className="text-sm text-zinc-400">{model.totalRequests.toLocaleString()} istek</span>
+                      <span className="text-sm font-medium">
+                        {model.modelName}
+                      </span>
+                      <span className="text-sm text-zinc-400">
+                        {model.totalRequests.toLocaleString()} istek
+                      </span>
                     </div>
                     <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-lime-500 to-emerald-500"
-                        style={{ width: `${(model.totalRequests / (advancedStats.mostUsedModels[0]?.totalRequests || 1)) * 100}%` }}
+                        className="h-full bg-gradient-to-r from-[#00F5FF] to-[#7C3AED]"
+                        style={{
+                          width: `${(model.totalRequests / (advancedStats.mostUsedModels[0]?.totalRequests || 1)) * 100}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -326,21 +376,37 @@ export default function AdminDashboard() {
               Hata Oranları
             </h3>
             <div className="space-y-3">
-              {advancedStats.mostFailingModels.filter((m: any) => parseFloat(m.errorRate) > 0).length > 0 ? (
-                advancedStats.mostFailingModels.filter((m: any) => parseFloat(m.errorRate) > 0).slice(0, 5).map((model: any) => (
-                  <div key={model.modelKey} className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg">
-                    <div>
-                      <span className="text-sm font-medium">{model.modelName}</span>
-                      <p className="text-xs text-zinc-500">{model.failedRequests} hata / {model.totalRequests} istek</p>
+              {advancedStats.mostFailingModels.filter(
+                (m: any) => parseFloat(m.errorRate) > 0
+              ).length > 0 ? (
+                advancedStats.mostFailingModels
+                  .filter((m: any) => parseFloat(m.errorRate) > 0)
+                  .slice(0, 5)
+                  .map((model: any) => (
+                    <div
+                      key={model.modelKey}
+                      className="flex items-center justify-between p-3 bg-zinc-800/50 rounded-lg"
+                    >
+                      <div>
+                        <span className="text-sm font-medium">
+                          {model.modelName}
+                        </span>
+                        <p className="text-xs text-zinc-500">
+                          {model.failedRequests} hata / {model.totalRequests}{" "}
+                          istek
+                        </p>
+                      </div>
+                      <span
+                        className={`text-sm font-bold ${parseFloat(model.errorRate) > 10 ? "text-red-400" : "text-yellow-400"}`}
+                      >
+                        %{model.errorRate}
+                      </span>
                     </div>
-                    <span className={`text-sm font-bold ${parseFloat(model.errorRate) > 10 ? "text-red-400" : "text-yellow-400"}`}>
-                      %{model.errorRate}
-                    </span>
-                  </div>
-                ))
+                  ))
               ) : (
                 <div className="text-center py-6 text-zinc-500">
-                  <span className="text-green-400">✓</span> Tüm modeller sağlıklı
+                  <span className="text-green-400">✓</span> Tüm modeller
+                  sağlıklı
                 </div>
               )}
             </div>
@@ -358,7 +424,7 @@ export default function AdminDashboard() {
           className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-lime-400" />
+            <Activity className="h-5 w-5 text-[#00F5FF]" />
             Hızlı İşlemler
           </h3>
           <div className="space-y-3">
@@ -367,14 +433,14 @@ export default function AdminDashboard() {
               description="Kullanıcıları görüntüle ve düzenle"
               icon={Users}
               onClick={() => navigate("/admin/users")}
-              color="bg-blue-500/20 text-blue-400"
+              color="bg-[#00F5FF]/20 text-[#00F5FF]"
             />
             <QuickAction
               label="Yeni Duyuru"
               description="Popup veya banner oluştur"
               icon={MessageSquare}
               onClick={() => navigate("/admin/announcements")}
-              color="bg-purple-500/20 text-purple-400"
+              color="bg-[#7C3AED]/20 text-[#7C3AED]"
             />
             <QuickAction
               label="Kredi Ekle"
@@ -401,18 +467,18 @@ export default function AdminDashboard() {
           className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <UserPlus className="h-5 w-5 text-lime-400" />
+            <UserPlus className="h-5 w-5 text-[#00F5FF]" />
             Son Kaydolanlar
           </h3>
           <div className="space-y-3">
-            {recentActivity?.recentUsers.slice(0, 5).map((user) => (
+            {recentActivity?.recentUsers.slice(0, 5).map(user => (
               <div
                 key={user.id}
                 className="flex items-center justify-between p-3 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 transition-colors cursor-pointer"
                 onClick={() => navigate("/admin/users")}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center text-black font-bold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center text-black font-bold">
                     {user.name?.[0] || "?"}
                   </div>
                   <div>
@@ -430,7 +496,7 @@ export default function AdminDashboard() {
           </div>
           <Button
             variant="ghost"
-            className="w-full mt-4 text-lime-400 hover:text-lime-300"
+            className="w-full mt-4 text-[#00F5FF] hover:text-[#00F5FF]"
             onClick={() => navigate("/admin/users")}
           >
             Tümünü Gör
@@ -447,20 +513,20 @@ export default function AdminDashboard() {
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Image className="h-5 w-5 text-lime-400" />
+            <Image className="h-5 w-5 text-[#00F5FF]" />
             Son Üretilen Görseller
           </h3>
           <Button
             variant="ghost"
             size="sm"
-            className="text-lime-400 hover:text-lime-300"
+            className="text-[#00F5FF] hover:text-[#00F5FF]"
             onClick={() => navigate("/admin/images")}
           >
             Tümünü Gör
           </Button>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          {recentActivity?.recentImages.slice(0, 6).map((image) => (
+          {recentActivity?.recentImages.slice(0, 6).map(image => (
             <div
               key={image.id}
               className="relative group cursor-pointer rounded-xl overflow-hidden aspect-square bg-zinc-800"
@@ -475,24 +541,35 @@ export default function AdminDashboard() {
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className={`
+                  <div
+                    className={`
                     px-2 py-1 rounded-full text-xs font-medium
-                    ${image.status === "completed" ? "bg-green-500/20 text-green-400" :
-                      image.status === "failed" ? "bg-red-500/20 text-red-400" :
-                        "bg-yellow-500/20 text-yellow-400"}
-                  `}>
-                    {image.status === "completed" ? "Tamamlandı" :
-                      image.status === "failed" ? "Başarısız" : "İşleniyor"}
+                    ${
+                      image.status === "completed"
+                        ? "bg-green-500/20 text-green-400"
+                        : image.status === "failed"
+                          ? "bg-red-500/20 text-red-400"
+                          : "bg-yellow-500/20 text-yellow-400"
+                    }
+                  `}
+                  >
+                    {image.status === "completed"
+                      ? "Tamamlandı"
+                      : image.status === "failed"
+                        ? "Başarısız"
+                        : "İşleniyor"}
                   </div>
                 </div>
               )}
               <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-xs text-white truncate">{image.prompt?.slice(0, 30)}...</p>
+                <p className="text-xs text-[#F9FAFB] truncate">
+                  {image.prompt?.slice(0, 30)}...
+                </p>
               </div>
               {/* Status badge for completed images */}
               {image.status === "completed" && image.generatedImageUrl && (
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-green-500/80 text-white">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-green-500/80 text-[#F9FAFB]">
                     ✓
                   </span>
                 </div>

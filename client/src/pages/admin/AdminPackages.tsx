@@ -55,7 +55,7 @@ export default function AdminPackages() {
       packagesQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.adminPanel.updateCreditPackage.useMutation({
@@ -64,7 +64,7 @@ export default function AdminPackages() {
       packagesQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deleteMutation = trpc.adminPanel.deleteCreditPackage.useMutation({
@@ -72,7 +72,7 @@ export default function AdminPackages() {
       toast.success("Paket silindi");
       packagesQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const closeDialog = () => {
@@ -141,10 +141,12 @@ export default function AdminPackages() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Kredi Paketleri</h2>
-          <p className="text-sm text-zinc-500">Satışa sunulan kredi paketlerini yönetin</p>
+          <p className="text-sm text-zinc-500">
+            Satışa sunulan kredi paketlerini yönetin
+          </p>
         </div>
         <Button
-          className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
           onClick={() => setDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -154,19 +156,19 @@ export default function AdminPackages() {
 
       {/* Packages Grid */}
       <div className="grid gap-4">
-        {packagesQuery.data?.map((pkg) => (
+        {packagesQuery.data?.map(pkg => (
           <motion.div
             key={pkg.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`
               bg-zinc-900/50 rounded-2xl border p-6
-              ${pkg.isHighlighted ? "border-lime-500/50 ring-1 ring-lime-500/20" : "border-white/10"}
+              ${pkg.isHighlighted ? "border-[#00F5FF]/50 ring-1 ring-[#00F5FF]/20" : "border-white/10"}
             `}
           >
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-xl bg-lime-500/20">
-                <Package className="h-6 w-6 text-lime-400" />
+              <div className="p-3 rounded-xl bg-[#00F5FF]/20">
+                <Package className="h-6 w-6 text-[#00F5FF]" />
               </div>
 
               <div className="flex-1">
@@ -190,9 +192,13 @@ export default function AdminPackages() {
               </div>
 
               <div className="text-right">
-                <p className="text-xl font-bold text-lime-400">{pkg.price} ₺</p>
+                <p className="text-xl font-bold text-[#00F5FF]">
+                  {pkg.price} ₺
+                </p>
                 {pkg.originalPrice && (
-                  <p className="text-xs text-zinc-500 line-through">{pkg.originalPrice} ₺</p>
+                  <p className="text-xs text-zinc-500 line-through">
+                    {pkg.originalPrice} ₺
+                  </p>
                 )}
               </div>
 
@@ -201,22 +207,29 @@ export default function AdminPackages() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="text-xs border-lime-500/50 text-lime-400 hover:bg-lime-500/10"
+                    className="text-xs border-[#00F5FF]/50 text-[#00F5FF] hover:bg-[#00F5FF]/10"
                     onClick={() => window.open(pkg.shopierUrl, "_blank")}
                   >
                     Shopier Linki
                   </Button>
                 )}
                 <span
-                  className={`px-2 py-1 rounded-full text-xs ${pkg.isActive ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
-                    }`}
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    pkg.isActive
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-red-500/20 text-red-400"
+                  }`}
                 >
                   {pkg.isActive ? "Aktif" : "Pasif"}
                 </span>
               </div>
 
               <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon" onClick={() => openEdit(pkg)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => openEdit(pkg)}
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
@@ -248,15 +261,21 @@ export default function AdminPackages() {
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingPackage ? "Paketi Düzenle" : "Yeni Paket"}</DialogTitle>
+            <DialogTitle>
+              {editingPackage ? "Paketi Düzenle" : "Yeni Paket"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Paket Adı *</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Paket Adı *
+                </label>
                 <Input
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   placeholder="Başlangıç Paketi"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -265,7 +284,9 @@ export default function AdminPackages() {
                 <label className="text-sm font-medium mb-2 block">Rozet</label>
                 <Input
                   value={formData.badge}
-                  onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, badge: e.target.value })
+                  }
                   placeholder="En Popüler"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -276,7 +297,9 @@ export default function AdminPackages() {
               <label className="text-sm font-medium mb-2 block">Açıklama</label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Paket açıklaması..."
                 className="bg-zinc-800 border-white/10"
               />
@@ -284,38 +307,60 @@ export default function AdminPackages() {
 
             <div className="grid grid-cols-4 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Kredi *</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Kredi *
+                </label>
                 <Input
                   type="number"
                   value={formData.credits}
-                  onChange={(e) => setFormData({ ...formData, credits: parseInt(e.target.value) || 0 })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      credits: parseInt(e.target.value) || 0,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Bonus %</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Bonus %
+                </label>
                 <Input
                   type="number"
                   value={formData.bonus}
-                  onChange={(e) => setFormData({ ...formData, bonus: parseInt(e.target.value) || 0 })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      bonus: parseInt(e.target.value) || 0,
+                    })
+                  }
                   placeholder="0"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Fiyat (₺) *</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Fiyat (₺) *
+                </label>
                 <Input
                   value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, price: e.target.value })
+                  }
                   placeholder="99.00"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Eski Fiyat</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Eski Fiyat
+                </label>
                 <Input
                   value={formData.originalPrice}
-                  onChange={(e) => setFormData({ ...formData, originalPrice: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, originalPrice: e.target.value })
+                  }
                   placeholder="149.00"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -323,10 +368,14 @@ export default function AdminPackages() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Özellikler (JSON)</label>
+              <label className="text-sm font-medium mb-2 block">
+                Özellikler (JSON)
+              </label>
               <Textarea
                 value={formData.features}
-                onChange={(e) => setFormData({ ...formData, features: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, features: e.target.value })
+                }
                 placeholder='["500 görsel üretimi", "HD kalite"]'
                 className="bg-zinc-800 border-white/10 font-mono text-sm"
               />
@@ -334,77 +383,117 @@ export default function AdminPackages() {
 
             {/* Shopier Ödeme Linki */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Shopier Ödeme Linki</label>
+              <label className="text-sm font-medium mb-2 block">
+                Shopier Ödeme Linki
+              </label>
               <Input
                 value={formData.shopierUrl}
-                onChange={(e) => setFormData({ ...formData, shopierUrl: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, shopierUrl: e.target.value })
+                }
                 placeholder="https://www.shopier.com/ShowProductNew/products.php?id=..."
                 className="bg-zinc-800 border-white/10"
               />
-              <p className="text-xs text-zinc-500 mt-1">Kullanıcılar bu linke tıklayarak ödeme yapabilirler</p>
+              <p className="text-xs text-zinc-500 mt-1">
+                Kullanıcılar bu linke tıklayarak ödeme yapabilirler
+              </p>
             </div>
 
             {/* Kredi Kullanım Örneği */}
             <div className="bg-zinc-800/50 rounded-xl p-4 border border-white/10">
-              <label className="text-sm font-medium mb-3 block text-lime-400">Kredi Kullanım Örneği (Görsel Sayısı)</label>
+              <label className="text-sm font-medium mb-3 block text-[#00F5FF]">
+                Kredi Kullanım Örneği (Görsel Sayısı)
+              </label>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="text-xs text-zinc-400 mb-1 block">1K Kalite</label>
+                  <label className="text-xs text-zinc-400 mb-1 block">
+                    1K Kalite
+                  </label>
                   <Input
                     type="number"
                     value={formData.usage1k}
-                    onChange={(e) => setFormData({ ...formData, usage1k: parseInt(e.target.value) || 0 })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        usage1k: parseInt(e.target.value) || 0,
+                      })
+                    }
                     placeholder="30"
                     className="bg-zinc-800 border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-400 mb-1 block">2K Kalite</label>
+                  <label className="text-xs text-zinc-400 mb-1 block">
+                    2K Kalite
+                  </label>
                   <Input
                     type="number"
                     value={formData.usage2k}
-                    onChange={(e) => setFormData({ ...formData, usage2k: parseInt(e.target.value) || 0 })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        usage2k: parseInt(e.target.value) || 0,
+                      })
+                    }
                     placeholder="20"
                     className="bg-zinc-800 border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-zinc-400 mb-1 block">4K Kalite</label>
+                  <label className="text-xs text-zinc-400 mb-1 block">
+                    4K Kalite
+                  </label>
                   <Input
                     type="number"
                     value={formData.usage4k}
-                    onChange={(e) => setFormData({ ...formData, usage4k: parseInt(e.target.value) || 0 })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        usage4k: parseInt(e.target.value) || 0,
+                      })
+                    }
                     placeholder="15"
                     className="bg-zinc-800 border-white/10"
                   />
                 </div>
               </div>
-              <p className="text-xs text-zinc-500 mt-2">Bu değerler paket sayfasında "Kredi Kullanım Örneği" kutusunda gösterilir</p>
+              <p className="text-xs text-zinc-500 mt-2">
+                Bu değerler paket sayfasında "Kredi Kullanım Örneği" kutusunda
+                gösterilir
+              </p>
             </div>
 
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <Switch
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, isActive: checked })
+                  }
                 />
                 <span className="text-sm">Aktif</span>
               </div>
               <div className="flex items-center gap-2">
                 <Switch
                   checked={formData.isHighlighted}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isHighlighted: checked })}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, isHighlighted: checked })
+                  }
                 />
                 <span className="text-sm">Öne Çıkar</span>
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={closeDialog}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >

@@ -351,9 +351,9 @@ export default function MultiAngle() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-gray-300 text-lg">Yükleniyor...</p>
         </div>
       </div>
@@ -368,7 +368,7 @@ export default function MultiAngle() {
   const selectedSet = angleSets?.find(s => s.id === selectedAngleSet);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0B0F19] text-[#F9FAFB]">
       <Header />
 
       <div className="container mx-auto px-4 py-8">
@@ -399,14 +399,14 @@ export default function MultiAngle() {
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="w-full h-64 border-2 border-dashed border-zinc-700 rounded-xl hover:border-[#CCFF00]/50 transition-colors flex flex-col items-center justify-center gap-4 text-zinc-400 hover:text-white"
+                    className="w-full h-64 border-2 border-dashed border-zinc-700 rounded-xl hover:border-neon-brand/50 transition-colors flex flex-col items-center justify-center gap-4 text-zinc-400 hover:text-[#F9FAFB]"
                   >
                     {isUploading ? (
                       <>
-                        <Loader2 className="w-12 h-12 animate-spin text-[#CCFF00]" />
+                        <Loader2 className="w-12 h-12 animate-spin text-neon-brand" />
                         <div className="w-48 h-2 bg-zinc-800 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-[#CCFF00] transition-all duration-300"
+                            className="h-full bg-neon-brand transition-all duration-300"
                             style={{ width: `${uploadProgress}%` }}
                           />
                         </div>
@@ -458,7 +458,7 @@ export default function MultiAngle() {
                       onClick={() => setSelectedAngleSet(set.id)}
                       className={`p-4 rounded-xl border-2 transition-all text-left ${
                         selectedAngleSet === set.id
-                          ? "border-[#CCFF00] bg-[#CCFF00]/10"
+                          ? "border-neon-brand bg-neon-brand/10"
                           : "border-zinc-700 hover:border-zinc-600"
                       }`}
                     >
@@ -467,7 +467,7 @@ export default function MultiAngle() {
                         <span
                           className={`text-sm font-bold ${
                             selectedAngleSet === set.id
-                              ? "text-[#CCFF00]"
+                              ? "text-neon-brand"
                               : "text-zinc-400"
                           }`}
                         >
@@ -503,7 +503,7 @@ export default function MultiAngle() {
               <Button
                 onClick={handleGenerate}
                 disabled={!referenceImage || createJobMutation.isPending}
-                className="bg-[#CCFF00] text-black hover:bg-[#b8e600] px-8 py-6 text-lg font-bold"
+                className="bg-neon-brand text-black hover:bg-[#00F5FF] px-8 py-6 text-lg font-bold"
               >
                 {createJobMutation.isPending ? (
                   <>
@@ -551,7 +551,7 @@ export default function MultiAngle() {
                           syncMutation.mutate({ jobId: currentJobId })
                         }
                         disabled={syncMutation.isPending}
-                        className="text-[#CCFF00] border-[#CCFF00]/50 hover:bg-[#CCFF00]/10"
+                        className="text-neon-brand border-neon-brand/50 hover:bg-neon-brand/10"
                       >
                         {syncMutation.isPending ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -565,7 +565,7 @@ export default function MultiAngle() {
                       <Button
                         onClick={handleDownloadAll}
                         disabled={isDownloading}
-                        className="bg-[#CCFF00] text-black hover:bg-[#b8e600] disabled:opacity-50"
+                        className="bg-neon-brand text-black hover:bg-[#00F5FF] disabled:opacity-50"
                       >
                         {isDownloading ? (
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -586,7 +586,7 @@ export default function MultiAngle() {
                 {/* Progress Bar */}
                 <div className="w-full h-3 bg-zinc-800 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-[#CCFF00]"
+                    className="h-full bg-neon-brand"
                     initial={{ width: 0 }}
                     animate={{ width: `${jobStatus?.progress ?? 0}%` }}
                     transition={{ duration: 0.5 }}
@@ -626,7 +626,7 @@ export default function MultiAngle() {
                                   image.angleName
                                 )
                               }
-                              className="w-full bg-[#CCFF00] text-black hover:bg-[#b8e600]"
+                              className="w-full bg-neon-brand text-black hover:bg-[#00F5FF]"
                             >
                               <Download className="w-4 h-4 mr-1" />
                               İndir
@@ -649,7 +649,7 @@ export default function MultiAngle() {
                       <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500 p-4">
                         {image.status === "processing" ? (
                           <>
-                            <Loader2 className="w-8 h-8 mb-2 animate-spin text-[#CCFF00]" />
+                            <Loader2 className="w-8 h-8 mb-2 animate-spin text-neon-brand" />
                             <p className="text-xs text-center">
                               {image.angleName}
                             </p>

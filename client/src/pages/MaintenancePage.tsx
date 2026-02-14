@@ -91,7 +91,7 @@ export default function MaintenancePage({ message }: MaintenancePageProps) {
           {t("maintenance.questions")}{" "}
           <a
             href="mailto:destek@amonify.com"
-            className="text-lime-400 hover:underline"
+            className="text-[#00F5FF] hover:underline"
           >
             destek@amonify.com
           </a>

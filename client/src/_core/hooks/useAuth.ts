@@ -35,7 +35,7 @@ export function useAuth(options?: UseAuthOptions) {
       localStorage.clear();
 
       // Clear client-side accessible cookies (non-HTTP-only)
-      document.cookie.split(";").forEach((c) => {
+      document.cookie.split(";").forEach(c => {
         const cookieName = c.split("=")[0].trim();
         // Clear for both root path and all paths
         document.cookie = `${cookieName}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`;
@@ -49,16 +49,16 @@ export function useAuth(options?: UseAuthOptions) {
     try {
       // Call server logout endpoint to clear HTTP-only cookies
       await logoutMutation.mutateAsync();
-      console.log('[useAuth] Logout successful');
+      console.log("[useAuth] Logout successful");
     } catch (error: unknown) {
       if (
         error instanceof TRPCClientError &&
         error.data?.code === "UNAUTHORIZED"
       ) {
-        console.log('[useAuth] Already logged out, proceeding with cleanup');
+        console.log("[useAuth] Already logged out, proceeding with cleanup");
         // Don't return - still need to clean up client state
       } else {
-        console.error('[useAuth] Logout error:', error);
+        console.error("[useAuth] Logout error:", error);
         // Don't throw - still need to clean up client state and redirect
       }
     }
@@ -74,7 +74,7 @@ export function useAuth(options?: UseAuthOptions) {
     }
 
     // Force redirect to login page - use replace to prevent back button issues
-    console.log('[useAuth] Redirecting to login page:', loginUrl);
+    console.log("[useAuth] Redirecting to login page:", loginUrl);
     window.location.replace(loginUrl);
   }, [logoutMutation, utils]);
 
@@ -104,7 +104,7 @@ export function useAuth(options?: UseAuthOptions) {
     if (typeof window === "undefined") return;
     if (window.location.pathname === redirectPath) return;
 
-    window.location.href = redirectPath
+    window.location.href = redirectPath;
   }, [
     redirectOnUnauthenticated,
     redirectPath,

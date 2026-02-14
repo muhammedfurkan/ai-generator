@@ -19,8 +19,11 @@ export default defineConfig({
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
   build: {
+    target: "es2022",
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 700,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -36,6 +39,10 @@ export default defineConfig({
             // Framer motion - large library, separate chunk
             if (id.includes("framer-motion")) {
               return "vendor-framer";
+            }
+            // Three.js + GSAP
+            if (id.includes("/three/") || id.includes("/gsap/")) {
+              return "vendor-3d";
             }
             // Lottie
             if (id.includes("lottie-react") || id.includes("lottie-web")) {

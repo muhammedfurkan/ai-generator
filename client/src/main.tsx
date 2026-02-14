@@ -1,5 +1,5 @@
 import { trpc } from "@/lib/trpc";
-import { UNAUTHED_ERR_MSG } from '@shared/const';
+import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
@@ -15,7 +15,10 @@ const queryClient = new QueryClient({
       // Hata durumunda 2 kez retry yap, ardından pes et
       retry: (failureCount, error) => {
         // Unauthorized hatalarında retry yapma
-        if (error instanceof TRPCClientError && error.message === UNAUTHED_ERR_MSG) {
+        if (
+          error instanceof TRPCClientError &&
+          error.message === UNAUTHED_ERR_MSG
+        ) {
           return false;
         }
         return failureCount < 2;
@@ -60,9 +63,11 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   // Don't redirect if we're already on auth-related pages
   const currentPath = window.location.pathname;
-  if (currentPath.startsWith("/login") ||
+  if (
+    currentPath.startsWith("/login") ||
     currentPath.startsWith("/register") ||
-    currentPath.startsWith("/auth/callback")) {
+    currentPath.startsWith("/auth/callback")
+  ) {
     return;
   }
 
@@ -70,13 +75,17 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
   // The backend will use Clerk session for authentication
   const hasClerkSession = document.cookie.includes("__session");
   if (hasClerkSession) {
-    console.log("[Auth] Clerk session exists, skipping redirect - backend will handle auth");
+    console.log(
+      "[Auth] Clerk session exists, skipping redirect - backend will handle auth"
+    );
     // Invalidate auth query to refetch with Clerk session
     queryClient.invalidateQueries({ queryKey: [["auth", "me"]] });
     return;
   }
 
-  console.log("[Auth] Unauthorized error detected, no Clerk session, redirecting to login");
+  console.log(
+    "[Auth] Unauthorized error detected, no Clerk session, redirecting to login"
+  );
   window.location.href = getLoginUrl();
 };
 

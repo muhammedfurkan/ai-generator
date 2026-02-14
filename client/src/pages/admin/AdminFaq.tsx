@@ -48,7 +48,7 @@ export default function AdminFaq() {
       faqsQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.adminPanel.updateFaq.useMutation({
@@ -57,7 +57,7 @@ export default function AdminFaq() {
       faqsQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deleteMutation = trpc.adminPanel.deleteFaq.useMutation({
@@ -65,7 +65,7 @@ export default function AdminFaq() {
       toast.success("SSS silindi");
       faqsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const closeDialog = () => {
@@ -109,12 +109,15 @@ export default function AdminFaq() {
   };
 
   // Group by category
-  const groupedFaqs = faqsQuery.data?.reduce((acc, item) => {
-    const cat = item.category || "Genel";
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(item);
-    return acc;
-  }, {} as Record<string, typeof faqsQuery.data>);
+  const groupedFaqs = faqsQuery.data?.reduce(
+    (acc, item) => {
+      const cat = item.category || "Genel";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(item);
+      return acc;
+    },
+    {} as Record<string, typeof faqsQuery.data>
+  );
 
   return (
     <div className="space-y-6">
@@ -125,7 +128,7 @@ export default function AdminFaq() {
           <p className="text-sm text-zinc-500">SSS içeriklerini yönetin</p>
         </div>
         <Button
-          className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
           onClick={() => setDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -148,15 +151,17 @@ export default function AdminFaq() {
             </div>
 
             <div className="divide-y divide-white/5">
-              {items?.map((item) => (
+              {items?.map(item => (
                 <div key={item.id} className="p-4">
                   <div
                     className="flex items-start justify-between cursor-pointer"
-                    onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                    onClick={() =>
+                      setExpandedId(expandedId === item.id ? null : item.id)
+                    }
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <HelpCircle className="h-4 w-4 text-lime-400 flex-shrink-0" />
+                        <HelpCircle className="h-4 w-4 text-[#00F5FF] flex-shrink-0" />
                         <p className="font-medium">{item.question}</p>
                       </div>
                       {expandedId === item.id && (
@@ -187,17 +192,18 @@ export default function AdminFaq() {
 
                     <div className="flex items-center gap-2">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs ${item.isActive
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          item.isActive
                             ? "bg-green-500/20 text-green-400"
                             : "bg-red-500/20 text-red-400"
-                          }`}
+                        }`}
                       >
                         {item.isActive ? "Aktif" : "Pasif"}
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           openEdit(item);
                         }}
@@ -208,7 +214,7 @@ export default function AdminFaq() {
                         variant="ghost"
                         size="icon"
                         className="text-red-400"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           if (confirm("Bu soruyu silmek istiyor musunuz?")) {
                             deleteMutation.mutate({ id: item.id });
@@ -241,14 +247,18 @@ export default function AdminFaq() {
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingItem ? "Soruyu Düzenle" : "Yeni Soru"}</DialogTitle>
+            <DialogTitle>
+              {editingItem ? "Soruyu Düzenle" : "Yeni Soru"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Soru *</label>
               <Textarea
                 value={formData.question}
-                onChange={(e) => setFormData({ ...formData, question: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, question: e.target.value })
+                }
                 placeholder="Nasıl kullanırım?"
                 className="bg-zinc-800 border-white/10"
               />
@@ -258,7 +268,9 @@ export default function AdminFaq() {
               <label className="text-sm font-medium mb-2 block">Cevap *</label>
               <Textarea
                 value={formData.answer}
-                onChange={(e) => setFormData({ ...formData, answer: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, answer: e.target.value })
+                }
                 placeholder="Detaylı açıklama..."
                 className="bg-zinc-800 border-white/10 min-h-[150px]"
               />
@@ -266,20 +278,31 @@ export default function AdminFaq() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Kategori</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Kategori
+                </label>
                 <Input
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, category: e.target.value })
+                  }
                   placeholder="Genel"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Sıralama</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Sıralama
+                </label>
                 <Input
                   type="number"
                   value={formData.sortOrder}
-                  onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      sortOrder: parseInt(e.target.value) || 0,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
@@ -288,17 +311,23 @@ export default function AdminFaq() {
             <div className="flex items-center gap-2">
               <Switch
                 checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                onCheckedChange={checked =>
+                  setFormData({ ...formData, isActive: checked })
+                }
               />
               <span className="text-sm">Aktif</span>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={closeDialog}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >

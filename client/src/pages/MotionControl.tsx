@@ -16,14 +16,20 @@ import {
   Settings2,
   ChevronRight,
   Info,
-  Play
+  Play,
 } from "lucide-react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function MotionControl() {
@@ -39,7 +45,9 @@ export default function MotionControl() {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const [mode, setMode] = useState<"standard" | "pro">("standard");
-  const [characterOrientation, setCharacterOrientation] = useState<"image" | "video">("video");
+  const [characterOrientation, setCharacterOrientation] = useState<
+    "image" | "video"
+  >("video");
   const [estimatedDuration, setEstimatedDuration] = useState<number>(5); // Video süresini otomatik tespit edeceğiz
   const [isGenerating, setIsGenerating] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -50,16 +58,16 @@ export default function MotionControl() {
   const videoInputRef = useRef<HTMLInputElement>(null);
 
   const generateMutation = trpc.videoGeneration.generate.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(t("motion.toast.generationStarted"));
       setTimeout(() => {
         navigate("/gallery");
       }, 1500);
     },
-    onError: (error) => {
+    onError: error => {
       setIsGenerating(false);
       toast.error(error.message || t("motion.toast.generationFailed"));
-    }
+    },
   });
 
   // Handle Image Upload
@@ -92,14 +100,15 @@ export default function MotionControl() {
         toast.error(t("motion.errors.invalidVideo"));
         return;
       }
-      if (file.size > 100 * 1024 * 1024) { // 100MB limit for reference video
+      if (file.size > 100 * 1024 * 1024) {
+        // 100MB limit for reference video
         toast.error(t("motion.errors.videoTooLarge"));
         return;
       }
 
       // Video süresini ve çözünürlüğü otomatik tespit et
-      const video = document.createElement('video');
-      video.preload = 'metadata';
+      const video = document.createElement("video");
+      video.preload = "metadata";
       video.onloadedmetadata = function () {
         window.URL.revokeObjectURL(video.src);
         const duration = Math.ceil(video.duration); // Yukarı yuvarla
@@ -108,7 +117,12 @@ export default function MotionControl() {
 
         // Video çözünürlük kontrolü (minimum 720x720)
         if (width < 720 || height < 720) {
-          toast.error(t("motion.errors.videoResolutionLow", { width: width.toString(), height: height.toString() }));
+          toast.error(
+            t("motion.errors.videoResolutionLow", {
+              width: width.toString(),
+              height: height.toString(),
+            })
+          );
           setVideoFile(null);
           setVideoPreview(null);
           if (videoInputRef.current) videoInputRef.current.value = "";
@@ -137,8 +151,14 @@ export default function MotionControl() {
         }
 
         // Başarılı yükleme mesajı
-        toast.success(t("motion.toast.videoUploaded", { width: width.toString(), height: height.toString(), duration: duration.toString() }));
-      }
+        toast.success(
+          t("motion.toast.videoUploaded", {
+            width: width.toString(),
+            height: height.toString(),
+            duration: duration.toString(),
+          })
+        );
+      };
       video.src = URL.createObjectURL(file);
 
       setVideoFile(file);
@@ -162,7 +182,7 @@ export default function MotionControl() {
 
   // Upload file to server
   const uploadFileToServer = async (file: File): Promise<string | null> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setIsUploading(true);
       setUploadProgress(0);
 
@@ -171,7 +191,7 @@ export default function MotionControl() {
 
       const xhr = new XMLHttpRequest();
 
-      xhr.upload.addEventListener("progress", (event) => {
+      xhr.upload.addEventListener("progress", event => {
         if (event.lengthComputable) {
           const progress = Math.round((event.loaded / event.total) * 100);
           setUploadProgress(progress);
@@ -224,7 +244,11 @@ export default function MotionControl() {
     const creditCost = baseRate * estimatedDuration;
 
     if (user.credits < creditCost) {
-      toast.error(t("motion.toast.insufficientCredits", { credits: creditCost.toString() }));
+      toast.error(
+        t("motion.toast.insufficientCredits", {
+          credits: creditCost.toString(),
+        })
+      );
       return;
     }
 
@@ -263,9 +287,8 @@ export default function MotionControl() {
         duration: estimatedDuration.toString(),
         aspectRatio: "16:9",
         quality: mode === "pro" ? "high" : "standard",
-        characterOrientation: characterOrientation
+        characterOrientation: characterOrientation,
       });
-
     } catch (error) {
       console.error("Generation error:", error);
       toast.error(t("motion.toast.error"));
@@ -275,8 +298,8 @@ export default function MotionControl() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      <div className="flex items-center justify-center min-h-screen bg-[#0B0F19]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#F9FAFB]" />
       </div>
     );
   }
@@ -287,12 +310,12 @@ export default function MotionControl() {
   const creditCost = baseRate * estimatedDuration;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="min-h-screen bg-[#0B0F19] text-[#F9FAFB]">
       <Header />
 
       <main className="container mx-auto px-4 py-6 sm:py-8 pb-44 sm:pb-40 max-w-4xl">
         {/* Hero Section */}
-        <div className="relative mb-6 sm:mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-purple-900/40 to-blue-900/40 border border-white/10 p-5 sm:p-8">
+        <div className="relative mb-6 sm:mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-[#7C3AED]/40 to-[#7C3AED]/40 border border-white/10 p-5 sm:p-8">
           <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-medium border border-white/10 flex items-center gap-2">
             <Info className="w-3 h-3" />
             {t("motion.howItWorks")}
@@ -300,7 +323,9 @@ export default function MotionControl() {
           <div className="max-w-xl">
             <div className="flex items-center gap-2 mb-2">
               <Video className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-              <span className="text-yellow-400 font-semibold tracking-wider text-xs sm:text-sm">{t("motion.badge")}</span>
+              <span className="text-yellow-400 font-semibold tracking-wider text-xs sm:text-sm">
+                {t("motion.badge")}
+              </span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 mb-2">
               {t("motion.title")}
@@ -315,15 +340,23 @@ export default function MotionControl() {
         <div className="grid grid-cols-1 gap-4 mb-6">
           {/* Video Box */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-300">{t("motion.referenceVideo")}</Label>
+            <Label className="text-sm font-medium text-gray-300">
+              {t("motion.referenceVideo")}
+            </Label>
             <div
-              onClick={() => !videoFile && !isUploading && !isGenerating && videoInputRef.current?.click()}
+              onClick={() =>
+                !videoFile &&
+                !isUploading &&
+                !isGenerating &&
+                videoInputRef.current?.click()
+              }
               className={cn(
                 "group relative w-full rounded-xl border-2 border-dashed transition-all cursor-pointer active:scale-[0.98]",
                 videoPreview
                   ? "border-white/20 bg-transparent aspect-video"
                   : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 min-h-[160px] sm:min-h-[200px] flex items-center justify-center",
-                (isUploading || isGenerating) && "pointer-events-none opacity-50"
+                (isUploading || isGenerating) &&
+                  "pointer-events-none opacity-50"
               )}
             >
               <input
@@ -346,14 +379,18 @@ export default function MotionControl() {
                     playsInline
                   />
                   <button
-                    onClick={(e) => { e.stopPropagation(); removeVideo(); }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      removeVideo();
+                    }}
                     disabled={isUploading || isGenerating}
-                    className="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-white p-2.5 rounded-full backdrop-blur-sm transition-all active:scale-95 touch-manipulation"
+                    className="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-[#F9FAFB] p-2.5 rounded-full backdrop-blur-sm transition-all active:scale-95 touch-manipulation"
                   >
                     <X className="w-5 h-5" />
                   </button>
                   <div className="absolute bottom-3 left-3 bg-black/70 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 backdrop-blur-sm">
-                    <Video className="w-3.5 h-3.5" /> {t("motion.referenceVideoLabel")}
+                    <Video className="w-3.5 h-3.5" />{" "}
+                    {t("motion.referenceVideoLabel")}
                   </div>
                 </div>
               ) : (
@@ -361,9 +398,15 @@ export default function MotionControl() {
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <Video className="w-7 h-7 sm:w-8 sm:h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1">{t("motion.uploadReferenceVideo")}</h3>
-                  <p className="text-sm text-gray-400">{t("motion.referenceVideoDesc")}</p>
-                  <p className="text-xs text-gray-500 mt-2">{t("motion.referenceVideoSpec")}</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-[#F9FAFB] mb-1">
+                    {t("motion.uploadReferenceVideo")}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    {t("motion.referenceVideoDesc")}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {t("motion.referenceVideoSpec")}
+                  </p>
                 </div>
               )}
             </div>
@@ -371,15 +414,23 @@ export default function MotionControl() {
 
           {/* Image Box */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-300">{t("motion.characterImage")}</Label>
+            <Label className="text-sm font-medium text-gray-300">
+              {t("motion.characterImage")}
+            </Label>
             <div
-              onClick={() => !imageFile && !isUploading && !isGenerating && imageInputRef.current?.click()}
+              onClick={() =>
+                !imageFile &&
+                !isUploading &&
+                !isGenerating &&
+                imageInputRef.current?.click()
+              }
               className={cn(
                 "group relative w-full rounded-xl border-2 border-dashed transition-all cursor-pointer active:scale-[0.98]",
                 imagePreview
                   ? "border-white/20 bg-transparent aspect-video"
                   : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 min-h-[160px] sm:min-h-[200px] flex items-center justify-center",
-                (isUploading || isGenerating) && "pointer-events-none opacity-50"
+                (isUploading || isGenerating) &&
+                  "pointer-events-none opacity-50"
               )}
             >
               <input
@@ -393,16 +444,24 @@ export default function MotionControl() {
 
               {imagePreview ? (
                 <div className="relative w-full h-full">
-                  <img src={imagePreview} className="w-full h-full object-cover rounded-xl" alt="Preview" />
+                  <img
+                    src={imagePreview}
+                    className="w-full h-full object-cover rounded-xl"
+                    alt="Preview"
+                  />
                   <button
-                    onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      removeImage();
+                    }}
                     disabled={isUploading || isGenerating}
-                    className="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-white p-2.5 rounded-full backdrop-blur-sm transition-all active:scale-95 touch-manipulation"
+                    className="absolute top-3 right-3 bg-black/70 hover:bg-black/90 text-[#F9FAFB] p-2.5 rounded-full backdrop-blur-sm transition-all active:scale-95 touch-manipulation"
                   >
                     <X className="w-5 h-5" />
                   </button>
                   <div className="absolute bottom-3 left-3 bg-black/70 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 backdrop-blur-sm">
-                    <ImageIcon className="w-3.5 h-3.5" /> {t("motion.characterImageLabel")}
+                    <ImageIcon className="w-3.5 h-3.5" />{" "}
+                    {t("motion.characterImageLabel")}
                   </div>
 
                   {/* Upload Progress Overlay */}
@@ -410,11 +469,13 @@ export default function MotionControl() {
                     <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center rounded-xl z-10 backdrop-blur-sm">
                       <div className="w-4/5 max-w-xs h-2.5 bg-white/20 rounded-full overflow-hidden mb-3">
                         <div
-                          className="h-full bg-[#DFFF00] transition-all duration-300"
+                          className="h-full bg-neon-brand transition-all duration-300"
                           style={{ width: `${uploadProgress}%` }}
                         />
                       </div>
-                      <p className="text-sm text-white font-medium">{t("motion.uploading")} {uploadProgress}%</p>
+                      <p className="text-sm text-[#F9FAFB] font-medium">
+                        {t("motion.uploading")} {uploadProgress}%
+                      </p>
                     </div>
                   )}
                 </div>
@@ -423,9 +484,15 @@ export default function MotionControl() {
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <ImageIcon className="w-7 h-7 sm:w-8 sm:h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1">{t("motion.addCharacterImage")}</h3>
-                  <p className="text-sm text-gray-400">{t("motion.imageToAnimate")}</p>
-                  <p className="text-xs text-gray-500 mt-2">{t("motion.imageSpec")}</p>
+                  <h3 className="text-base sm:text-lg font-semibold text-[#F9FAFB] mb-1">
+                    {t("motion.addCharacterImage")}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    {t("motion.imageToAnimate")}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {t("motion.imageSpec")}
+                  </p>
                 </div>
               )}
             </div>
@@ -437,15 +504,19 @@ export default function MotionControl() {
           {/* Prompt */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-5">
             <div className="flex items-center justify-between mb-3">
-              <Label className="text-sm font-medium text-gray-300">{t("motion.sceneDescription")}</Label>
-              <span className="text-xs text-gray-500">{prompt.length}/2500</span>
+              <Label className="text-sm font-medium text-gray-300">
+                {t("motion.sceneDescription")}
+              </Label>
+              <span className="text-xs text-gray-500">
+                {prompt.length}/2500
+              </span>
             </div>
             <Textarea
               value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
+              onChange={e => setPrompt(e.target.value)}
               maxLength={2500}
               placeholder={t("motion.sceneDescriptionPlaceholder")}
-              className="bg-transparent border-0 p-0 text-white text-base placeholder:text-gray-600 focus-visible:ring-0 resize-none min-h-[100px] sm:min-h-[80px]"
+              className="bg-transparent border-0 p-0 text-[#F9FAFB] text-base placeholder:text-gray-600 focus-visible:ring-0 resize-none min-h-[100px] sm:min-h-[80px]"
               disabled={isUploading || isGenerating}
             />
           </div>
@@ -453,10 +524,19 @@ export default function MotionControl() {
           {/* Model Info Row */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-5 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-xs text-gray-500 mb-1.5">{t("motion.model")}</span>
+              <span className="text-xs text-gray-500 mb-1.5">
+                {t("motion.model")}
+              </span>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-white text-sm sm:text-base">{t("motion.modelName")}</span>
-                <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-400 border-0 text-[10px] px-2 py-0.5">BETA</Badge>
+                <span className="font-semibold text-[#F9FAFB] text-sm sm:text-base">
+                  {t("motion.modelName")}
+                </span>
+                <Badge
+                  variant="secondary"
+                  className="bg-yellow-500/20 text-yellow-400 border-0 text-[10px] px-2 py-0.5"
+                >
+                  BETA
+                </Badge>
               </div>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-500 flex-shrink-0" />
@@ -466,34 +546,50 @@ export default function MotionControl() {
           <div className="grid grid-cols-1 gap-4">
             {/* Character Orientation */}
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-5">
-              <Label className="text-xs text-gray-400 mb-3 block">{t("motion.characterOrientation")}</Label>
+              <Label className="text-xs text-gray-400 mb-3 block">
+                {t("motion.characterOrientation")}
+              </Label>
               <Select
                 value={characterOrientation}
-                onValueChange={(v) => setCharacterOrientation(v as "image" | "video")}
+                onValueChange={v =>
+                  setCharacterOrientation(v as "image" | "video")
+                }
                 disabled={isUploading || isGenerating}
               >
-                <SelectTrigger className="bg-transparent border-white/10 text-white h-10 sm:h-9 text-base sm:text-sm">
+                <SelectTrigger className="bg-transparent border-white/10 text-[#F9FAFB] h-10 sm:h-9 text-base sm:text-sm">
                   <SelectValue placeholder={t("motion.selectOrientation")} />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-white/10 text-white">
-                  <SelectItem value="image">{t("motion.imageOrientation")}</SelectItem>
-                  <SelectItem value="video">{t("motion.videoOrientation")}</SelectItem>
+                <SelectContent className="bg-[#111827] border-white/10 text-[#F9FAFB]">
+                  <SelectItem value="image">
+                    {t("motion.imageOrientation")}
+                  </SelectItem>
+                  <SelectItem value="video">
+                    {t("motion.videoOrientation")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-500 mt-2">
-{t("motion.orientationHint")}
+                {t("motion.orientationHint")}
               </p>
             </div>
 
             {/* Mode & Pricing Info */}
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-5">
-              <Label className="text-xs text-gray-400 mb-3 block">{t("motion.qualityMode")}</Label>
-              <Select value={mode} onValueChange={(v) => setMode(v as "standard" | "pro")} disabled={isUploading || isGenerating}>
-                <SelectTrigger className="bg-transparent border-white/10 text-white h-10 sm:h-9 text-base sm:text-sm">
+              <Label className="text-xs text-gray-400 mb-3 block">
+                {t("motion.qualityMode")}
+              </Label>
+              <Select
+                value={mode}
+                onValueChange={v => setMode(v as "standard" | "pro")}
+                disabled={isUploading || isGenerating}
+              >
+                <SelectTrigger className="bg-transparent border-white/10 text-[#F9FAFB] h-10 sm:h-9 text-base sm:text-sm">
                   <SelectValue placeholder={t("motion.selectMode")} />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1a1a1a] border-white/10 text-white">
-                  <SelectItem value="standard">{t("motion.standardMode")}</SelectItem>
+                <SelectContent className="bg-[#111827] border-white/10 text-[#F9FAFB]">
+                  <SelectItem value="standard">
+                    {t("motion.standardMode")}
+                  </SelectItem>
                   <SelectItem value="pro">{t("motion.proMode")}</SelectItem>
                 </SelectContent>
               </Select>
@@ -501,25 +597,37 @@ export default function MotionControl() {
               {/* Pricing Calculation Display */}
               <div className="mt-4 p-3 bg-black/30 rounded-lg border border-white/5">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400">{t("motion.referenceVideoLabel2")}</span>
-                  <span className="text-white font-semibold">{estimatedDuration} {t("motion.seconds")}</span>
+                  <span className="text-gray-400">
+                    {t("motion.referenceVideoLabel2")}
+                  </span>
+                  <span className="text-[#F9FAFB] font-semibold">
+                    {estimatedDuration} {t("motion.seconds")}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-sm mt-2">
-                  <span className="text-gray-400">{t("motion.costPerSecond")}</span>
-                  <span className="text-[#DFFF00] font-semibold">{mode === "pro" ? "8" : "5"} {t("motion.credits")}</span>
+                  <span className="text-gray-400">
+                    {t("motion.costPerSecond")}
+                  </span>
+                  <span className="text-neon-brand font-semibold">
+                    {mode === "pro" ? "8" : "5"} {t("motion.credits")}
+                  </span>
                 </div>
                 <div className="h-px bg-white/10 my-2"></div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-300 font-medium">{t("motion.maxCost")}</span>
-                  <span className="text-[#DFFF00] font-bold text-lg">
-                    {(mode === "pro" ? 8 : 5) * estimatedDuration} {t("motion.credits")}
+                  <span className="text-gray-300 font-medium">
+                    {t("motion.maxCost")}
+                  </span>
+                  <span className="text-neon-brand font-bold text-lg">
+                    {(mode === "pro" ? 8 : 5) * estimatedDuration}{" "}
+                    {t("motion.credits")}
                   </span>
                 </div>
                 <div className="mt-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
                   <p className="text-xs text-yellow-200/80 leading-relaxed">
-                    ⚠️ <strong>Önemli:</strong> Motion Control API video süresini otomatik belirler.
-                    Gerçek ücret üretilen videonun uzunluğuna göre değişebilir.
-                    Kullanılmayan kredi otomatik iade edilir.
+                    ⚠️ <strong>Önemli:</strong> Motion Control API video
+                    süresini otomatik belirler. Gerçek ücret üretilen videonun
+                    uzunluğuna göre değişebilir. Kullanılmayan kredi otomatik
+                    iade edilir.
                   </p>
                 </div>
               </div>
@@ -530,7 +638,9 @@ export default function MotionControl() {
         {/* Features Section */}
         <div className="mt-16 space-y-12">
           <div className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">{t("motion.featuresTitle")}</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#F9FAFB] mb-4">
+              {t("motion.featuresTitle")}
+            </h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
               {t("motion.featuresSubtitle")}
             </p>
@@ -539,113 +649,120 @@ export default function MotionControl() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Feature 1 */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
-              <div className="w-12 h-12 rounded-full bg-[#DFFF00]/20 flex items-center justify-center mb-4">
-                <Video className="w-6 h-6 text-[#DFFF00]" />
+              <div className="w-12 h-12 rounded-full bg-neon-brand/20 flex items-center justify-center mb-4">
+                <Video className="w-6 h-6 text-neon-brand" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{t("motion.feature1")}</h3>
-              <p className="text-gray-400">
-                {t("motion.feature1Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-2">
+                {t("motion.feature1")}
+              </h3>
+              <p className="text-gray-400">{t("motion.feature1Desc")}</p>
             </div>
 
             {/* Feature 2 */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
-              <div className="w-12 h-12 rounded-full bg-[#DFFF00]/20 flex items-center justify-center mb-4">
-                <Sparkles className="w-6 h-6 text-[#DFFF00]" />
+              <div className="w-12 h-12 rounded-full bg-neon-brand/20 flex items-center justify-center mb-4">
+                <Sparkles className="w-6 h-6 text-neon-brand" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{t("motion.feature2")}</h3>
-              <p className="text-gray-400">
-                {t("motion.feature2Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-2">
+                {t("motion.feature2")}
+              </h3>
+              <p className="text-gray-400">{t("motion.feature2Desc")}</p>
             </div>
 
             {/* Feature 3 */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
-              <div className="w-12 h-12 rounded-full bg-[#DFFF00]/20 flex items-center justify-center mb-4">
-                <ImageIcon className="w-6 h-6 text-[#DFFF00]" />
+              <div className="w-12 h-12 rounded-full bg-neon-brand/20 flex items-center justify-center mb-4">
+                <ImageIcon className="w-6 h-6 text-neon-brand" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{t("motion.feature3")}</h3>
-              <p className="text-gray-400">
-                {t("motion.feature3Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-2">
+                {t("motion.feature3")}
+              </h3>
+              <p className="text-gray-400">{t("motion.feature3Desc")}</p>
             </div>
 
             {/* Feature 4 */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
-              <div className="w-12 h-12 rounded-full bg-[#DFFF00]/20 flex items-center justify-center mb-4">
-                <Play className="w-6 h-6 text-[#DFFF00]" />
+              <div className="w-12 h-12 rounded-full bg-neon-brand/20 flex items-center justify-center mb-4">
+                <Play className="w-6 h-6 text-neon-brand" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{t("motion.feature4")}</h3>
-              <p className="text-gray-400">
-                {t("motion.feature4Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-2">
+                {t("motion.feature4")}
+              </h3>
+              <p className="text-gray-400">{t("motion.feature4Desc")}</p>
             </div>
           </div>
         </div>
 
         {/* Best Practices Section */}
-        <div className="mt-16 bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/10 rounded-2xl p-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6">{t("motion.bestPracticesTitle")}</h2>
+        <div className="mt-16 bg-gradient-to-br from-[#7C3AED]/20 to-[#7C3AED]/20 border border-white/10 rounded-2xl p-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#F9FAFB] mb-6">
+            {t("motion.bestPracticesTitle")}
+          </h2>
 
           <div className="space-y-6">
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#DFFF00] text-black flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neon-brand text-black flex items-center justify-center font-bold">
                 1
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">{t("motion.tip1Title")}</h3>
-                <p className="text-gray-400">
-                  {t("motion.tip1Desc")}
-                </p>
+                <h3 className="text-lg font-semibold text-[#F9FAFB] mb-2">
+                  {t("motion.tip1Title")}
+                </h3>
+                <p className="text-gray-400">{t("motion.tip1Desc")}</p>
               </div>
             </div>
 
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#DFFF00] text-black flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neon-brand text-black flex items-center justify-center font-bold">
                 2
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">{t("motion.tip2Title")}</h3>
-                <p className="text-gray-400">
-                  {t("motion.tip2Desc")}
-                </p>
+                <h3 className="text-lg font-semibold text-[#F9FAFB] mb-2">
+                  {t("motion.tip2Title")}
+                </h3>
+                <p className="text-gray-400">{t("motion.tip2Desc")}</p>
               </div>
             </div>
 
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#DFFF00] text-black flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neon-brand text-black flex items-center justify-center font-bold">
                 3
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">{t("motion.tip3Title")}</h3>
-                <p className="text-gray-400">
-                  {t("motion.tip3Desc")}
-                </p>
+                <h3 className="text-lg font-semibold text-[#F9FAFB] mb-2">
+                  {t("motion.tip3Title")}
+                </h3>
+                <p className="text-gray-400">{t("motion.tip3Desc")}</p>
               </div>
             </div>
 
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#DFFF00] text-black flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neon-brand text-black flex items-center justify-center font-bold">
                 4
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">{t("motion.tip4Title")}</h3>
-                <p className="text-gray-400">
-                  {t("motion.tip4Desc")}
-                </p>
+                <h3 className="text-lg font-semibold text-[#F9FAFB] mb-2">
+                  {t("motion.tip4Title")}
+                </h3>
+                <p className="text-gray-400">{t("motion.tip4Desc")}</p>
               </div>
             </div>
 
             <div className="flex gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#DFFF00] text-black flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-neon-brand text-black flex items-center justify-center font-bold">
                 5
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-white mb-2">{t("motion.tip5Title")}</h3>
+                <h3 className="text-lg font-semibold text-[#F9FAFB] mb-2">
+                  {t("motion.tip5Title")}
+                </h3>
                 <p className="text-gray-400">
-                  <strong>Minimum Çözünürlük:</strong> 720x720 piksel (HD kalite önerilir).<br />
-                  Tek karakter içeren videolar tercih edin. Kamera kesitleri, hızlı kamera hareketi veya zoom'dan kaçının.
-                  3-30 saniye arası, gerçek insan aksiyonları önerilir.
+                  <strong>Minimum Çözünürlük:</strong> 720x720 piksel (HD kalite
+                  önerilir).
+                  <br />
+                  Tek karakter içeren videolar tercih edin. Kamera kesitleri,
+                  hızlı kamera hareketi veya zoom'dan kaçının. 3-30 saniye
+                  arası, gerçek insan aksiyonları önerilir.
                 </p>
               </div>
             </div>
@@ -654,98 +771,110 @@ export default function MotionControl() {
 
         {/* Use Cases Section */}
         <div className="mt-16">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">{t("motion.useCasesTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#F9FAFB] mb-8 text-center">
+            {t("motion.useCasesTitle")}
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-white mb-3">{t("motion.useCase1Title")}</h3>
-              <p className="text-gray-400">
-                {t("motion.useCase1Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-3">
+                {t("motion.useCase1Title")}
+              </h3>
+              <p className="text-gray-400">{t("motion.useCase1Desc")}</p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-white mb-3">{t("motion.useCase2Title")}</h3>
-              <p className="text-gray-400">
-                {t("motion.useCase2Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-3">
+                {t("motion.useCase2Title")}
+              </h3>
+              <p className="text-gray-400">{t("motion.useCase2Desc")}</p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-white mb-3">{t("motion.useCase3Title")}</h3>
-              <p className="text-gray-400">
-                {t("motion.useCase3Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-3">
+                {t("motion.useCase3Title")}
+              </h3>
+              <p className="text-gray-400">{t("motion.useCase3Desc")}</p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-xl p-6">
-              <h3 className="text-xl font-bold text-white mb-3">{t("motion.useCase4Title")}</h3>
-              <p className="text-gray-400">
-                {t("motion.useCase4Desc")}
-              </p>
+              <h3 className="text-xl font-bold text-[#F9FAFB] mb-3">
+                {t("motion.useCase4Title")}
+              </h3>
+              <p className="text-gray-400">{t("motion.useCase4Desc")}</p>
             </div>
           </div>
         </div>
 
         {/* FAQ Section */}
         <div className="mt-16 mb-24">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">{t("motion.faqTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#F9FAFB] mb-8 text-center">
+            {t("motion.faqTitle")}
+          </h2>
 
           <div className="space-y-4">
             <details className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all group">
-              <summary className="text-lg font-semibold text-white cursor-pointer list-none flex items-center justify-between">
+              <summary className="text-lg font-semibold text-[#F9FAFB] cursor-pointer list-none flex items-center justify-between">
                 <span>{t("motion.faq1Q")}</span>
                 <ChevronRight className="w-5 h-5 transform group-open:rotate-90 transition-transform" />
               </summary>
-              <p className="text-gray-400 mt-4">
-                {t("motion.faq1A")}
-              </p>
+              <p className="text-gray-400 mt-4">{t("motion.faq1A")}</p>
             </details>
 
             <details className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all group">
-              <summary className="text-lg font-semibold text-white cursor-pointer list-none flex items-center justify-between">
+              <summary className="text-lg font-semibold text-[#F9FAFB] cursor-pointer list-none flex items-center justify-between">
                 <span>{t("motion.faq2Q")}</span>
                 <ChevronRight className="w-5 h-5 transform group-open:rotate-90 transition-transform" />
               </summary>
               <p className="text-gray-400 mt-4">
-                <strong>Görsel Yönelimi:</strong> Karakterin görseldeki konumunu korur, maksimum 10 saniye video üretir.<br />
-                <strong>Video Yönelimi:</strong> Referans videodaki karakter konumunu takip eder, maksimum 30 saniye destekler.
+                <strong>Görsel Yönelimi:</strong> Karakterin görseldeki konumunu
+                korur, maksimum 10 saniye video üretir.
+                <br />
+                <strong>Video Yönelimi:</strong> Referans videodaki karakter
+                konumunu takip eder, maksimum 30 saniye destekler.
               </p>
             </details>
 
             <details className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all group">
-              <summary className="text-lg font-semibold text-white cursor-pointer list-none flex items-center justify-between">
+              <summary className="text-lg font-semibold text-[#F9FAFB] cursor-pointer list-none flex items-center justify-between">
                 <span>{t("motion.faq3Q")}</span>
                 <ChevronRight className="w-5 h-5 transform group-open:rotate-90 transition-transform" />
               </summary>
               <p className="text-gray-400 mt-4">
-                <strong>Görsel:</strong> JPEG, PNG, WEBP (max 10MB)<br />
+                <strong>Görsel:</strong> JPEG, PNG, WEBP (max 10MB)
+                <br />
                 <strong>Video:</strong> MP4, MOV, MKV (max 100MB, 3-30 saniye)
               </p>
             </details>
 
             <details className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all group">
-              <summary className="text-lg font-semibold text-white cursor-pointer list-none flex items-center justify-between">
+              <summary className="text-lg font-semibold text-[#F9FAFB] cursor-pointer list-none flex items-center justify-between">
                 <span>{t("motion.faq4Q")}</span>
                 <ChevronRight className="w-5 h-5 transform group-open:rotate-90 transition-transform" />
               </summary>
               <p className="text-gray-400 mt-4">
-                <strong>Standard (720p):</strong> 5 kredi/saniye<br />
-                <strong>Pro (1080p):</strong> 8 kredi/saniye<br />
+                <strong>Standard (720p):</strong> 5 kredi/saniye
+                <br />
+                <strong>Pro (1080p):</strong> 8 kredi/saniye
+                <br />
                 Örnek: 10 saniyelik Pro video = 80 kredi
               </p>
             </details>
 
             <details className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all group">
-              <summary className="text-lg font-semibold text-white cursor-pointer list-none flex items-center justify-between">
+              <summary className="text-lg font-semibold text-[#F9FAFB] cursor-pointer list-none flex items-center justify-between">
                 <span>{t("motion.faq5Q")}</span>
                 <ChevronRight className="w-5 h-5 transform group-open:rotate-90 transition-transform" />
               </summary>
               <p className="text-gray-400 mt-4">
-                • Görsel ve video çerçevelemeleri eşleştirin (yarım vücut-yarım vücut, tam vücut-tam vücut)<br />
-                • Net, orta hızda hareketler içeren referans videolar kullanın<br />
-                • Karakterin tüm vücudunu ve başını net gösterin<br />
-                • Tek karakterli, kamera kesintisi olmayan videolar tercih edin
+                • Görsel ve video çerçevelemeleri eşleştirin (yarım vücut-yarım
+                vücut, tam vücut-tam vücut)
+                <br />
+                • Net, orta hızda hareketler içeren referans videolar kullanın
+                <br />
+                • Karakterin tüm vücudunu ve başını net gösterin
+                <br />• Tek karakterli, kamera kesintisi olmayan videolar tercih
+                edin
               </p>
             </details>
           </div>
@@ -758,18 +887,30 @@ export default function MotionControl() {
           {/* Credit Info */}
           {user && (
             <div className="text-center text-sm text-gray-400">
-{t("motion.currentCredits")} <span className="font-semibold text-white">{user.credits}</span> {t("motion.credits")}
+              {t("motion.currentCredits")}{" "}
+              <span className="font-semibold text-[#F9FAFB]">
+                {user.credits}
+              </span>{" "}
+              {t("motion.credits")}
             </div>
           )}
 
           <Button
             onClick={handleGenerate}
-            disabled={isGenerating || (!imageFile && !videoFile) || !prompt.trim() || (user ? user.credits < creditCost : false)}
+            disabled={
+              isGenerating ||
+              (!imageFile && !videoFile) ||
+              !prompt.trim() ||
+              (user ? user.credits < creditCost : false)
+            }
             className={cn(
               "w-full h-14 sm:h-16 text-base sm:text-lg font-bold rounded-xl relative overflow-hidden transition-all touch-manipulation active:scale-[0.98]",
-              (isGenerating || (!imageFile && !videoFile) || !prompt.trim() || (user ? user.credits < creditCost : false))
+              isGenerating ||
+                (!imageFile && !videoFile) ||
+                !prompt.trim() ||
+                (user ? user.credits < creditCost : false)
                 ? "bg-gray-600 text-gray-300 cursor-not-allowed"
-                : "bg-[#DFFF00] hover:bg-[#cbe600] text-black"
+                : "bg-neon-brand hover:bg-[#00F5FF] text-black"
             )}
           >
             {isGenerating ? (
@@ -781,7 +922,9 @@ export default function MotionControl() {
               <div className="flex items-center justify-center gap-2">
                 <span>{t("motion.generateVideo")}</span>
                 <Zap className="w-5 h-5 fill-current" />
-                <span className="font-extrabold">{creditCost} {t("motion.credits")}</span>
+                <span className="font-extrabold">
+                  {creditCost} {t("motion.credits")}
+                </span>
               </div>
             )}
           </Button>

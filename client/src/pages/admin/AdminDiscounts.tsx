@@ -52,7 +52,7 @@ export default function AdminDiscounts() {
       discountsQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.adminPanel.updateDiscountCode.useMutation({
@@ -61,7 +61,7 @@ export default function AdminDiscounts() {
       discountsQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deleteMutation = trpc.adminPanel.deleteDiscountCode.useMutation({
@@ -69,7 +69,7 @@ export default function AdminDiscounts() {
       toast.success("İndirim kodu silindi");
       discountsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const closeDialog = () => {
@@ -168,10 +168,12 @@ export default function AdminDiscounts() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">İndirim Kodları</h2>
-          <p className="text-sm text-zinc-500">Kupon ve indirim kodlarını yönetin</p>
+          <p className="text-sm text-zinc-500">
+            Kupon ve indirim kodlarını yönetin
+          </p>
         </div>
         <Button
-          className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
           onClick={() => setDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -197,8 +199,11 @@ export default function AdminDiscounts() {
             </tr>
           </thead>
           <tbody>
-            {discountsQuery.data?.map((discount) => (
-              <tr key={discount.id} className="border-b border-white/5 hover:bg-white/5">
+            {discountsQuery.data?.map(discount => (
+              <tr
+                key={discount.id}
+                className="border-b border-white/5 hover:bg-white/5"
+              >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
                     <code className="bg-zinc-800 px-2 py-1 rounded font-mono">
@@ -225,8 +230,11 @@ export default function AdminDiscounts() {
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-lime-400 font-medium">
-                    {getTypeLabel(discount.discountType, discount.discountValue)}
+                  <span className="text-[#00F5FF] font-medium">
+                    {getTypeLabel(
+                      discount.discountType,
+                      discount.discountValue
+                    )}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -236,17 +244,23 @@ export default function AdminDiscounts() {
                 </td>
                 <td className="px-4 py-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs ${discount.isActive
+                    className={`px-2 py-1 rounded-full text-xs ${
+                      discount.isActive
                         ? "bg-green-500/20 text-green-400"
                         : "bg-red-500/20 text-red-400"
-                      }`}
+                    }`}
                   >
                     {discount.isActive ? "Aktif" : "Pasif"}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(discount)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => openEdit(discount)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -280,7 +294,9 @@ export default function AdminDiscounts() {
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingDiscount ? "Kodu Düzenle" : "Yeni İndirim Kodu"}</DialogTitle>
+            <DialogTitle>
+              {editingDiscount ? "Kodu Düzenle" : "Yeni İndirim Kodu"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
@@ -288,7 +304,12 @@ export default function AdminDiscounts() {
                 <label className="text-sm font-medium mb-2 block">Kod *</label>
                 <Input
                   value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      code: e.target.value.toUpperCase(),
+                    })
+                  }
                   placeholder="YILBASI2024"
                   className="bg-zinc-800 border-white/10 uppercase"
                   disabled={!!editingDiscount}
@@ -298,8 +319,12 @@ export default function AdminDiscounts() {
                 <label className="text-sm font-medium mb-2 block">Tip *</label>
                 <select
                   value={formData.discountType}
-                  onChange={(e) =>
-                    setFormData({ ...formData, discountType: e.target.value as typeof formData.discountType })
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      discountType: e.target
+                        .value as typeof formData.discountType,
+                    })
                   }
                   className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2"
                 >
@@ -314,7 +339,9 @@ export default function AdminDiscounts() {
               <label className="text-sm font-medium mb-2 block">Açıklama</label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Yılbaşı kampanyası..."
                 className="bg-zinc-800 border-white/10"
               />
@@ -323,20 +350,31 @@ export default function AdminDiscounts() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">
-                  Değer * {formData.discountType === "percentage" ? "(%)" : "(₺ veya Kredi)"}
+                  Değer *{" "}
+                  {formData.discountType === "percentage"
+                    ? "(%)"
+                    : "(₺ veya Kredi)"}
                 </label>
                 <Input
                   value={formData.discountValue}
-                  onChange={(e) => setFormData({ ...formData, discountValue: e.target.value })}
-                  placeholder={formData.discountType === "percentage" ? "10" : "50"}
+                  onChange={e =>
+                    setFormData({ ...formData, discountValue: e.target.value })
+                  }
+                  placeholder={
+                    formData.discountType === "percentage" ? "10" : "50"
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Min. Alışveriş (₺)</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Min. Alışveriş (₺)
+                </label>
                 <Input
                   value={formData.minPurchase}
-                  onChange={(e) => setFormData({ ...formData, minPurchase: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, minPurchase: e.target.value })
+                  }
                   placeholder="100"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -345,20 +383,31 @@ export default function AdminDiscounts() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Maks. Kullanım (toplam)</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Maks. Kullanım (toplam)
+                </label>
                 <Input
                   value={formData.maxUses}
-                  onChange={(e) => setFormData({ ...formData, maxUses: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, maxUses: e.target.value })
+                  }
                   placeholder="Sınırsız için boş bırakın"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Kullanıcı Başına</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Kullanıcı Başına
+                </label>
                 <Input
                   type="number"
                   value={formData.maxUsesPerUser}
-                  onChange={(e) => setFormData({ ...formData, maxUsesPerUser: parseInt(e.target.value) || 1 })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      maxUsesPerUser: parseInt(e.target.value) || 1,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
@@ -367,17 +416,23 @@ export default function AdminDiscounts() {
             <div className="flex items-center gap-2">
               <Switch
                 checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                onCheckedChange={checked =>
+                  setFormData({ ...formData, isActive: checked })
+                }
               />
               <span className="text-sm">Aktif</span>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={closeDialog}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >

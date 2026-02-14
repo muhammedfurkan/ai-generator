@@ -20,10 +20,15 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import Header from "@/components/Header";
-import { useState, useEffect, useRef } from "react";
+import { Suspense, lazy, useRef, useState } from "react";
 import MobileHome from "@/components/MobileHome";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
+import { useHomeReveal } from "@/hooks/useHomeReveal";
+
+const HeroThreeBackground = lazy(
+  () => import("@/components/home/HeroThreeBackground")
+);
 
 // Showcase görselleri - masonry grid için
 const SHOWCASE_IMAGES = [
@@ -53,6 +58,7 @@ export default function Home() {
   const [, navigate] = useLocation();
   const { t, language } = useLanguage();
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const homeRef = useRef<HTMLDivElement>(null);
 
   // AI Araçları kategorileri
   const AI_TOOLS = [
@@ -62,7 +68,7 @@ export default function Home() {
       description: t("home.tools.imageGenDesc"),
       icon: Image,
       href: "/generate",
-      color: "from-purple-500 to-pink-500",
+      color: "from-[#7C3AED] to-[#FF2E97]",
       badge: t("home.badge.featured"),
     },
     {
@@ -71,7 +77,7 @@ export default function Home() {
       description: t("home.tools.videoGenDesc"),
       icon: Video,
       href: "/video-generate",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-sky-500 to-[#FF2E97]",
       badge: t("home.badge.popular"),
     },
     {
@@ -80,7 +86,7 @@ export default function Home() {
       description: t("home.tools.motionControlDesc"),
       icon: Video,
       href: "/motion-control",
-      color: "from-purple-600 to-pink-600",
+      color: "from-[#00F5FF] to-[#FF2E97]",
       badge: t("home.badge.new"),
     },
     {
@@ -89,7 +95,7 @@ export default function Home() {
       description: t("home.tools.aiInfluencerDesc"),
       icon: Users,
       href: "/ai-influencer",
-      color: "from-rose-500 to-orange-500",
+      color: "from-[#00F5FF] to-[#7C3AED]",
       badge: t("home.badge.new"),
     },
     {
@@ -98,7 +104,7 @@ export default function Home() {
       description: t("home.tools.upscaleDesc"),
       icon: Zap,
       href: "/upscale",
-      color: "from-emerald-500 to-teal-500",
+      color: "from-slate-500 to-sky-500",
     },
     {
       id: "multi-angle",
@@ -106,7 +112,7 @@ export default function Home() {
       description: t("home.tools.multiAngleDesc"),
       icon: Camera,
       href: "/multi-angle",
-      color: "from-amber-500 to-yellow-500",
+      color: "from-[#7C3AED] to-sky-500",
       badge: t("home.badge.new"),
     },
     {
@@ -115,7 +121,7 @@ export default function Home() {
       description: t("home.tools.productPromoDesc"),
       icon: Film,
       href: "/product-promo",
-      color: "from-fuchsia-500 to-pink-500",
+      color: "from-[#00F5FF] to-[#7C3AED]",
       badge: t("home.badge.new"),
     },
     {
@@ -124,7 +130,7 @@ export default function Home() {
       description: t("home.tools.logoGeneratorDesc"),
       icon: Palette,
       href: "/logo-generator",
-      color: "from-yellow-500 to-lime-500",
+      color: "from-sky-500 to-[#7C3AED]",
       badge: t("home.badge.new"),
     },
     {
@@ -133,52 +139,9 @@ export default function Home() {
       description: t("home.tools.promptMasterDesc"),
       icon: Wand2,
       href: "/prompt-compiler",
-      color: "from-[#CCFF00] to-green-500",
+      color: "from-[#00F5FF] to-[#7C3AED]",
       badge: t("home.badge.new"),
     },
-  ];
-
-  // Viral uygulamalar
-  const VIRAL_APPS = [
-    { id: "hug-video", title: t("home.viralApps.hug"), icon: "🤗", hot: true },
-    {
-      id: "kiss-video",
-      title: t("home.viralApps.kiss"),
-      icon: "💋",
-      hot: true,
-    },
-    {
-      id: "dance-video",
-      title: t("home.viralApps.dance"),
-      icon: "💃",
-      hot: true,
-    },
-    {
-      id: "talking-photo",
-      title: t("home.viralApps.talkingPhoto"),
-      icon: "🗣️",
-    },
-    {
-      id: "age-transform",
-      title: t("home.viralApps.ageTransform"),
-      icon: "⏳",
-      hot: true,
-    },
-    { id: "style-transfer", title: t("home.viralApps.artStyle"), icon: "🎨" },
-    {
-      id: "hair-blow",
-      title: t("home.viralApps.hairBlow"),
-      icon: "💨",
-      hot: true,
-    },
-    {
-      id: "smile-video",
-      title: t("home.viralApps.smile"),
-      icon: "😊",
-      hot: true,
-    },
-    { id: "wink-video", title: t("home.viralApps.wink"), icon: "😉" },
-    { id: "zoom-effect", title: t("home.viralApps.dramaticZoom"), icon: "🔍" },
   ];
 
   // Topluluk AI karakterlerini getir
@@ -206,112 +169,181 @@ export default function Home() {
     ? new Date().getTime() - new Date(user.createdAt).getTime() < 5 * 60 * 1000
     : false;
 
+  useHomeReveal(homeRef, [language]);
+
   return (
     <>
       <div className="md:hidden">
         <MobileHome />
       </div>
 
-      <div className="hidden md:block min-h-screen bg-[#0A0A0A]">
+      <div
+        ref={homeRef}
+        className="ai-page-bg hidden md:block min-h-screen text-slate-100"
+      >
         <Header />
 
         {/* Hoş Geldin Popup - Yeni kullanıcılar için */}
         {isAuthenticated && <WelcomePopup isNewUser={isNewUser} />}
 
         <main className="pt-20">
-          {/* Hero Section - Video Banner */}
-          <section className="relative h-[500px] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-transparent to-[#0A0A0A] z-10" />
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-60"
-            >
-              <source src="/gallery/video-3.mp4" type="video/mp4" />
-            </video>
-            <div className="relative z-20 container h-full flex items-center">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#CCFF00]/20 border border-[#CCFF00]/30 mb-6">
-                  <Sparkles className="w-4 h-4 text-[#CCFF00]" />
-                  <span className="text-[#CCFF00] text-sm font-medium">
-                    {t("home.hero.badge")}
-                  </span>
-                </div>
-                <h1 className="text-5xl md:text-6xl font-black text-white mb-4 leading-tight">
-                  {t("home.hero.title.prefix")}
-                  <span className="text-[#CCFF00]">
-                    {t("home.hero.title.suffix")}
-                  </span>
-                </h1>
-                <p className="text-xl text-gray-300 mb-8">
-                  {t("home.heroSubtitle")}
-                </p>
-                <div className="flex gap-4">
-                  <Button
-                    size="lg"
-                    className="h-14 px-8 text-lg font-bold rounded-full bg-[#CCFF00] text-black hover:bg-[#CCFF00]/90"
-                    onClick={() => handleToolClick("/generate")}
+          {/* Hero Section */}
+          <section className="ai-hero-aurora relative isolate overflow-hidden border-b">
+            <Suspense fallback={null}>
+              <HeroThreeBackground />
+            </Suspense>
+            <div className="container relative z-10 py-16 lg:py-24">
+              <div className="grid items-center gap-12 lg:grid-cols-[1.1fr_0.9fr]">
+                <div className="space-y-6">
+                  <div
+                    data-reveal
+                    className="ai-chip inline-flex items-center gap-2 rounded-full px-4 py-2"
                   >
-                    {t("home.getStarted")}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Button>
-                  {/* <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-14 px-8 text-lg font-bold rounded-full border-white/30 text-white hover:bg-white/10"
-                  onClick={() => navigate("/apps")}
-                >
-                  {t("home.exploreTools")}
-                </Button> */}
+                    <Sparkles className="h-4 w-4" />
+                    <span className="text-sm font-semibold">
+                      {t("home.hero.badge")}
+                    </span>
+                  </div>
+                  <h1
+                    data-reveal
+                    className="max-w-2xl text-5xl font-black leading-tight text-[#F9FAFB] lg:text-6xl"
+                  >
+                    {t("home.hero.title.prefix")}
+                    <span className="ai-headline-gradient">
+                      {" "}
+                      {t("home.hero.title.suffix")}
+                    </span>
+                  </h1>
+                  <p
+                    data-reveal
+                    className="max-w-xl text-lg leading-relaxed text-slate-300"
+                  >
+                    {t("home.heroSubtitle")}
+                  </p>
+                  <div data-reveal className="flex flex-wrap gap-3">
+                    <Button
+                      size="lg"
+                      className="h-12 rounded-full bg-neon-brand px-7 font-bold text-slate-950 hover:bg-neon-brand/90"
+                      onClick={() => handleToolClick("/generate")}
+                    >
+                      {t("home.getStarted")}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="h-12 rounded-full border-slate-300/30 bg-slate-900/30 px-7 text-slate-100 hover:bg-slate-800/40"
+                      onClick={() => handleToolClick("/video-generate")}
+                    >
+                      {t("home.createVideo")}
+                    </Button>
+                  </div>
+                  <div data-reveal className="flex flex-wrap gap-3 pt-2">
+                    {[
+                      { label: "20+", value: "AI Models" },
+                      { label: "4K", value: "Output Quality" },
+                      { label: "24/7", value: "Generation" },
+                    ].map(item => (
+                      <div
+                        key={item.value}
+                        className="rounded-2xl border border-slate-600/40 bg-slate-900/45 px-4 py-3 backdrop-blur"
+                      >
+                        <p className="text-xl font-extrabold text-[#F9FAFB]">
+                          {item.label}
+                        </p>
+                        <p className="text-xs text-slate-300">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
+
+                <motion.div
+                  data-reveal
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="relative"
+                >
+                  <div className="absolute -inset-6 rounded-[2rem] bg-gradient-to-br from-sky-500/25 to-[#FF2E97]/25 blur-3xl" />
+                  <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200/15 bg-slate-950/50 p-4 shadow-[0_30px_80px_-30px_rgba(34,211,238,0.45)] backdrop-blur-xl">
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="aspect-[16/10] w-full rounded-2xl object-cover"
+                    >
+                      <source src="/gallery/video-3.mp4" type="video/mp4" />
+                    </video>
+                    <div className="mt-4 grid grid-cols-3 gap-3">
+                      <div className="rounded-xl border border-slate-700/60 bg-slate-900/75 px-3 py-2 text-xs text-slate-200">
+                        {t("home.generateImage")}
+                      </div>
+                      <div className="rounded-xl border border-slate-700/60 bg-slate-900/75 px-3 py-2 text-xs text-slate-200">
+                        {t("home.generateVideo")}
+                      </div>
+                      <div className="rounded-xl border border-slate-700/60 bg-slate-900/75 px-3 py-2 text-xs text-slate-200">
+                        {t("home.tools.promptMaster")}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
             </div>
           </section>
 
           {/* AI Tools Grid Section */}
-          <section className="py-16 bg-[#0A0A0A]">
+          <section className="ai-page-bg py-16">
             <div className="container">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black text-[#CCFF00]">
-                  {t("home.aiTools")}
-                </h2>
+              <div
+                data-reveal
+                className="mb-8 flex items-center justify-between gap-4"
+              >
+                <div>
+                  <h2 className="text-3xl font-black text-[#F9FAFB]">
+                    {t("home.aiTools")}
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-400">
+                    Image, video ve prompt pipeline tek panelde.
+                  </p>
+                </div>
                 <Button
                   variant="ghost"
-                  className="text-white hover:text-[#CCFF00]"
+                  className="ai-link"
                   onClick={() => navigate("/apps")}
                 >
                   {t("home.viewAll")}
-                  <ArrowRight className="ml-2 w-4 h-4" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
                 {AI_TOOLS.map((tool, index) => (
                   <motion.div
                     key={tool.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    data-reveal
+                    initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ scale: 1.03, y: -5 }}
+                    transition={{ delay: index * 0.04, duration: 0.45 }}
+                    whileHover={{ y: -7, scale: 1.015 }}
                     className="group cursor-pointer"
                     onClick={() => handleToolClick(tool.href)}
                   >
-                    <div
-                      className={`relative h-48 rounded-2xl overflow-hidden bg-gradient-to-br ${tool.color} p-4 flex flex-col justify-between`}
-                    >
+                    <div className="relative h-48 overflow-hidden rounded-2xl border border-slate-200/10 bg-slate-900/45 p-4 backdrop-blur-sm transition-all duration-300 group-hover:border-sky-300/45">
+                      <div
+                        className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tool.color}`}
+                      />
                       {tool.badge && (
-                        <span className="absolute top-3 right-3 px-2 py-1 text-[10px] font-bold rounded-full bg-[#CCFF00] text-black">
+                        <span className="absolute right-3 top-3 rounded-full bg-neon-brand px-2 py-1 text-[10px] font-bold text-black">
                           {tool.badge}
                         </span>
                       )}
-                      <tool.icon className="w-10 h-10 text-white/80" />
-                      <div>
-                        <h3 className="text-sm font-bold text-white mb-1">
+                      <tool.icon className="h-9 w-9 text-sky-300" />
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <h3 className="mb-1 text-sm font-bold text-[#F9FAFB]">
                           {tool.title}
                         </h3>
-                        <p className="text-xs text-white/70 line-clamp-2">
+                        <p className="line-clamp-2 text-xs text-slate-300">
                           {tool.description}
                         </p>
                       </div>
@@ -326,18 +358,18 @@ export default function Home() {
           {publicModels &&
             (publicModels.imageModels.length > 0 ||
               publicModels.videoModels.length > 0) && (
-              <section className="py-16 bg-[#0F0F0F]">
+              <section className="ai-section-muted py-16">
                 <div className="container">
                   {/* Image Generation Models */}
                   {publicModels.imageModels.length > 0 && (
                     <div className="mb-12">
                       <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-3xl font-black text-[#CCFF00]">
+                        <h2 className="text-3xl font-black text-neon-brand">
                           {t("home.imageGenModels")}
                         </h2>
                         <Button
                           variant="ghost"
-                          className="text-white hover:text-[#CCFF00]"
+                          className="text-[#F9FAFB] hover:text-neon-brand"
                           onClick={() => navigate("/generate")}
                         >
                           {t("home.generateImage")}
@@ -360,7 +392,7 @@ export default function Home() {
                               )
                             }
                           >
-                            <div className="relative h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-white/10">
+                            <div className="ai-model-surface-image relative h-64 rounded-2xl overflow-hidden border border-white/10">
                               {model.coverImageDesktop && (
                                 <img
                                   src={model.coverImageDesktop}
@@ -371,8 +403,8 @@ export default function Home() {
                               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
                               <div className="absolute bottom-0 left-0 right-0 p-6">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <Sparkles className="w-5 h-5 text-[#CCFF00]" />
-                                  <h3 className="text-xl font-bold text-white">
+                                  <Sparkles className="w-5 h-5 text-neon-brand" />
+                                  <h3 className="text-xl font-bold text-[#F9FAFB]">
                                     {model.modelName}
                                   </h3>
                                 </div>
@@ -396,12 +428,12 @@ export default function Home() {
                   {publicModels.videoModels.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-3xl font-black text-[#CCFF00]">
+                        <h2 className="text-3xl font-black text-neon-brand">
                           {t("home.videoGenModels")}
                         </h2>
                         <Button
                           variant="ghost"
-                          className="text-white hover:text-[#CCFF00]"
+                          className="text-[#F9FAFB] hover:text-neon-brand"
                           onClick={() => navigate("/video-generate")}
                         >
                           {t("home.generateVideo")}
@@ -424,7 +456,7 @@ export default function Home() {
                               )
                             }
                           >
-                            <div className="relative h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border border-white/10">
+                            <div className="ai-model-surface-video relative h-64 rounded-2xl overflow-hidden border border-white/10">
                               {model.coverImageDesktop && (
                                 <img
                                   src={model.coverImageDesktop}
@@ -435,8 +467,8 @@ export default function Home() {
                               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
                               <div className="absolute bottom-0 left-0 right-0 p-6">
                                 <div className="flex items-center gap-2 mb-2">
-                                  <Play className="w-5 h-5 text-[#CCFF00]" />
-                                  <h3 className="text-xl font-bold text-white">
+                                  <Play className="w-5 h-5 text-neon-brand" />
+                                  <h3 className="text-xl font-bold text-[#F9FAFB]">
                                     {model.modelName}
                                   </h3>
                                 </div>
@@ -460,15 +492,15 @@ export default function Home() {
             )}
 
           {/* Showcase Gallery - Masonry Grid */}
-          <section className="py-16 bg-[#111]">
+          <section className="ai-section-soft py-16">
             <div className="container">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black text-[#CCFF00]">
+                <h2 className="text-3xl font-black text-neon-brand">
                   {t("home.createdWithAi")}
                 </h2>
                 <Button
                   variant="ghost"
-                  className="text-white hover:text-[#CCFF00]"
+                  className="text-[#F9FAFB] hover:text-neon-brand"
                   onClick={() => navigate("/gallery")}
                 >
                   {t("home.gallery")}
@@ -496,10 +528,10 @@ export default function Home() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                          <span className="text-white text-xs font-medium">
+                          <span className="text-[#F9FAFB] text-xs font-medium">
                             AI Generated
                           </span>
-                          <Wand2 className="w-4 h-4 text-[#CCFF00]" />
+                          <Wand2 className="w-4 h-4 text-neon-brand" />
                         </div>
                       </div>
                     </div>
@@ -510,15 +542,15 @@ export default function Home() {
           </section>
 
           {/* Video Showcase Section */}
-          <section className="py-16 bg-[#0A0A0A]">
+          <section className="ai-section-soft py-16">
             <div className="container">
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black text-[#CCFF00]">
+                <h2 className="text-3xl font-black text-neon-brand">
                   {t("home.aiVideoGallery")}
                 </h2>
                 <Button
                   variant="ghost"
-                  className="text-white hover:text-[#CCFF00]"
+                  className="text-[#F9FAFB] hover:text-neon-brand"
                   onClick={() => navigate("/video-generate")}
                 >
                   {t("home.createVideo")}
@@ -550,13 +582,13 @@ export default function Home() {
                       />
                       {playingVideo !== index && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
-                          <div className="w-16 h-16 rounded-full bg-[#CCFF00] flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <div className="w-16 h-16 rounded-full bg-neon-brand flex items-center justify-center group-hover:scale-110 transition-transform">
                             <Play className="w-8 h-8 text-black ml-1" />
                           </div>
                         </div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                        <span className="text-white text-sm font-medium">
+                        <span className="text-[#F9FAFB] text-sm font-medium">
                           {t("home.aiVideoItem")} #{index + 1}
                         </span>
                       </div>
@@ -568,7 +600,7 @@ export default function Home() {
           </section>
 
           {/* Viral Apps Section */}
-          {/* <section className="py-16 bg-[#CCFF00]">
+          {/* <section className="py-16 bg-neon-brand">
           <div className="container">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-black text-black">
@@ -595,14 +627,14 @@ export default function Home() {
                   className="group cursor-pointer"
                   onClick={() => handleToolClick(`/apps?app=${app.id}`)}
                 >
-                  <div className="relative bg-black rounded-xl p-4 text-center hover:bg-black/80 transition-colors">
+                  <div className="relative bg-[#0B0F19] rounded-xl p-4 text-center hover:bg-black/80 transition-colors">
                     {app.hot && (
-                      <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-500 text-white">
+                      <span className="absolute -top-2 -right-2 px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-500 text-[#F9FAFB]">
                         HOT
                       </span>
                     )}
                     <span className="text-3xl mb-2 block">{app.icon}</span>
-                    <span className="text-white text-xs font-medium">{app.title}</span>
+                    <span className="text-[#F9FAFB] text-xs font-medium">{app.title}</span>
                   </div>
                 </motion.div>
               ))}
@@ -611,11 +643,11 @@ export default function Home() {
         </section> */}
 
           {/* Community Characters Section */}
-          <section className="py-16 bg-[#111]">
+          <section className="ai-section-soft py-16">
             <div className="container">
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-3xl font-black text-[#CCFF00] mb-2 flex items-center gap-3">
+                  <h2 className="text-3xl font-black text-neon-brand mb-2 flex items-center gap-3">
                     <Users className="w-8 h-8" />
                     {t("home.communityGallery")}
                   </h2>
@@ -623,7 +655,7 @@ export default function Home() {
                 </div>
                 <Button
                   variant="outline"
-                  className="rounded-full border-[#CCFF00] text-[#CCFF00] hover:bg-[#CCFF00] hover:text-black"
+                  className="rounded-full border-neon-brand text-neon-brand hover:bg-neon-brand hover:text-black"
                   onClick={() => navigate("/community-characters")}
                 >
                   {t("home.viewAll")}
@@ -651,7 +683,7 @@ export default function Home() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                             <div className="absolute bottom-0 left-0 right-0 p-3">
-                              <p className="text-white font-semibold text-sm truncate">
+                              <p className="text-[#F9FAFB] font-semibold text-sm truncate">
                                 {character.name}
                               </p>
                               {character.userName && (
@@ -661,8 +693,8 @@ export default function Home() {
                               )}
                               {character.usageCount > 0 && (
                                 <div className="flex items-center gap-1 mt-1">
-                                  <Star className="w-3 h-3 text-[#CCFF00]" />
-                                  <span className="text-[#CCFF00] text-xs">
+                                  <Star className="w-3 h-3 text-neon-brand" />
+                                  <span className="text-neon-brand text-xs">
                                     {character.usageCount}
                                   </span>
                                 </div>
@@ -681,7 +713,7 @@ export default function Home() {
                         className="break-inside-avoid group cursor-pointer"
                         onClick={() => navigate("/ai-influencer")}
                       >
-                        <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-purple-900/30 to-pink-900/30 aspect-[3/4]">
+                        <div className="ai-model-surface-image relative rounded-xl overflow-hidden aspect-[3/4]">
                           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                             <Sparkles className="w-8 h-8 text-white/20" />
                             <span className="text-white/30 text-xs text-center px-2">
@@ -696,7 +728,7 @@ export default function Home() {
           </section>
 
           {/* Footer CTA */}
-          <section className="py-20 bg-[#CCFF00]">
+          <section className="py-20 bg-neon-brand">
             <div className="container text-center">
               <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
                 {t("home.cta.title")}
@@ -706,7 +738,7 @@ export default function Home() {
               </p>
               <Button
                 size="lg"
-                className="h-16 px-12 text-xl font-black rounded-full bg-black text-[#CCFF00] hover:bg-black/90"
+                className="h-16 px-12 text-xl font-black rounded-full bg-[#0B0F19] text-neon-brand hover:bg-black/90"
                 onClick={() =>
                   isAuthenticated
                     ? navigate("/generate")
@@ -720,7 +752,7 @@ export default function Home() {
           </section>
 
           {/* Footer */}
-          <footer className="bg-black border-t border-white/10 py-12">
+          <footer className="bg-[#0B0F19] border-t border-white/10 py-12">
             <div className="container">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                 {/* Logo & Description */}
@@ -742,7 +774,7 @@ export default function Home() {
                       href="https://t.me/nanoinfluencer"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#0088cc] transition-colors"
+                      className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#00F5FF] transition-colors"
                       title={t("footer.telegram")}
                     >
                       <Send className="h-5 w-5" />
@@ -759,7 +791,7 @@ export default function Home() {
                     <li>
                       <a
                         href="/generate"
-                        className="hover:text-[#CCFF00] transition-colors"
+                        className="hover:text-neon-brand transition-colors"
                       >
                         {t("home.generateImage")}
                       </a>
@@ -767,7 +799,7 @@ export default function Home() {
                     <li>
                       <a
                         href="/video-generate"
-                        className="hover:text-[#CCFF00] transition-colors"
+                        className="hover:text-neon-brand transition-colors"
                       >
                         {t("home.generateVideo")}
                       </a>
@@ -775,7 +807,7 @@ export default function Home() {
                     <li>
                       <a
                         href="/ai-influencer"
-                        className="hover:text-[#CCFF00] transition-colors"
+                        className="hover:text-neon-brand transition-colors"
                       >
                         AI Influencer
                       </a>
@@ -783,7 +815,7 @@ export default function Home() {
                     <li>
                       <a
                         href="/gallery"
-                        className="hover:text-[#CCFF00] transition-colors"
+                        className="hover:text-neon-brand transition-colors"
                       >
                         {t("home.gallery")}
                       </a>
@@ -791,7 +823,7 @@ export default function Home() {
                     <li>
                       <a
                         href="/packages"
-                        className="hover:text-[#CCFF00] transition-colors"
+                        className="hover:text-neon-brand transition-colors"
                       >
                         {t("nav.packages")}
                       </a>
@@ -806,7 +838,7 @@ export default function Home() {
                     <li>
                       <a
                         href="/blog"
-                        className="hover:text-[#CCFF00] transition-colors"
+                        className="hover:text-neon-brand transition-colors"
                       >
                         Blog
                       </a>
@@ -816,7 +848,7 @@ export default function Home() {
                         href="https://t.me/nanoinfluencer"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-[#CCFF00] transition-colors flex items-center gap-2"
+                        className="hover:text-neon-brand transition-colors flex items-center gap-2"
                       >
                         <Send className="h-4 w-4" />
                         {t("footer.telegram")}
@@ -834,13 +866,13 @@ export default function Home() {
                 <div className="flex gap-4 text-sm text-muted-foreground">
                   <a
                     href="#"
-                    className="hover:text-[#CCFF00] transition-colors"
+                    className="hover:text-neon-brand transition-colors"
                   >
                     {t("footer.privacy")}
                   </a>
                   <a
                     href="#"
-                    className="hover:text-[#CCFF00] transition-colors"
+                    className="hover:text-neon-brand transition-colors"
                   >
                     {t("footer.terms")}
                   </a>

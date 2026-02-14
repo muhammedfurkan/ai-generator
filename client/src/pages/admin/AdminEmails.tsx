@@ -69,10 +69,12 @@ export default function AdminEmails() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">E-posta Yönetimi</h2>
-          <p className="text-sm text-zinc-500">Toplu e-posta gönderimi ve geçmiş</p>
+          <p className="text-sm text-zinc-500">
+            Toplu e-posta gönderimi ve geçmiş
+          </p>
         </div>
         <Button
-          className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
           onClick={() => setComposeOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -87,7 +89,7 @@ export default function AdminEmails() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
         >
-          <Mail className="h-5 w-5 text-blue-400 mb-2" />
+          <Mail className="h-5 w-5 text-[#00F5FF] mb-2" />
           <p className="text-2xl font-bold">2</p>
           <p className="text-xs text-zinc-500">Gönderilen</p>
         </motion.div>
@@ -109,7 +111,7 @@ export default function AdminEmails() {
           transition={{ delay: 0.2 }}
           className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
         >
-          <CheckCircle className="h-5 w-5 text-purple-400 mb-2" />
+          <CheckCircle className="h-5 w-5 text-[#7C3AED] mb-2" />
           <p className="text-2xl font-bold">579</p>
           <p className="text-xs text-zinc-500">Tıklama</p>
         </motion.div>
@@ -138,12 +140,14 @@ export default function AdminEmails() {
         </div>
 
         <div className="divide-y divide-white/5">
-          {emailHistory.map((email) => (
+          {emailHistory.map(email => (
             <div key={email.id} className="p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <h4 className="font-medium">{email.subject}</h4>
-                  <p className="text-sm text-zinc-500 mt-1">{email.recipients}</p>
+                  <p className="text-sm text-zinc-500 mt-1">
+                    {email.recipients}
+                  </p>
                   <div className="flex items-center gap-4 mt-2 text-xs text-zinc-500">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -178,8 +182,8 @@ export default function AdminEmails() {
       {/* Note */}
       <div className="bg-zinc-900/50 rounded-xl border border-white/10 p-4 text-sm text-zinc-500">
         <p>
-          💡 E-posta gönderim özelliği için SMTP/Email servis entegrasyonu gereklidir.
-          Bu sayfada örnek arayüz gösterilmektedir.
+          💡 E-posta gönderim özelliği için SMTP/Email servis entegrasyonu
+          gereklidir. Bu sayfada örnek arayüz gösterilmektedir.
         </p>
       </div>
 
@@ -194,7 +198,9 @@ export default function AdminEmails() {
               <label className="text-sm font-medium mb-2 block">Alıcılar</label>
               <select
                 value={formData.recipients}
-                onChange={(e) => setFormData({ ...formData, recipients: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, recipients: e.target.value })
+                }
                 className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2"
               >
                 <option value="all">Tüm Kullanıcılar</option>
@@ -208,7 +214,9 @@ export default function AdminEmails() {
               <label className="text-sm font-medium mb-2 block">Konu</label>
               <Input
                 value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, subject: e.target.value })
+                }
                 placeholder="E-posta konusu..."
                 className="bg-zinc-800 border-white/10"
               />
@@ -218,18 +226,24 @@ export default function AdminEmails() {
               <label className="text-sm font-medium mb-2 block">İçerik</label>
               <Textarea
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
                 placeholder="E-posta içeriği..."
                 className="bg-zinc-800 border-white/10 min-h-[200px]"
               />
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setComposeOpen(false)}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setComposeOpen(false)}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black gap-2"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
                 onClick={handleSend}
               >
                 <Send className="h-4 w-4" />

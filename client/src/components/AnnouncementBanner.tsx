@@ -4,7 +4,14 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Bell, AlertTriangle, Info, Megaphone, ExternalLink } from "lucide-react";
+import {
+  X,
+  Bell,
+  AlertTriangle,
+  Info,
+  Megaphone,
+  ExternalLink,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +38,10 @@ function dismissAnnouncement(id: number): void {
     const dismissed = getDismissedAnnouncements();
     if (!dismissed.includes(id)) {
       dismissed.push(id);
-      localStorage.setItem(DISMISSED_ANNOUNCEMENTS_KEY, JSON.stringify(dismissed));
+      localStorage.setItem(
+        DISMISSED_ANNOUNCEMENTS_KEY,
+        JSON.stringify(dismissed)
+      );
     }
   } catch {
     // Ignore storage errors
@@ -56,15 +66,15 @@ function getTypeIcon(type: string) {
 function getTypeColor(type: string) {
   switch (type) {
     case "popup":
-      return "from-purple-500 to-pink-500";
+      return "from-[#7C3AED] to-[#7C3AED]";
     case "banner":
-      return "from-blue-500 to-cyan-500";
+      return "from-[#00F5FF] to-[#7C3AED]";
     case "notification":
-      return "from-green-500 to-emerald-500";
+      return "from-green-500 to-[#7C3AED]";
     case "maintenance":
       return "from-orange-500 to-red-500";
     default:
-      return "from-blue-500 to-cyan-500";
+      return "from-[#00F5FF] to-[#7C3AED]";
   }
 }
 
@@ -73,10 +83,13 @@ export default function AnnouncementBanner() {
   const [popupAnnouncement, setPopupAnnouncement] = useState<any>(null);
 
   // Fetch announcements
-  const announcementsQuery = trpc.settings.getPublicAnnouncements.useQuery(undefined, {
-    staleTime: 60000, // 1 minute
-    retry: false,
-  });
+  const announcementsQuery = trpc.settings.getPublicAnnouncements.useQuery(
+    undefined,
+    {
+      staleTime: 60000, // 1 minute
+      retry: false,
+    }
+  );
 
   // Load dismissed announcements on mount
   useEffect(() => {
@@ -87,26 +100,22 @@ export default function AnnouncementBanner() {
   const announcements = announcementsQuery.data || [];
 
   // Get banner announcements (not popup type, and not dismissed)
-  const bannerAnnouncements = announcements.filter(
-    (ann) => {
-      // Skip popups
-      if (ann.type === "popup") return false;
-      // If dismissed, don't show
-      if (dismissedIds.includes(ann.id)) return false;
-      return true;
-    }
-  );
+  const bannerAnnouncements = announcements.filter(ann => {
+    // Skip popups
+    if (ann.type === "popup") return false;
+    // If dismissed, don't show
+    if (dismissedIds.includes(ann.id)) return false;
+    return true;
+  });
 
   // Get popup announcement (first one not dismissed)
-  const popupAnnouncements = announcements.filter(
-    (ann) => {
-      // Only popups
-      if (ann.type !== "popup") return false;
-      // If dismissed, don't show
-      if (dismissedIds.includes(ann.id)) return false;
-      return true;
-    }
-  );
+  const popupAnnouncements = announcements.filter(ann => {
+    // Only popups
+    if (ann.type !== "popup") return false;
+    // If dismissed, don't show
+    if (dismissedIds.includes(ann.id)) return false;
+    return true;
+  });
 
   // Show first popup on mount
   useEffect(() => {
@@ -136,7 +145,7 @@ export default function AnnouncementBanner() {
     <>
       {/* Banner Announcements */}
       <AnimatePresence>
-        {bannerAnnouncements.slice(0, 1).map((ann) => (
+        {bannerAnnouncements.slice(0, 1).map(ann => (
           <motion.div
             key={ann.id}
             initial={{ height: 0, opacity: 0 }}
@@ -148,11 +157,9 @@ export default function AnnouncementBanner() {
             }}
           >
             <div className="container py-2 px-4 flex items-center justify-center gap-3">
-              <div className="text-white/90">
-                {getTypeIcon(ann.type)}
-              </div>
+              <div className="text-white/90">{getTypeIcon(ann.type)}</div>
               <p
-                className="text-sm font-medium text-white flex-1 text-center"
+                className="text-sm font-medium text-[#F9FAFB] flex-1 text-center"
                 style={{ color: ann.textColor || undefined }}
               >
                 {ann.title}
@@ -168,7 +175,7 @@ export default function AnnouncementBanner() {
                   href={ann.buttonUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden sm:flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-full text-white text-xs font-medium transition-colors"
+                  className="hidden sm:flex items-center gap-1 px-3 py-1 bg-white/20 hover:bg-white/30 rounded-full text-[#F9FAFB] text-xs font-medium transition-colors"
                 >
                   {ann.buttonText}
                   <ExternalLink className="h-3 w-3" />
@@ -177,7 +184,7 @@ export default function AnnouncementBanner() {
               {ann.dismissible && (
                 <button
                   onClick={() => handleDismissBanner(ann.id)}
-                  className="text-white/70 hover:text-white p-1 rounded-full hover:bg-white/10 transition-colors"
+                  className="text-white/70 hover:text-[#F9FAFB] p-1 rounded-full hover:bg-white/10 transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -188,13 +195,18 @@ export default function AnnouncementBanner() {
       </AnimatePresence>
 
       {/* Popup Announcements */}
-      <Dialog open={!!popupAnnouncement} onOpenChange={(open) => !open && handleDismissPopup()}>
+      <Dialog
+        open={!!popupAnnouncement}
+        onOpenChange={open => !open && handleDismissPopup()}
+      >
         <DialogContent className="sm:max-w-lg">
           {popupAnnouncement && (
             <>
               <DialogHeader>
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-full bg-gradient-to-r ${getTypeColor(popupAnnouncement.type)} text-white`}>
+                  <div
+                    className={`p-2 rounded-full bg-gradient-to-r ${getTypeColor(popupAnnouncement.type)} text-[#F9FAFB]`}
+                  >
                     {getTypeIcon(popupAnnouncement.type)}
                   </div>
                   <DialogTitle>{popupAnnouncement.title}</DialogTitle>
@@ -216,20 +228,21 @@ export default function AnnouncementBanner() {
               </DialogDescription>
 
               <div className="flex gap-3 mt-4">
-                {popupAnnouncement.buttonText && popupAnnouncement.buttonUrl && (
-                  <Button
-                    className="flex-1 gradient-button text-white"
-                    asChild
-                  >
-                    <a
-                      href={popupAnnouncement.buttonUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                {popupAnnouncement.buttonText &&
+                  popupAnnouncement.buttonUrl && (
+                    <Button
+                      className="flex-1 gradient-button text-[#F9FAFB]"
+                      asChild
                     >
-                      {popupAnnouncement.buttonText}
-                    </a>
-                  </Button>
-                )}
+                      <a
+                        href={popupAnnouncement.buttonUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {popupAnnouncement.buttonText}
+                      </a>
+                    </Button>
+                  )}
                 {popupAnnouncement.dismissible && (
                   <Button
                     variant="outline"

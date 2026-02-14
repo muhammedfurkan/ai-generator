@@ -81,7 +81,9 @@ export default function AdminApi() {
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold">API Durumu</h2>
-        <p className="text-sm text-zinc-500">Harici servis bağlantıları ve istatistikler</p>
+        <p className="text-sm text-zinc-500">
+          Harici servis bağlantıları ve istatistikler
+        </p>
       </div>
 
       {/* Overall Status */}
@@ -100,10 +102,10 @@ export default function AdminApi() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-blue-500/10 rounded-2xl border border-blue-500/30 p-5"
+          className="bg-[#00F5FF]/10 rounded-2xl border border-[#00F5FF]/30 p-5"
         >
-          <Zap className="h-6 w-6 text-blue-400 mb-2" />
-          <p className="text-2xl font-bold text-blue-400">325ms</p>
+          <Zap className="h-6 w-6 text-[#00F5FF] mb-2" />
+          <p className="text-2xl font-bold text-[#00F5FF]">325ms</p>
           <p className="text-xs text-zinc-500">Ort. Latency</p>
         </motion.div>
 
@@ -111,10 +113,10 @@ export default function AdminApi() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-purple-500/10 rounded-2xl border border-purple-500/30 p-5"
+          className="bg-[#7C3AED]/10 rounded-2xl border border-[#7C3AED]/30 p-5"
         >
-          <Image className="h-6 w-6 text-purple-400 mb-2" />
-          <p className="text-2xl font-bold text-purple-400">13K</p>
+          <Image className="h-6 w-6 text-[#7C3AED] mb-2" />
+          <p className="text-2xl font-bold text-[#7C3AED]">13K</p>
           <p className="text-xs text-zinc-500">Bugün İstek</p>
         </motion.div>
 
@@ -152,12 +154,16 @@ export default function AdminApi() {
                     <h3 className="font-semibold">{api.name}</h3>
                     {getStatusIcon(api.status)}
                   </div>
-                  <p className="text-sm text-zinc-500 mt-1">{api.description}</p>
+                  <p className="text-sm text-zinc-500 mt-1">
+                    {api.description}
+                  </p>
                 </div>
               </div>
 
               <div className="text-right">
-                <p className={`text-lg font-bold ${getStatusColor(api.status)}`}>
+                <p
+                  className={`text-lg font-bold ${getStatusColor(api.status)}`}
+                >
                   {api.status === "online" ? "Çalışıyor" : api.status}
                 </p>
                 <p className="text-xs text-zinc-500">{api.latency}ms latency</p>
@@ -166,12 +172,17 @@ export default function AdminApi() {
 
             <div className="mt-4 pt-4 border-t border-white/5 grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-lg font-bold">{api.requests.toLocaleString()}</p>
+                <p className="text-lg font-bold">
+                  {api.requests.toLocaleString()}
+                </p>
                 <p className="text-xs text-zinc-500">İstek</p>
               </div>
               <div>
                 <p className="text-lg font-bold text-green-400">
-                  {(((api.requests - api.errors) / api.requests) * 100).toFixed(1)}%
+                  {(((api.requests - api.errors) / api.requests) * 100).toFixed(
+                    1
+                  )}
+                  %
                 </p>
                 <p className="text-xs text-zinc-500">Başarı</p>
               </div>
@@ -187,8 +198,8 @@ export default function AdminApi() {
       {/* Note */}
       <div className="bg-zinc-900/50 rounded-xl border border-white/10 p-4 text-sm text-zinc-500">
         <p>
-          💡 Gerçek API istatistikleri için apiUsageStats tablosuna veri kaydedilmeli.
-          Bu sayfada örnek veriler gösterilmektedir.
+          💡 Gerçek API istatistikleri için apiUsageStats tablosuna veri
+          kaydedilmeli. Bu sayfada örnek veriler gösterilmektedir.
         </p>
       </div>
     </div>

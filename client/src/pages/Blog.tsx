@@ -63,15 +63,15 @@ export default function Blog() {
   const categoryList = categories || [t("blog.allCategories")];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#0B0F19]">
       <Header />
 
       <main className="pt-24 pb-16">
         <div className="container">
           {/* Hero Section */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              AI İçerik <span className="text-[#CCFF00]">Blog</span>
+            <h1 className="text-4xl md:text-5xl font-bold text-[#F9FAFB] mb-4">
+              AI İçerik <span className="text-neon-brand">Blog</span>
             </h1>
             <p className="text-lg text-gray-400 max-w-2xl mx-auto">
               AI görsel ve video oluşturma hakkında en güncel bilgiler, ipuçları
@@ -88,7 +88,7 @@ export default function Blog() {
                 placeholder={t("blog.searchPlaceholder")}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-[#CCFF00]/50"
+                className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-[#F9FAFB] placeholder:text-gray-500 focus:outline-none focus:border-neon-brand/50"
               />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-2">
@@ -98,8 +98,8 @@ export default function Blog() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
                     effectiveCategory === category
-                      ? "bg-[#CCFF00] text-black"
-                      : "bg-white/10 text-white hover:bg-white/20"
+                      ? "bg-neon-brand text-black"
+                      : "bg-white/10 text-[#F9FAFB] hover:bg-white/20"
                   }`}
                 >
                   {category}
@@ -111,14 +111,14 @@ export default function Blog() {
           {/* Loading State */}
           {isLoading && (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-[#CCFF00]" />
+              <Loader2 className="w-8 h-8 animate-spin text-neon-brand" />
             </div>
           )}
 
           {/* Featured Post */}
           {!isLoading && posts.length > 0 && (
             <Link href={`/blog/${posts[0].slug}`}>
-              <Card className="bg-gradient-to-br from-[#CCFF00]/10 to-transparent border-[#CCFF00]/20 mb-8 cursor-pointer hover:border-[#CCFF00]/40 transition-all group">
+              <Card className="bg-gradient-to-br from-neon-brand/10 to-transparent border-neon-brand/20 mb-8 cursor-pointer hover:border-neon-brand/40 transition-all group">
                 <div className="grid md:grid-cols-2 gap-6 p-6">
                   <div className="aspect-video rounded-xl overflow-hidden bg-white/5">
                     <img
@@ -132,10 +132,10 @@ export default function Blog() {
                     />
                   </div>
                   <div className="flex flex-col justify-center">
-                    <span className="inline-block px-3 py-1 bg-[#CCFF00] text-black text-xs font-bold rounded-full w-fit mb-4">
+                    <span className="inline-block px-3 py-1 bg-neon-brand text-black text-xs font-bold rounded-full w-fit mb-4">
                       {posts[0].category}
                     </span>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 group-hover:text-[#CCFF00] transition-colors">
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#F9FAFB] mb-3 group-hover:text-neon-brand transition-colors">
                       {posts[0].title}
                     </h2>
                     <p className="text-gray-400 mb-4">{posts[0].description}</p>
@@ -168,7 +168,7 @@ export default function Blog() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.slice(1).map((post: BlogPost) => (
                 <Link key={post.id} href={`/blog/${post.slug}`}>
-                  <Card className="bg-white/5 border-white/10 cursor-pointer hover:border-[#CCFF00]/40 transition-all group h-full">
+                  <Card className="bg-white/5 border-white/10 cursor-pointer hover:border-neon-brand/40 transition-all group h-full">
                     <div className="aspect-video rounded-t-xl overflow-hidden">
                       <img
                         src={post.coverImage || "/gallery/sample-1.jpg"}
@@ -181,10 +181,10 @@ export default function Blog() {
                       />
                     </div>
                     <CardHeader className="pb-2">
-                      <span className="inline-block px-2 py-1 bg-white/10 text-[#CCFF00] text-xs font-medium rounded w-fit mb-2">
+                      <span className="inline-block px-2 py-1 bg-white/10 text-neon-brand text-xs font-medium rounded w-fit mb-2">
                         {post.category}
                       </span>
-                      <CardTitle className="text-lg text-white group-hover:text-[#CCFF00] transition-colors">
+                      <CardTitle className="text-lg text-[#F9FAFB] group-hover:text-neon-brand transition-colors">
                         {post.title}
                       </CardTitle>
                     </CardHeader>
@@ -223,8 +223,8 @@ export default function Blog() {
           )}
 
           {/* CTA Section */}
-          <div className="mt-16 text-center bg-gradient-to-r from-[#CCFF00]/10 to-purple-500/10 rounded-2xl p-8 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-4">
+          <div className="mt-16 text-center bg-gradient-to-r from-neon-brand/10 to-[#FF2E97]/10 rounded-2xl p-8 border border-white/10">
+            <h2 className="text-2xl font-bold text-[#F9FAFB] mb-4">
               Hemen AI ile İçerik Oluşturmaya Başlayın
             </h2>
             <p className="text-gray-400 mb-6 max-w-xl mx-auto">
@@ -232,7 +232,7 @@ export default function Blog() {
               araçlarımızı deneyin.
             </p>
             <Link href="/generate">
-              <Button className="bg-[#CCFF00] text-black hover:bg-[#CCFF00]/90 font-bold px-8 py-6 text-lg rounded-full">
+              <Button className="bg-neon-brand text-black hover:bg-neon-brand/90 font-bold px-8 py-6 text-lg rounded-full">
                 Ücretsiz Dene
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

@@ -37,20 +37,20 @@ interface Notification {
 }
 
 const notificationIcons: Record<NotificationType, React.ReactNode> = {
-  generation_complete: <Image className="w-5 h-5 text-purple-400" />,
+  generation_complete: <Image className="w-5 h-5 text-[#7C3AED]" />,
   low_credits: <Coins className="w-5 h-5 text-amber-400" />,
-  welcome: <Sparkles className="w-5 h-5 text-lime-400" />,
-  referral_bonus: <Gift className="w-5 h-5 text-pink-400" />,
-  system: <Megaphone className="w-5 h-5 text-blue-400" />,
+  welcome: <Sparkles className="w-5 h-5 text-[#00F5FF]" />,
+  referral_bonus: <Gift className="w-5 h-5 text-[#FF2E97]" />,
+  system: <Megaphone className="w-5 h-5 text-[#00F5FF]" />,
   credit_added: <Coins className="w-5 h-5 text-green-400" />,
 };
 
 const notificationColors: Record<NotificationType, string> = {
-  generation_complete: "from-purple-500/20 to-purple-600/10",
+  generation_complete: "from-[#7C3AED]/20 to-[#FF2E97]/10",
   low_credits: "from-amber-500/20 to-amber-600/10",
-  welcome: "from-lime-500/20 to-lime-600/10",
-  referral_bonus: "from-pink-500/20 to-pink-600/10",
-  system: "from-blue-500/20 to-blue-600/10",
+  welcome: "from-[#00F5FF]/20 to-[#7C3AED]/10",
+  referral_bonus: "from-[#FF2E97]/20 to-[#7C3AED]/10",
+  system: "from-[#00F5FF]/20 to-[#7C3AED]/10",
   credit_added: "from-green-500/20 to-green-600/10",
 };
 
@@ -144,7 +144,7 @@ export function NotificationBell() {
         <Bell
           className={cn(
             "w-5 h-5 transition-all duration-300",
-            unreadCount > 0 ? "text-lime-400" : "text-gray-400"
+            unreadCount > 0 ? "text-[#00F5FF]" : "text-gray-400"
           )}
         />
 
@@ -153,7 +153,7 @@ export function NotificationBell() {
             className={cn(
               "absolute -top-0.5 -right-0.5 flex items-center justify-center",
               "min-w-[18px] h-[18px] px-1 text-[10px] font-bold",
-              "bg-red-500 text-white rounded-full"
+              "bg-red-500 text-[#F9FAFB] rounded-full"
             )}
           >
             {unreadCount > 99 ? "99+" : unreadCount}
@@ -164,18 +164,20 @@ export function NotificationBell() {
       {isOpen && (
         <div
           className={cn(
-            "absolute right-0 top-full mt-2 w-[360px] max-h-[480px]",
+            "absolute right-0 top-full mt-2 w-[min(92vw,360px)] max-h-[75vh] sm:max-h-[480px]",
             "bg-zinc-900 border border-white/10 rounded-2xl",
             "shadow-2xl shadow-black/50 overflow-hidden z-50"
           )}
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-            <h3 className="text-sm font-semibold text-white">Bildirimler</h3>
+            <h3 className="text-sm font-semibold text-[#F9FAFB]">
+              Bildirimler
+            </h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllAsReadMutation.mutate()}
-                  className="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-lime-400 transition-colors"
+                  className="flex items-center gap-1 px-2 py-1 text-xs text-gray-400 hover:text-[#00F5FF] transition-colors"
                   disabled={markAllAsReadMutation.isPending}
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
@@ -184,14 +186,14 @@ export function NotificationBell() {
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1 text-gray-400 hover:text-white transition-colors"
+                className="p-1 text-gray-400 hover:text-[#F9FAFB] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          <div className="overflow-y-auto max-h-[380px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <div className="overflow-y-auto max-h-[calc(75vh-64px)] sm:max-h-[380px] scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-4">
                 <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
@@ -232,13 +234,13 @@ export function NotificationBell() {
                               "text-sm font-medium truncate",
                               notification.isRead
                                 ? "text-gray-300"
-                                : "text-white"
+                                : "text-[#F9FAFB]"
                             )}
                           >
                             {notification.title}
                           </h4>
                           {!notification.isRead && (
-                            <span className="flex-shrink-0 w-2 h-2 rounded-full bg-lime-400 mt-1.5" />
+                            <span className="flex-shrink-0 w-2 h-2 rounded-full bg-[#00F5FF] mt-1.5" />
                           )}
                         </div>
                         <p
@@ -264,7 +266,7 @@ export function NotificationBell() {
                                 notificationId: notification.id,
                               });
                             }}
-                            className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-lime-400 transition-colors"
+                            className="p-1.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-[#00F5FF] transition-colors"
                             title="Okundu işaretle"
                           >
                             <Check className="w-3.5 h-3.5" />

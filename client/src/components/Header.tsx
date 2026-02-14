@@ -132,14 +132,14 @@ export default function Header() {
                     onClick={() => navigate(item.path)}
                     className={`text-sm px-3 py-2 h-9 rounded-lg transition-all ${
                       location === item.path
-                        ? "bg-white/10 text-white"
-                        : "text-gray-300 hover:text-white hover:bg-white/5"
+                        ? "bg-white/10 text-[#F9FAFB]"
+                        : "text-gray-300 hover:text-[#F9FAFB] hover:bg-white/5"
                     }`}
                   >
                     <span className="flex items-center gap-1.5">
                       {item.label}
                       {(item as any).badge && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-[#CCFF00] text-black rounded">
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-brand text-black rounded">
                           {(item as any).badge}
                         </span>
                       )}
@@ -154,8 +154,8 @@ export default function Header() {
                   onClick={() => navigate("/gallery")}
                   className={`text-sm px-3 py-2 h-9 rounded-lg transition-all ${
                     location === "/gallery"
-                      ? "bg-white/10 text-white"
-                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                      ? "bg-white/10 text-[#F9FAFB]"
+                      : "text-gray-300 hover:text-[#F9FAFB] hover:bg-white/5"
                   }`}
                 >
                   {t("nav.gallery")}
@@ -168,8 +168,8 @@ export default function Header() {
                   onClick={() => navigate("/blog")}
                   className={`text-sm px-3 py-2 h-9 rounded-lg transition-all ${
                     location === "/blog"
-                      ? "bg-white/10 text-white"
-                      : "text-gray-300 hover:text-white hover:bg-white/5"
+                      ? "bg-white/10 text-[#F9FAFB]"
+                      : "text-gray-300 hover:text-[#F9FAFB] hover:bg-white/5"
                   }`}
                 >
                   {t("nav.blog")}
@@ -182,12 +182,12 @@ export default function Header() {
               {/* Credits Display - Clickable */}
               <motion.button
                 onClick={() => navigate("/packages")}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 hover:border-purple-500/50 transition-all"
+                className="ai-credit-pill flex items-center gap-2 px-3 py-1.5 rounded-full hover:border-[#7C3AED]/55 transition-all"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse" />
-                <span className="text-sm font-semibold text-white">
+                <div className="ai-credit-dot w-2 h-2 rounded-full animate-pulse" />
+                <span className="text-sm font-semibold text-[#F9FAFB]">
                   {creditsQuery.data?.credits ?? 0}
                 </span>
                 <span className="text-xs text-gray-400">
@@ -223,7 +223,7 @@ export default function Header() {
               {/* Create Button - CTA */}
               <Button
                 onClick={() => navigate("/generate")}
-                className="bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-black font-semibold rounded-full px-5 h-9 ml-1 shadow-lg shadow-[#CCFF00]/20"
+                className="bg-neon-brand hover:bg-neon-brand/90 text-black font-semibold rounded-full px-5 h-9 ml-1 shadow-lg shadow-neon-brand/20"
               >
                 <Sparkles className="h-4 w-4 mr-1.5" />
                 {t("nav.generate")}
@@ -237,7 +237,7 @@ export default function Header() {
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="flex items-center gap-1.5 px-2 py-1.5 rounded-full hover:bg-white/10 transition-colors h-9"
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-xs">
+                  <div className="ai-avatar-grad w-7 h-7 rounded-full flex items-center justify-center text-[#F9FAFB] font-semibold text-xs">
                     {user?.name?.charAt(0).toUpperCase() ||
                       user?.email?.charAt(0).toUpperCase() ||
                       "U"}
@@ -257,15 +257,15 @@ export default function Header() {
                       className="absolute right-0 top-full mt-2 w-56 bg-gray-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[100]"
                     >
                       {/* User Info Section */}
-                      <div className="p-3 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-b border-white/10">
+                      <div className="p-3 bg-sky-500/10 border-b border-white/10">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                          <div className="ai-avatar-grad w-10 h-10 rounded-full flex items-center justify-center text-[#F9FAFB] font-bold text-sm">
                             {user?.name?.charAt(0).toUpperCase() ||
                               user?.email?.charAt(0).toUpperCase() ||
                               "U"}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-white font-semibold text-sm truncate">
+                            <p className="text-[#F9FAFB] font-semibold text-sm truncate">
                               {user?.name || t("common.user")}
                             </p>
                             <p className="text-gray-400 text-xs truncate">
@@ -336,7 +336,7 @@ export default function Header() {
               <LanguageSwitcher />
               <Button
                 onClick={() => (window.location.href = getLoginUrl())}
-                className="bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-black font-semibold rounded-full px-6 ml-2"
+                className="bg-neon-brand hover:bg-neon-brand/90 text-black font-semibold rounded-full px-6 ml-2"
               >
                 {t("common.login")}
               </Button>
@@ -376,16 +376,16 @@ export default function Header() {
                       navigate("/packages");
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30"
+                    className="ai-credit-pill w-full flex items-center justify-between px-4 py-3 rounded-xl"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-400 to-blue-400 animate-pulse" />
-                      <span className="text-lg font-bold text-white">
+                      <div className="ai-credit-dot w-2.5 h-2.5 rounded-full animate-pulse" />
+                      <span className="text-lg font-bold text-[#F9FAFB]">
                         {creditsQuery.data?.credits ?? 0}{" "}
                         {t("nav.creditsSuffix")}
                       </span>
                     </div>
-                    <span className="text-xs text-purple-400 font-medium">
+                    <span className="text-xs text-[#7C3AED] font-medium">
                       {t("nav.topUp")} →
                     </span>
                   </button>
@@ -396,7 +396,7 @@ export default function Header() {
                       navigate("/generate");
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-black font-semibold rounded-xl py-3 h-auto"
+                    className="w-full bg-neon-brand hover:bg-neon-brand/90 text-black font-semibold rounded-xl py-3 h-auto"
                   >
                     <Sparkles className="h-5 w-5 mr-2" />
                     {t("home.generateImage")}
@@ -477,7 +477,7 @@ export default function Header() {
                           onClick={() => setLanguage("tr")}
                           className={`w-full justify-start py-3 h-auto ${
                             language === "tr"
-                              ? "bg-[#CCFF00]/20 text-[#CCFF00] border border-[#CCFF00]/50"
+                              ? "ai-lang-active"
                               : "border border-white/10"
                           }`}
                         >
@@ -489,7 +489,7 @@ export default function Header() {
                           onClick={() => setLanguage("en")}
                           className={`w-full justify-start py-3 h-auto ${
                             language === "en"
-                              ? "bg-[#CCFF00]/20 text-[#CCFF00] border border-[#CCFF00]/50"
+                              ? "ai-lang-active"
                               : "border border-white/10"
                           }`}
                         >
@@ -540,7 +540,7 @@ export default function Header() {
                         onClick={() => setLanguage("tr")}
                         className={`w-full justify-start py-3 h-auto ${
                           language === "tr"
-                            ? "bg-[#CCFF00]/20 text-[#CCFF00] border border-[#CCFF00]/50"
+                            ? "ai-lang-active"
                             : "border border-white/10"
                         }`}
                       >
@@ -552,7 +552,7 @@ export default function Header() {
                         onClick={() => setLanguage("en")}
                         className={`w-full justify-start py-3 h-auto ${
                           language === "en"
-                            ? "bg-[#CCFF00]/20 text-[#CCFF00] border border-[#CCFF00]/50"
+                            ? "ai-lang-active"
                             : "border border-white/10"
                         }`}
                       >
@@ -567,7 +567,7 @@ export default function Header() {
                       window.location.href = getLoginUrl();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full bg-[#CCFF00] hover:bg-[#CCFF00]/90 text-black font-semibold rounded-xl py-3 h-auto"
+                    className="w-full bg-neon-brand hover:bg-neon-brand/90 text-black font-semibold rounded-xl py-3 h-auto"
                   >
                     {t("common.login")}
                   </Button>

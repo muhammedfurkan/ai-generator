@@ -1,5 +1,5 @@
 -- Seed script for adding new AI models to aiModelConfig table
--- Run: pnpm db:execute scripts/seed-new-models.sql
+-- Run: npm run db:push
 
 -- ============================================
 -- IMAGE MODELS

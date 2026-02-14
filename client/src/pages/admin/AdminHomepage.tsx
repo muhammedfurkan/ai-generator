@@ -80,46 +80,52 @@ export default function AdminHomepage() {
   const utils = trpc.useUtils();
 
   // Get sections from database
-  const sectionsQuery = trpc.adminPanel.getHomepageSections.useQuery(undefined, {
-    retry: false,
-    onError: () => {
-      // If no sections exist, use defaults
-      const defaultSections = DEFAULT_SECTIONS.map((s, i) => ({
-        id: i + 1,
-        sectionKey: s.sectionKey,
-        title: s.title,
-        isVisible: true,
-        order: s.order,
-        config: null,
-      }));
-      setSections(defaultSections);
-    },
-  });
+  const sectionsQuery = trpc.adminPanel.getHomepageSections.useQuery(
+    undefined,
+    {
+      retry: false,
+      onError: () => {
+        // If no sections exist, use defaults
+        const defaultSections = DEFAULT_SECTIONS.map((s, i) => ({
+          id: i + 1,
+          sectionKey: s.sectionKey,
+          title: s.title,
+          isVisible: true,
+          order: s.order,
+          config: null,
+        }));
+        setSections(defaultSections);
+      },
+    }
+  );
 
-  const updateOrderMutation = trpc.adminPanel.updateHomepageSectionOrder.useMutation({
-    onSuccess: () => {
-      toast.success("Sıralama kaydedildi");
-      setHasChanges(false);
-      utils.adminPanel.getHomepageSections.invalidate();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const updateOrderMutation =
+    trpc.adminPanel.updateHomepageSectionOrder.useMutation({
+      onSuccess: () => {
+        toast.success("Sıralama kaydedildi");
+        setHasChanges(false);
+        utils.adminPanel.getHomepageSections.invalidate();
+      },
+      onError: error => toast.error(error.message),
+    });
 
-  const updateSectionMutation = trpc.adminPanel.updateHomepageSection.useMutation({
-    onSuccess: () => {
-      toast.success("Bölüm güncellendi");
-      utils.adminPanel.getHomepageSections.invalidate();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const updateSectionMutation =
+    trpc.adminPanel.updateHomepageSection.useMutation({
+      onSuccess: () => {
+        toast.success("Bölüm güncellendi");
+        utils.adminPanel.getHomepageSections.invalidate();
+      },
+      onError: error => toast.error(error.message),
+    });
 
-  const initSectionsMutation = trpc.adminPanel.initializeHomepageSections.useMutation({
-    onSuccess: () => {
-      toast.success("Varsayılan bölümler oluşturuldu");
-      utils.adminPanel.getHomepageSections.invalidate();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const initSectionsMutation =
+    trpc.adminPanel.initializeHomepageSections.useMutation({
+      onSuccess: () => {
+        toast.success("Varsayılan bölümler oluşturuldu");
+        utils.adminPanel.getHomepageSections.invalidate();
+      },
+      onError: error => toast.error(error.message),
+    });
 
   useEffect(() => {
     if (sectionsQuery.data && sectionsQuery.data.length > 0) {
@@ -140,7 +146,7 @@ export default function AdminHomepage() {
     setIsSaving(true);
     try {
       await updateOrderMutation.mutateAsync({
-        sections: sections.map((s) => ({ id: s.id, order: s.order })),
+        sections: sections.map(s => ({ id: s.id, order: s.order })),
       });
     } finally {
       setIsSaving(false);
@@ -152,8 +158,10 @@ export default function AdminHomepage() {
       id: section.id,
       isVisible: !section.isVisible,
     });
-    setSections((prev) =>
-      prev.map((s) => (s.id === section.id ? { ...s, isVisible: !s.isVisible } : s))
+    setSections(prev =>
+      prev.map(s =>
+        s.id === section.id ? { ...s, isVisible: !s.isVisible } : s
+      )
     );
   };
 
@@ -167,7 +175,7 @@ export default function AdminHomepage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Layout className="h-5 w-5 text-purple-400" />
+            <Layout className="h-5 w-5 text-[#7C3AED]" />
             Ana Sayfa Düzeni
           </h2>
           <p className="text-sm text-zinc-500">
@@ -179,9 +187,13 @@ export default function AdminHomepage() {
             <Button
               onClick={handleSaveOrder}
               disabled={isSaving}
-              className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+              className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
             >
-              {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {isSaving ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Sıralamayı Kaydet
             </Button>
           )}
@@ -196,15 +208,16 @@ export default function AdminHomepage() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4"
+        className="bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-xl p-4"
       >
         <div className="flex items-start gap-3">
-          <Home className="h-5 w-5 text-purple-400 mt-0.5" />
+          <Home className="h-5 w-5 text-[#7C3AED] mt-0.5" />
           <div>
-            <p className="text-sm text-purple-300">
-              Bölümleri sürükleyip bırakarak sıralayın. Göz ikonuna tıklayarak görünürlüğü değiştirin.
+            <p className="text-sm text-[#7C3AED]">
+              Bölümleri sürükleyip bırakarak sıralayın. Göz ikonuna tıklayarak
+              görünürlüğü değiştirin.
             </p>
-            <p className="text-xs text-purple-400 mt-1">
+            <p className="text-xs text-[#7C3AED] mt-1">
               Değişiklikler kaydedildikten sonra ana sayfada yansıyacaktır.
             </p>
           </div>
@@ -227,8 +240,13 @@ export default function AdminHomepage() {
             </Button>
           </div>
         ) : (
-          <Reorder.Group axis="y" values={sections} onReorder={handleReorder} className="divide-y divide-white/5">
-            {sections.map((section) => {
+          <Reorder.Group
+            axis="y"
+            values={sections}
+            onReorder={handleReorder}
+            className="divide-y divide-white/5"
+          >
+            {sections.map(section => {
               const Icon = SECTION_ICONS[section.sectionKey] || Settings;
               return (
                 <Reorder.Item
@@ -237,30 +255,49 @@ export default function AdminHomepage() {
                   className="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors cursor-grab active:cursor-grabbing"
                 >
                   <GripVertical className="h-5 w-5 text-zinc-600" />
-                  <div className={`p-2 rounded-lg ${section.isVisible ? "bg-lime-500/20" : "bg-zinc-800"}`}>
-                    <Icon className={`h-5 w-5 ${section.isVisible ? "text-lime-400" : "text-zinc-500"}`} />
+                  <div
+                    className={`p-2 rounded-lg ${section.isVisible ? "bg-[#00F5FF]/20" : "bg-zinc-800"}`}
+                  >
+                    <Icon
+                      className={`h-5 w-5 ${section.isVisible ? "text-[#00F5FF]" : "text-zinc-500"}`}
+                    />
                   </div>
                   <div className="flex-1">
-                    <p className={`font-medium ${section.isVisible ? "" : "text-zinc-500"}`}>
+                    <p
+                      className={`font-medium ${section.isVisible ? "" : "text-zinc-500"}`}
+                    >
                       {section.title}
                     </p>
-                    <p className="text-xs text-zinc-500 font-mono">{section.sectionKey}</p>
+                    <p className="text-xs text-zinc-500 font-mono">
+                      {section.sectionKey}
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-xs px-2 py-1 rounded-full ${section.isVisible
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-zinc-700 text-zinc-400"
-                      }`}>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        section.isVisible
+                          ? "bg-green-500/20 text-green-400"
+                          : "bg-zinc-700 text-zinc-400"
+                      }`}
+                    >
                       {section.isVisible ? "Görünür" : "Gizli"}
                     </span>
-                    <span className="text-xs text-zinc-500 w-8 text-center">#{section.order}</span>
+                    <span className="text-xs text-zinc-500 w-8 text-center">
+                      #{section.order}
+                    </span>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleToggleVisibility(section)}
-                      className={section.isVisible ? "text-lime-400" : "text-zinc-500"}
+                      className={
+                        section.isVisible ? "text-[#00F5FF]" : "text-zinc-500"
+                      }
                     >
-                      {section.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                      {section.isVisible ? (
+                        <Eye className="h-4 w-4" />
+                      ) : (
+                        <EyeOff className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </Reorder.Item>
@@ -279,15 +316,20 @@ export default function AdminHomepage() {
       >
         <h3 className="font-semibold mb-4">Bölüm Açıklamaları</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-          {DEFAULT_SECTIONS.map((section) => {
+          {DEFAULT_SECTIONS.map(section => {
             const Icon = SECTION_ICONS[section.sectionKey] || Settings;
             return (
-              <div key={section.sectionKey} className="p-3 bg-zinc-800 rounded-lg">
+              <div
+                key={section.sectionKey}
+                className="p-3 bg-zinc-800 rounded-lg"
+              >
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon className="h-4 w-4 text-lime-400" />
+                  <Icon className="h-4 w-4 text-[#00F5FF]" />
                   <span className="font-medium">{section.title}</span>
                 </div>
-                <p className="text-xs text-zinc-500 font-mono">{section.sectionKey}</p>
+                <p className="text-xs text-zinc-500 font-mono">
+                  {section.sectionKey}
+                </p>
               </div>
             );
           })}

@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, Sparkles, Image, Video, Users, Zap, Gift, Check } from "lucide-react";
+import {
+  X,
+  ChevronRight,
+  ChevronLeft,
+  Sparkles,
+  Image,
+  Video,
+  Users,
+  Zap,
+  Gift,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "wouter";
 
@@ -23,7 +34,8 @@ const getTourSteps = (signupBonusCredits: string): TourStep[] => [
   {
     id: "welcome",
     title: "Amonify'a Hoş Geldin! 🎉",
-    description: "Yapay zeka ile görsel ve video oluşturmanın en kolay yolu. Seni adım adım tanıştıralım.",
+    description:
+      "Yapay zeka ile görsel ve video oluşturmanın en kolay yolu. Seni adım adım tanıştıralım.",
     icon: <Sparkles className="w-8 h-8" />,
     position: "center",
   },
@@ -37,7 +49,8 @@ const getTourSteps = (signupBonusCredits: string): TourStep[] => [
   {
     id: "image-gen",
     title: "AI Görsel Oluştur",
-    description: "Nano Banana Pro, SeeDream ve Qwen modelleri ile profesyonel görseller oluştur. Sadece hayal et, AI üretsin!",
+    description:
+      "Nano Banana Pro, SeeDream ve Qwen modelleri ile profesyonel görseller oluştur. Sadece hayal et, AI üretsin!",
     icon: <Image className="w-8 h-8" />,
     position: "center",
     action: {
@@ -48,7 +61,8 @@ const getTourSteps = (signupBonusCredits: string): TourStep[] => [
   {
     id: "video-gen",
     title: "AI Video Oluştur",
-    description: "Veo 3.1, Sora 2, Kling ve daha fazlası ile metinden veya görsellerden video oluştur.",
+    description:
+      "Veo 3.1, Sora 2, Kling ve daha fazlası ile metinden veya görsellerden video oluştur.",
     icon: <Video className="w-8 h-8" />,
     position: "center",
     action: {
@@ -59,7 +73,8 @@ const getTourSteps = (signupBonusCredits: string): TourStep[] => [
   {
     id: "ai-influencer",
     title: "AI Influencer",
-    description: "Kendi AI karakterini oluştur ve onunla sınırsız içerik üret. Sosyal medya için mükemmel!",
+    description:
+      "Kendi AI karakterini oluştur ve onunla sınırsız içerik üret. Sosyal medya için mükemmel!",
     icon: <Users className="w-8 h-8" />,
     position: "center",
     action: {
@@ -81,7 +96,8 @@ const getTourSteps = (signupBonusCredits: string): TourStep[] => [
   {
     id: "complete",
     title: "Hazırsın! 🚀",
-    description: "Artık Amonify'ın tüm özelliklerini kullanabilirsin. Hemen ilk görselini oluşturmaya başla!",
+    description:
+      "Artık Amonify'ın tüm özelliklerini kullanabilirsin. Hemen ilk görselini oluşturmaya başla!",
     icon: <Check className="w-8 h-8" />,
     position: "center",
     action: {
@@ -97,7 +113,11 @@ interface OnboardingTourProps {
   signupBonusCredits?: string;
 }
 
-export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: OnboardingTourProps) {
+export function OnboardingTour({
+  isOpen,
+  onClose,
+  signupBonusCredits = "25",
+}: OnboardingTourProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
   const [, setLocation] = useLocation();
@@ -115,14 +135,14 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
       handleComplete();
     } else {
       setDirection(1);
-      setCurrentStep((prev) => prev + 1);
+      setCurrentStep(prev => prev + 1);
     }
   }, [isLastStep]);
 
   const handlePrev = useCallback(() => {
     if (!isFirstStep) {
       setDirection(-1);
-      setCurrentStep((prev) => prev - 1);
+      setCurrentStep(prev => prev - 1);
     }
   }, [isFirstStep]);
 
@@ -179,12 +199,12 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
 
   const iconColors = [
     "from-yellow-400 to-orange-500",
-    "from-green-400 to-emerald-500",
-    "from-purple-400 to-pink-500",
-    "from-blue-400 to-cyan-500",
-    "from-pink-400 to-rose-500",
+    "from-green-400 to-[#7C3AED]",
+    "from-[#7C3AED] to-[#7C3AED]",
+    "from-[#00F5FF] to-[#7C3AED]",
+    "from-[#FF2E97] to-[#7C3AED]",
     "from-orange-400 to-red-500",
-    "from-[#CCFF00] to-green-400",
+    "from-neon-brand to-green-400",
   ];
 
   return (
@@ -212,7 +232,7 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
               {[...Array(20)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-2 h-2 rounded-full bg-[#CCFF00]/20"
+                  className="absolute w-2 h-2 rounded-full bg-neon-brand/20"
                   initial={{
                     x: Math.random() * window.innerWidth,
                     y: Math.random() * window.innerHeight,
@@ -240,7 +260,7 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
               {/* Progress bar */}
               <div className="absolute -top-8 left-0 right-0 h-1 bg-zinc-800 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-[#CCFF00] to-green-400"
+                  className="h-full bg-gradient-to-r from-neon-brand to-green-400"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.3 }}
@@ -256,12 +276,13 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                       setDirection(index > currentStep ? 1 : -1);
                       setCurrentStep(index);
                     }}
-                    className={`w-2.5 h-2.5 rounded-full transition-all ${index === currentStep
-                      ? "bg-[#CCFF00] scale-125"
-                      : index < currentStep
-                        ? "bg-[#CCFF00]/50"
-                        : "bg-zinc-600"
-                      }`}
+                    className={`w-2.5 h-2.5 rounded-full transition-all ${
+                      index === currentStep
+                        ? "bg-neon-brand scale-125"
+                        : index < currentStep
+                          ? "bg-neon-brand/50"
+                          : "bg-zinc-600"
+                    }`}
                     whileHover={{ scale: 1.3 }}
                     whileTap={{ scale: 0.9 }}
                   />
@@ -279,7 +300,7 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                 </button>
 
                 {/* Decorative gradient */}
-                <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-[#CCFF00]/10 to-transparent pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-neon-brand/10 to-transparent pointer-events-none" />
 
                 {/* Content */}
                 <div className="relative p-8 pt-12">
@@ -304,7 +325,7 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                         transition={{ type: "spring", delay: 0.1 }}
                         className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${iconColors[currentStep]} flex items-center justify-center mb-6 shadow-lg`}
                       >
-                        <div className="text-white">{step.icon}</div>
+                        <div className="text-[#F9FAFB]">{step.icon}</div>
                       </motion.div>
 
                       {/* Title */}
@@ -312,7 +333,7 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.15 }}
-                        className="text-2xl font-bold text-white mb-3"
+                        className="text-2xl font-bold text-[#F9FAFB] mb-3"
                       >
                         {step.title}
                       </motion.h2>
@@ -328,14 +349,16 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                       </motion.p>
 
                       {/* Feature preview for specific steps */}
-                      {(step.id === "image-gen" || step.id === "video-gen" || step.id === "ai-influencer") && (
+                      {(step.id === "image-gen" ||
+                        step.id === "video-gen" ||
+                        step.id === "ai-influencer") && (
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.25 }}
                           className="w-full grid grid-cols-3 gap-2 mb-6"
                         >
-                          {[1, 2, 3].map((i) => (
+                          {[1, 2, 3].map(i => (
                             <div
                               key={i}
                               className="aspect-square rounded-xl bg-zinc-800/50 border border-zinc-700/50 overflow-hidden"
@@ -360,7 +383,7 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                           <Button
                             onClick={handleAction}
                             variant="outline"
-                            className="rounded-full border-[#CCFF00]/30 text-[#CCFF00] hover:bg-[#CCFF00]/10 mb-4"
+                            className="rounded-full border-neon-brand/30 text-neon-brand hover:bg-neon-brand/10 mb-4"
                           >
                             {step.action.label}
                             <ChevronRight className="w-4 h-4 ml-1" />
@@ -388,10 +411,11 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
 
                     <Button
                       onClick={handleNext}
-                      className={`rounded-full ${isLastStep
-                        ? "bg-[#CCFF00] hover:bg-[#b8e600] text-black"
-                        : "bg-zinc-800 hover:bg-zinc-700"
-                        }`}
+                      className={`rounded-full ${
+                        isLastStep
+                          ? "bg-neon-brand hover:bg-[#00F5FF] text-black"
+                          : "bg-zinc-800 hover:bg-zinc-700"
+                      }`}
                     >
                       {isLastStep ? "Başla" : "İleri"}
                       <ChevronRight className="w-5 h-5 ml-1" />
@@ -408,12 +432,18 @@ export function OnboardingTour({ isOpen, onClose, signupBonusCredits = "25" }: O
                 className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 text-xs text-zinc-600"
               >
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">←</kbd>
-                  <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">→</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">
+                    ←
+                  </kbd>
+                  <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">
+                    →
+                  </kbd>
                   gezin
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">ESC</kbd>
+                  <kbd className="px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-400">
+                    ESC
+                  </kbd>
                   atla
                 </span>
               </motion.div>

@@ -73,41 +73,47 @@ export default function AdminPromptControl() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const blacklistQuery = trpc.adminPanel.getPromptBlacklist.useQuery();
-  const flaggedQuery = trpc.adminPanel.getFlaggedPrompts.useQuery({ limit: 100, offset: 0 });
+  const flaggedQuery = trpc.adminPanel.getFlaggedPrompts.useQuery({
+    limit: 100,
+    offset: 0,
+  });
   const utils = trpc.useUtils();
 
-  const createBlacklistMutation = trpc.adminPanel.createPromptBlacklist.useMutation({
-    onSuccess: () => {
-      toast.success("Blacklist kuralı eklendi");
-      utils.adminPanel.getPromptBlacklist.invalidate();
-      closeDialog();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const createBlacklistMutation =
+    trpc.adminPanel.createPromptBlacklist.useMutation({
+      onSuccess: () => {
+        toast.success("Blacklist kuralı eklendi");
+        utils.adminPanel.getPromptBlacklist.invalidate();
+        closeDialog();
+      },
+      onError: error => toast.error(error.message),
+    });
 
-  const updateBlacklistMutation = trpc.adminPanel.updatePromptBlacklist.useMutation({
-    onSuccess: () => {
-      toast.success("Blacklist kuralı güncellendi");
-      utils.adminPanel.getPromptBlacklist.invalidate();
-      closeDialog();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const updateBlacklistMutation =
+    trpc.adminPanel.updatePromptBlacklist.useMutation({
+      onSuccess: () => {
+        toast.success("Blacklist kuralı güncellendi");
+        utils.adminPanel.getPromptBlacklist.invalidate();
+        closeDialog();
+      },
+      onError: error => toast.error(error.message),
+    });
 
-  const deleteBlacklistMutation = trpc.adminPanel.deletePromptBlacklist.useMutation({
-    onSuccess: () => {
-      toast.success("Blacklist kuralı silindi");
-      utils.adminPanel.getPromptBlacklist.invalidate();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const deleteBlacklistMutation =
+    trpc.adminPanel.deletePromptBlacklist.useMutation({
+      onSuccess: () => {
+        toast.success("Blacklist kuralı silindi");
+        utils.adminPanel.getPromptBlacklist.invalidate();
+      },
+      onError: error => toast.error(error.message),
+    });
 
   const reviewPromptMutation = trpc.adminPanel.reviewFlaggedPrompt.useMutation({
     onSuccess: () => {
       toast.success("İşlem tamamlandı");
       utils.adminPanel.getFlaggedPrompts.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const closeDialog = () => {
@@ -150,8 +156,8 @@ export default function AdminPromptControl() {
       nsfw: "bg-red-500/20 text-red-400",
       spam: "bg-yellow-500/20 text-yellow-400",
       abuse: "bg-orange-500/20 text-orange-400",
-      illegal: "bg-purple-500/20 text-purple-400",
-      copyright: "bg-blue-500/20 text-blue-400",
+      illegal: "bg-[#7C3AED]/20 text-[#7C3AED]",
+      copyright: "bg-[#00F5FF]/20 text-[#00F5FF]",
       other: "bg-zinc-500/20 text-zinc-400",
     };
     const labels: Record<string, string> = {
@@ -163,7 +169,9 @@ export default function AdminPromptControl() {
       other: "Diğer",
     };
     return (
-      <span className={`px-2 py-0.5 rounded text-xs ${colors[category] || colors.other}`}>
+      <span
+        className={`px-2 py-0.5 rounded text-xs ${colors[category] || colors.other}`}
+      >
         {labels[category] || category}
       </span>
     );
@@ -177,7 +185,9 @@ export default function AdminPromptControl() {
       critical: "bg-red-500/20 text-red-400",
     };
     return (
-      <span className={`px-2 py-0.5 rounded text-xs ${colors[severity] || "bg-zinc-500/20 text-zinc-400"}`}>
+      <span
+        className={`px-2 py-0.5 rounded text-xs ${colors[severity] || "bg-zinc-500/20 text-zinc-400"}`}
+      >
         {severity.charAt(0).toUpperCase() + severity.slice(1)}
       </span>
     );
@@ -187,23 +197,58 @@ export default function AdminPromptControl() {
     const config: Record<string, { color: string; label: string }> = {
       block: { color: "bg-red-500/20 text-red-400", label: "Engelle" },
       warn: { color: "bg-yellow-500/20 text-yellow-400", label: "Uyar" },
-      flag_for_review: { color: "bg-blue-500/20 text-blue-400", label: "İncele" },
-      auto_ban: { color: "bg-purple-500/20 text-purple-400", label: "Banla" },
+      flag_for_review: {
+        color: "bg-[#00F5FF]/20 text-[#00F5FF]",
+        label: "İncele",
+      },
+      auto_ban: { color: "bg-[#7C3AED]/20 text-[#7C3AED]", label: "Banla" },
     };
-    const c = config[action] || { color: "bg-zinc-500/20 text-zinc-400", label: action };
-    return <span className={`px-2 py-0.5 rounded text-xs ${c.color}`}>{c.label}</span>;
+    const c = config[action] || {
+      color: "bg-zinc-500/20 text-zinc-400",
+      label: action,
+    };
+    return (
+      <span className={`px-2 py-0.5 rounded text-xs ${c.color}`}>
+        {c.label}
+      </span>
+    );
   };
 
   const getStatusBadge = (status: string) => {
-    const config: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
-      pending: { color: "bg-yellow-500/20 text-yellow-400", label: "Bekliyor", icon: <AlertCircle className="h-3 w-3" /> },
-      approved: { color: "bg-green-500/20 text-green-400", label: "Onaylandı", icon: <CheckCircle className="h-3 w-3" /> },
-      rejected: { color: "bg-red-500/20 text-red-400", label: "Reddedildi", icon: <XCircle className="h-3 w-3" /> },
-      banned: { color: "bg-purple-500/20 text-purple-400", label: "Banlandı", icon: <Ban className="h-3 w-3" /> },
+    const config: Record<
+      string,
+      { color: string; label: string; icon: React.ReactNode }
+    > = {
+      pending: {
+        color: "bg-yellow-500/20 text-yellow-400",
+        label: "Bekliyor",
+        icon: <AlertCircle className="h-3 w-3" />,
+      },
+      approved: {
+        color: "bg-green-500/20 text-green-400",
+        label: "Onaylandı",
+        icon: <CheckCircle className="h-3 w-3" />,
+      },
+      rejected: {
+        color: "bg-red-500/20 text-red-400",
+        label: "Reddedildi",
+        icon: <XCircle className="h-3 w-3" />,
+      },
+      banned: {
+        color: "bg-[#7C3AED]/20 text-[#7C3AED]",
+        label: "Banlandı",
+        icon: <Ban className="h-3 w-3" />,
+      },
     };
-    const c = config[status] || { color: "bg-zinc-500/20 text-zinc-400", label: status, icon: null };
+    const c = config[status] || {
+      color: "bg-zinc-500/20 text-zinc-400",
+      label: status,
+      icon: null,
+    };
     return (
-      <span className={`px-2 py-0.5 rounded text-xs flex items-center gap-1 ${c.color}`}>
+      <span
+        className={`px-2 py-0.5 rounded text-xs flex items-center gap-1 ${c.color}`}
+      >
         {c.icon} {c.label}
       </span>
     );
@@ -220,8 +265,13 @@ export default function AdminPromptControl() {
   // Stats
   const totalRules = blacklistItems.length;
   const activeRules = blacklistItems.filter((i: any) => i.isActive).length;
-  const pendingReviews = flaggedPrompts.filter((p: any) => p.status === "pending").length;
-  const totalHits = blacklistItems.reduce((sum: number, i: any) => sum + (i.hitCount || 0), 0);
+  const pendingReviews = flaggedPrompts.filter(
+    (p: any) => p.status === "pending"
+  ).length;
+  const totalHits = blacklistItems.reduce(
+    (sum: number, i: any) => sum + (i.hitCount || 0),
+    0
+  );
 
   return (
     <div className="space-y-6">
@@ -230,15 +280,15 @@ export default function AdminPromptControl() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-2xl border border-purple-500/30 p-5"
+          className="bg-gradient-to-br from-[#7C3AED]/20 to-[#FF2E97]/10 rounded-2xl border border-[#7C3AED]/30 p-5"
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-zinc-400">Toplam Kural</p>
               <p className="text-2xl font-bold">{totalRules}</p>
             </div>
-            <div className="p-3 rounded-xl bg-purple-500/20">
-              <Shield className="h-5 w-5 text-purple-400" />
+            <div className="p-3 rounded-xl bg-[#7C3AED]/20">
+              <Shield className="h-5 w-5 text-[#7C3AED]" />
             </div>
           </div>
         </motion.div>
@@ -298,11 +348,17 @@ export default function AdminPromptControl() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-zinc-800/50">
-          <TabsTrigger value="blacklist" className="data-[state=active]:bg-lime-500 data-[state=active]:text-black">
+          <TabsTrigger
+            value="blacklist"
+            className="data-[state=active]:bg-[#00F5FF] data-[state=active]:text-black"
+          >
             <Shield className="h-4 w-4 mr-2" />
             Blacklist Kuralları
           </TabsTrigger>
-          <TabsTrigger value="flagged" className="data-[state=active]:bg-lime-500 data-[state=active]:text-black">
+          <TabsTrigger
+            value="flagged"
+            className="data-[state=active]:bg-[#00F5FF] data-[state=active]:text-black"
+          >
             <Flag className="h-4 w-4 mr-2" />
             Flagged Promptlar ({pendingReviews})
           </TabsTrigger>
@@ -316,7 +372,7 @@ export default function AdminPromptControl() {
               <Input
                 placeholder="Kural ara..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="pl-9 w-64 bg-zinc-800 border-white/10"
               />
             </div>
@@ -326,10 +382,12 @@ export default function AdminPromptControl() {
                 size="sm"
                 onClick={() => blacklistQuery.refetch()}
               >
-                <RefreshCw className={`h-4 w-4 ${blacklistQuery.isFetching ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`h-4 w-4 ${blacklistQuery.isFetching ? "animate-spin" : ""}`}
+                />
               </Button>
               <Button
-                className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+                className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
                 onClick={() => setDialogOpen(true)}
               >
                 <Plus className="h-4 w-4" />
@@ -352,26 +410,38 @@ export default function AdminPromptControl() {
                       <code className="px-2 py-1 bg-zinc-800 rounded text-sm font-mono">
                         {item.pattern}
                       </code>
-                      <span className="text-xs text-zinc-500">({item.patternType})</span>
+                      <span className="text-xs text-zinc-500">
+                        ({item.patternType})
+                      </span>
                       {getCategoryBadge(item.category)}
                       {getSeverityBadge(item.severity)}
                       {getActionBadge(item.actionType)}
                     </div>
                     {item.warningMessage && (
-                      <p className="text-sm text-zinc-400 mb-2">{item.warningMessage}</p>
+                      <p className="text-sm text-zinc-400 mb-2">
+                        {item.warningMessage}
+                      </p>
                     )}
                     <p className="text-xs text-zinc-500">
-                      Engelleme sayısı: <span className="text-red-400">{item.hitCount || 0}</span>
+                      Engelleme sayısı:{" "}
+                      <span className="text-red-400">{item.hitCount || 0}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
                       checked={item.isActive}
-                      onCheckedChange={(checked) =>
-                        updateBlacklistMutation.mutate({ id: item.id, isActive: checked })
+                      onCheckedChange={checked =>
+                        updateBlacklistMutation.mutate({
+                          id: item.id,
+                          isActive: checked,
+                        })
                       }
                     />
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(item)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -379,7 +449,11 @@ export default function AdminPromptControl() {
                       size="icon"
                       className="text-red-400 hover:text-red-300"
                       onClick={() => {
-                        if (confirm("Bu kuralı silmek istediğinizden emin misiniz?")) {
+                        if (
+                          confirm(
+                            "Bu kuralı silmek istediğinizden emin misiniz?"
+                          )
+                        ) {
                           deleteBlacklistMutation.mutate({ id: item.id });
                         }
                       }}
@@ -409,7 +483,9 @@ export default function AdminPromptControl() {
               size="sm"
               onClick={() => flaggedQuery.refetch()}
             >
-              <RefreshCw className={`h-4 w-4 ${flaggedQuery.isFetching ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 ${flaggedQuery.isFetching ? "animate-spin" : ""}`}
+              />
             </Button>
           </div>
 
@@ -427,11 +503,15 @@ export default function AdminPromptControl() {
                       {getStatusBadge(item.status)}
                       {getCategoryBadge(item.flagReason)}
                       <span className="text-xs text-zinc-500">
-                        {format(new Date(item.createdAt), "d MMM yyyy HH:mm", { locale: tr })}
+                        {format(new Date(item.createdAt), "d MMM yyyy HH:mm", {
+                          locale: tr,
+                        })}
                       </span>
                     </div>
                     <div className="bg-zinc-800 rounded-lg p-3 mb-2">
-                      <p className="text-sm font-mono break-all">{item.prompt}</p>
+                      <p className="text-sm font-mono break-all">
+                        {item.prompt}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-zinc-500">
                       <User className="h-3 w-3" />
@@ -445,7 +525,12 @@ export default function AdminPromptControl() {
                       <Button
                         size="sm"
                         className="bg-green-500 hover:bg-green-600 text-black gap-1"
-                        onClick={() => reviewPromptMutation.mutate({ id: item.id, status: "approved" })}
+                        onClick={() =>
+                          reviewPromptMutation.mutate({
+                            id: item.id,
+                            status: "approved",
+                          })
+                        }
                       >
                         <CheckCircle className="h-3 w-3" />
                         Onayla
@@ -454,7 +539,12 @@ export default function AdminPromptControl() {
                         size="sm"
                         variant="outline"
                         className="text-red-400 border-red-500/30 hover:bg-red-500/10 gap-1"
-                        onClick={() => reviewPromptMutation.mutate({ id: item.id, status: "rejected" })}
+                        onClick={() =>
+                          reviewPromptMutation.mutate({
+                            id: item.id,
+                            status: "rejected",
+                          })
+                        }
                       >
                         <XCircle className="h-3 w-3" />
                         Reddet
@@ -462,8 +552,14 @@ export default function AdminPromptControl() {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-purple-400 border-purple-500/30 hover:bg-purple-500/10 gap-1"
-                        onClick={() => reviewPromptMutation.mutate({ id: item.id, status: "banned", banUser: true })}
+                        className="text-[#7C3AED] border-[#7C3AED]/30 hover:bg-[#7C3AED]/10 gap-1"
+                        onClick={() =>
+                          reviewPromptMutation.mutate({
+                            id: item.id,
+                            status: "banned",
+                            banUser: true,
+                          })
+                        }
                       >
                         <Ban className="h-3 w-3" />
                         Banla
@@ -488,14 +584,18 @@ export default function AdminPromptControl() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
           <DialogHeader>
-            <DialogTitle>{isEditing ? "Kuralı Düzenle" : "Yeni Blacklist Kuralı"}</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Kuralı Düzenle" : "Yeni Blacklist Kuralı"}
+            </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 mt-4">
             <div>
-              <label className="text-sm text-zinc-400 mb-1 block">Pattern *</label>
+              <label className="text-sm text-zinc-400 mb-1 block">
+                Pattern *
+              </label>
               <Input
                 value={form.pattern}
-                onChange={(e) => setForm({ ...form, pattern: e.target.value })}
+                onChange={e => setForm({ ...form, pattern: e.target.value })}
                 placeholder="yasaklı kelime veya regex"
                 className="bg-zinc-800 border-white/10"
               />
@@ -503,10 +603,14 @@ export default function AdminPromptControl() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Pattern Tipi</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Pattern Tipi
+                </label>
                 <Select
                   value={form.patternType}
-                  onValueChange={(value: any) => setForm({ ...form, patternType: value })}
+                  onValueChange={(value: any) =>
+                    setForm({ ...form, patternType: value })
+                  }
                 >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
@@ -521,10 +625,14 @@ export default function AdminPromptControl() {
                 </Select>
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Kategori</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Kategori
+                </label>
                 <Select
                   value={form.category}
-                  onValueChange={(value: any) => setForm({ ...form, category: value })}
+                  onValueChange={(value: any) =>
+                    setForm({ ...form, category: value })
+                  }
                 >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
@@ -543,10 +651,14 @@ export default function AdminPromptControl() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Şiddet</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Şiddet
+                </label>
                 <Select
                   value={form.severity}
-                  onValueChange={(value: any) => setForm({ ...form, severity: value })}
+                  onValueChange={(value: any) =>
+                    setForm({ ...form, severity: value })
+                  }
                 >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
@@ -560,10 +672,14 @@ export default function AdminPromptControl() {
                 </Select>
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Aksiyon</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Aksiyon
+                </label>
                 <Select
                   value={form.actionType}
-                  onValueChange={(value: any) => setForm({ ...form, actionType: value })}
+                  onValueChange={(value: any) =>
+                    setForm({ ...form, actionType: value })
+                  }
                 >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
@@ -571,7 +687,9 @@ export default function AdminPromptControl() {
                   <SelectContent>
                     <SelectItem value="block">Engelle</SelectItem>
                     <SelectItem value="warn">Uyar</SelectItem>
-                    <SelectItem value="flag_for_review">İncelemeye Al</SelectItem>
+                    <SelectItem value="flag_for_review">
+                      İncelemeye Al
+                    </SelectItem>
                     <SelectItem value="auto_ban">Otomatik Banla</SelectItem>
                   </SelectContent>
                 </Select>
@@ -579,10 +697,14 @@ export default function AdminPromptControl() {
             </div>
 
             <div>
-              <label className="text-sm text-zinc-400 mb-1 block">Uyarı Mesajı</label>
+              <label className="text-sm text-zinc-400 mb-1 block">
+                Uyarı Mesajı
+              </label>
               <Textarea
                 value={form.warningMessage}
-                onChange={(e) => setForm({ ...form, warningMessage: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, warningMessage: e.target.value })
+                }
                 placeholder="Kullanıcıya gösterilecek mesaj..."
                 className="bg-zinc-800 border-white/10"
               />
@@ -591,21 +713,31 @@ export default function AdminPromptControl() {
             <div className="flex items-center gap-2">
               <Switch
                 checked={form.isActive}
-                onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+                onCheckedChange={checked =>
+                  setForm({ ...form, isActive: checked })
+                }
               />
               <label className="text-sm">Aktif</label>
             </div>
 
             <div className="flex gap-3 mt-2">
-              <Button variant="outline" className="flex-1" onClick={closeDialog}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
-                disabled={createBlacklistMutation.isPending || updateBlacklistMutation.isPending}
+                disabled={
+                  createBlacklistMutation.isPending ||
+                  updateBlacklistMutation.isPending
+                }
               >
-                {createBlacklistMutation.isPending || updateBlacklistMutation.isPending
+                {createBlacklistMutation.isPending ||
+                updateBlacklistMutation.isPending
                   ? "Kaydediliyor..."
                   : isEditing
                     ? "Güncelle"

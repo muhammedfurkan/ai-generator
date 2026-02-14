@@ -2,7 +2,7 @@ module.exports = {
 	apps: [{
 		name: 'amonify',
 		// script: 'rm -rf .next && npm run build && npm run start',
-		script: 'pnpm build && pnpm start',
+		script: 'npm run build && npm start',
 		args: '',
 		instances: 1,
 		autorestart: true,

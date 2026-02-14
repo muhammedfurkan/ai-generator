@@ -202,9 +202,9 @@ export default function AiInfluencer() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-gray-300 text-lg">{t("aiInfluencer.loading")}</p>
         </div>
       </div>
@@ -682,7 +682,7 @@ export default function AiInfluencer() {
             >
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <User className="h-5 w-5 text-blue-400" />
+                  <User className="h-5 w-5 text-[#00F5FF]" />
                   Karakter Görseli
                 </h2>
                 {charactersQuery.data && charactersQuery.data.length > 0 && (
@@ -789,11 +789,11 @@ export default function AiInfluencer() {
                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center rounded-2xl">
                       <div className="w-3/4 h-2 bg-white/20 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300"
+                          className="h-full bg-gradient-to-r from-[#00F5FF] to-[#FF2E97] transition-all duration-300"
                           style={{ width: `${characterUploadProgress}%` }}
                         />
                       </div>
-                      <p className="text-xs text-white mt-2">
+                      <p className="text-xs text-[#F9FAFB] mt-2">
                         Yükleniyor... {characterUploadProgress}%
                       </p>
                     </div>
@@ -829,7 +829,7 @@ export default function AiInfluencer() {
               ) : (
                 <div
                   onClick={() => characterImageInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-all"
+                  className="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center cursor-pointer hover:border-[#00F5FF]/50 hover:bg-[#00F5FF]/5 transition-all"
                 >
                   <User className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground mb-2">
@@ -848,7 +848,7 @@ export default function AiInfluencer() {
               variants={itemVariants}
             >
               <h2 className="text-base font-semibold flex items-center gap-2 mb-3">
-                <ImageIcon className="h-4 w-4 text-purple-400" />
+                <ImageIcon className="h-4 w-4 text-[#7C3AED]" />
                 Referans Poz Görseli
                 <span className="text-xs text-muted-foreground font-normal">
                   (Opsiyonel)
@@ -874,11 +874,11 @@ export default function AiInfluencer() {
                     <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center rounded-2xl">
                       <div className="w-3/4 h-2 bg-white/20 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300"
+                          className="h-full bg-gradient-to-r from-[#7C3AED] to-[#7C3AED] transition-all duration-300"
                           style={{ width: `${referenceUploadProgress}%` }}
                         />
                       </div>
-                      <p className="text-xs text-white mt-2">
+                      <p className="text-xs text-[#F9FAFB] mt-2">
                         Yükleniyor... {referenceUploadProgress}%
                       </p>
                     </div>
@@ -907,7 +907,7 @@ export default function AiInfluencer() {
               ) : (
                 <div
                   onClick={() => referenceImageInputRef.current?.click()}
-                  className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:border-purple-500/50 hover:bg-purple-500/5 transition-all"
+                  className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:border-[#7C3AED]/50 hover:bg-[#7C3AED]/5 transition-all"
                 >
                   <ImageIcon className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-muted-foreground text-sm">
@@ -957,7 +957,7 @@ export default function AiInfluencer() {
                     });
                   }}
                   disabled={generatePromptMutation.isPending}
-                  className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-300 hover:text-purple-200"
+                  className="bg-gradient-to-r from-[#7C3AED]/20 to-[#7C3AED]/20 border-[#7C3AED]/30 hover:from-[#7C3AED]/30 hover:to-[#7C3AED]/30 text-[#7C3AED] hover:text-[#7C3AED]"
                 >
                   {generatePromptMutation.isPending ? (
                     <>
@@ -1052,7 +1052,7 @@ export default function AiInfluencer() {
 
               <p className="text-center text-sm text-muted-foreground mt-3">
                 Mevcut krediniz:{" "}
-                <span className="font-semibold text-blue-400">{credits}</span>
+                <span className="font-semibold text-[#00F5FF]">{credits}</span>
               </p>
             </motion.div>
           </motion.div>
@@ -1124,7 +1124,7 @@ export default function AiInfluencer() {
                         link.download = `ai-influencer-${Date.now()}.png`;
                         link.click();
                       }}
-                      className="flex-1 rounded-full bg-lime-500 hover:bg-lime-600 text-black"
+                      className="flex-1 rounded-full bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                     >
                       <Download className="h-4 w-4 mr-2" />
                       İndir

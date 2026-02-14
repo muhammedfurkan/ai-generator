@@ -20,6 +20,7 @@
     "@clerk/backend": "^2.29.0",
     "@clerk/nextjs": "^6.36.5",
     "@efesoroglu/shopier-api": "^1.0.4",
+    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -71,6 +72,7 @@
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.22",
     "googleapis": "^169.0.0",
+    "gsap": "^3.14.2",
     "input-otp": "^1.4.2",
     "jose": "6.1.0",
     "jszip": "^3.10.1",
@@ -94,6 +96,7 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "telegraf": "^4.16.3",
+    "three": "^0.182.0",
     "vaul": "^1.1.2",
     "wouter": "^3.3.5",
     "zod": "^4.1.12"
@@ -110,12 +113,11 @@
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19.2.1",
     "@types/react-dom": "^19.2.1",
+    "@types/three": "^0.182.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "add": "^2.0.6",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.5",
     "esbuild": "^0.25.0",
-    "pnpm": "^10.15.1",
     "postcss": "^8.4.47",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.14",
@@ -126,16 +128,5 @@
     "vite-plugin-manus-runtime": "^0.0.56",
     "vitest": "^2.1.4"
   },
-  "packageManager": "pnpm@10.4.1+sha512.c753b6c3ad7afa13af388fa6d808035a008e30ea9993f58c6663e2bc5ff21679aa834db094987129aa4d488b86df57f7b634981b2f827cdcacc698cc0cfb88af",
-  "patchedDependencies": {
-    "wouter@3.7.1": "patches/wouter@3.7.1.patch"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@clerk/shared",
-      "@tailwindcss/oxide",
-      "esbuild",
-      "sharp"
-    ]
-  }
+  "packageManager": "npm@11.10.0"
 }

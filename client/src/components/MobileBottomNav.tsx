@@ -85,13 +85,13 @@ export default function MobileBottomNav() {
                 item.isCreate
                   ? "relative -mt-6"
                   : isActive(item.path)
-                    ? "text-white"
+                    ? "text-[#F9FAFB]"
                     : "text-gray-500"
               )}
             >
               {item.isCreate ? (
                 <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 rounded-2xl bg-[#CCFF00] flex items-center justify-center shadow-lg shadow-[#CCFF00]/30">
+                  <div className="w-14 h-14 rounded-2xl bg-neon-brand flex items-center justify-center shadow-lg shadow-neon-brand/30">
                     <Sparkles className="h-7 w-7 text-black" />
                   </div>
                 </div>
@@ -100,7 +100,7 @@ export default function MobileBottomNav() {
                   <div
                     className={cn(
                       "transition-colors",
-                      isActive(item.path) ? "text-white" : "text-gray-500"
+                      isActive(item.path) ? "text-[#F9FAFB]" : "text-gray-500"
                     )}
                   >
                     {item.icon}
@@ -108,7 +108,7 @@ export default function MobileBottomNav() {
                   <span
                     className={cn(
                       "text-[10px] font-medium transition-colors",
-                      isActive(item.path) ? "text-white" : "text-gray-500"
+                      isActive(item.path) ? "text-[#F9FAFB]" : "text-gray-500"
                     )}
                   >
                     {item.label}

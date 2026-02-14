@@ -20,7 +20,14 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2, Plus, Edit2, Trash2, Image as ImageIcon, Upload } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Edit2,
+  Trash2,
+  Image as ImageIcon,
+  Upload,
+} from "lucide-react";
 import { toast } from "sonner";
 
 type ModalCardForm = {
@@ -72,7 +79,7 @@ export default function AdminModalCards() {
       utils.modalCards.getAllAdmin.invalidate();
       handleCloseDialog();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Hata: ${error.message}`);
     },
   });
@@ -83,7 +90,7 @@ export default function AdminModalCards() {
       utils.modalCards.getAllAdmin.invalidate();
       handleCloseDialog();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Hata: ${error.message}`);
     },
   });
@@ -93,7 +100,7 @@ export default function AdminModalCards() {
       toast.success("Kart başarıyla silindi");
       utils.modalCards.getAllAdmin.invalidate();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(`Hata: ${error.message}`);
     },
   });
@@ -149,12 +156,10 @@ export default function AdminModalCards() {
     }
   };
 
-  const handleImageUpload = async (
-    file: File,
-    type: "desktop" | "mobile"
-  ) => {
+  const handleImageUpload = async (file: File, type: "desktop" | "mobile") => {
     try {
-      const setUploading = type === "desktop" ? setUploadingDesktop : setUploadingMobile;
+      const setUploading =
+        type === "desktop" ? setUploadingDesktop : setUploadingMobile;
       setUploading(true);
 
       const formData = new FormData();
@@ -183,7 +188,8 @@ export default function AdminModalCards() {
       console.error("Upload error:", error);
       toast.error("Görsel yüklenirken hata oluştu");
     } finally {
-      const setUploading = type === "desktop" ? setUploadingDesktop : setUploadingMobile;
+      const setUploading =
+        type === "desktop" ? setUploadingDesktop : setUploadingMobile;
       setUploading(false);
     }
   };
@@ -212,7 +218,7 @@ export default function AdminModalCards() {
       </div>
 
       <div className="grid gap-4">
-        {cards?.map((card) => (
+        {cards?.map(card => (
           <Card key={card.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -220,19 +226,19 @@ export default function AdminModalCards() {
                   <CardTitle className="text-lg">{card.title}</CardTitle>
                   {card.badge && (
                     <span
-                      className="px-2 py-1 text-xs font-bold rounded text-white"
-                      style={{ backgroundColor: card.badgeColor || "#3b82f6" }}
+                      className="px-2 py-1 text-xs font-bold rounded text-[#F9FAFB]"
+                      style={{ backgroundColor: card.badgeColor || "#00F5FF" }}
                     >
                       {card.badge}
                     </span>
                   )}
                   {card.isFeatured && (
-                    <span className="px-2 py-1 bg-yellow-500 text-white text-xs font-bold rounded">
+                    <span className="px-2 py-1 bg-yellow-500 text-[#F9FAFB] text-xs font-bold rounded">
                       HERO
                     </span>
                   )}
                   {!card.isActive && (
-                    <span className="px-2 py-1 bg-gray-500 text-white text-xs font-bold rounded">
+                    <span className="px-2 py-1 bg-gray-500 text-[#F9FAFB] text-xs font-bold rounded">
                       PASIF
                     </span>
                   )}
@@ -334,9 +340,7 @@ export default function AdminModalCards() {
                 <Input
                   id="cardKey"
                   value={form.cardKey}
-                  onChange={(e) =>
-                    setForm({ ...form, cardKey: e.target.value })
-                  }
+                  onChange={e => setForm({ ...form, cardKey: e.target.value })}
                   placeholder="nano_banana_pro"
                   required
                 />
@@ -346,7 +350,7 @@ export default function AdminModalCards() {
                 <Input
                   id="title"
                   value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  onChange={e => setForm({ ...form, title: e.target.value })}
                   placeholder="NANO BANANA PRO"
                   required
                 />
@@ -358,7 +362,7 @@ export default function AdminModalCards() {
               <Textarea
                 id="description"
                 value={form.description}
-                onChange={(e) =>
+                onChange={e =>
                   setForm({ ...form, description: e.target.value })
                 }
                 placeholder="En iyi 4K görsel modeli"
@@ -373,7 +377,7 @@ export default function AdminModalCards() {
                     <Input
                       id="imageDesktop"
                       value={form.imageDesktop}
-                      onChange={(e) =>
+                      onChange={e =>
                         setForm({ ...form, imageDesktop: e.target.value })
                       }
                       placeholder="/covers/nano-banana-pro.jpg"
@@ -387,8 +391,9 @@ export default function AdminModalCards() {
                         const input = document.createElement("input");
                         input.type = "file";
                         input.accept = "image/*";
-                        input.onchange = (e) => {
-                          const file = (e.target as HTMLInputElement).files?.[0];
+                        input.onchange = e => {
+                          const file = (e.target as HTMLInputElement)
+                            .files?.[0];
                           if (file) {
                             handleImageUpload(file, "desktop");
                           }
@@ -421,7 +426,7 @@ export default function AdminModalCards() {
                     <Input
                       id="imageMobile"
                       value={form.imageMobile}
-                      onChange={(e) =>
+                      onChange={e =>
                         setForm({ ...form, imageMobile: e.target.value })
                       }
                       placeholder="/covers/nano-banana-pro.jpg"
@@ -435,8 +440,9 @@ export default function AdminModalCards() {
                         const input = document.createElement("input");
                         input.type = "file";
                         input.accept = "image/*";
-                        input.onchange = (e) => {
-                          const file = (e.target as HTMLInputElement).files?.[0];
+                        input.onchange = e => {
+                          const file = (e.target as HTMLInputElement)
+                            .files?.[0];
                           if (file) {
                             handleImageUpload(file, "mobile");
                           }
@@ -470,7 +476,7 @@ export default function AdminModalCards() {
                 <Input
                   id="badge"
                   value={form.badge}
-                  onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                  onChange={e => setForm({ ...form, badge: e.target.value })}
                   placeholder="UNLIMITED, CORE, NEW, HOT, PRO"
                 />
               </div>
@@ -479,8 +485,8 @@ export default function AdminModalCards() {
                 <Input
                   id="badgeColor"
                   type="color"
-                  value={form.badgeColor || "#3b82f6"}
-                  onChange={(e) =>
+                  value={form.badgeColor || "#00F5FF"}
+                  onChange={e =>
                     setForm({ ...form, badgeColor: e.target.value })
                   }
                 />
@@ -493,7 +499,7 @@ export default function AdminModalCards() {
                 <Input
                   id="path"
                   value={form.path}
-                  onChange={(e) => setForm({ ...form, path: e.target.value })}
+                  onChange={e => setForm({ ...form, path: e.target.value })}
                   placeholder="/generate"
                 />
               </div>
@@ -524,7 +530,7 @@ export default function AdminModalCards() {
                   id="sortOrder"
                   type="number"
                   value={form.sortOrder}
-                  onChange={(e) =>
+                  onChange={e =>
                     setForm({ ...form, sortOrder: parseInt(e.target.value) })
                   }
                 />
@@ -534,7 +540,7 @@ export default function AdminModalCards() {
                   <Switch
                     id="isFeatured"
                     checked={form.isFeatured}
-                    onCheckedChange={(checked) =>
+                    onCheckedChange={checked =>
                       setForm({ ...form, isFeatured: checked })
                     }
                   />
@@ -544,7 +550,7 @@ export default function AdminModalCards() {
                   <Switch
                     id="isActive"
                     checked={form.isActive}
-                    onCheckedChange={(checked) =>
+                    onCheckedChange={checked =>
                       setForm({ ...form, isActive: checked })
                     }
                   />

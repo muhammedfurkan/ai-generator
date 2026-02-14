@@ -3,19 +3,55 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  Search, Globe, Twitter, Facebook, Settings, FileText,
-  Plus, Edit, Trash2, Save, RefreshCw, BarChart3,
-  Eye, EyeOff, Link, Image, Code, CheckCircle, AlertCircle,
-  ArrowLeft, Menu
+  Search,
+  Globe,
+  Twitter,
+  Facebook,
+  Settings,
+  FileText,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  RefreshCw,
+  BarChart3,
+  Eye,
+  EyeOff,
+  Link,
+  Image,
+  Code,
+  CheckCircle,
+  AlertCircle,
+  ArrowLeft,
+  Menu,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -34,12 +70,12 @@ export default function SeoSettings() {
 
   // Mutations
   const initPagesMutation = trpc.seo.initializeDefaultPages.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       toast.success(data.message);
       utils.seo.getAllPages.invalidate();
       utils.seo.getStats.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updatePageMutation = trpc.seo.updatePage.useMutation({
@@ -47,7 +83,7 @@ export default function SeoSettings() {
       toast.success("Sayfa SEO ayarları güncellendi");
       utils.seo.getAllPages.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const createPageMutation = trpc.seo.createPage.useMutation({
@@ -57,7 +93,7 @@ export default function SeoSettings() {
       utils.seo.getStats.invalidate();
       setIsAddingPage(false);
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deletePageMutation = trpc.seo.deletePage.useMutation({
@@ -67,7 +103,7 @@ export default function SeoSettings() {
       utils.seo.getStats.invalidate();
       setSelectedPage(null);
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateGlobalMutation = trpc.seo.updateGlobalConfig.useMutation({
@@ -75,14 +111,16 @@ export default function SeoSettings() {
       toast.success("Global SEO ayarları güncellendi");
       utils.seo.getGlobalConfig.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const stats = statsQuery.data;
   const pages = pagesQuery.data || [];
   const globalConfig = globalConfigQuery.data;
 
-  const selectedPageData = selectedPage ? pages.find(p => p.id === selectedPage) : null;
+  const selectedPageData = selectedPage
+    ? pages.find(p => p.id === selectedPage)
+    : null;
 
   // Navigation items for mobile
   const navItems = [
@@ -99,7 +137,11 @@ export default function SeoSettings() {
       <div className="lg:hidden sticky top-0 z-50 bg-background/95 backdrop-blur border-b px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => window.history.back()}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.history.back()}
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="font-semibold">SEO Ayarları</h1>
@@ -112,7 +154,7 @@ export default function SeoSettings() {
             </SheetTrigger>
             <SheetContent side="right" className="w-64">
               <div className="py-4 space-y-2">
-                {navItems.map((item) => (
+                {navItems.map(item => (
                   <Button
                     key={item.id}
                     variant={activeTab === item.id ? "secondary" : "ghost"}
@@ -144,8 +186,13 @@ export default function SeoSettings() {
               Site geneli ve sayfa bazlı SEO ayarlarını yönetin
             </p>
           </div>
-          <Button onClick={() => initPagesMutation.mutate()} disabled={initPagesMutation.isPending}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${initPagesMutation.isPending ? 'animate-spin' : ''}`} />
+          <Button
+            onClick={() => initPagesMutation.mutate()}
+            disabled={initPagesMutation.isPending}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${initPagesMutation.isPending ? "animate-spin" : ""}`}
+            />
             Varsayılan Sayfaları Oluştur
           </Button>
         </div>
@@ -153,49 +200,69 @@ export default function SeoSettings() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-            <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5">
+            <Card className="bg-gradient-to-br from-[#00F5FF]/10 to-[#7C3AED]/5">
               <CardContent className="p-3 lg:p-4">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 lg:h-5 lg:w-5 text-blue-500" />
-                  <span className="text-xs lg:text-sm text-muted-foreground">Toplam Sayfa</span>
+                  <FileText className="h-4 w-4 lg:h-5 lg:w-5 text-[#00F5FF]" />
+                  <span className="text-xs lg:text-sm text-muted-foreground">
+                    Toplam Sayfa
+                  </span>
                 </div>
-                <p className="text-xl lg:text-2xl font-bold mt-1">{stats.totalPages}</p>
+                <p className="text-xl lg:text-2xl font-bold mt-1">
+                  {stats.totalPages}
+                </p>
               </CardContent>
             </Card>
             <Card className="bg-gradient-to-br from-green-500/10 to-green-600/5">
               <CardContent className="p-3 lg:p-4">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 lg:h-5 lg:w-5 text-green-500" />
-                  <span className="text-xs lg:text-sm text-muted-foreground">Meta Tam</span>
+                  <span className="text-xs lg:text-sm text-muted-foreground">
+                    Meta Tam
+                  </span>
                 </div>
-                <p className="text-xl lg:text-2xl font-bold mt-1">{stats.pagesWithMeta}</p>
+                <p className="text-xl lg:text-2xl font-bold mt-1">
+                  {stats.pagesWithMeta}
+                </p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5">
+            <Card className="bg-gradient-to-br from-[#7C3AED]/10 to-[#FF2E97]/5">
               <CardContent className="p-3 lg:p-4">
                 <div className="flex items-center gap-2">
-                  <Facebook className="h-4 w-4 lg:h-5 lg:w-5 text-purple-500" />
-                  <span className="text-xs lg:text-sm text-muted-foreground">OG Tam</span>
+                  <Facebook className="h-4 w-4 lg:h-5 lg:w-5 text-[#7C3AED]" />
+                  <span className="text-xs lg:text-sm text-muted-foreground">
+                    OG Tam
+                  </span>
                 </div>
-                <p className="text-xl lg:text-2xl font-bold mt-1">{stats.pagesWithOg}</p>
+                <p className="text-xl lg:text-2xl font-bold mt-1">
+                  {stats.pagesWithOg}
+                </p>
               </CardContent>
             </Card>
-            <Card className="bg-gradient-to-br from-cyan-500/10 to-cyan-600/5">
+            <Card className="bg-gradient-to-br from-[#00F5FF]/10 to-[#7C3AED]/5">
               <CardContent className="p-3 lg:p-4">
                 <div className="flex items-center gap-2">
-                  <Eye className="h-4 w-4 lg:h-5 lg:w-5 text-cyan-500" />
-                  <span className="text-xs lg:text-sm text-muted-foreground">İndekslenen</span>
+                  <Eye className="h-4 w-4 lg:h-5 lg:w-5 text-[#00F5FF]" />
+                  <span className="text-xs lg:text-sm text-muted-foreground">
+                    İndekslenen
+                  </span>
                 </div>
-                <p className="text-xl lg:text-2xl font-bold mt-1">{stats.pagesIndexed}</p>
+                <p className="text-xl lg:text-2xl font-bold mt-1">
+                  {stats.pagesIndexed}
+                </p>
               </CardContent>
             </Card>
           </div>
         )}
 
         {/* Desktop Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="hidden lg:block">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="hidden lg:block"
+        >
           <TabsList className="mb-4">
-            {navItems.map((item) => (
+            {navItems.map(item => (
               <TabsTrigger key={item.id} value={item.id} className="gap-2">
                 <item.icon className="h-4 w-4" />
                 {item.label}
@@ -303,9 +370,16 @@ export default function SeoSettings() {
 
 // Pages Tab Component
 function PagesTab({
-  pages, selectedPage, setSelectedPage, selectedPageData,
-  isAddingPage, setIsAddingPage, updatePageMutation, createPageMutation, deletePageMutation,
-  isMobile = false
+  pages,
+  selectedPage,
+  setSelectedPage,
+  selectedPageData,
+  isAddingPage,
+  setIsAddingPage,
+  updatePageMutation,
+  createPageMutation,
+  deletePageMutation,
+  isMobile = false,
 }: any) {
   const [formData, setFormData] = useState<any>({});
 
@@ -335,9 +409,11 @@ function PagesTab({
   };
 
   return (
-    <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-3 gap-6'}`}>
+    <div
+      className={`grid ${isMobile ? "grid-cols-1 gap-4" : "grid-cols-3 gap-6"}`}
+    >
       {/* Page List */}
-      <Card className={isMobile ? '' : 'col-span-1'}>
+      <Card className={isMobile ? "" : "col-span-1"}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Sayfalar</CardTitle>
@@ -352,22 +428,31 @@ function PagesTab({
               <button
                 key={page.id}
                 onClick={() => handlePageSelect(page)}
-                className={`w-full p-3 text-left hover:bg-muted/50 transition-colors ${selectedPage === page.id ? 'bg-muted' : ''
-                  }`}
+                className={`w-full p-3 text-left hover:bg-muted/50 transition-colors ${
+                  selectedPage === page.id ? "bg-muted" : ""
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-sm">{page.pageName}</p>
-                    <p className="text-xs text-muted-foreground">/{page.pageSlug}</p>
+                    <p className="text-xs text-muted-foreground">
+                      /{page.pageSlug}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     {page.metaTitle && page.metaDescription ? (
-                      <Badge variant="outline" className="text-green-500 border-green-500/30 text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-green-500 border-green-500/30 text-xs"
+                      >
                         <CheckCircle className="h-3 w-3 mr-1" />
                         OK
                       </Badge>
                     ) : (
-                      <Badge variant="outline" className="text-yellow-500 border-yellow-500/30 text-xs">
+                      <Badge
+                        variant="outline"
+                        className="text-yellow-500 border-yellow-500/30 text-xs"
+                      >
                         <AlertCircle className="h-3 w-3 mr-1" />
                         Eksik
                       </Badge>
@@ -382,7 +467,7 @@ function PagesTab({
 
       {/* Page Editor */}
       {selectedPageData && (
-        <Card className={isMobile ? '' : 'col-span-2'}>
+        <Card className={isMobile ? "" : "col-span-2"}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -393,7 +478,9 @@ function PagesTab({
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => deletePageMutation.mutate({ id: selectedPage })}
+                  onClick={() =>
+                    deletePageMutation.mutate({ id: selectedPage })
+                  }
                   disabled={deletePageMutation.isPending}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -418,19 +505,31 @@ function PagesTab({
               </h3>
               <div className="space-y-3">
                 <div>
-                  <Label>Meta Title ({formData.metaTitle?.length || 0}/70)</Label>
+                  <Label>
+                    Meta Title ({formData.metaTitle?.length || 0}/70)
+                  </Label>
                   <Input
                     value={formData.metaTitle}
-                    onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, metaTitle: e.target.value })
+                    }
                     maxLength={70}
                     placeholder="Sayfa başlığı..."
                   />
                 </div>
                 <div>
-                  <Label>Meta Description ({formData.metaDescription?.length || 0}/160)</Label>
+                  <Label>
+                    Meta Description ({formData.metaDescription?.length || 0}
+                    /160)
+                  </Label>
                   <Textarea
                     value={formData.metaDescription}
-                    onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        metaDescription: e.target.value,
+                      })
+                    }
                     maxLength={160}
                     placeholder="Sayfa açıklaması..."
                     rows={2}
@@ -440,7 +539,9 @@ function PagesTab({
                   <Label>Keywords</Label>
                   <Input
                     value={formData.metaKeywords}
-                    onChange={(e) => setFormData({ ...formData, metaKeywords: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, metaKeywords: e.target.value })
+                    }
                     placeholder="anahtar, kelimeler, virgülle, ayrılmış"
                   />
                 </div>
@@ -448,7 +549,9 @@ function PagesTab({
                   <Label>Canonical URL</Label>
                   <Input
                     value={formData.canonicalUrl}
-                    onChange={(e) => setFormData({ ...formData, canonicalUrl: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, canonicalUrl: e.target.value })
+                    }
                     placeholder="https://nanoinf.com/sayfa"
                   />
                 </div>
@@ -466,7 +569,9 @@ function PagesTab({
                   <Label>OG Title</Label>
                   <Input
                     value={formData.ogTitle}
-                    onChange={(e) => setFormData({ ...formData, ogTitle: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, ogTitle: e.target.value })
+                    }
                     placeholder="Facebook paylaşım başlığı..."
                   />
                 </div>
@@ -474,7 +579,12 @@ function PagesTab({
                   <Label>OG Description</Label>
                   <Textarea
                     value={formData.ogDescription}
-                    onChange={(e) => setFormData({ ...formData, ogDescription: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        ogDescription: e.target.value,
+                      })
+                    }
                     placeholder="Facebook paylaşım açıklaması..."
                     rows={2}
                   />
@@ -483,7 +593,9 @@ function PagesTab({
                   <Label>OG Image URL</Label>
                   <Input
                     value={formData.ogImage}
-                    onChange={(e) => setFormData({ ...formData, ogImage: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, ogImage: e.target.value })
+                    }
                     placeholder="https://..."
                   />
                 </div>
@@ -501,7 +613,9 @@ function PagesTab({
                   <Label>Twitter Title</Label>
                   <Input
                     value={formData.twitterTitle}
-                    onChange={(e) => setFormData({ ...formData, twitterTitle: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, twitterTitle: e.target.value })
+                    }
                     placeholder="Twitter paylaşım başlığı..."
                   />
                 </div>
@@ -509,7 +623,12 @@ function PagesTab({
                   <Label>Twitter Description</Label>
                   <Textarea
                     value={formData.twitterDescription}
-                    onChange={(e) => setFormData({ ...formData, twitterDescription: e.target.value })}
+                    onChange={e =>
+                      setFormData({
+                        ...formData,
+                        twitterDescription: e.target.value,
+                      })
+                    }
                     placeholder="Twitter paylaşım açıklaması..."
                     rows={2}
                   />
@@ -518,7 +637,9 @@ function PagesTab({
                   <Label>Twitter Image URL</Label>
                   <Input
                     value={formData.twitterImage}
-                    onChange={(e) => setFormData({ ...formData, twitterImage: e.target.value })}
+                    onChange={e =>
+                      setFormData({ ...formData, twitterImage: e.target.value })
+                    }
                     placeholder="https://..."
                   />
                 </div>
@@ -536,14 +657,18 @@ function PagesTab({
                   <Label>İndeksle</Label>
                   <Switch
                     checked={formData.robotsIndex}
-                    onCheckedChange={(checked) => setFormData({ ...formData, robotsIndex: checked })}
+                    onCheckedChange={checked =>
+                      setFormData({ ...formData, robotsIndex: checked })
+                    }
                   />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label>Takip Et</Label>
                   <Switch
                     checked={formData.robotsFollow}
-                    onCheckedChange={(checked) => setFormData({ ...formData, robotsFollow: checked })}
+                    onCheckedChange={checked =>
+                      setFormData({ ...formData, robotsFollow: checked })
+                    }
                   />
                 </div>
               </div>
@@ -557,7 +682,9 @@ function PagesTab({
               </h3>
               <Textarea
                 value={formData.structuredData}
-                onChange={(e) => setFormData({ ...formData, structuredData: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, structuredData: e.target.value })
+                }
                 placeholder='{"@context": "https://schema.org", ...}'
                 rows={4}
                 className="font-mono text-sm"
@@ -568,11 +695,15 @@ function PagesTab({
             <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
               <div>
                 <Label>Sayfa Aktif</Label>
-                <p className="text-sm text-muted-foreground">SEO ayarları uygulanacak mı?</p>
+                <p className="text-sm text-muted-foreground">
+                  SEO ayarları uygulanacak mı?
+                </p>
               </div>
               <Switch
                 checked={formData.isActive}
-                onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                onCheckedChange={checked =>
+                  setFormData({ ...formData, isActive: checked })
+                }
               />
             </div>
           </CardContent>
@@ -580,10 +711,12 @@ function PagesTab({
       )}
 
       {!selectedPageData && (
-        <Card className={isMobile ? '' : 'col-span-2'}>
+        <Card className={isMobile ? "" : "col-span-2"}>
           <CardContent className="flex flex-col items-center justify-center h-[400px] text-center">
             <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Düzenlemek için bir sayfa seçin</p>
+            <p className="text-muted-foreground">
+              Düzenlemek için bir sayfa seçin
+            </p>
           </CardContent>
         </Card>
       )}
@@ -605,7 +738,13 @@ function PagesTab({
 }
 
 // Add Page Form
-function AddPageForm({ onSubmit, isPending }: { onSubmit: (data: any) => void; isPending: boolean }) {
+function AddPageForm({
+  onSubmit,
+  isPending,
+}: {
+  onSubmit: (data: any) => void;
+  isPending: boolean;
+}) {
   const [formData, setFormData] = useState({
     pageSlug: "",
     pageName: "",
@@ -619,7 +758,7 @@ function AddPageForm({ onSubmit, isPending }: { onSubmit: (data: any) => void; i
         <Label>Sayfa Slug</Label>
         <Input
           value={formData.pageSlug}
-          onChange={(e) => setFormData({ ...formData, pageSlug: e.target.value })}
+          onChange={e => setFormData({ ...formData, pageSlug: e.target.value })}
           placeholder="sayfa-adi"
         />
       </div>
@@ -627,7 +766,7 @@ function AddPageForm({ onSubmit, isPending }: { onSubmit: (data: any) => void; i
         <Label>Sayfa Adı</Label>
         <Input
           value={formData.pageName}
-          onChange={(e) => setFormData({ ...formData, pageName: e.target.value })}
+          onChange={e => setFormData({ ...formData, pageName: e.target.value })}
           placeholder="Sayfa Adı"
         />
       </div>
@@ -635,7 +774,9 @@ function AddPageForm({ onSubmit, isPending }: { onSubmit: (data: any) => void; i
         <Label>Meta Title</Label>
         <Input
           value={formData.metaTitle}
-          onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
+          onChange={e =>
+            setFormData({ ...formData, metaTitle: e.target.value })
+          }
           placeholder="Sayfa Başlığı | Amonify"
         />
       </div>
@@ -643,7 +784,9 @@ function AddPageForm({ onSubmit, isPending }: { onSubmit: (data: any) => void; i
         <Label>Meta Description</Label>
         <Textarea
           value={formData.metaDescription}
-          onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+          onChange={e =>
+            setFormData({ ...formData, metaDescription: e.target.value })
+          }
           placeholder="Sayfa açıklaması..."
           rows={2}
         />
@@ -658,7 +801,11 @@ function AddPageForm({ onSubmit, isPending }: { onSubmit: (data: any) => void; i
 }
 
 // Global Config Tab
-function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false }: any) {
+function GlobalConfigTab({
+  globalConfig,
+  updateGlobalMutation,
+  isMobile = false,
+}: any) {
   const [formData, setFormData] = useState({
     siteName: globalConfig?.siteName || "Amonify",
     siteTagline: globalConfig?.siteTagline || "",
@@ -684,9 +831,14 @@ function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false 
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Global SEO Ayarları</CardTitle>
-            <CardDescription>Site geneli varsayılan SEO ayarları</CardDescription>
+            <CardDescription>
+              Site geneli varsayılan SEO ayarları
+            </CardDescription>
           </div>
-          <Button onClick={handleSave} disabled={updateGlobalMutation.isPending}>
+          <Button
+            onClick={handleSave}
+            disabled={updateGlobalMutation.isPending}
+          >
             <Save className="h-4 w-4 mr-2" />
             Kaydet
           </Button>
@@ -696,26 +848,34 @@ function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false 
         {/* Site Info */}
         <div className="space-y-4">
           <h3 className="font-semibold">Site Bilgileri</h3>
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
+          <div
+            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}
+          >
             <div>
               <Label>Site Adı</Label>
               <Input
                 value={formData.siteName}
-                onChange={(e) => setFormData({ ...formData, siteName: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, siteName: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Site Sloganı</Label>
               <Input
                 value={formData.siteTagline}
-                onChange={(e) => setFormData({ ...formData, siteTagline: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, siteTagline: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Varsayılan Dil</Label>
               <Select
                 value={formData.defaultLanguage}
-                onValueChange={(v) => setFormData({ ...formData, defaultLanguage: v })}
+                onValueChange={v =>
+                  setFormData({ ...formData, defaultLanguage: v })
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -737,14 +897,21 @@ function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false 
               <Label>Varsayılan Title</Label>
               <Input
                 value={formData.defaultMetaTitle}
-                onChange={(e) => setFormData({ ...formData, defaultMetaTitle: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, defaultMetaTitle: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Varsayılan Description</Label>
               <Textarea
                 value={formData.defaultMetaDescription}
-                onChange={(e) => setFormData({ ...formData, defaultMetaDescription: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    defaultMetaDescription: e.target.value,
+                  })
+                }
                 rows={2}
               />
             </div>
@@ -752,14 +919,21 @@ function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false 
               <Label>Varsayılan Keywords</Label>
               <Input
                 value={formData.defaultMetaKeywords}
-                onChange={(e) => setFormData({ ...formData, defaultMetaKeywords: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    defaultMetaKeywords: e.target.value,
+                  })
+                }
               />
             </div>
             <div>
               <Label>Varsayılan OG Image</Label>
               <Input
                 value={formData.defaultOgImage}
-                onChange={(e) => setFormData({ ...formData, defaultOgImage: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, defaultOgImage: e.target.value })
+                }
                 placeholder="https://..."
               />
             </div>
@@ -769,40 +943,52 @@ function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false 
         {/* Organization */}
         <div className="space-y-4">
           <h3 className="font-semibold">Organizasyon Bilgileri (Schema.org)</h3>
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
+          <div
+            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}
+          >
             <div>
               <Label>Organizasyon Adı</Label>
               <Input
                 value={formData.organizationName}
-                onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, organizationName: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Organizasyon URL</Label>
               <Input
                 value={formData.organizationUrl}
-                onChange={(e) => setFormData({ ...formData, organizationUrl: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, organizationUrl: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Logo URL</Label>
               <Input
                 value={formData.organizationLogo}
-                onChange={(e) => setFormData({ ...formData, organizationLogo: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, organizationLogo: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>İletişim Email</Label>
               <Input
                 value={formData.contactEmail}
-                onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, contactEmail: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>İletişim Telefon</Label>
               <Input
                 value={formData.contactPhone}
-                onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, contactPhone: e.target.value })
+                }
               />
             </div>
           </div>
@@ -813,7 +999,11 @@ function GlobalConfigTab({ globalConfig, updateGlobalMutation, isMobile = false 
 }
 
 // Analytics Tab
-function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: any) {
+function AnalyticsTab({
+  globalConfig,
+  updateGlobalMutation,
+  isMobile = false,
+}: any) {
   const [formData, setFormData] = useState({
     googleAnalyticsId: globalConfig?.googleAnalyticsId || "",
     googleTagManagerId: globalConfig?.googleTagManagerId || "",
@@ -835,9 +1025,14 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Analytics & Doğrulama</CardTitle>
-            <CardDescription>Analitik araçları ve site doğrulama kodları</CardDescription>
+            <CardDescription>
+              Analitik araçları ve site doğrulama kodları
+            </CardDescription>
           </div>
-          <Button onClick={handleSave} disabled={updateGlobalMutation.isPending}>
+          <Button
+            onClick={handleSave}
+            disabled={updateGlobalMutation.isPending}
+          >
             <Save className="h-4 w-4 mr-2" />
             Kaydet
           </Button>
@@ -847,12 +1042,19 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
         {/* Analytics */}
         <div className="space-y-4">
           <h3 className="font-semibold">Analytics</h3>
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
+          <div
+            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}
+          >
             <div>
               <Label>Google Analytics ID</Label>
               <Input
                 value={formData.googleAnalyticsId}
-                onChange={(e) => setFormData({ ...formData, googleAnalyticsId: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    googleAnalyticsId: e.target.value,
+                  })
+                }
                 placeholder="G-XXXXXXXXXX"
               />
             </div>
@@ -860,7 +1062,12 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
               <Label>Google Tag Manager ID</Label>
               <Input
                 value={formData.googleTagManagerId}
-                onChange={(e) => setFormData({ ...formData, googleTagManagerId: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    googleTagManagerId: e.target.value,
+                  })
+                }
                 placeholder="GTM-XXXXXXX"
               />
             </div>
@@ -868,7 +1075,9 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
               <Label>Facebook Pixel ID</Label>
               <Input
                 value={formData.facebookPixelId}
-                onChange={(e) => setFormData({ ...formData, facebookPixelId: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, facebookPixelId: e.target.value })
+                }
                 placeholder="XXXXXXXXXXXXXXX"
               />
             </div>
@@ -876,7 +1085,9 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
               <Label>Facebook App ID</Label>
               <Input
                 value={formData.facebookAppId}
-                onChange={(e) => setFormData({ ...formData, facebookAppId: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, facebookAppId: e.target.value })
+                }
                 placeholder="XXXXXXXXXXXXXXX"
               />
             </div>
@@ -886,12 +1097,19 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
         {/* Verification */}
         <div className="space-y-4">
           <h3 className="font-semibold">Site Doğrulama</h3>
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
+          <div
+            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}
+          >
             <div>
               <Label>Google Search Console</Label>
               <Input
                 value={formData.googleVerification}
-                onChange={(e) => setFormData({ ...formData, googleVerification: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    googleVerification: e.target.value,
+                  })
+                }
                 placeholder="Doğrulama kodu"
               />
             </div>
@@ -899,7 +1117,9 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
               <Label>Bing Webmaster</Label>
               <Input
                 value={formData.bingVerification}
-                onChange={(e) => setFormData({ ...formData, bingVerification: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, bingVerification: e.target.value })
+                }
                 placeholder="Doğrulama kodu"
               />
             </div>
@@ -907,7 +1127,12 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
               <Label>Yandex Webmaster</Label>
               <Input
                 value={formData.yandexVerification}
-                onChange={(e) => setFormData({ ...formData, yandexVerification: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    yandexVerification: e.target.value,
+                  })
+                }
                 placeholder="Doğrulama kodu"
               />
             </div>
@@ -915,7 +1140,12 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
               <Label>Pinterest</Label>
               <Input
                 value={formData.pinterestVerification}
-                onChange={(e) => setFormData({ ...formData, pinterestVerification: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    pinterestVerification: e.target.value,
+                  })
+                }
                 placeholder="Doğrulama kodu"
               />
             </div>
@@ -927,9 +1157,15 @@ function AnalyticsTab({ globalConfig, updateGlobalMutation, isMobile = false }: 
 }
 
 // Robots Tab
-function RobotsTab({ globalConfig, updateGlobalMutation, isMobile = false }: any) {
+function RobotsTab({
+  globalConfig,
+  updateGlobalMutation,
+  isMobile = false,
+}: any) {
   const [formData, setFormData] = useState({
-    robotsTxtContent: globalConfig?.robotsTxtContent || `User-agent: *
+    robotsTxtContent:
+      globalConfig?.robotsTxtContent ||
+      `User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
@@ -950,7 +1186,10 @@ Sitemap: https://nanoinf.com/sitemap.xml`,
             <CardTitle>Robots.txt & Sitemap</CardTitle>
             <CardDescription>Arama motoru tarayıcı ayarları</CardDescription>
           </div>
-          <Button onClick={handleSave} disabled={updateGlobalMutation.isPending}>
+          <Button
+            onClick={handleSave}
+            disabled={updateGlobalMutation.isPending}
+          >
             <Save className="h-4 w-4 mr-2" />
             Kaydet
           </Button>
@@ -962,7 +1201,9 @@ Sitemap: https://nanoinf.com/sitemap.xml`,
           <h3 className="font-semibold">Robots.txt İçeriği</h3>
           <Textarea
             value={formData.robotsTxtContent}
-            onChange={(e) => setFormData({ ...formData, robotsTxtContent: e.target.value })}
+            onChange={e =>
+              setFormData({ ...formData, robotsTxtContent: e.target.value })
+            }
             rows={10}
             className="font-mono text-sm"
           />
@@ -974,11 +1215,15 @@ Sitemap: https://nanoinf.com/sitemap.xml`,
           <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
             <div>
               <Label>Sitemap Aktif</Label>
-              <p className="text-sm text-muted-foreground">Otomatik sitemap oluşturulsun mu?</p>
+              <p className="text-sm text-muted-foreground">
+                Otomatik sitemap oluşturulsun mu?
+              </p>
             </div>
             <Switch
               checked={formData.sitemapEnabled}
-              onCheckedChange={(checked) => setFormData({ ...formData, sitemapEnabled: checked })}
+              onCheckedChange={checked =>
+                setFormData({ ...formData, sitemapEnabled: checked })
+              }
             />
           </div>
         </div>
@@ -988,7 +1233,11 @@ Sitemap: https://nanoinf.com/sitemap.xml`,
 }
 
 // Social Tab
-function SocialTab({ globalConfig, updateGlobalMutation, isMobile = false }: any) {
+function SocialTab({
+  globalConfig,
+  updateGlobalMutation,
+  isMobile = false,
+}: any) {
   const [formData, setFormData] = useState({
     defaultTwitterSite: globalConfig?.defaultTwitterSite || "",
     defaultTwitterCreator: globalConfig?.defaultTwitterCreator || "",
@@ -1005,9 +1254,14 @@ function SocialTab({ globalConfig, updateGlobalMutation, isMobile = false }: any
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Sosyal Medya Ayarları</CardTitle>
-            <CardDescription>Twitter ve sosyal medya bağlantıları</CardDescription>
+            <CardDescription>
+              Twitter ve sosyal medya bağlantıları
+            </CardDescription>
           </div>
-          <Button onClick={handleSave} disabled={updateGlobalMutation.isPending}>
+          <Button
+            onClick={handleSave}
+            disabled={updateGlobalMutation.isPending}
+          >
             <Save className="h-4 w-4 mr-2" />
             Kaydet
           </Button>
@@ -1017,12 +1271,19 @@ function SocialTab({ globalConfig, updateGlobalMutation, isMobile = false }: any
         {/* Twitter */}
         <div className="space-y-4">
           <h3 className="font-semibold">Twitter Ayarları</h3>
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
+          <div
+            className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-2"} gap-4`}
+          >
             <div>
               <Label>Twitter Site (@username)</Label>
               <Input
                 value={formData.defaultTwitterSite}
-                onChange={(e) => setFormData({ ...formData, defaultTwitterSite: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    defaultTwitterSite: e.target.value,
+                  })
+                }
                 placeholder="@nanoinf"
               />
             </div>
@@ -1030,7 +1291,12 @@ function SocialTab({ globalConfig, updateGlobalMutation, isMobile = false }: any
               <Label>Twitter Creator (@username)</Label>
               <Input
                 value={formData.defaultTwitterCreator}
-                onChange={(e) => setFormData({ ...formData, defaultTwitterCreator: e.target.value })}
+                onChange={e =>
+                  setFormData({
+                    ...formData,
+                    defaultTwitterCreator: e.target.value,
+                  })
+                }
                 placeholder="@nanoinf"
               />
             </div>
@@ -1042,7 +1308,9 @@ function SocialTab({ globalConfig, updateGlobalMutation, isMobile = false }: any
           <h3 className="font-semibold">Sosyal Medya Linkleri (JSON)</h3>
           <Textarea
             value={formData.socialLinks}
-            onChange={(e) => setFormData({ ...formData, socialLinks: e.target.value })}
+            onChange={e =>
+              setFormData({ ...formData, socialLinks: e.target.value })
+            }
             placeholder={`[
   {"platform": "twitter", "url": "https://twitter.com/nanoinf"},
   {"platform": "instagram", "url": "https://instagram.com/nanoinf"},

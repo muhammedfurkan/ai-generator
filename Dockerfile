@@ -7,17 +7,16 @@ RUN apk add --no-cache python3 make g++
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm@latest && \
-    pnpm install --frozen-lockfile
+# Install dependencies
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build the application
-RUN pnpm build
+RUN npm run build
 
 # Production stage
 FROM node:22-alpine
@@ -28,11 +27,10 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 
-# Install pnpm and production dependencies only
-RUN npm install -g pnpm@latest && \
-    pnpm install --prod --frozen-lockfile
+# Install production dependencies only
+RUN npm ci --omit=dev
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
@@ -47,4 +45,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/ || exit 1
 
 # Start the application
-CMD ["pnpm", "start"]
+CMD ["npm", "start"]

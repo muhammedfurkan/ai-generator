@@ -2,7 +2,7 @@
 import { getDb } from "./db";
 import { videoGenerations } from "../drizzle/schema";
 import { eq, inArray, and, or } from "drizzle-orm";
-import { getVideoStatus } from "./kieAiApi";
+import { getVideoStatus, type UnifiedVideoModelType } from "./kieAiApi";
 import * as db from "./db";
 import { createNotification } from "./routers/notification";
 import { getVideoDuration } from "./_core/videoMetadata";
@@ -112,7 +112,7 @@ async function getPendingVideos(): Promise<PendingVideo[]> {
 
 async function updateVideoStatus(video: PendingVideo): Promise<void> {
   try {
-    const modelType = video.model as "veo3" | "sora2" | "kling" | "grok" | "wan-22" | "wan-25" | "wan-26" | "hailuo" | "seedance-lite" | "seedance-pro" | "seedance-15-pro" | "kling-motion";
+    const modelType = video.model as UnifiedVideoModelType;
     const status = await getVideoStatus(video.taskId, modelType);
 
     console.log(`[VideoStatusUpdater] Video ${video.id} (${video.model}): ${video.status} -> ${status.status}`);

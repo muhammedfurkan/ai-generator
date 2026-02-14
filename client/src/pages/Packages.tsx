@@ -142,8 +142,8 @@ const ICONS = [
 
 const GRADIENTS = [
   "from-gray-400 to-gray-600",
-  "from-blue-400 to-cyan-500",
-  "from-purple-500 to-pink-500",
+  "from-[#00F5FF] to-[#7C3AED]",
+  "from-[#7C3AED] to-[#7C3AED]",
   "from-amber-400 to-orange-500",
 ];
 
@@ -313,7 +313,7 @@ export default function Packages() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-[#00F5FF] to-[#FF2E97] bg-clip-text text-transparent">
               {t("packages.header.title")}
             </h1>
             <p className="text-muted-foreground mt-2">
@@ -324,13 +324,13 @@ export default function Packages() {
 
         {/* Adaptive Pricing Info Banner */}
         <motion.div
-          className="mb-8 glass-card rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4"
+          className="mb-8 glass-card rounded-2xl border border-[#00F5FF]/30 bg-[#00F5FF]/10 p-4"
           variants={itemVariants}
         >
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 mt-0.5">
               <svg
-                className="h-5 w-5 text-blue-400"
+                className="h-5 w-5 text-[#00F5FF]"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -344,7 +344,7 @@ export default function Packages() {
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="text-sm font-semibold text-blue-300 mb-1">
+              <h3 className="text-sm font-semibold text-[#00F5FF] mb-1">
                 💳 {t("packages.currency.title")}
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -357,31 +357,31 @@ export default function Packages() {
         {/* Pricing Info - Only show if there are messages to display */}
         {(packageMessagesQuery.data?.bonusMessage ||
           packageMessagesQuery.data?.validityMessage) && (
-            <motion.div
-              className="mb-12 glass-card rounded-3xl border border-white/20 p-6 text-center"
-              variants={itemVariants}
-            >
-              <p className="text-lg text-muted-foreground">
-                {packageMessagesQuery.data.bonusMessage && (
-                  <span className="text-purple-400 font-semibold">
-                    {packageMessagesQuery.data.bonusMessage}
-                  </span>
-                )}
-                {packageMessagesQuery.data.bonusMessage &&
-                  packageMessagesQuery.data.validityMessage && <>{" • "}</>}
-                {packageMessagesQuery.data.validityMessage && (
-                  <span className="text-pink-400 font-semibold">
-                    {packageMessagesQuery.data.validityMessage}
-                  </span>
-                )}
-              </p>
-            </motion.div>
-          )}
+          <motion.div
+            className="mb-12 glass-card rounded-3xl border border-white/20 p-6 text-center"
+            variants={itemVariants}
+          >
+            <p className="text-lg text-muted-foreground">
+              {packageMessagesQuery.data.bonusMessage && (
+                <span className="text-[#7C3AED] font-semibold">
+                  {packageMessagesQuery.data.bonusMessage}
+                </span>
+              )}
+              {packageMessagesQuery.data.bonusMessage &&
+                packageMessagesQuery.data.validityMessage && <>{" • "}</>}
+              {packageMessagesQuery.data.validityMessage && (
+                <span className="text-[#FF2E97] font-semibold">
+                  {packageMessagesQuery.data.validityMessage}
+                </span>
+              )}
+            </p>
+          </motion.div>
+        )}
 
         {/* Loading State */}
         {packagesQuery.isLoading && (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#7C3AED]" />
           </div>
         )}
 
@@ -405,7 +405,7 @@ export default function Packages() {
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                 >
-                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                  <div className="bg-gradient-to-r from-[#7C3AED] to-[#7C3AED] text-[#F9FAFB] px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
                     <Zap className="h-4 w-4" />
                     {t("packages.card.mostPopular")}
                   </div>
@@ -414,15 +414,16 @@ export default function Packages() {
 
               {/* Card */}
               <div
-                className={`glass-card rounded-3xl border p-6 h-full flex flex-col transition-all ${pkg.isHighlighted
-                    ? "border-purple-400/50 bg-purple-500/10 shadow-lg shadow-purple-500/20"
+                className={`glass-card rounded-3xl border p-6 h-full flex flex-col transition-all ${
+                  pkg.isHighlighted
+                    ? "border-[#7C3AED]/50 bg-[#7C3AED]/10 shadow-lg shadow-[#7C3AED]/20"
                     : "border-white/20 hover:border-white/40"
-                  }`}
+                }`}
               >
                 {/* Icon & Package Name */}
                 <div className="flex items-center gap-3 mb-3">
                   <div
-                    className={`p-2 rounded-xl bg-gradient-to-r ${GRADIENTS[index % 4]} text-white`}
+                    className={`p-2 rounded-xl bg-gradient-to-r ${GRADIENTS[index % 4]} text-[#F9FAFB]`}
                   >
                     {ICONS[index % 4]}
                   </div>
@@ -488,7 +489,7 @@ export default function Packages() {
                       <span className="text-muted-foreground">
                         {t("packages.usage.1k")} {t("packages.usage.quality")}:
                       </span>
-                      <span className="text-blue-400 font-semibold">
+                      <span className="text-[#00F5FF] font-semibold">
                         {pkg?.usage1k && pkg.usage1k > 0
                           ? pkg.usage1k
                           : Math.floor(pkg.credits / 10)}{" "}
@@ -499,7 +500,7 @@ export default function Packages() {
                       <span className="text-muted-foreground">
                         {t("packages.usage.2k")} {t("packages.usage.quality")}:
                       </span>
-                      <span className="text-purple-400 font-semibold">
+                      <span className="text-[#7C3AED] font-semibold">
                         {pkg?.usage2k && pkg.usage2k > 0
                           ? pkg.usage2k
                           : Math.floor(pkg.credits / 15)}{" "}
@@ -510,7 +511,7 @@ export default function Packages() {
                       <span className="text-muted-foreground">
                         {t("packages.usage.4k")} {t("packages.usage.quality")}:
                       </span>
-                      <span className="text-pink-400 font-semibold">
+                      <span className="text-[#FF2E97] font-semibold">
                         {pkg?.usage4k && pkg.usage4k > 0
                           ? pkg.usage4k
                           : Math.floor(pkg.credits / 20)}{" "}
@@ -543,10 +544,11 @@ export default function Packages() {
                 {/* Buy Button */}
                 <motion.button
                   onClick={() => handleBuyPackage(pkg)}
-                  className={`w-full rounded-full py-3 font-semibold transition-all ${pkg.isHighlighted
-                      ? "gradient-button text-white hover:shadow-lg hover:shadow-purple-500/30"
+                  className={`w-full rounded-full py-3 font-semibold transition-all ${
+                    pkg.isHighlighted
+                      ? "gradient-button text-[#F9FAFB] hover:shadow-lg hover:shadow-[#7C3AED]/30"
                       : "glass-card border border-white/20 text-foreground hover:bg-white/10"
-                    }`}
+                  }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >

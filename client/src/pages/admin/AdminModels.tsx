@@ -106,7 +106,7 @@ export default function AdminModels() {
       utils.adminPanel.getAiModels.invalidate();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.adminPanel.updateAiModel.useMutation({
@@ -115,7 +115,7 @@ export default function AdminModels() {
       utils.adminPanel.getAiModels.invalidate();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const toggleMutation = trpc.adminPanel.toggleAiModel.useMutation({
@@ -123,15 +123,17 @@ export default function AdminModels() {
       toast.success("Model durumu güncellendi");
       utils.adminPanel.getAiModels.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const initializeMutation = trpc.adminPanel.initializeAiModels.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Modeller yüklendi! ${data.inserted} eklendi, ${data.updated} güncellendi`);
+    onSuccess: data => {
+      toast.success(
+        `Modeller yüklendi! ${data.inserted} eklendi, ${data.updated} güncellendi`
+      );
       utils.adminPanel.getAiModels.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const closeDialog = () => {
@@ -188,19 +190,27 @@ export default function AdminModels() {
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "image": return <Image className="h-4 w-4" />;
-      case "video": return <Video className="h-4 w-4" />;
-      case "upscale": return <Zap className="h-4 w-4" />;
-      default: return <Cpu className="h-4 w-4" />;
+      case "image":
+        return <Image className="h-4 w-4" />;
+      case "video":
+        return <Video className="h-4 w-4" />;
+      case "upscale":
+        return <Zap className="h-4 w-4" />;
+      default:
+        return <Cpu className="h-4 w-4" />;
     }
   };
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case "image": return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-      case "video": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "upscale": return "bg-green-500/20 text-green-400 border-green-500/30";
-      default: return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
+      case "image":
+        return "bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30";
+      case "video":
+        return "bg-[#00F5FF]/20 text-[#00F5FF] border-[#00F5FF]/30";
+      case "upscale":
+        return "bg-green-500/20 text-green-400 border-green-500/30";
+      default:
+        return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     }
   };
 
@@ -239,9 +249,17 @@ export default function AdminModels() {
 
   // Summary stats
   const totalModels = models.length;
-  const activeModels = models.filter((m: any) => m.isActive && !m.isMaintenanceMode).length;
-  const totalRequests = models.reduce((sum: number, m: any) => sum + (m.totalRequests || 0), 0);
-  const totalCost = models.reduce((sum: number, m: any) => sum + parseFloat(m.totalCostUsd || "0"), 0);
+  const activeModels = models.filter(
+    (m: any) => m.isActive && !m.isMaintenanceMode
+  ).length;
+  const totalRequests = models.reduce(
+    (sum: number, m: any) => sum + (m.totalRequests || 0),
+    0
+  );
+  const totalCost = models.reduce(
+    (sum: number, m: any) => sum + parseFloat(m.totalCostUsd || "0"),
+    0
+  );
 
   const renderModelCard = (model: any) => (
     <motion.div
@@ -253,7 +271,9 @@ export default function AdminModels() {
       <div className="flex items-start justify-between gap-4">
         {/* Left - Model Info */}
         <div className="flex items-start gap-4">
-          <div className={`p-3 rounded-xl border ${getTypeColor(model.modelType)}`}>
+          <div
+            className={`p-3 rounded-xl border ${getTypeColor(model.modelType)}`}
+          >
             {getTypeIcon(model.modelType)}
           </div>
           <div>
@@ -262,7 +282,9 @@ export default function AdminModels() {
               {getStatusBadge(model)}
             </div>
             <p className="text-sm text-zinc-500 mb-2">
-              <code className="px-1.5 py-0.5 bg-zinc-800 rounded text-xs">{model.modelKey}</code>
+              <code className="px-1.5 py-0.5 bg-zinc-800 rounded text-xs">
+                {model.modelKey}
+              </code>
               <span className="mx-2">•</span>
               Provider: {model.provider}
             </p>
@@ -278,16 +300,12 @@ export default function AdminModels() {
             <span className="text-sm text-zinc-500">Aktif</span>
             <Switch
               checked={model.isActive}
-              onCheckedChange={(checked) =>
+              onCheckedChange={checked =>
                 toggleMutation.mutate({ id: model.id, isActive: checked })
               }
             />
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => openEdit(model)}
-          >
+          <Button variant="ghost" size="icon" onClick={() => openEdit(model)}>
             <Edit className="h-4 w-4" />
           </Button>
         </div>
@@ -297,27 +315,37 @@ export default function AdminModels() {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mt-4 pt-4 border-t border-white/5">
         <div>
           <p className="text-xs text-zinc-500 mb-1">Toplam İstek</p>
-          <p className="font-medium">{(model.totalRequests || 0).toLocaleString()}</p>
+          <p className="font-medium">
+            {(model.totalRequests || 0).toLocaleString()}
+          </p>
         </div>
         <div>
           <p className="text-xs text-zinc-500 mb-1">Başarılı</p>
-          <p className="font-medium text-green-400">{(model.successfulRequests || 0).toLocaleString()}</p>
+          <p className="font-medium text-green-400">
+            {(model.successfulRequests || 0).toLocaleString()}
+          </p>
         </div>
         <div>
           <p className="text-xs text-zinc-500 mb-1">Hata Oranı</p>
-          <p className={`font-medium ${parseFloat(calculateErrorRate(model)) > 10 ? "text-red-400" : "text-zinc-400"}`}>
+          <p
+            className={`font-medium ${parseFloat(calculateErrorRate(model)) > 10 ? "text-red-400" : "text-zinc-400"}`}
+          >
             %{calculateErrorRate(model)}
           </p>
         </div>
         <div>
           <p className="text-xs text-zinc-500 mb-1">Ort. Süre</p>
           <p className="font-medium">
-            {model.avgRenderTimeMs ? `${(model.avgRenderTimeMs / 1000).toFixed(1)}s` : "-"}
+            {model.avgRenderTimeMs
+              ? `${(model.avgRenderTimeMs / 1000).toFixed(1)}s`
+              : "-"}
           </p>
         </div>
         <div>
           <p className="text-xs text-zinc-500 mb-1">Maliyet</p>
-          <p className="font-medium text-orange-400">${parseFloat(model.totalCostUsd || "0").toFixed(2)}</p>
+          <p className="font-medium text-orange-400">
+            ${parseFloat(model.totalCostUsd || "0").toFixed(2)}
+          </p>
         </div>
       </div>
 
@@ -333,7 +361,9 @@ export default function AdminModels() {
         </div>
         <div>
           <p className="text-xs text-zinc-500 mb-1">Maks Çözünürlük</p>
-          <p className="text-sm">{model.maxResolutionWidth}x{model.maxResolutionHeight}</p>
+          <p className="text-sm">
+            {model.maxResolutionWidth}x{model.maxResolutionHeight}
+          </p>
         </div>
         {model.modelType === "video" && (
           <div>
@@ -358,15 +388,15 @@ export default function AdminModels() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-2xl border border-purple-500/30 p-5"
+          className="bg-gradient-to-br from-[#7C3AED]/20 to-[#FF2E97]/10 rounded-2xl border border-[#7C3AED]/30 p-5"
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-zinc-400">Toplam Model</p>
               <p className="text-2xl font-bold">{totalModels}</p>
             </div>
-            <div className="p-3 rounded-xl bg-purple-500/20">
-              <Cpu className="h-5 w-5 text-purple-400" />
+            <div className="p-3 rounded-xl bg-[#7C3AED]/20">
+              <Cpu className="h-5 w-5 text-[#7C3AED]" />
             </div>
           </div>
         </motion.div>
@@ -392,15 +422,17 @@ export default function AdminModels() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-2xl border border-blue-500/30 p-5"
+          className="bg-gradient-to-br from-[#00F5FF]/20 to-[#7C3AED]/10 rounded-2xl border border-[#00F5FF]/30 p-5"
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-zinc-400">Toplam İstek</p>
-              <p className="text-2xl font-bold">{totalRequests.toLocaleString()}</p>
+              <p className="text-2xl font-bold">
+                {totalRequests.toLocaleString()}
+              </p>
             </div>
-            <div className="p-3 rounded-xl bg-blue-500/20">
-              <TrendingUp className="h-5 w-5 text-blue-400" />
+            <div className="p-3 rounded-xl bg-[#00F5FF]/20">
+              <TrendingUp className="h-5 w-5 text-[#00F5FF]" />
             </div>
           </div>
         </motion.div>
@@ -427,7 +459,9 @@ export default function AdminModels() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">AI Modeller</h2>
-          <p className="text-sm text-zinc-500">Model aç/kapa, limit ve fallback ayarları</p>
+          <p className="text-sm text-zinc-500">
+            Model aç/kapa, limit ve fallback ayarları
+          </p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -436,14 +470,16 @@ export default function AdminModels() {
             className="gap-2"
             onClick={() => modelsQuery.refetch()}
           >
-            <RefreshCw className={`h-4 w-4 ${modelsQuery.isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${modelsQuery.isFetching ? "animate-spin" : ""}`}
+            />
             Yenile
           </Button>
           {models.length === 0 && (
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 border-lime-500/30 text-lime-400 hover:bg-lime-500/10"
+              className="gap-2 border-[#00F5FF]/30 text-[#00F5FF] hover:bg-[#00F5FF]/10"
               onClick={() => initializeMutation.mutate()}
               disabled={initializeMutation.isPending}
             >
@@ -456,7 +492,7 @@ export default function AdminModels() {
             </Button>
           )}
           <Button
-            className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+            className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
             onClick={() => setDialogOpen(true)}
           >
             <Plus className="h-4 w-4" />
@@ -468,11 +504,17 @@ export default function AdminModels() {
       {/* Tabs for Image and Video Models */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="bg-zinc-800/50">
-          <TabsTrigger value="image" className="data-[state=active]:bg-lime-500 data-[state=active]:text-black">
+          <TabsTrigger
+            value="image"
+            className="data-[state=active]:bg-[#00F5FF] data-[state=active]:text-black"
+          >
             <Image className="h-4 w-4 mr-2" />
             Görsel Modelleri ({imageModels.length})
           </TabsTrigger>
-          <TabsTrigger value="video" className="data-[state=active]:bg-lime-500 data-[state=active]:text-black">
+          <TabsTrigger
+            value="video"
+            className="data-[state=active]:bg-[#00F5FF] data-[state=active]:text-black"
+          >
             <Video className="h-4 w-4 mr-2" />
             Video Modelleri ({videoModels.length})
           </TabsTrigger>
@@ -512,7 +554,7 @@ export default function AdminModels() {
           <Cpu className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
           <p className="text-zinc-500 mb-4">Henüz model eklenmemiş</p>
           <Button
-            className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+            className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
             onClick={() => initializeMutation.mutate()}
             disabled={initializeMutation.isPending}
           >
@@ -524,7 +566,8 @@ export default function AdminModels() {
             Varsayılan Modelleri Yükle
           </Button>
           <p className="text-xs text-zinc-600 mt-3">
-            Nano Banana Pro, Qwen, SeeDream, Veo 3.1, Sora 2, Kling ve Grok modelleri yüklenecek
+            Nano Banana Pro, Qwen, SeeDream, Veo 3.1, Sora 2, Kling ve Grok
+            modelleri yüklenecek
           </p>
         </div>
       )}
@@ -533,25 +576,33 @@ export default function AdminModels() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEditing ? "Model Düzenle" : "Yeni Model Ekle"}</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Model Düzenle" : "Yeni Model Ekle"}
+            </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Model Key *</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Model Key *
+                </label>
                 <Input
                   value={form.modelKey}
-                  onChange={(e) => setForm({ ...form, modelKey: e.target.value })}
+                  onChange={e => setForm({ ...form, modelKey: e.target.value })}
                   placeholder="nano_banana"
                   className="bg-zinc-800 border-white/10"
                   disabled={isEditing}
                 />
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Model Adı *</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Model Adı *
+                </label>
                 <Input
                   value={form.modelName}
-                  onChange={(e) => setForm({ ...form, modelName: e.target.value })}
+                  onChange={e =>
+                    setForm({ ...form, modelName: e.target.value })
+                  }
                   placeholder="Nano Banana Pro"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -560,10 +611,14 @@ export default function AdminModels() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Model Tipi *</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Model Tipi *
+                </label>
                 <Select
                   value={form.modelType}
-                  onValueChange={(value: any) => setForm({ ...form, modelType: value })}
+                  onValueChange={(value: any) =>
+                    setForm({ ...form, modelType: value })
+                  }
                 >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
@@ -576,10 +631,12 @@ export default function AdminModels() {
                 </Select>
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Provider *</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Provider *
+                </label>
                 <Input
                   value={form.provider}
-                  onChange={(e) => setForm({ ...form, provider: e.target.value })}
+                  onChange={e => setForm({ ...form, provider: e.target.value })}
                   placeholder="kie_ai"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -590,14 +647,18 @@ export default function AdminModels() {
               <div className="flex items-center gap-2">
                 <Switch
                   checked={form.isActive}
-                  onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+                  onCheckedChange={checked =>
+                    setForm({ ...form, isActive: checked })
+                  }
                 />
                 <label className="text-sm">Aktif</label>
               </div>
               <div className="flex items-center gap-2">
                 <Switch
                   checked={form.isMaintenanceMode}
-                  onCheckedChange={(checked) => setForm({ ...form, isMaintenanceMode: checked })}
+                  onCheckedChange={checked =>
+                    setForm({ ...form, isMaintenanceMode: checked })
+                  }
                 />
                 <label className="text-sm">Bakım Modu</label>
               </div>
@@ -607,20 +668,34 @@ export default function AdminModels() {
               <h4 className="text-sm font-medium mb-3">Limitler</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">Maks Genişlik (px)</label>
+                  <label className="text-sm text-zinc-400 mb-1 block">
+                    Maks Genişlik (px)
+                  </label>
                   <Input
                     type="number"
                     value={form.maxResolutionWidth}
-                    onChange={(e) => setForm({ ...form, maxResolutionWidth: parseInt(e.target.value) || 4096 })}
+                    onChange={e =>
+                      setForm({
+                        ...form,
+                        maxResolutionWidth: parseInt(e.target.value) || 4096,
+                      })
+                    }
                     className="bg-zinc-800 border-white/10"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">Maks Yükseklik (px)</label>
+                  <label className="text-sm text-zinc-400 mb-1 block">
+                    Maks Yükseklik (px)
+                  </label>
                   <Input
                     type="number"
                     value={form.maxResolutionHeight}
-                    onChange={(e) => setForm({ ...form, maxResolutionHeight: parseInt(e.target.value) || 4096 })}
+                    onChange={e =>
+                      setForm({
+                        ...form,
+                        maxResolutionHeight: parseInt(e.target.value) || 4096,
+                      })
+                    }
                     className="bg-zinc-800 border-white/10"
                   />
                 </div>
@@ -629,11 +704,20 @@ export default function AdminModels() {
 
             {form.modelType === "video" && (
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Maks Video Süresi (saniye)</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Maks Video Süresi (saniye)
+                </label>
                 <Input
                   type="number"
                   value={form.maxVideoDurationSeconds || ""}
-                  onChange={(e) => setForm({ ...form, maxVideoDurationSeconds: e.target.value ? parseInt(e.target.value) : null })}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      maxVideoDurationSeconds: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
@@ -641,20 +725,34 @@ export default function AdminModels() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Free Kullanıcı Günlük Limit</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Free Kullanıcı Günlük Limit
+                </label>
                 <Input
                   type="number"
                   value={form.freeUserDailyLimit}
-                  onChange={(e) => setForm({ ...form, freeUserDailyLimit: parseInt(e.target.value) || 5 })}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      freeUserDailyLimit: parseInt(e.target.value) || 5,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Premium Kullanıcı Günlük Limit</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Premium Kullanıcı Günlük Limit
+                </label>
                 <Input
                   type="number"
                   value={form.premiumUserDailyLimit}
-                  onChange={(e) => setForm({ ...form, premiumUserDailyLimit: parseInt(e.target.value) || 50 })}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      premiumUserDailyLimit: parseInt(e.target.value) || 50,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
@@ -662,20 +760,33 @@ export default function AdminModels() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Kredi Maliyeti (override)</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Kredi Maliyeti (override)
+                </label>
                 <Input
                   type="number"
                   value={form.creditCostOverride || ""}
-                  onChange={(e) => setForm({ ...form, creditCostOverride: e.target.value ? parseInt(e.target.value) : null })}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      creditCostOverride: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
                   placeholder="Varsayılan kullan"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">API Maliyeti (USD)</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  API Maliyeti (USD)
+                </label>
                 <Input
                   value={form.costPerRequest}
-                  onChange={(e) => setForm({ ...form, costPerRequest: e.target.value })}
+                  onChange={e =>
+                    setForm({ ...form, costPerRequest: e.target.value })
+                  }
                   placeholder="0.001"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -684,20 +795,36 @@ export default function AdminModels() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Öncelik (Queue)</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Öncelik (Queue)
+                </label>
                 <Input
                   type="number"
                   value={form.priority}
-                  onChange={(e) => setForm({ ...form, priority: parseInt(e.target.value) || 0 })}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      priority: parseInt(e.target.value) || 0,
+                    })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Fallback Model ID</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Fallback Model ID
+                </label>
                 <Input
                   type="number"
                   value={form.fallbackModelId || ""}
-                  onChange={(e) => setForm({ ...form, fallbackModelId: e.target.value ? parseInt(e.target.value) : null })}
+                  onChange={e =>
+                    setForm({
+                      ...form,
+                      fallbackModelId: e.target.value
+                        ? parseInt(e.target.value)
+                        : null,
+                    })
+                  }
                   placeholder="Yok"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -705,10 +832,14 @@ export default function AdminModels() {
             </div>
 
             <div>
-              <label className="text-sm text-zinc-400 mb-1 block">Açıklama</label>
+              <label className="text-sm text-zinc-400 mb-1 block">
+                Açıklama
+              </label>
               <Textarea
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 placeholder="Model hakkında açıklama..."
                 className="bg-zinc-800 border-white/10"
               />
@@ -718,35 +849,53 @@ export default function AdminModels() {
               <h4 className="text-sm font-medium mb-3">Kapak Resimleri</h4>
               <div className="grid gap-4">
                 <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">Masaüstü Kapak Resmi URL</label>
+                  <label className="text-sm text-zinc-400 mb-1 block">
+                    Masaüstü Kapak Resmi URL
+                  </label>
                   <Input
                     value={form.coverImageDesktop}
-                    onChange={(e) => setForm({ ...form, coverImageDesktop: e.target.value })}
+                    onChange={e =>
+                      setForm({ ...form, coverImageDesktop: e.target.value })
+                    }
                     placeholder="https://example.com/desktop-cover.jpg"
                     className="bg-zinc-800 border-white/10"
                   />
-                  <p className="text-xs text-zinc-500 mt-1">Masaüstü görünümde gösterilecek kapak resmi</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Masaüstü görünümde gösterilecek kapak resmi
+                  </p>
                 </div>
                 <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">Mobil Kapak Resmi URL</label>
+                  <label className="text-sm text-zinc-400 mb-1 block">
+                    Mobil Kapak Resmi URL
+                  </label>
                   <Input
                     value={form.coverImageMobile}
-                    onChange={(e) => setForm({ ...form, coverImageMobile: e.target.value })}
+                    onChange={e =>
+                      setForm({ ...form, coverImageMobile: e.target.value })
+                    }
                     placeholder="https://example.com/mobile-cover.jpg"
                     className="bg-zinc-800 border-white/10"
                   />
-                  <p className="text-xs text-zinc-500 mt-1">Mobil görünümde gösterilecek kapak resmi</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Mobil görünümde gösterilecek kapak resmi
+                  </p>
                 </div>
                 <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">Kapak Açıklaması</label>
+                  <label className="text-sm text-zinc-400 mb-1 block">
+                    Kapak Açıklaması
+                  </label>
                   <Textarea
                     value={form.coverDescription}
-                    onChange={(e) => setForm({ ...form, coverDescription: e.target.value })}
+                    onChange={e =>
+                      setForm({ ...form, coverDescription: e.target.value })
+                    }
                     placeholder="Model için gösterilecek açıklama/slogan..."
                     className="bg-zinc-800 border-white/10"
                     rows={2}
                   />
-                  <p className="text-xs text-zinc-500 mt-1">Model sayfasında gösterilecek açıklama metni</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Model sayfasında gösterilecek açıklama metni
+                  </p>
                 </div>
               </div>
             </div>
@@ -760,11 +909,15 @@ export default function AdminModels() {
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
-                {createMutation.isPending || updateMutation.isPending ? "Kaydediliyor..." : isEditing ? "Güncelle" : "Ekle"}
+                {createMutation.isPending || updateMutation.isPending
+                  ? "Kaydediliyor..."
+                  : isEditing
+                    ? "Güncelle"
+                    : "Ekle"}
               </Button>
             </div>
           </div>

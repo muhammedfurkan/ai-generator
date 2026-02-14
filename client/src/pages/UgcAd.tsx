@@ -4,17 +4,23 @@ import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import Header from "@/components/Header";
-import { 
-  ArrowLeft, 
-  Upload, 
-  Loader2, 
-  Video, 
-  Download, 
+import {
+  ArrowLeft,
+  Upload,
+  Loader2,
+  Video,
+  Download,
   Sparkles,
   MessageSquare,
   Package,
@@ -25,7 +31,7 @@ import {
   Globe,
   Mic,
   Zap,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
@@ -56,7 +62,8 @@ export default function UgcAd() {
   // Form state
   const [productImage, setProductImage] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState<string>("veo31");
-  const [selectedScenario, setSelectedScenario] = useState<string>("testimonial");
+  const [selectedScenario, setSelectedScenario] =
+    useState<string>("testimonial");
   const [selectedGender, setSelectedGender] = useState<string>("female");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("tr");
   const [selectedTone, setSelectedTone] = useState<string>("casual");
@@ -73,24 +80,25 @@ export default function UgcAd() {
     enabled: !!user,
   });
 
-  const { data: videoStatus, refetch: refetchStatus } = trpc.ugcAd.getStatus.useQuery(
-    { id: generatedVideoId! },
-    {
-      enabled: !!generatedVideoId,
-      refetchInterval: (query) => {
-        if (query.state.data?.status === "processing") return 3000;
-        return false;
-      },
-    }
-  );
+  const { data: videoStatus, refetch: refetchStatus } =
+    trpc.ugcAd.getStatus.useQuery(
+      { id: generatedVideoId! },
+      {
+        enabled: !!generatedVideoId,
+        refetchInterval: query => {
+          if (query.state.data?.status === "processing") return 3000;
+          return false;
+        },
+      }
+    );
 
   const createMutation = trpc.ugcAd.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setGeneratedVideoId(data.id);
       setIsGenerating(false);
       toast.success(t("ugcAd.success.generationStarted"));
     },
-    onError: (error) => {
+    onError: error => {
       setIsGenerating(false);
       toast.error(error.message);
     },
@@ -140,9 +148,11 @@ export default function UgcAd() {
       return;
     }
 
-    const selectedModelData = options?.models.find((m) => m.id === selectedModel);
+    const selectedModelData = options?.models.find(m => m.id === selectedModel);
     if (selectedModelData && user.credits < selectedModelData.credits) {
-      toast.error(`Yetersiz kredi. Bu işlem ${selectedModelData.credits} kredi gerektiriyor.`);
+      toast.error(
+        `Yetersiz kredi. Bu işlem ${selectedModelData.credits} kredi gerektiriyor.`
+      );
       return;
     }
 
@@ -150,7 +160,12 @@ export default function UgcAd() {
     createMutation.mutate({
       productImageUrl: productImage || undefined,
       videoModel: "veo31",
-      ugcScenario: selectedScenario as "testimonial" | "unboxing" | "problem_solution" | "first_impression" | "lifestyle",
+      ugcScenario: selectedScenario as
+        | "testimonial"
+        | "unboxing"
+        | "problem_solution"
+        | "first_impression"
+        | "lifestyle",
       characterGender: selectedGender as "male" | "female",
       language: selectedLanguage,
       tone: selectedTone as "casual" | "excited" | "calm" | "persuasive",
@@ -169,10 +184,10 @@ export default function UgcAd() {
 
   // Loading state - removed since useAuth doesn't have isLoading
 
-  const selectedModelData = options?.models.find((m) => m.id === selectedModel);
+  const selectedModelData = options?.models.find(m => m.id === selectedModel);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0B0F19] text-[#F9FAFB]">
       <Header />
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
@@ -188,7 +203,7 @@ export default function UgcAd() {
                 <CardTitle className="flex items-center gap-2">
                   {videoStatus.status === "processing" ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin text-[#CCFF00]" />
+                      <Loader2 className="w-5 h-5 animate-spin text-neon-brand" />
                       Video Oluşturuluyor...
                     </>
                   ) : videoStatus.status === "completed" ? (
@@ -206,52 +221,59 @@ export default function UgcAd() {
                   {videoStatus.status === "processing"
                     ? t("ugcAd.status.processing")
                     : videoStatus.status === "completed"
-                    ? t("ugcAd.status.completed")
-                    : videoStatus.errorMessage || t("ugcAd.status.error")}
+                      ? t("ugcAd.status.completed")
+                      : videoStatus.errorMessage || t("ugcAd.status.error")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {videoStatus.status === "processing" && (
                   <div className="aspect-[9/16] max-w-sm mx-auto bg-zinc-800 rounded-xl flex items-center justify-center">
                     <div className="text-center">
-                      <Loader2 className="w-12 h-12 animate-spin text-[#CCFF00] mx-auto mb-4" />
-                      <p className="text-zinc-400">UGC video oluşturuluyor...</p>
-                      <p className="text-xs text-zinc-500 mt-2">Tahmini süre: 2-4 dakika</p>
+                      <Loader2 className="w-12 h-12 animate-spin text-neon-brand mx-auto mb-4" />
+                      <p className="text-zinc-400">
+                        UGC video oluşturuluyor...
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-2">
+                        Tahmini süre: 2-4 dakika
+                      </p>
                     </div>
                   </div>
                 )}
 
-                {videoStatus.status === "completed" && videoStatus.generatedVideoUrl && (
-                  <div className="space-y-4">
-                    <div className="aspect-[9/16] max-w-sm mx-auto bg-zinc-800 rounded-xl overflow-hidden">
-                      <video
-                        src={videoStatus.generatedVideoUrl}
-                        controls
-                        className="w-full h-full object-contain"
-                        autoPlay
-                        loop
-                      />
+                {videoStatus.status === "completed" &&
+                  videoStatus.generatedVideoUrl && (
+                    <div className="space-y-4">
+                      <div className="aspect-[9/16] max-w-sm mx-auto bg-zinc-800 rounded-xl overflow-hidden">
+                        <video
+                          src={videoStatus.generatedVideoUrl}
+                          controls
+                          className="w-full h-full object-contain"
+                          autoPlay
+                          loop
+                        />
+                      </div>
+                      <div className="flex justify-center gap-4">
+                        <Button
+                          asChild
+                          className="bg-neon-brand text-black hover:bg-[#00F5FF]"
+                        >
+                          <a href={videoStatus.generatedVideoUrl} download>
+                            <Download className="w-4 h-4 mr-2" />
+                            İndir
+                          </a>
+                        </Button>
+                        <Button variant="outline" onClick={handleReset}>
+                          Yeni Video Oluştur
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex justify-center gap-4">
-                      <Button
-                        asChild
-                        className="bg-[#CCFF00] text-black hover:bg-[#b8e600]"
-                      >
-                        <a href={videoStatus.generatedVideoUrl} download>
-                          <Download className="w-4 h-4 mr-2" />
-                          İndir
-                        </a>
-                      </Button>
-                      <Button variant="outline" onClick={handleReset}>
-                        Yeni Video Oluştur
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                  )}
 
                 {videoStatus.status === "failed" && (
                   <div className="text-center py-8">
-                    <p className="text-red-400 mb-4">{videoStatus.errorMessage}</p>
+                    <p className="text-red-400 mb-4">
+                      {videoStatus.errorMessage}
+                    </p>
                     <Button onClick={handleReset}>Tekrar Dene</Button>
                   </div>
                 )}
@@ -265,7 +287,9 @@ export default function UgcAd() {
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-[#CCFF00] text-black rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                  <span className="w-6 h-6 bg-neon-brand text-black rounded-full flex items-center justify-center text-sm font-bold">
+                    1
+                  </span>
                   Ürün Görseli (Opsiyonel)
                 </CardTitle>
                 <CardDescription>
@@ -280,21 +304,25 @@ export default function UgcAd() {
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                
+
                 {!productImage ? (
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="w-full h-48 border-2 border-dashed border-zinc-700 rounded-xl hover:border-[#CCFF00]/50 transition-colors flex flex-col items-center justify-center gap-4"
+                    className="w-full h-48 border-2 border-dashed border-zinc-700 rounded-xl hover:border-neon-brand/50 transition-colors flex flex-col items-center justify-center gap-4"
                   >
                     {isUploading ? (
-                      <Loader2 className="w-8 h-8 animate-spin text-[#CCFF00]" />
+                      <Loader2 className="w-8 h-8 animate-spin text-neon-brand" />
                     ) : (
                       <>
                         <Upload className="w-10 h-10 text-zinc-500" />
                         <div className="text-center">
-                          <p className="text-zinc-300 font-medium">Görsel yüklemek için tıklayın</p>
-                          <p className="text-sm text-zinc-500 mt-1">JPG, PNG, WebP • Maks. 20MB</p>
+                          <p className="text-zinc-300 font-medium">
+                            Görsel yüklemek için tıklayın
+                          </p>
+                          <p className="text-sm text-zinc-500 mt-1">
+                            JPG, PNG, WebP • Maks. 20MB
+                          </p>
                         </div>
                       </>
                     )}
@@ -323,7 +351,9 @@ export default function UgcAd() {
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-[#CCFF00] text-black rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                  <span className="w-6 h-6 bg-neon-brand text-black rounded-full flex items-center justify-center text-sm font-bold">
+                    2
+                  </span>
                   UGC Senaryosu Seç
                 </CardTitle>
                 <CardDescription>
@@ -332,7 +362,7 @@ export default function UgcAd() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-col gap-3">
-                  {options?.scenarios.map((scenario) => (
+                  {options?.scenarios.map(scenario => (
                     <motion.button
                       key={scenario.id}
                       whileHover={{ scale: 1.01 }}
@@ -340,19 +370,25 @@ export default function UgcAd() {
                       onClick={() => setSelectedScenario(scenario.id)}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
                         selectedScenario === scenario.id
-                          ? "border-[#CCFF00] bg-[#CCFF00]/10"
+                          ? "border-neon-brand bg-neon-brand/10"
                           : "border-zinc-700 hover:border-zinc-600 active:bg-zinc-800/50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          selectedScenario === scenario.id ? "bg-[#CCFF00]/20" : "bg-zinc-800"
-                        }`}>
+                        <div
+                          className={`p-2 rounded-lg ${
+                            selectedScenario === scenario.id
+                              ? "bg-neon-brand/20"
+                              : "bg-zinc-800"
+                          }`}
+                        >
                           {scenarioIcons[scenario.id]}
                         </div>
                         <div>
                           <span className="font-bold">{scenario.nameTr}</span>
-                          <p className="text-sm text-zinc-400">{scenario.description}</p>
+                          <p className="text-sm text-zinc-400">
+                            {scenario.description}
+                          </p>
                         </div>
                       </div>
                     </motion.button>
@@ -365,7 +401,9 @@ export default function UgcAd() {
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-[#CCFF00] text-black rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                  <span className="w-6 h-6 bg-neon-brand text-black rounded-full flex items-center justify-center text-sm font-bold">
+                    3
+                  </span>
                   Karakter Ayarları
                 </CardTitle>
                 <CardDescription>
@@ -375,15 +413,17 @@ export default function UgcAd() {
               <CardContent className="space-y-6">
                 {/* Gender */}
                 <div>
-                  <Label className="text-sm text-zinc-400 mb-2 block">Cinsiyet</Label>
+                  <Label className="text-sm text-zinc-400 mb-2 block">
+                    Cinsiyet
+                  </Label>
                   <div className="flex gap-3">
-                    {options?.genders.map((gender) => (
+                    {options?.genders.map(gender => (
                       <button
                         key={gender.id}
                         onClick={() => setSelectedGender(gender.id)}
                         className={`flex-1 p-3 rounded-xl border-2 transition-all ${
                           selectedGender === gender.id
-                            ? "border-[#CCFF00] bg-[#CCFF00]/10"
+                            ? "border-neon-brand bg-neon-brand/10"
                             : "border-zinc-700 hover:border-zinc-600"
                         }`}
                       >
@@ -396,15 +436,17 @@ export default function UgcAd() {
 
                 {/* Language */}
                 <div>
-                  <Label className="text-sm text-zinc-400 mb-2 block">Dil</Label>
+                  <Label className="text-sm text-zinc-400 mb-2 block">
+                    Dil
+                  </Label>
                   <div className="flex flex-wrap gap-2">
-                    {options?.languages.map((lang) => (
+                    {options?.languages.map(lang => (
                       <button
                         key={lang.id}
                         onClick={() => setSelectedLanguage(lang.id)}
                         className={`px-4 py-2 rounded-lg border transition-all flex items-center gap-2 ${
                           selectedLanguage === lang.id
-                            ? "border-[#CCFF00] bg-[#CCFF00]/10 text-[#CCFF00]"
+                            ? "border-neon-brand bg-neon-brand/10 text-neon-brand"
                             : "border-zinc-700 hover:border-zinc-600"
                         }`}
                       >
@@ -417,15 +459,17 @@ export default function UgcAd() {
 
                 {/* Tone */}
                 <div>
-                  <Label className="text-sm text-zinc-400 mb-2 block">Konuşma Tonu</Label>
+                  <Label className="text-sm text-zinc-400 mb-2 block">
+                    Konuşma Tonu
+                  </Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {options?.tones.map((tone) => (
+                    {options?.tones.map(tone => (
                       <button
                         key={tone.id}
                         onClick={() => setSelectedTone(tone.id)}
                         className={`p-3 rounded-xl border-2 transition-all ${
                           selectedTone === tone.id
-                            ? "border-[#CCFF00] bg-[#CCFF00]/10"
+                            ? "border-neon-brand bg-neon-brand/10"
                             : "border-zinc-700 hover:border-zinc-600"
                         }`}
                       >
@@ -433,7 +477,9 @@ export default function UgcAd() {
                           {toneIcons[tone.id]}
                           <span className="font-medium">{tone.nameTr}</span>
                         </div>
-                        <p className="text-xs text-zinc-500">{tone.description}</p>
+                        <p className="text-xs text-zinc-500">
+                          {tone.description}
+                        </p>
                       </button>
                     ))}
                   </div>
@@ -445,7 +491,9 @@ export default function UgcAd() {
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <span className="w-6 h-6 bg-zinc-700 text-white rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                  <span className="w-6 h-6 bg-zinc-700 text-[#F9FAFB] rounded-full flex items-center justify-center text-sm font-bold">
+                    4
+                  </span>
                   Ek Bilgiler (Opsiyonel)
                 </CardTitle>
                 <CardDescription>
@@ -459,7 +507,7 @@ export default function UgcAd() {
                     id="productName"
                     placeholder={t("ugcAd.productNamePlaceholder")}
                     value={productName}
-                    onChange={(e) => setProductName(e.target.value)}
+                    onChange={e => setProductName(e.target.value)}
                     className="bg-zinc-800 border-zinc-700 mt-1"
                   />
                 </div>
@@ -469,7 +517,7 @@ export default function UgcAd() {
                     id="keyBenefit"
                     placeholder={t("ugcAd.keyBenefitPlaceholder")}
                     value={keyBenefit}
-                    onChange={(e) => setKeyBenefit(e.target.value)}
+                    onChange={e => setKeyBenefit(e.target.value)}
                     className="bg-zinc-800 border-zinc-700 mt-1"
                   />
                 </div>
@@ -481,7 +529,7 @@ export default function UgcAd() {
               <Button
                 onClick={handleGenerate}
                 disabled={isGenerating || !user}
-                className="w-full h-14 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold text-lg rounded-xl"
+                className="w-full h-14 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-[#F9FAFB] font-bold text-lg rounded-xl"
               >
                 {isGenerating ? (
                   <>
@@ -498,7 +546,10 @@ export default function UgcAd() {
               {!user && (
                 <p className="text-center text-sm text-zinc-500 mt-2">
                   Video oluşturmak için{" "}
-                  <a href={getLoginUrl()} className="text-[#CCFF00] hover:underline">
+                  <a
+                    href={getLoginUrl()}
+                    className="text-neon-brand hover:underline"
+                  >
                     giriş yapın
                   </a>
                 </p>

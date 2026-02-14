@@ -19,16 +19,19 @@ export default function LanguageSwitcher() {
           <span className="uppercase">{language}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-background border-white/10">
+      <DropdownMenuContent
+        align="end"
+        className="bg-background border-white/10"
+      >
         <DropdownMenuItem
           onClick={() => setLanguage("tr")}
-          className={`cursor-pointer ${language === "tr" ? "bg-[#CCFF00]/20 text-[#CCFF00]" : ""}`}
+          className={`cursor-pointer ${language === "tr" ? "ai-lang-active" : ""}`}
         >
           🇹🇷 Türkçe
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setLanguage("en")}
-          className={`cursor-pointer ${language === "en" ? "bg-[#CCFF00]/20 text-[#CCFF00]" : ""}`}
+          className={`cursor-pointer ${language === "en" ? "ai-lang-active" : ""}`}
         >
           🇬🇧 English
         </DropdownMenuItem>

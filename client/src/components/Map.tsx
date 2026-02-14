@@ -91,7 +91,9 @@ const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
 function loadMapScript() {
   return new Promise(resolve => {
     if (!API_KEY) {
-      console.error("Google Maps API key is missing. Set VITE_GOOGLE_MAPS_API_KEY in .env");
+      console.error(
+        "Google Maps API key is missing. Set VITE_GOOGLE_MAPS_API_KEY in .env"
+      );
       resolve(null);
       return;
     }

@@ -25,11 +25,17 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     if (!pageSeo && !globalSeo) return;
 
     // Helper to update or create meta tag
-    const setMetaTag = (name: string, content: string | null | undefined, property?: boolean) => {
+    const setMetaTag = (
+      name: string,
+      content: string | null | undefined,
+      property?: boolean
+    ) => {
       if (!content) return;
 
       const attr = property ? "property" : "name";
-      let meta = document.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement;
+      let meta = document.querySelector(
+        `meta[${attr}="${name}"]`
+      ) as HTMLMetaElement;
 
       if (!meta) {
         meta = document.createElement("meta");
@@ -43,7 +49,9 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     const setLinkTag = (rel: string, href: string | null | undefined) => {
       if (!href) return;
 
-      let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
+      let link = document.querySelector(
+        `link[rel="${rel}"]`
+      ) as HTMLLinkElement;
 
       if (!link) {
         link = document.createElement("link");
@@ -54,19 +62,26 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     };
 
     // Set document title
-    const title = pageSeo?.metaTitle || globalSeo?.defaultMetaTitle || "Amonify";
+    const title =
+      pageSeo?.metaTitle || globalSeo?.defaultMetaTitle || "Amonify";
     document.title = title;
 
     // Basic meta tags
-    setMetaTag("description", pageSeo?.metaDescription || globalSeo?.defaultMetaDescription);
-    setMetaTag("keywords", pageSeo?.metaKeywords || globalSeo?.defaultMetaKeywords);
+    setMetaTag(
+      "description",
+      pageSeo?.metaDescription || globalSeo?.defaultMetaDescription
+    );
+    setMetaTag(
+      "keywords",
+      pageSeo?.metaKeywords || globalSeo?.defaultMetaKeywords
+    );
     setMetaTag("author", globalSeo?.siteName || "Amonify");
 
     // Robots
     if (pageSeo?.robotsIndex !== undefined) {
       const robotsContent = [
         pageSeo.robotsIndex ? "index" : "noindex",
-        pageSeo.robotsFollow ? "follow" : "nofollow"
+        pageSeo.robotsFollow ? "follow" : "nofollow",
       ].join(", ");
       setMetaTag("robots", robotsContent);
     }
@@ -77,23 +92,53 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     // Open Graph (Facebook)
     setMetaTag("og:type", "website", true);
     setMetaTag("og:site_name", globalSeo?.siteName || "Amonify", true);
-    setMetaTag("og:title", pageSeo?.ogTitle || pageSeo?.metaTitle || title, true);
-    setMetaTag("og:description", pageSeo?.ogDescription || pageSeo?.metaDescription || globalSeo?.defaultMetaDescription, true);
+    setMetaTag(
+      "og:title",
+      pageSeo?.ogTitle || pageSeo?.metaTitle || title,
+      true
+    );
+    setMetaTag(
+      "og:description",
+      pageSeo?.ogDescription ||
+        pageSeo?.metaDescription ||
+        globalSeo?.defaultMetaDescription,
+      true
+    );
     setMetaTag("og:image", pageSeo?.ogImage || globalSeo?.defaultOgImage, true);
     setMetaTag("og:url", pageSeo?.canonicalUrl || window.location.href, true);
-    setMetaTag("og:locale", globalSeo?.defaultLanguage === "tr" ? "tr_TR" : "en_US", true);
+    setMetaTag(
+      "og:locale",
+      globalSeo?.defaultLanguage === "tr" ? "tr_TR" : "en_US",
+      true
+    );
 
     // Twitter Card
     setMetaTag("twitter:card", "summary_large_image", true);
     setMetaTag("twitter:site", globalSeo?.defaultTwitterSite, true);
     setMetaTag("twitter:creator", globalSeo?.defaultTwitterCreator, true);
-    setMetaTag("twitter:title", pageSeo?.twitterTitle || pageSeo?.ogTitle || pageSeo?.metaTitle || title, true);
-    setMetaTag("twitter:description", pageSeo?.twitterDescription || pageSeo?.ogDescription || pageSeo?.metaDescription, true);
-    setMetaTag("twitter:image", pageSeo?.twitterImage || pageSeo?.ogImage || globalSeo?.defaultOgImage, true);
+    setMetaTag(
+      "twitter:title",
+      pageSeo?.twitterTitle || pageSeo?.ogTitle || pageSeo?.metaTitle || title,
+      true
+    );
+    setMetaTag(
+      "twitter:description",
+      pageSeo?.twitterDescription ||
+        pageSeo?.ogDescription ||
+        pageSeo?.metaDescription,
+      true
+    );
+    setMetaTag(
+      "twitter:image",
+      pageSeo?.twitterImage || pageSeo?.ogImage || globalSeo?.defaultOgImage,
+      true
+    );
 
     // Structured Data (JSON-LD)
     if (pageSeo?.structuredData) {
-      let script = document.querySelector('script[type="application/ld+json"]') as HTMLScriptElement;
+      let script = document.querySelector(
+        'script[type="application/ld+json"]'
+      ) as HTMLScriptElement;
 
       if (!script) {
         script = document.createElement("script");
@@ -131,7 +176,9 @@ export function useSeo(options: {
     if (options.title) {
       document.title = options.title;
 
-      let ogTitle = document.querySelector('meta[property="og:title"]') as HTMLMetaElement;
+      let ogTitle = document.querySelector(
+        'meta[property="og:title"]'
+      ) as HTMLMetaElement;
       if (!ogTitle) {
         ogTitle = document.createElement("meta");
         ogTitle.setAttribute("property", "og:title");
@@ -141,7 +188,9 @@ export function useSeo(options: {
     }
 
     if (options.description) {
-      let desc = document.querySelector('meta[name="description"]') as HTMLMetaElement;
+      let desc = document.querySelector(
+        'meta[name="description"]'
+      ) as HTMLMetaElement;
       if (!desc) {
         desc = document.createElement("meta");
         desc.name = "description";
@@ -149,7 +198,9 @@ export function useSeo(options: {
       }
       desc.content = options.description;
 
-      let ogDesc = document.querySelector('meta[property="og:description"]') as HTMLMetaElement;
+      let ogDesc = document.querySelector(
+        'meta[property="og:description"]'
+      ) as HTMLMetaElement;
       if (!ogDesc) {
         ogDesc = document.createElement("meta");
         ogDesc.setAttribute("property", "og:description");
@@ -159,7 +210,9 @@ export function useSeo(options: {
     }
 
     if (options.image) {
-      let ogImage = document.querySelector('meta[property="og:image"]') as HTMLMetaElement;
+      let ogImage = document.querySelector(
+        'meta[property="og:image"]'
+      ) as HTMLMetaElement;
       if (!ogImage) {
         ogImage = document.createElement("meta");
         ogImage.setAttribute("property", "og:image");
@@ -169,7 +222,9 @@ export function useSeo(options: {
     }
 
     if (options.url) {
-      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      let canonical = document.querySelector(
+        'link[rel="canonical"]'
+      ) as HTMLLinkElement;
       if (!canonical) {
         canonical = document.createElement("link");
         canonical.rel = "canonical";

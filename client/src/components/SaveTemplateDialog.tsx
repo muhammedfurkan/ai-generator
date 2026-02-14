@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +59,7 @@ export default function SaveTemplateDialog({
       utils.userTemplates.list.invalidate();
       handleClose();
     },
-    onError: (error) => {
+    onError: error => {
       toast.error(error.message || "Şablon kaydedilemedi");
     },
   });
@@ -86,7 +92,7 @@ export default function SaveTemplateDialog({
       <DialogContent className="max-w-2xl bg-background/95 backdrop-blur-xl border-white/10">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            <Save className="h-6 w-6 text-blue-400" />
+            <Save className="h-6 w-6 text-[#00F5FF]" />
             Şablon Olarak Kaydet
           </DialogTitle>
           <p className="text-sm text-muted-foreground mt-1">
@@ -104,7 +110,7 @@ export default function SaveTemplateDialog({
               id="title"
               placeholder="Örn: Profesyonel Profil Fotoğrafı"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={e => setTitle(e.target.value)}
               className="glass-card border-white/10"
             />
           </div>
@@ -118,7 +124,7 @@ export default function SaveTemplateDialog({
               id="description"
               placeholder="Bu şablonun ne için kullanıldığını açıklayın..."
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
               className="glass-card border-white/10 min-h-20 resize-none"
             />
           </div>
@@ -133,7 +139,7 @@ export default function SaveTemplateDialog({
                 <SelectValue placeholder="Kategori seçin..." />
               </SelectTrigger>
               <SelectContent>
-                {TEMPLATE_CATEGORIES.map((cat) => (
+                {TEMPLATE_CATEGORIES.map(cat => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
                   </SelectItem>
@@ -152,13 +158,15 @@ export default function SaveTemplateDialog({
 
           {/* Settings Preview */}
           <div className="flex gap-4 text-sm">
-            <div className="glass-card bg-blue-500/10 px-3 py-2 rounded">
+            <div className="glass-card bg-[#00F5FF]/10 px-3 py-2 rounded">
               <span className="text-muted-foreground">Aspect Ratio:</span>{" "}
-              <span className="font-semibold text-blue-400">{aspectRatio}</span>
+              <span className="font-semibold text-[#00F5FF]">
+                {aspectRatio}
+              </span>
             </div>
-            <div className="glass-card bg-purple-500/10 px-3 py-2 rounded">
+            <div className="glass-card bg-[#7C3AED]/10 px-3 py-2 rounded">
               <span className="text-muted-foreground">Resolution:</span>{" "}
-              <span className="font-semibold text-purple-400">{resolution}</span>
+              <span className="font-semibold text-[#7C3AED]">{resolution}</span>
             </div>
           </div>
         </div>

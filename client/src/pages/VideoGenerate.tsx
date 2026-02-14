@@ -411,8 +411,8 @@ export default function VideoGenerate() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-purple-500" />
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-[#7C3AED]" />
       </div>
     );
   }
@@ -434,13 +434,14 @@ export default function VideoGenerate() {
         o.duration === duration ||
         o.duration === `${duration}s`
     ) || currentModelInfo?.options?.[0];
-  const creditCost = estimatedCreditQuery.data?.credits || currentOption?.credits || 50;
+  const creditCost =
+    estimatedCreditQuery.data?.credits || currentOption?.credits || 50;
   const displayCreditCost = Number.isFinite(Number(creditCost))
     ? Math.max(1, Math.round(Number(creditCost)))
     : 50;
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0B0F19] text-[#F9FAFB]">
       <Header />
 
       <div className="pt-16 pb-20 px-4">
@@ -454,8 +455,8 @@ export default function VideoGenerate() {
               <p className="text-white/40 text-sm">{t("video.subtitle")}</p>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
-              <Zap className="w-4 h-4 text-purple-400" />
-              <span className="text-lg font-bold text-purple-400">
+              <Zap className="w-4 h-4 text-[#7C3AED]" />
+              <span className="text-lg font-bold text-[#7C3AED]">
                 {user?.credits ?? 0}
               </span>
             </div>
@@ -473,7 +474,7 @@ export default function VideoGenerate() {
                 className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-xl">
+                  <div className="w-10 h-10 rounded-lg bg-[#7C3AED]/10 flex items-center justify-center text-xl">
                     {MODEL_DISPLAY_INFO[
                       selectedModelData?.modelKey || selectedModel
                     ]?.icon || "🎬"}
@@ -534,8 +535,8 @@ export default function VideoGenerate() {
                                       className={cn(
                                         "text-sm font-bold",
                                         selectedModel === model.modelKey
-                                          ? "text-purple-400"
-                                          : "text-white"
+                                          ? "text-[#7C3AED]"
+                                          : "text-[#F9FAFB]"
                                       )}
                                     >
                                       {model.modelName}
@@ -546,7 +547,7 @@ export default function VideoGenerate() {
                                   </div>
                                 </div>
                                 {selectedModel === model.modelKey && (
-                                  <Check className="w-4 h-4 text-purple-400" />
+                                  <Check className="w-4 h-4 text-[#7C3AED]" />
                                 )}
                               </div>
                             </button>
@@ -589,8 +590,8 @@ export default function VideoGenerate() {
                         : modeCount === 2
                           ? "grid grid-cols-2 gap-1"
                           : modeCount === 3
-                            ? "grid grid-cols-3 gap-1"
-                            : "grid grid-cols-4 gap-1";
+                            ? "grid grid-cols-2 sm:grid-cols-3 gap-1"
+                            : "grid grid-cols-2 sm:grid-cols-4 gap-1";
                     })()
                   )}
                 >
@@ -602,8 +603,8 @@ export default function VideoGenerate() {
                       className={cn(
                         "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
                         generationType === "text-to-video"
-                          ? "bg-purple-500 text-white"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-[#7C3AED] text-[#F9FAFB]"
+                          : "text-white/60 hover:text-[#F9FAFB]"
                       )}
                     >
                       {t("video.textToVideo")}
@@ -618,8 +619,8 @@ export default function VideoGenerate() {
                       className={cn(
                         "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
                         generationType === "image-to-video"
-                          ? "bg-purple-500 text-white"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-[#7C3AED] text-[#F9FAFB]"
+                          : "text-white/60 hover:text-[#F9FAFB]"
                       )}
                     >
                       {t("video.imageToVideo")}
@@ -634,8 +635,8 @@ export default function VideoGenerate() {
                       className={cn(
                         "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
                         generationType === "reference-to-video"
-                          ? "bg-purple-500 text-white"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-[#7C3AED] text-[#F9FAFB]"
+                          : "text-white/60 hover:text-[#F9FAFB]"
                       )}
                     >
                       {t("video.refToVideo")}
@@ -649,8 +650,8 @@ export default function VideoGenerate() {
                       className={cn(
                         "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
                         generationType === "video-to-video"
-                          ? "bg-purple-500 text-white"
-                          : "text-white/60 hover:text-white"
+                          ? "bg-[#7C3AED] text-[#F9FAFB]"
+                          : "text-white/60 hover:text-[#F9FAFB]"
                       )}
                     >
                       {t("video.videoToVideo")}
@@ -675,7 +676,7 @@ export default function VideoGenerate() {
                     />
                     <button
                       onClick={removeImage}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all"
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center transition-all"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -719,7 +720,7 @@ export default function VideoGenerate() {
                       />
                       <button
                         onClick={() => removeImageAtIndex(idx)}
-                        className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                        className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                       >
                         <X className="w-3 h-3" />
                       </button>
@@ -767,7 +768,7 @@ export default function VideoGenerate() {
                     />
                     <button
                       onClick={removeVideo}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -802,7 +803,7 @@ export default function VideoGenerate() {
                     ? t("video.placeholders.textToVideo")
                     : t("video.placeholders.imageToVideo")
                 }
-                className="bg-white/5 border-white/10 focus:border-purple-500/50 resize-none text-base min-h-[120px]"
+                className="bg-white/5 border-white/10 focus:border-[#7C3AED]/50 resize-none text-base min-h-[120px]"
                 rows={5}
                 maxLength={5000}
               />
@@ -819,7 +820,7 @@ export default function VideoGenerate() {
                     value={prompt}
                     onChange={e => setPrompt(e.target.value)}
                     placeholder={t("video.placeholders.characterDesc")}
-                    className="bg-white/5 border-white/10 focus:border-purple-500/50 resize-none text-base min-h-[100px]"
+                    className="bg-white/5 border-white/10 focus:border-[#7C3AED]/50 resize-none text-base min-h-[100px]"
                     rows={4}
                     maxLength={5000}
                   />
@@ -835,7 +836,7 @@ export default function VideoGenerate() {
                         e.target.value)
                     }
                     placeholder={t("video.placeholders.safetyInstructions")}
-                    className="bg-white/5 border-white/10 focus:border-purple-500/50 resize-none text-base min-h-[80px]"
+                    className="bg-white/5 border-white/10 focus:border-[#7C3AED]/50 resize-none text-base min-h-[80px]"
                     rows={3}
                     maxLength={5000}
                   />
@@ -857,7 +858,7 @@ export default function VideoGenerate() {
                       ((window as any).__sora_video_url = e.target.value)
                     }
                     placeholder="https://sora.chatgpt.com/p/s_..."
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-purple-500/50 focus:outline-none text-white"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-[#7C3AED]/50 focus:outline-none text-[#F9FAFB]"
                     maxLength={500}
                   />
                   <p className="text-xs text-white/40 mt-2">
@@ -876,7 +877,7 @@ export default function VideoGenerate() {
                   {t("video.sora.storyboardHint")}
                 </p>
                 {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2 mb-3">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
                     {imagePreviews.map((preview, idx) => (
                       <div key={idx} className="relative group aspect-square">
                         <img
@@ -893,7 +894,7 @@ export default function VideoGenerate() {
                               prev.filter((_, i) => i !== idx)
                             );
                           }}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -930,7 +931,7 @@ export default function VideoGenerate() {
                       className={cn(
                         "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
                         soraFeature === "default"
-                          ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                           : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                       )}
                     >
@@ -941,7 +942,7 @@ export default function VideoGenerate() {
                       className={cn(
                         "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
                         soraFeature === "characters"
-                          ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                           : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                       )}
                     >
@@ -952,7 +953,7 @@ export default function VideoGenerate() {
                       className={cn(
                         "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
                         soraFeature === "storyboard"
-                          ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                           : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                       )}
                     >
@@ -963,7 +964,7 @@ export default function VideoGenerate() {
                       className={cn(
                         "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
                         soraFeature === "watermark-remover"
-                          ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                           : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                       )}
                     >
@@ -1028,7 +1029,7 @@ export default function VideoGenerate() {
                             className={cn(
                               "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[60px]", // More flex button
                               aspectRatio === ratio
-                                ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                                ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                                 : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                             )}
                           >
@@ -1060,7 +1061,7 @@ export default function VideoGenerate() {
                               className={cn(
                                 "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[60px]",
                                 duration === dur
-                                  ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                                  ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                                   : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                               )}
                             >
@@ -1089,7 +1090,7 @@ export default function VideoGenerate() {
                               className={cn(
                                 "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[80px]",
                                 quality === qual
-                                  ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                                  ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                                   : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                               )}
                             >
@@ -1118,7 +1119,7 @@ export default function VideoGenerate() {
                               className={cn(
                                 "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[70px]",
                                 resolution === res
-                                  ? "bg-purple-500/20 border-purple-500 text-purple-400"
+                                  ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
                                   : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
                               )}
                             >
@@ -1134,43 +1135,43 @@ export default function VideoGenerate() {
             {/* Audio Toggle */}
             {selectedModel !== "sora2" &&
               (selectedModelData as any)?.hasAudioSupport && (
-              <div className="mb-6 flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "w-10 h-10 rounded-lg flex items-center justify-center",
-                      enableAudio
-                        ? "bg-purple-500/20 text-purple-400"
-                        : "bg-white/10 text-white/40"
-                    )}
-                  >
-                    {enableAudio ? (
-                      <Video className="w-5 h-5" />
-                    ) : (
-                      <X className="w-5 h-5" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm">Ses Üretimi</div>
-                    <div className="text-xs text-white/40">
-                      Videoya uygun ses efekti oluştur
+                <div className="mb-6 flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "w-10 h-10 rounded-lg flex items-center justify-center",
+                        enableAudio
+                          ? "bg-[#7C3AED]/20 text-[#7C3AED]"
+                          : "bg-white/10 text-white/40"
+                      )}
+                    >
+                      {enableAudio ? (
+                        <Video className="w-5 h-5" />
+                      ) : (
+                        <X className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm">Ses Üretimi</div>
+                      <div className="text-xs text-white/40">
+                        Videoya uygun ses efekti oluştur
+                      </div>
                     </div>
                   </div>
+                  <button
+                    onClick={() => setEnableAudio(!enableAudio)}
+                    className={cn(
+                      "w-12 h-6 rounded-full relative transition-colors",
+                      enableAudio ? "bg-[#7C3AED]" : "bg-white/20"
+                    )}
+                  >
+                    <motion.div
+                      animate={{ x: enableAudio ? 24 : 0 }}
+                      className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"
+                    />
+                  </button>
                 </div>
-                <button
-                  onClick={() => setEnableAudio(!enableAudio)}
-                  className={cn(
-                    "w-12 h-6 rounded-full relative transition-colors",
-                    enableAudio ? "bg-purple-500" : "bg-white/20"
-                  )}
-                >
-                  <motion.div
-                    animate={{ x: enableAudio ? 24 : 0 }}
-                    className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"
-                  />
-                </button>
-              </div>
-            )}
+              )}
 
             {/* Generate Button */}
             <motion.button
@@ -1197,7 +1198,7 @@ export default function VideoGenerate() {
                   (generationType === "reference-to-video" &&
                     imageFiles.length === 0)
                   ? "bg-white/10 text-white/30 cursor-not-allowed"
-                  : "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/50 hover:shadow-xl hover:shadow-purple-500/60"
+                  : "bg-gradient-to-r from-[#7C3AED] to-[#FF2E97] text-[#F9FAFB] shadow-lg shadow-[#7C3AED]/50 hover:shadow-xl hover:shadow-[#7C3AED]/60"
               )}
               whileTap={{ scale: 0.98 }}
             >

@@ -74,8 +74,10 @@ const QWEN_TEXT_MODEL_KEYS = new Set([
   "qwen/text-to-image",
 ]);
 
-const isQwenTextModelKey = (modelKey: string) => QWEN_TEXT_MODEL_KEYS.has(modelKey);
-const isQwenEditModelKey = (modelKey: string) => QWEN_EDIT_MODEL_KEYS.has(modelKey);
+const isQwenTextModelKey = (modelKey: string) =>
+  QWEN_TEXT_MODEL_KEYS.has(modelKey);
+const isQwenEditModelKey = (modelKey: string) =>
+  QWEN_EDIT_MODEL_KEYS.has(modelKey);
 
 export default function Generate() {
   const { t } = useLanguage();
@@ -235,11 +237,7 @@ export default function Generate() {
     }
 
     // Validate edit mode for SeeDream
-    if (
-      aiModel === "seedream" &&
-      isEditMode &&
-      referenceImages.length === 0
-    ) {
+    if (aiModel === "seedream" && isEditMode && referenceImages.length === 0) {
       toast.error(t("generate.editModeRefRequired"));
       return;
     }
@@ -256,7 +254,11 @@ export default function Generate() {
       return;
     }
 
-    const creditsNeeded = calculateCreditsNeeded(aiModel, resolution, isEditMode);
+    const creditsNeeded = calculateCreditsNeeded(
+      aiModel,
+      resolution,
+      isEditMode
+    );
     if (!creditsQuery.data || creditsQuery.data.credits < creditsNeeded) {
       setShowInsufficientCreditsDialog(true);
       return;
@@ -349,7 +351,7 @@ export default function Generate() {
 
   if (isLoading)
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-neon-brand" />
       </div>
     );
@@ -360,16 +362,16 @@ export default function Generate() {
 
   const selectedModel = activeImageModels.find(m => m.modelKey === aiModel) ||
     activeImageModels[0] || {
-    modelKey: aiModel,
-    modelName: "Unknown",
-    provider: "Unknown",
-    supportedAspectRatios: ["1:1"],
-    supportedResolutions: ["1K"],
-  };
+      modelKey: aiModel,
+      modelName: "Unknown",
+      provider: "Unknown",
+      supportedAspectRatios: ["1:1"],
+      supportedResolutions: ["1K"],
+    };
   const creditsNeeded = calculateCreditsNeeded(aiModel, resolution, isEditMode);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0B0F19] text-[#F9FAFB]">
       <Header />
 
       {/* Main Container */}
@@ -443,7 +445,7 @@ export default function Generate() {
                             onClick={() =>
                               !isDisabled &&
                               (setAiModel(model.modelKey),
-                                setShowModelSelector(false))
+                              setShowModelSelector(false))
                             }
                             disabled={isDisabled}
                             className={cn(
@@ -451,8 +453,8 @@ export default function Generate() {
                               isDisabled && "opacity-50 cursor-not-allowed",
                               !isDisabled && "hover:bg-white/5",
                               !isDisabled &&
-                              aiModel === model.modelKey &&
-                              "bg-white/10"
+                                aiModel === model.modelKey &&
+                                "bg-white/10"
                             )}
                           >
                             <div className="flex items-center gap-3">
@@ -464,7 +466,7 @@ export default function Generate() {
                                       "text-sm font-bold",
                                       !isDisabled && aiModel === model.modelKey
                                         ? "text-neon-brand"
-                                        : "text-white"
+                                        : "text-[#F9FAFB]"
                                     )}
                                   >
                                     {model.modelName}
@@ -583,7 +585,7 @@ export default function Generate() {
 
                 {/* Uploaded Images Grid */}
                 {referenceImages.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {referenceImages.map((img, idx) => (
                       <div key={idx} className="relative group aspect-square">
                         <img
@@ -593,7 +595,7 @@ export default function Generate() {
                         />
                         <button
                           onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -633,7 +635,7 @@ export default function Generate() {
 
                 {/* Uploaded Images Grid */}
                 {referenceImages.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {referenceImages.map((img, idx) => (
                       <div key={idx} className="relative group aspect-square">
                         <img
@@ -643,7 +645,7 @@ export default function Generate() {
                         />
                         <button
                           onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -683,7 +685,7 @@ export default function Generate() {
 
                 {/* Uploaded Images Grid */}
                 {referenceImages.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {referenceImages.map((img, idx) => (
                       <div key={idx} className="relative group aspect-square">
                         <img
@@ -693,7 +695,7 @@ export default function Generate() {
                         />
                         <button
                           onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -724,7 +726,7 @@ export default function Generate() {
                   <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
                     {t("generate.referenceImages")}
                   </label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {referenceImages.map((img, idx) => (
                       <div key={idx} className="relative group aspect-square">
                         <img
@@ -734,7 +736,7 @@ export default function Generate() {
                         />
                         <button
                           onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -751,7 +753,7 @@ export default function Generate() {
                 <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
                   {t("generate.aspectRatio")}
                 </label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {ASPECT_RATIOS.filter(ratio =>
                     (selectedModel.supportedAspectRatios || ["1:1"]).includes(
                       ratio.value
@@ -788,44 +790,44 @@ export default function Generate() {
                 >
                   {aiModel === "seedream"
                     ? // SeeDream specific qualities
-                    SEEDREAM_QUALITIES.map(quality => (
-                      <button
-                        key={quality.value}
-                        onClick={() =>
-                          setResolution(
-                            quality.value === "high" ? "4K" : "2K"
-                          )
-                        }
-                        className={cn(
-                          "py-2 px-3 rounded-lg text-xs font-bold transition-all border",
-                          (quality.value === "high" && resolution === "4K") ||
-                            (quality.value === "basic" && resolution !== "4K")
-                            ? "bg-neon-brand/20 border-neon-brand text-neon-brand"
-                            : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                        )}
-                      >
-                        {quality.label}
-                      </button>
-                    ))
+                      SEEDREAM_QUALITIES.map(quality => (
+                        <button
+                          key={quality.value}
+                          onClick={() =>
+                            setResolution(
+                              quality.value === "high" ? "4K" : "2K"
+                            )
+                          }
+                          className={cn(
+                            "py-2 px-3 rounded-lg text-xs font-bold transition-all border",
+                            (quality.value === "high" && resolution === "4K") ||
+                              (quality.value === "basic" && resolution !== "4K")
+                              ? "bg-neon-brand/20 border-neon-brand text-neon-brand"
+                              : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                          )}
+                        >
+                          {quality.label}
+                        </button>
+                      ))
                     : // Standard resolutions for other models
-                    RESOLUTIONS.filter(res =>
-                      (selectedModel.supportedResolutions || ["1K"]).includes(
-                        res.value
-                      )
-                    ).map(res => (
-                      <button
-                        key={res.value}
-                        onClick={() => setResolution(res.value)}
-                        className={cn(
-                          "py-2 px-3 rounded-lg text-xs font-bold transition-all border",
-                          resolution === res.value
-                            ? "bg-neon-brand/20 border-neon-brand text-neon-brand"
-                            : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                        )}
-                      >
-                        {res.value}
-                      </button>
-                    ))}
+                      RESOLUTIONS.filter(res =>
+                        (selectedModel.supportedResolutions || ["1K"]).includes(
+                          res.value
+                        )
+                      ).map(res => (
+                        <button
+                          key={res.value}
+                          onClick={() => setResolution(res.value)}
+                          className={cn(
+                            "py-2 px-3 rounded-lg text-xs font-bold transition-all border",
+                            resolution === res.value
+                              ? "bg-neon-brand/20 border-neon-brand text-neon-brand"
+                              : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                          )}
+                        >
+                          {res.value}
+                        </button>
+                      ))}
                 </div>
               </div>
             </div>
@@ -858,7 +860,7 @@ export default function Generate() {
                     <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
                       {t("generate.allAspectRatios")}
                     </label>
-                    <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-8 gap-2">
                       {ASPECT_RATIOS.filter(ratio =>
                         (
                           selectedModel.supportedAspectRatios || ["1:1"]
@@ -895,29 +897,29 @@ export default function Generate() {
                     "qwen/image-edit",
                     "qwen/image-to-image",
                   ].includes(aiModel) && (
-                      <div>
-                        <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                          {t("generate.referenceOptional")}
-                        </label>
-                        <p className="text-xs text-white/40 mb-3">
-                          {t("generate.uploadRefHint", { max: 3 })}
-                        </p>
-                        <label className="flex items-center justify-center gap-2 p-6 border-2 border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all">
-                          <Upload className="w-5 h-5 text-white/40" />
-                          <span className="text-sm text-white/60">
-                            {t("generate.uploadImage")} ({referenceImages.length}
-                            /3)
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageUpload}
-                            className="hidden"
-                          />
-                        </label>
-                      </div>
-                    )}
+                    <div>
+                      <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+                        {t("generate.referenceOptional")}
+                      </label>
+                      <p className="text-xs text-white/40 mb-3">
+                        {t("generate.uploadRefHint", { max: 3 })}
+                      </p>
+                      <label className="flex items-center justify-center gap-2 p-6 border-2 border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all">
+                        <Upload className="w-5 h-5 text-white/40" />
+                        <span className="text-sm text-white/60">
+                          {t("generate.uploadImage")} ({referenceImages.length}
+                          /3)
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -930,7 +932,7 @@ export default function Generate() {
                 "w-full py-4 rounded-2xl font-black text-base transition-all flex items-center justify-center gap-3 relative overflow-hidden",
                 isGenerating || isUploading || !prompt.trim()
                   ? "bg-white/10 text-white/30 cursor-not-allowed"
-                  : "bg-gradient-to-r from-neon-brand to-purple-600 text-white shadow-lg shadow-neon-brand/50 hover:shadow-xl hover:shadow-neon-brand/60"
+                  : "bg-gradient-to-r from-neon-brand to-[#FF2E97] text-[#F9FAFB] shadow-lg shadow-neon-brand/50 hover:shadow-xl hover:shadow-neon-brand/60"
               )}
               whileTap={{ scale: 0.98 }}
             >

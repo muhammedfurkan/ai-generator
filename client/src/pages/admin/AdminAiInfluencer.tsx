@@ -51,7 +51,8 @@ const defaultSettings: AiInfluencerSettings = {
 };
 
 export default function AdminAiInfluencer() {
-  const [settings, setSettings] = useState<AiInfluencerSettings>(defaultSettings);
+  const [settings, setSettings] =
+    useState<AiInfluencerSettings>(defaultSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -61,14 +62,16 @@ export default function AdminAiInfluencer() {
   const settingsQuery = trpc.adminPanel.getAiInfluencerSettings.useQuery();
 
   // Update settings mutation
-  const updateMutation = trpc.adminPanel.updateAiInfluencerSettings.useMutation({
-    onSuccess: () => {
-      toast.success("Ayarlar kaydedildi");
-      setHasChanges(false);
-      utils.adminPanel.getAiInfluencerSettings.invalidate();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const updateMutation = trpc.adminPanel.updateAiInfluencerSettings.useMutation(
+    {
+      onSuccess: () => {
+        toast.success("Ayarlar kaydedildi");
+        setHasChanges(false);
+        utils.adminPanel.getAiInfluencerSettings.invalidate();
+      },
+      onError: error => toast.error(error.message),
+    }
+  );
 
   useEffect(() => {
     if (settingsQuery.data) {
@@ -85,11 +88,8 @@ export default function AdminAiInfluencer() {
     }
   };
 
-  const updatePricing = (
-    resolution: "1K" | "2K" | "4K",
-    value: number
-  ) => {
-    setSettings((prev) => ({
+  const updatePricing = (resolution: "1K" | "2K" | "4K", value: number) => {
+    setSettings(prev => ({
       ...prev,
       nanoBananaPricing: {
         ...prev.nanoBananaPricing,
@@ -105,7 +105,7 @@ export default function AdminAiInfluencer() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Image className="h-5 w-5 text-purple-400" />
+            <Image className="h-5 w-5 text-[#7C3AED]" />
             AI Influencer Ayarları
           </h2>
           <p className="text-sm text-zinc-500">
@@ -118,16 +118,22 @@ export default function AdminAiInfluencer() {
             onClick={() => settingsQuery.refetch()}
             disabled={settingsQuery.isFetching}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${settingsQuery.isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${settingsQuery.isFetching ? "animate-spin" : ""}`}
+            />
             Yenile
           </Button>
           {hasChanges && (
             <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+              className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
             >
-              {isSaving ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {isSaving ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Kaydet
             </Button>
           )}
@@ -148,13 +154,15 @@ export default function AdminAiInfluencer() {
               </div>
               <div>
                 <CardTitle className="text-lg">Nano Banana Pro</CardTitle>
-                <CardDescription>AI Influencer görsel üretim modeli</CardDescription>
+                <CardDescription>
+                  AI Influencer görsel üretim modeli
+                </CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-3 gap-4">
-              {(["1K", "2K", "4K"] as const).map((resolution) => (
+              {(["1K", "2K", "4K"] as const).map(resolution => (
                 <div key={resolution} className="space-y-2">
                   <label className="text-sm text-zinc-400 block font-medium">
                     {resolution} Çözünürlük
@@ -163,7 +171,7 @@ export default function AdminAiInfluencer() {
                     <Input
                       type="number"
                       value={settings.nanoBananaPricing[resolution]}
-                      onChange={(e) =>
+                      onChange={e =>
                         updatePricing(resolution, parseInt(e.target.value) || 0)
                       }
                       className="bg-zinc-800 border-white/10 pr-14 text-lg font-semibold"
@@ -177,7 +185,8 @@ export default function AdminAiInfluencer() {
               ))}
             </div>
             <p className="text-sm text-zinc-500">
-              Yüksek kaliteli görsel üretimi için varsayılan model. Çözünürlük arttıkça daha detaylı görseller üretilir.
+              Yüksek kaliteli görsel üretimi için varsayılan model. Çözünürlük
+              arttıkça daha detaylı görseller üretilir.
             </p>
           </CardContent>
         </Card>
@@ -188,16 +197,18 @@ export default function AdminAiInfluencer() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 max-w-xl"
+        className="bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-xl p-4 max-w-xl"
       >
         <div className="flex items-start gap-3">
-          <Settings className="h-5 w-5 text-purple-400 mt-0.5" />
+          <Settings className="h-5 w-5 text-[#7C3AED] mt-0.5" />
           <div>
-            <p className="text-sm text-purple-300">
-              Bu sayfa <strong>/ai-influencer</strong> sayfasındaki görsel üretim fiyatlarını kontrol eder.
+            <p className="text-sm text-[#7C3AED]">
+              Bu sayfa <strong>/ai-influencer</strong> sayfasındaki görsel
+              üretim fiyatlarını kontrol eder.
             </p>
-            <p className="text-xs text-purple-400 mt-1">
-              Değişiklikler kaydet butonuna bastıktan sonra aktif olur ve kullanıcılara yansır.
+            <p className="text-xs text-[#7C3AED] mt-1">
+              Değişiklikler kaydet butonuna bastıktan sonra aktif olur ve
+              kullanıcılara yansır.
             </p>
           </div>
         </div>

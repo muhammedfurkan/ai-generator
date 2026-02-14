@@ -58,18 +58,9 @@ const MESSAGE_POOLS = {
 
 // Stage-based messages (V2 ready)
 const STAGE_MESSAGES = {
-  analyzing: [
-    "🔍 Prompt analiz ediliyor...",
-    "🧠 İstek anlaşılıyor...",
-  ],
-  generating: [
-    "✨ İçerik oluşturuluyor...",
-    "🎨 AI çalışıyor...",
-  ],
-  refining: [
-    "💎 Son rötuşlar yapılıyor...",
-    "✅ Neredeyse hazır...",
-  ],
+  analyzing: ["🔍 Prompt analiz ediliyor...", "🧠 İstek anlaşılıyor..."],
+  generating: ["✨ İçerik oluşturuluyor...", "🎨 AI çalışıyor..."],
+  refining: ["💎 Son rötuşlar yapılıyor...", "✅ Neredeyse hazır..."],
 };
 
 interface GenerationLoadingOverlayProps {
@@ -128,10 +119,13 @@ export default function GenerationLoadingOverlay({
       messageCountRef.current = 1;
 
       // Start rotation interval (2.5-3 seconds)
-      intervalRef.current = setInterval(() => {
-        setCurrentMessage(getNextMessage());
-        setMessageIndex((prev) => prev + 1);
-      }, 2500 + Math.random() * 500);
+      intervalRef.current = setInterval(
+        () => {
+          setCurrentMessage(getNextMessage());
+          setMessageIndex(prev => prev + 1);
+        },
+        2500 + Math.random() * 500
+      );
 
       return () => {
         if (intervalRef.current) {
@@ -172,21 +166,29 @@ export default function GenerationLoadingOverlay({
               {/* Outer ring */}
               <div className="w-24 h-24 mx-auto relative">
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-[#CCFF00]/20"
+                  className="ai-loader-ring absolute inset-0 rounded-full"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full border-t-2 border-[#CCFF00]"
+                  className="ai-loader-ring-top absolute inset-0 rounded-full"
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                 />
 
                 {/* Inner pulsing circle */}
                 <motion.div
-                  className="absolute inset-4 rounded-full bg-[#CCFF00]/10"
+                  className="ai-loader-core absolute inset-4 rounded-full"
                   animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 />
 
                 {/* Center icon based on type */}
@@ -196,7 +198,11 @@ export default function GenerationLoadingOverlay({
                       animate={{ scale: [1, 1.1, 1] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                     >
-                      <svg className="w-8 h-8 text-[#CCFF00]" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="ai-loader-icon w-8 h-8"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </motion.div>
@@ -205,8 +211,18 @@ export default function GenerationLoadingOverlay({
                       animate={{ rotate: [0, 10, -10, 0] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <svg className="w-8 h-8 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                      <svg
+                        className="ai-loader-icon w-8 h-8"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                        />
                       </svg>
                     </motion.div>
                   ) : (
@@ -214,8 +230,18 @@ export default function GenerationLoadingOverlay({
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     >
-                      <svg className="w-8 h-8 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <svg
+                        className="ai-loader-icon w-8 h-8"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                       </svg>
                     </motion.div>
                   )}
@@ -227,7 +253,7 @@ export default function GenerationLoadingOverlay({
                 <div className="mt-4 w-48 mx-auto">
                   <div className="h-1 bg-white/10 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-[#CCFF00]"
+                      className="h-full bg-neon-brand"
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
                       transition={{ duration: 0.3 }}
@@ -247,7 +273,7 @@ export default function GenerationLoadingOverlay({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
-                  className="text-lg md:text-xl text-white font-medium px-4"
+                  className="text-lg md:text-xl text-[#F9FAFB] font-medium px-4"
                 >
                   {currentMessage}
                 </motion.p>
@@ -256,10 +282,10 @@ export default function GenerationLoadingOverlay({
 
             {/* Subtle dots indicator */}
             <div className="flex justify-center gap-1.5 mt-4">
-              {[0, 1, 2].map((i) => (
+              {[0, 1, 2].map(i => (
                 <motion.div
                   key={i}
-                  className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"
+                  className="w-1.5 h-1.5 rounded-full ai-loader-icon"
                   animate={{
                     opacity: [0.3, 1, 0.3],
                     scale: [0.8, 1, 0.8],
@@ -280,7 +306,7 @@ export default function GenerationLoadingOverlay({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3 }}
                 onClick={onCancel}
-                className="mt-8 px-4 py-2 text-sm text-white/60 hover:text-white transition-colors"
+                className="mt-8 px-4 py-2 text-sm text-white/60 hover:text-[#F9FAFB] transition-colors"
               >
                 İptal Et
               </motion.button>
@@ -305,14 +331,19 @@ export default function GenerationLoadingOverlay({
 // Export a hook for easy usage
 export function useGenerationLoading() {
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingType, setLoadingType] = useState<"default" | "image" | "video" | "logo">("default");
+  const [loadingType, setLoadingType] = useState<
+    "default" | "image" | "video" | "logo"
+  >("default");
   const [progress, setProgress] = useState<number | undefined>(undefined);
 
-  const startLoading = useCallback((type: "default" | "image" | "video" | "logo" = "default") => {
-    setLoadingType(type);
-    setIsLoading(true);
-    setProgress(undefined);
-  }, []);
+  const startLoading = useCallback(
+    (type: "default" | "image" | "video" | "logo" = "default") => {
+      setLoadingType(type);
+      setIsLoading(true);
+      setProgress(undefined);
+    },
+    []
+  );
 
   const stopLoading = useCallback(() => {
     setIsLoading(false);

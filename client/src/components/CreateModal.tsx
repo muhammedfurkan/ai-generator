@@ -1,4 +1,14 @@
-import { X, Image, Video, Wand2, ZoomIn, Sparkles, Users, Camera, Move } from "lucide-react";
+import {
+  X,
+  Image,
+  Video,
+  Wand2,
+  ZoomIn,
+  Sparkles,
+  Users,
+  Camera,
+  Move,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { useState, useMemo } from "react";
@@ -21,10 +31,10 @@ const filterTabs: { id: FilterTab; labelKey: string }[] = [
 ];
 
 const badgeColors: Record<string, string> = {
-  CORE: "bg-blue-500",
+  CORE: "bg-[#00F5FF]",
   NEW: "bg-green-500",
   HOT: "bg-red-500",
-  PRO: "bg-purple-500",
+  PRO: "bg-[#7C3AED]",
   UNLIMITED: "bg-red-500",
 };
 
@@ -34,21 +44,24 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
   const { t } = useLanguage();
 
   // Fetch modal cards from database
-  const { data: cards, isLoading } = trpc.modalCards.getAll.useQuery(undefined, {
-    enabled: isOpen, // Only fetch when modal is open
-  });
+  const { data: cards, isLoading } = trpc.modalCards.getAll.useQuery(
+    undefined,
+    {
+      enabled: isOpen, // Only fetch when modal is open
+    }
+  );
 
   // Detect if mobile
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   // Get featured card (hero card)
   const featuredCard = useMemo(() => {
-    return cards?.find((card) => card.isFeatured);
+    return cards?.find(card => card.isFeatured);
   }, [cards]);
 
   // Get regular cards (not featured)
   const regularCards = useMemo(() => {
-    return cards?.filter((card) => !card.isFeatured) || [];
+    return cards?.filter(card => !card.isFeatured) || [];
   }, [cards]);
 
   const handleToolClick = (path: string | null) => {
@@ -58,9 +71,10 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
     }
   };
 
-  const filteredCards = regularCards.filter((card) => {
+  const filteredCards = regularCards.filter(card => {
     if (activeFilter === "all") return true;
-    if (activeFilter === "new") return card.badge === "NEW" || card.badge === "HOT";
+    if (activeFilter === "new")
+      return card.badge === "NEW" || card.badge === "HOT";
     if (activeFilter === "images") return card.category === "images";
     if (activeFilter === "videos") return card.category === "videos";
     return true;
@@ -73,22 +87,24 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] bg-black"
+          className="fixed inset-0 z-[100] bg-[#0B0F19]"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-2xl font-bold text-white">{t("nav.create")}</h2>
+            <h2 className="text-2xl font-bold text-[#F9FAFB]">
+              {t("nav.create")}
+            </h2>
             <button
               onClick={onClose}
               className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"
             >
-              <X className="h-5 w-5 text-white" />
+              <X className="h-5 w-5 text-[#F9FAFB]" />
             </button>
           </div>
 
           {/* Filter Tabs */}
           <div className="flex gap-2 p-4 overflow-x-auto scrollbar-hide">
-            {filterTabs.map((tab) => (
+            {filterTabs.map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
@@ -96,7 +112,7 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
                   "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
                   activeFilter === tab.id
                     ? "bg-white text-black"
-                    : "bg-white/10 text-white"
+                    : "bg-white/10 text-[#F9FAFB]"
                 )}
               >
                 {t(tab.labelKey)}
@@ -118,7 +134,13 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
                     className="relative w-full h-48 rounded-2xl overflow-hidden cursor-pointer"
                   >
                     <img
-                      src={isMobile && featuredCard.imageMobile ? featuredCard.imageMobile : (featuredCard.imageDesktop || featuredCard.imageMobile || "/covers/nano-banana-pro.jpg")}
+                      src={
+                        isMobile && featuredCard.imageMobile
+                          ? featuredCard.imageMobile
+                          : featuredCard.imageDesktop ||
+                            featuredCard.imageMobile ||
+                            "/covers/nano-banana-pro.jpg"
+                      }
                       alt={featuredCard.title}
                       className="w-full h-full object-cover"
                     />
@@ -126,17 +148,26 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
                     {featuredCard.badge && (
                       <div className="absolute top-3 left-3">
                         <span
-                          className="px-2 py-1 text-white text-xs font-bold rounded"
-                          style={{ backgroundColor: featuredCard.badgeColor || badgeColors[featuredCard.badge] || "#ef4444" }}
+                          className="px-2 py-1 text-[#F9FAFB] text-xs font-bold rounded"
+                          style={{
+                            backgroundColor:
+                              featuredCard.badgeColor ||
+                              badgeColors[featuredCard.badge] ||
+                              "#FF2E97",
+                          }}
                         >
                           {featuredCard.badge}
                         </span>
                       </div>
                     )}
                     <div className="absolute bottom-4 left-4">
-                      <h3 className="text-xl font-bold text-white">{featuredCard.title}</h3>
+                      <h3 className="text-xl font-bold text-[#F9FAFB]">
+                        {featuredCard.title}
+                      </h3>
                       {featuredCard.description && (
-                        <p className="text-sm text-gray-300">{featuredCard.description}</p>
+                        <p className="text-sm text-gray-300">
+                          {featuredCard.description}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -144,10 +175,16 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
               )}
 
               {/* Tools Grid */}
-              <div className="px-4 pb-24 overflow-y-auto" style={{ maxHeight: "calc(100vh - 320px)" }}>
+              <div
+                className="px-4 pb-24 overflow-y-auto"
+                style={{ maxHeight: "calc(100vh - 320px)" }}
+              >
                 <div className="grid grid-cols-2 gap-3">
-                  {filteredCards.map((card) => {
-                    const imageUrl = isMobile && card.imageMobile ? card.imageMobile : (card.imageDesktop || card.imageMobile);
+                  {filteredCards.map(card => {
+                    const imageUrl =
+                      isMobile && card.imageMobile
+                        ? card.imageMobile
+                        : card.imageDesktop || card.imageMobile;
 
                     return (
                       <motion.div
@@ -174,8 +211,13 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
                           {card.badge && (
                             <div className="absolute top-2 left-2">
                               <span
-                                className="px-2 py-0.5 text-[10px] font-bold text-white rounded"
-                                style={{ backgroundColor: card.badgeColor || badgeColors[card.badge] || "#3b82f6" }}
+                                className="px-2 py-0.5 text-[10px] font-bold text-[#F9FAFB] rounded"
+                                style={{
+                                  backgroundColor:
+                                    card.badgeColor ||
+                                    badgeColors[card.badge] ||
+                                    "#00F5FF",
+                                }}
                               >
                                 {card.badge}
                               </span>
@@ -184,9 +226,13 @@ export default function CreateModal({ isOpen, onClose }: CreateModalProps) {
                         </div>
                         {/* Card Info */}
                         <div className="p-3">
-                          <h4 className="text-sm font-bold text-white">{card.title}</h4>
+                          <h4 className="text-sm font-bold text-[#F9FAFB]">
+                            {card.title}
+                          </h4>
                           {card.description && (
-                            <p className="text-xs text-gray-400 mt-0.5">{card.description}</p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {card.description}
+                            </p>
                           )}
                         </div>
                       </motion.div>

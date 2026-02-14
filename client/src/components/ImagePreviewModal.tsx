@@ -1,5 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Download, X, Heart, Loader2, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import {
+  Download,
+  X,
+  Heart,
+  Loader2,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+} from "lucide-react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -103,47 +111,58 @@ export default function ImagePreviewModal({
   };
 
   // Touch handlers for pinch-to-zoom
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2) {
-      e.preventDefault();
-      lastPinchDistanceRef.current = getPinchDistance(e.touches);
-    } else if (e.touches.length === 1 && scale > 1) {
-      lastTouchRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
-      setIsDragging(true);
-    }
-  }, [scale]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        lastPinchDistanceRef.current = getPinchDistance(e.touches);
+      } else if (e.touches.length === 1 && scale > 1) {
+        lastTouchRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+        setIsDragging(true);
+      }
+    },
+    [scale]
+  );
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (e.touches.length === 2 && lastPinchDistanceRef.current !== null) {
-      e.preventDefault();
-      const currentDistance = getPinchDistance(e.touches);
-      const delta = currentDistance / lastPinchDistanceRef.current;
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (e.touches.length === 2 && lastPinchDistanceRef.current !== null) {
+        e.preventDefault();
+        const currentDistance = getPinchDistance(e.touches);
+        const delta = currentDistance / lastPinchDistanceRef.current;
 
-      setScale((prevScale) => {
-        const newScale = prevScale * delta;
-        return Math.min(Math.max(newScale, 1), 5);
-      });
+        setScale(prevScale => {
+          const newScale = prevScale * delta;
+          return Math.min(Math.max(newScale, 1), 5);
+        });
 
-      lastPinchDistanceRef.current = currentDistance;
-    } else if (e.touches.length === 1 && isDragging && lastTouchRef.current && scale > 1) {
-      e.preventDefault();
-      const deltaX = e.touches[0].clientX - lastTouchRef.current.x;
-      const deltaY = e.touches[0].clientY - lastTouchRef.current.y;
+        lastPinchDistanceRef.current = currentDistance;
+      } else if (
+        e.touches.length === 1 &&
+        isDragging &&
+        lastTouchRef.current &&
+        scale > 1
+      ) {
+        e.preventDefault();
+        const deltaX = e.touches[0].clientX - lastTouchRef.current.x;
+        const deltaY = e.touches[0].clientY - lastTouchRef.current.y;
 
-      setPosition((prev) => ({
-        x: prev.x + deltaX,
-        y: prev.y + deltaY,
-      }));
+        setPosition(prev => ({
+          x: prev.x + deltaX,
+          y: prev.y + deltaY,
+        }));
 
-      lastTouchRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
-    }
-  }, [isDragging, scale]);
+        lastTouchRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+      }
+    },
+    [isDragging, scale]
+  );
 
   const handleTouchEnd = useCallback(() => {
     lastPinchDistanceRef.current = null;
@@ -153,11 +172,11 @@ export default function ImagePreviewModal({
 
   // Button handlers for zoom
   const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + 0.5, 5));
+    setScale(prev => Math.min(prev + 0.5, 5));
   };
 
   const handleZoomOut = () => {
-    setScale((prev) => {
+    setScale(prev => {
       const newScale = Math.max(prev - 0.5, 1);
       if (newScale === 1) {
         setPosition({ x: 0, y: 0 });
@@ -197,8 +216,10 @@ export default function ImagePreviewModal({
       }
       toast.error("Favori durumu değiştirilemedi");
     },
-    onSuccess: (data) => {
-      toast.success(data.isFavorited ? "Favorilere eklendi" : "Favorilerden çıkarıldı");
+    onSuccess: data => {
+      toast.success(
+        data.isFavorited ? "Favorilere eklendi" : "Favorilerden çıkarıldı"
+      );
       utils.favorites.list.invalidate();
     },
   });
@@ -251,14 +272,14 @@ export default function ImagePreviewModal({
       {/* Modal Content */}
       <div
         className="relative z-10 w-[95vw] max-w-4xl max-h-[90vh] bg-background/95 backdrop-blur-xl rounded-lg border border-white/10 shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all"
         >
-          <X className="h-5 w-5 text-white" />
+          <X className="h-5 w-5 text-[#F9FAFB]" />
         </button>
 
         {/* Zoom Controls - Mobile friendly */}
@@ -269,7 +290,7 @@ export default function ImagePreviewModal({
               className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all"
               title="Yakınlaştır"
             >
-              <ZoomIn className="h-5 w-5 text-white" />
+              <ZoomIn className="h-5 w-5 text-[#F9FAFB]" />
             </button>
             <button
               onClick={handleZoomOut}
@@ -277,7 +298,9 @@ export default function ImagePreviewModal({
               title="Uzaklaştır"
               disabled={scale <= 1}
             >
-              <ZoomOut className={`h-5 w-5 ${scale <= 1 ? 'text-gray-500' : 'text-white'}`} />
+              <ZoomOut
+                className={`h-5 w-5 ${scale <= 1 ? "text-gray-500" : "text-[#F9FAFB]"}`}
+              />
             </button>
             {scale > 1 && (
               <button
@@ -285,7 +308,7 @@ export default function ImagePreviewModal({
                 className="p-2 rounded-full bg-black/50 hover:bg-black/70 transition-all"
                 title="Sıfırla"
               >
-                <RotateCcw className="h-5 w-5 text-white" />
+                <RotateCcw className="h-5 w-5 text-[#F9FAFB]" />
               </button>
             )}
           </div>
@@ -293,7 +316,7 @@ export default function ImagePreviewModal({
 
         {/* Zoom indicator */}
         {scale > 1 && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-black/50 text-white text-sm">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 px-3 py-1 rounded-full bg-black/50 text-[#F9FAFB] text-sm">
             {Math.round(scale * 100)}%
           </div>
         )}
@@ -332,7 +355,7 @@ export default function ImagePreviewModal({
                 <img
                   src={imageUrl}
                   alt={prompt || "Generated image"}
-                  className={`max-w-full max-h-[60vh] object-contain rounded-lg shadow-2xl transition-all duration-200 select-none ${imageLoading ? 'opacity-0' : 'opacity-100'} ${scale > 1 ? 'cursor-move' : ''}`}
+                  className={`max-w-full max-h-[60vh] object-contain rounded-lg shadow-2xl transition-all duration-200 select-none ${imageLoading ? "opacity-0" : "opacity-100"} ${scale > 1 ? "cursor-move" : ""}`}
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
                     transformOrigin: "center center",
@@ -361,8 +384,18 @@ export default function ImagePreviewModal({
             <div className="text-sm text-muted-foreground">
               {prompt.length > 150 ? (
                 <>
-                  <div className={isPromptExpanded ? "max-h-40 overflow-y-auto" : ""}>
-                    <p className={isPromptExpanded ? "whitespace-pre-wrap break-words" : "line-clamp-2"}>
+                  <div
+                    className={
+                      isPromptExpanded ? "max-h-40 overflow-y-auto" : ""
+                    }
+                  >
+                    <p
+                      className={
+                        isPromptExpanded
+                          ? "whitespace-pre-wrap break-words"
+                          : "line-clamp-2"
+                      }
+                    >
                       {prompt}
                     </p>
                   </div>
@@ -389,18 +422,16 @@ export default function ImagePreviewModal({
                 disabled={toggleFavoriteMutation.isPending}
               >
                 <Heart
-                  className={`h-4 w-4 transition-all ${isFavorited ? "fill-red-500 text-red-500" : ""
-                    }`}
+                  className={`h-4 w-4 transition-all ${
+                    isFavorited ? "fill-red-500 text-red-500" : ""
+                  }`}
                 />
                 <span className="hidden sm:inline">
                   {isFavorited ? "Favorilerden Çıkar" : "Favorilere Ekle"}
                 </span>
               </Button>
             )}
-            <Button
-              onClick={handleDownload}
-              className="gradient-button"
-            >
+            <Button onClick={handleDownload} className="gradient-button">
               <Download className="h-4 w-4 mr-2" />
               İndir
             </Button>

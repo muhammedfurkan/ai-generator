@@ -68,20 +68,26 @@ export default function InsufficientCreditsDialog({
 
               {/* Credit Info */}
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-blue-500/10 border border-blue-500/30 rounded-xl">
-                  <span className="text-sm text-muted-foreground">Gerekli Kredi:</span>
-                  <span className="text-lg font-semibold text-blue-400">
+                <div className="flex justify-between items-center p-3 bg-[#00F5FF]/10 border border-[#00F5FF]/30 rounded-xl">
+                  <span className="text-sm text-muted-foreground">
+                    Gerekli Kredi:
+                  </span>
+                  <span className="text-lg font-semibold text-[#00F5FF]">
                     {creditsNeeded}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-white/5 border border-white/10 rounded-xl">
-                  <span className="text-sm text-muted-foreground">Mevcut Kredi:</span>
+                  <span className="text-sm text-muted-foreground">
+                    Mevcut Kredi:
+                  </span>
                   <span className="text-lg font-semibold text-foreground">
                     {currentCredits}
                   </span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-red-500/10 border border-red-500/30 rounded-xl">
-                  <span className="text-sm text-muted-foreground">Eksik Kredi:</span>
+                  <span className="text-sm text-muted-foreground">
+                    Eksik Kredi:
+                  </span>
                   <span className="text-lg font-semibold text-red-400">
                     {creditShortage}
                   </span>
@@ -90,7 +96,8 @@ export default function InsufficientCreditsDialog({
 
               {/* Message */}
               <p className="text-sm text-muted-foreground text-center">
-                Kredi satın almak için paketler sayfasına yönlendirileceksiniz. Size en uygun paketi seçebilirsiniz.
+                Kredi satın almak için paketler sayfasına yönlendirileceksiniz.
+                Size en uygun paketi seçebilirsiniz.
               </p>
 
               {/* Actions */}
@@ -104,7 +111,7 @@ export default function InsufficientCreditsDialog({
                 </Button>
                 <Button
                   onClick={handleBuyCreditsClick}
-                  className="flex-1 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white gap-2"
+                  className="flex-1 rounded-full bg-gradient-to-r from-[#00F5FF] to-[#FF2E97] hover:from-[#00F5FF] hover:to-[#FF2E97] text-[#F9FAFB] gap-2"
                 >
                   <CreditCard className="h-4 w-4" />
                   Kredi Satın Al

@@ -23,9 +23,9 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
   });
 
   // Get the signup bonus credits value (default to 25 if not found)
-  const signupBonusCredits = settingsQuery.data?.find(
-    s => s.key === "signup_bonus_credits"
-  )?.value || "25";
+  const signupBonusCredits =
+    settingsQuery.data?.find(s => s.key === "signup_bonus_credits")?.value ||
+    "25";
 
   useEffect(() => {
     // Sadece yeni kullanıcılara göster ve daha önce gösterilmemişse
@@ -94,8 +94,8 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
 
                 {/* Decorative elements */}
                 <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-                  <div className="absolute -top-20 -left-20 w-40 h-40 bg-[#CCFF00]/20 rounded-full blur-3xl" />
-                  <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#CCFF00]/10 rounded-full blur-3xl" />
+                  <div className="absolute -top-20 -left-20 w-40 h-40 bg-neon-brand/20 rounded-full blur-3xl" />
+                  <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-neon-brand/10 rounded-full blur-3xl" />
                 </div>
 
                 {/* Content */}
@@ -105,10 +105,14 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                     {/* Animated sparkles */}
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                      transition={{
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
                       className="absolute top-8 left-1/2 -translate-x-1/2"
                     >
-                      <Sparkles className="w-6 h-6 text-[#CCFF00]/30" />
+                      <Sparkles className="w-6 h-6 text-neon-brand/30" />
                     </motion.div>
 
                     {/* Logo */}
@@ -130,7 +134,7 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.4, type: "spring" }}
-                        className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-[#CCFF00] flex items-center justify-center shadow-lg"
+                        className="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-neon-brand flex items-center justify-center shadow-lg"
                       >
                         <Gift className="w-5 h-5 text-black" />
                       </motion.div>
@@ -144,7 +148,7 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                     transition={{ delay: 0.3 }}
                     className="text-center mb-6"
                   >
-                    <h2 className="text-2xl font-bold text-white mb-2">
+                    <h2 className="text-2xl font-bold text-[#F9FAFB] mb-2">
                       Amonify'a Hoş Geldin! 🎉
                     </h2>
                     <p className="text-zinc-400 text-sm">
@@ -159,26 +163,28 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                     transition={{ delay: 0.4 }}
                     className="relative mb-6"
                   >
-                    <div className="bg-gradient-to-r from-[#CCFF00]/10 via-[#CCFF00]/5 to-[#CCFF00]/10 border border-[#CCFF00]/30 rounded-2xl p-5">
+                    <div className="bg-gradient-to-r from-neon-brand/10 via-neon-brand/5 to-neon-brand/10 border border-neon-brand/30 rounded-2xl p-5">
                       <div className="flex items-center justify-center gap-4">
                         <div className="flex-shrink-0">
                           <motion.div
                             animate={{
                               scale: [1, 1.1, 1],
-                              rotate: [0, 5, -5, 0]
+                              rotate: [0, 5, -5, 0],
                             }}
                             transition={{
                               duration: 2,
                               repeat: Infinity,
-                              repeatDelay: 1
+                              repeatDelay: 1,
                             }}
-                            className="w-16 h-16 rounded-xl bg-[#CCFF00] flex items-center justify-center"
+                            className="w-16 h-16 rounded-xl bg-neon-brand flex items-center justify-center"
                           >
-                            <span className="text-3xl font-black text-black">{signupBonusCredits}</span>
+                            <span className="text-3xl font-black text-black">
+                              {signupBonusCredits}
+                            </span>
                           </motion.div>
                         </div>
                         <div className="text-left">
-                          <p className="text-[#CCFF00] font-bold text-lg">
+                          <p className="text-neon-brand font-bold text-lg">
                             Ücretsiz Kredi Hediye!
                           </p>
                           <p className="text-zinc-400 text-sm">
@@ -205,8 +211,12 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                         key={index}
                         className="bg-zinc-800/50 rounded-xl p-3 text-center border border-zinc-700/50"
                       >
-                        <span className="text-2xl mb-1 block">{feature.icon}</span>
-                        <span className="text-xs text-zinc-400">{feature.label}</span>
+                        <span className="text-2xl mb-1 block">
+                          {feature.icon}
+                        </span>
+                        <span className="text-xs text-zinc-400">
+                          {feature.label}
+                        </span>
                       </div>
                     ))}
                   </motion.div>
@@ -220,7 +230,7 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                   >
                     <Button
                       onClick={handleStartTour}
-                      className="w-full h-12 bg-[#CCFF00] hover:bg-[#b8e600] text-black font-bold rounded-xl text-base gap-2"
+                      className="w-full h-12 bg-neon-brand hover:bg-[#00F5FF] text-black font-bold rounded-xl text-base gap-2"
                     >
                       <BookOpen className="w-5 h-5" />
                       Platformu Tanı
@@ -228,7 +238,7 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                     <Button
                       onClick={handleStartCreating}
                       variant="outline"
-                      className="w-full h-12 border-zinc-700 hover:bg-zinc-800 text-white font-medium rounded-xl text-base gap-2"
+                      className="w-full h-12 border-zinc-700 hover:bg-zinc-800 text-[#F9FAFB] font-medium rounded-xl text-base gap-2"
                     >
                       Hemen Başla
                       <ArrowRight className="w-5 h-5" />
@@ -253,7 +263,11 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
       </AnimatePresence>
 
       {/* Onboarding Tour */}
-      <OnboardingTour isOpen={showTour} onClose={handleCloseTour} signupBonusCredits={signupBonusCredits} />
+      <OnboardingTour
+        isOpen={showTour}
+        onClose={handleCloseTour}
+        signupBonusCredits={signupBonusCredits}
+      />
     </>
   );
 }

@@ -133,19 +133,23 @@ export function VerifyEmailPage() {
           className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20 text-center"
         >
           <CheckCircle className="w-20 h-20 text-green-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Email Doğrulandı!</h2>
-          <p className="text-gray-300">Giriş sayfasına yönlendiriliyorsunuz...</p>
+          <h2 className="text-2xl font-bold text-[#F9FAFB] mb-2">
+            Email Doğrulandı!
+          </h2>
+          <p className="text-gray-300">
+            Giriş sayfasına yönlendiriliyorsunuz...
+          </p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
-        <div className="absolute w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
+        <div className="absolute w-[500px] h-[500px] bg-[#00F5FF]/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+        <div className="absolute w-[500px] h-[500px] bg-[#00F5FF]/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
       </div>
 
       {/* Back Button */}
@@ -153,7 +157,7 @@ export function VerifyEmailPage() {
         <Button
           variant="ghost"
           onClick={() => navigate("/login")}
-          className="text-white hover:bg-white/10"
+          className="text-[#F9FAFB] hover:bg-white/10"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Giriş Yap
@@ -170,10 +174,12 @@ export function VerifyEmailPage() {
           <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
             {/* Header */}
             <div className="mb-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-4">
-                <Mail className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center mx-auto mb-4">
+                <Mail className="w-8 h-8 text-[#F9FAFB]" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Email Doğrulama</h2>
+              <h2 className="text-2xl font-bold text-[#F9FAFB] mb-2">
+                Email Doğrulama
+              </h2>
               <p className="text-gray-300">
                 {step === "email"
                   ? t("verifyEmail.enterEmailCheck")
@@ -194,8 +200,8 @@ export function VerifyEmailPage() {
                       type="email"
                       placeholder="ornek@email.com"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                      onChange={e => setEmail(e.target.value)}
+                      className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                       disabled={isVerifying}
                     />
                   </div>
@@ -203,7 +209,7 @@ export function VerifyEmailPage() {
 
                 <Button
                   onClick={handleCheckVerification}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white h-12"
+                  className="w-full bg-gradient-to-r from-[#00F5FF] to-[#7C3AED] hover:from-[#00F5FF] hover:to-[#7C3AED] text-[#F9FAFB] h-12"
                   disabled={isVerifying}
                 >
                   {isVerifying ? (
@@ -240,8 +246,10 @@ export function VerifyEmailPage() {
                     type="text"
                     placeholder="123456"
                     value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12 text-center text-2xl tracking-widest"
+                    onChange={e =>
+                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
+                    className="bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12 text-center text-2xl tracking-widest"
                     disabled={isVerifying}
                     maxLength={6}
                   />
@@ -249,7 +257,7 @@ export function VerifyEmailPage() {
 
                 <Button
                   onClick={handleVerifyCode}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white h-12"
+                  className="w-full bg-gradient-to-r from-[#00F5FF] to-[#7C3AED] hover:from-[#00F5FF] hover:to-[#7C3AED] text-[#F9FAFB] h-12"
                   disabled={isVerifying || code.length < 6}
                 >
                   {isVerifying ? (
@@ -272,7 +280,7 @@ export function VerifyEmailPage() {
                   <button
                     onClick={handleResendCode}
                     disabled={isResending}
-                    className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                    className="text-sm text-[#00F5FF] hover:text-[#00F5FF] flex items-center gap-1"
                   >
                     {isResending ? (
                       <Loader2 className="h-3 w-3 animate-spin" />

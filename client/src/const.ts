@@ -4,7 +4,7 @@ export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 export const getLoginUrl = () => {
   // Use new login page
   return "/login";
-  
+
   // Legacy Manus OAuth (kept for backward compatibility)
   // const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   // const appId = import.meta.env.VITE_APP_ID;

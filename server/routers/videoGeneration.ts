@@ -6,6 +6,7 @@ import {
   generateVideo,
   getVideoStatus,
   calculateVideoCreditCost,
+  type UnifiedVideoModelType,
 } from "../kieAiApi";
 import { notifyCreditSpending, notifyGenerationFailure } from "../telegramBot";
 
@@ -624,7 +625,7 @@ export const videoGenerationRouter = router({
       // Check status from Kie AI
       if (video.taskId) {
         try {
-          const modelType = video.model as "veo3" | "sora2" | "kling" | "grok";
+          const modelType = video.model as UnifiedVideoModelType;
           const status = await getVideoStatus(video.taskId, modelType);
 
           // Update database if status changed

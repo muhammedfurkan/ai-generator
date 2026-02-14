@@ -38,6 +38,7 @@ const SkinEnhancement = lazy(() => import("@/pages/SkinEnhancement"));
 const LogoGenerator = lazy(() => import("@/pages/LogoGenerator"));
 const PromptCompiler = lazy(() => import("@/pages/PromptCompiler"));
 const MotionControl = lazy(() => import("@/pages/MotionControl"));
+const Apps = lazy(() => import("@/pages/Apps"));
 const UserProfilePage = lazy(() =>
   import("@/pages/UserProfilePage").then(m => ({ default: m.UserProfilePage }))
 );
@@ -51,8 +52,8 @@ const AdminLayout = lazy(() => import("@/pages/admin/index"));
 // Loading fallback component
 function PageLoader() {
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+    <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+      <Loader2 className="h-10 w-10 animate-spin text-[#7C3AED]" />
     </div>
   );
 }
@@ -103,7 +104,7 @@ function Router() {
         <Route path={"/community-characters"} component={CommunityCharacters} />
         <Route path={"/video-generate"} component={VideoGenerate} />
         <Route path={"/motion-control"} component={MotionControl} />
-        {/* <Route path={"/apps"} component={Apps} /> */}
+        <Route path={"/apps"} component={Apps} />
         <Route path={"/upscale"} component={Upscale} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/:slug"} component={BlogDetail} />

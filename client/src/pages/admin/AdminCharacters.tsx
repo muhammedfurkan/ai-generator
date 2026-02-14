@@ -5,13 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import {
-  Image,
-  Eye,
-  EyeOff,
-  User,
-  TrendingUp,
-} from "lucide-react";
+import { Image, Eye, EyeOff, User, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
@@ -23,7 +17,7 @@ export default function AdminCharacters() {
       toast.success("Karakter durumu güncellendi");
       charactersQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   return (
@@ -31,12 +25,14 @@ export default function AdminCharacters() {
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold">AI Karakter Moderasyonu</h2>
-        <p className="text-sm text-zinc-500">Topluluk tarafından paylaşılan karakterleri yönetin</p>
+        <p className="text-sm text-zinc-500">
+          Topluluk tarafından paylaşılan karakterleri yönetin
+        </p>
       </div>
 
       {/* Characters Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {charactersQuery.data?.map((character) => (
+        {charactersQuery.data?.map(character => (
           <motion.div
             key={character.id}
             initial={{ opacity: 0, scale: 0.95 }}

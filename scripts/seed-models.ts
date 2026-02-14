@@ -3,7 +3,7 @@ import { aiModelConfig } from "../drizzle/schema.js";
 
 /**
  * Migration script to seed new AI models
- * Run: pnpm tsx scripts/seed-models.ts
+ * Run: npm exec tsx scripts/seed-models.ts
  */
 
 const imageModels = [
@@ -48,7 +48,7 @@ const imageModels = [
     isActive: true,
     description: "Image editing by Seedream 4.5",
   },
-  // Z-Image  
+  // Z-Image
   {
     modelKey: "z-image",
     modelName: "Z-Image",
@@ -689,4 +689,3 @@ async function seedModels() {
 }
 
 seedModels();
-

@@ -108,12 +108,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-purple-950 to-gray-900">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900">
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
-        <div className="absolute w-[500px] h-[500px] bg-pink-500/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
-        <div className="absolute w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse delay-500"></div>
+        <div className="absolute w-[500px] h-[500px] bg-[#7C3AED]/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+        <div className="absolute w-[500px] h-[500px] bg-[#FF2E97]/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse delay-1000"></div>
+        <div className="absolute w-[300px] h-[300px] bg-[#00F5FF]/10 rounded-full blur-3xl top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 animate-pulse delay-500"></div>
       </div>
 
       {/* Back to Home Button */}
@@ -121,7 +121,7 @@ export function LoginPage() {
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
-          className="text-white hover:bg-white/10"
+          className="text-[#F9FAFB] hover:bg-white/10"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t("auth.login.home")}
@@ -136,12 +136,12 @@ export function LoginPage() {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
-            className="hidden lg:block text-white"
+            className="hidden lg:block text-[#F9FAFB]"
           >
             <div className="flex items-center gap-3 mb-6">
               <img src="/Logo-01.png" alt="Amonify" className="h-16 w-auto" />
             </div>
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-[#7C3AED] via-[#FF2E97] to-[#7C3AED] bg-clip-text text-transparent">
               {t("auth.login.branding.title")}
             </h1>
             <p className="text-xl text-gray-300 mb-8">
@@ -149,8 +149,8 @@ export function LoginPage() {
             </p>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-purple-400" />
+                <div className="w-10 h-10 rounded-full bg-[#7C3AED]/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-[#7C3AED]" />
                 </div>
                 <div>
                   <h3 className="font-semibold">
@@ -162,8 +162,8 @@ export function LoginPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-pink-400" />
+                <div className="w-10 h-10 rounded-full bg-[#FF2E97]/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-[#FF2E97]" />
                 </div>
                 <div>
                   <h3 className="font-semibold">
@@ -175,8 +175,8 @@ export function LoginPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-full bg-[#00F5FF]/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-[#00F5FF]" />
                 </div>
                 <div>
                   <h3 className="font-semibold">
@@ -205,7 +205,7 @@ export function LoginPage() {
                   alt="Amonify"
                   className="h-12 w-auto mx-auto mb-4 lg:hidden"
                 />
-                <h2 className="text-3xl font-bold text-white mb-2">
+                <h2 className="text-3xl font-bold text-[#F9FAFB] mb-2">
                   {t("auth.login.welcome")}
                 </h2>
                 <p className="text-gray-300">{t("auth.login.subtitle")}</p>
@@ -227,7 +227,7 @@ export function LoginPage() {
                           placeholder="ornek@email.com"
                           value={email}
                           onChange={e => setEmail(e.target.value)}
-                          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                          className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                           disabled={isSubmitting}
                           required
                         />
@@ -246,7 +246,7 @@ export function LoginPage() {
                           placeholder="••••••••"
                           value={password}
                           onChange={e => setPassword(e.target.value)}
-                          className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-gray-400 h-12"
+                          className="pl-10 bg-white/10 border-white/20 text-[#F9FAFB] placeholder:text-gray-400 h-12"
                           disabled={isSubmitting}
                           required
                         />
@@ -255,7 +255,7 @@ export function LoginPage() {
 
                     <Button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 text-base font-medium"
+                      className="w-full bg-gradient-to-r from-[#7C3AED] to-[#7C3AED] hover:from-[#7C3AED] hover:to-[#7C3AED] text-[#F9FAFB] h-12 text-base font-medium"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -327,7 +327,7 @@ export function LoginPage() {
                   {t("auth.login.noAccount")}{" "}
                   <button
                     onClick={() => navigate("/register")}
-                    className="text-purple-400 hover:text-purple-300 font-medium"
+                    className="text-[#7C3AED] hover:text-[#7C3AED] font-medium"
                   >
                     {t("auth.login.signUp")}
                   </button>

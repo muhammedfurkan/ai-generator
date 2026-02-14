@@ -112,7 +112,7 @@ case $COMMAND in
         
         # Migration'ları çalıştır
         sleep 10
-        docker-compose exec -T app pnpm db:push
+        docker-compose exec -T app npm run db:push
         
         echo -e "${GREEN}✓ Uygulama güncellendi${NC}"
         ;;
@@ -172,7 +172,7 @@ case $COMMAND in
     db-push)
         echo -e "${BLUE}Database migration'ları çalıştırılıyor...${NC}"
         cd $PROJECT_DIR
-        docker-compose exec app pnpm db:push
+        docker-compose exec app npm run db:push
         echo -e "${GREEN}✓ Migration'lar tamamlandı${NC}"
         ;;
     

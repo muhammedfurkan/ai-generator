@@ -33,12 +33,12 @@ export default function BlogDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A]">
+      <div className="min-h-screen bg-[#0B0F19]">
         <Header />
         <main className="pt-24 pb-16">
           <div className="container">
             <div className="flex items-center justify-center py-32">
-              <Loader2 className="w-10 h-10 animate-spin text-[#CCFF00]" />
+              <Loader2 className="w-10 h-10 animate-spin text-neon-brand" />
             </div>
           </div>
         </main>
@@ -48,19 +48,19 @@ export default function BlogDetail() {
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A]">
+      <div className="min-h-screen bg-[#0B0F19]">
         <Header />
         <main className="pt-24 pb-16">
           <div className="container">
             <div className="text-center py-32">
-              <h1 className="text-2xl font-bold text-white mb-4">
+              <h1 className="text-2xl font-bold text-[#F9FAFB] mb-4">
                 {t("blogDetail.notFound.title")}
               </h1>
               <p className="text-gray-400 mb-8">
                 {t("blogDetail.notFound.description")}
               </p>
               <Link href="/blog">
-                <Button className="bg-[#CCFF00] text-black hover:bg-[#CCFF00]/90">
+                <Button className="bg-neon-brand text-black hover:bg-neon-brand/90">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   {t("blogDetail.notFound.backButton")}
                 </Button>
@@ -79,15 +79,15 @@ export default function BlogDetail() {
         // Başlıklar
         .replace(
           /^### (.*$)/gim,
-          '<h3 class="text-xl font-bold text-white mt-8 mb-4">$1</h3>'
+          '<h3 class="text-xl font-bold text-[#F9FAFB] mt-8 mb-4">$1</h3>'
         )
         .replace(
           /^## (.*$)/gim,
-          '<h2 class="text-2xl font-bold text-white mt-10 mb-4">$1</h2>'
+          '<h2 class="text-2xl font-bold text-[#F9FAFB] mt-10 mb-4">$1</h2>'
         )
         .replace(
           /^# (.*$)/gim,
-          '<h1 class="text-3xl font-bold text-white mt-12 mb-6">$1</h1>'
+          '<h1 class="text-3xl font-bold text-[#F9FAFB] mt-12 mb-6">$1</h1>'
         )
         // Kalın ve italik
         .replace(
@@ -96,7 +96,7 @@ export default function BlogDetail() {
         )
         .replace(
           /\*\*(.*?)\*\*/g,
-          '<strong class="font-bold text-[#CCFF00]">$1</strong>'
+          '<strong class="font-bold text-neon-brand">$1</strong>'
         )
         .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
         // Listeler
@@ -113,7 +113,7 @@ export default function BlogDetail() {
         // Kod blokları
         .replace(
           /`(.*?)`/g,
-          '<code class="bg-white/10 px-2 py-1 rounded text-[#CCFF00]">$1</code>'
+          '<code class="bg-white/10 px-2 py-1 rounded text-neon-brand">$1</code>'
         )
         // Satır sonları
         .replace(/\n/g, "<br />")
@@ -124,7 +124,7 @@ export default function BlogDetail() {
     relatedPosts?.posts.filter(p => p.slug !== slug).slice(0, 3) || [];
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#0B0F19]">
       <Header />
 
       <main className="pt-24 pb-16">
@@ -133,7 +133,7 @@ export default function BlogDetail() {
           <Link href="/blog">
             <Button
               variant="ghost"
-              className="mb-8 text-gray-400 hover:text-white"
+              className="mb-8 text-gray-400 hover:text-[#F9FAFB]"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               {t("blogDetail.backButton")}
@@ -143,10 +143,10 @@ export default function BlogDetail() {
           {/* Article Header */}
           <article>
             <header className="mb-8">
-              <span className="inline-block px-3 py-1 bg-[#CCFF00] text-black text-xs font-bold rounded-full mb-4">
+              <span className="inline-block px-3 py-1 bg-neon-brand text-black text-xs font-bold rounded-full mb-4">
                 {post.category}
               </span>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#F9FAFB] mb-6 leading-tight">
                 {post.title}
               </h1>
               <p className="text-xl text-gray-400 mb-6">{post.description}</p>
@@ -219,13 +219,13 @@ export default function BlogDetail() {
           {/* Related Posts */}
           {filteredRelatedPosts.length > 0 && (
             <section className="mt-16 pt-10 border-t border-white/10">
-              <h2 className="text-2xl font-bold text-white mb-6">
+              <h2 className="text-2xl font-bold text-[#F9FAFB] mb-6">
                 {t("blogDetail.relatedPosts")}
               </h2>
               <div className="grid md:grid-cols-3 gap-6">
                 {filteredRelatedPosts.map(relatedPost => (
                   <Link key={relatedPost.id} href={`/blog/${relatedPost.slug}`}>
-                    <Card className="bg-white/5 border-white/10 cursor-pointer hover:border-[#CCFF00]/40 transition-all group h-full">
+                    <Card className="bg-white/5 border-white/10 cursor-pointer hover:border-neon-brand/40 transition-all group h-full">
                       {relatedPost.coverImage && (
                         <div className="aspect-video rounded-t-xl overflow-hidden">
                           <img
@@ -240,10 +240,10 @@ export default function BlogDetail() {
                         </div>
                       )}
                       <CardHeader className="pb-2">
-                        <span className="inline-block px-2 py-1 bg-white/10 text-[#CCFF00] text-xs font-medium rounded w-fit mb-2">
+                        <span className="inline-block px-2 py-1 bg-white/10 text-neon-brand text-xs font-medium rounded w-fit mb-2">
                           {relatedPost.category}
                         </span>
-                        <CardTitle className="text-lg text-white group-hover:text-[#CCFF00] transition-colors line-clamp-2">
+                        <CardTitle className="text-lg text-[#F9FAFB] group-hover:text-neon-brand transition-colors line-clamp-2">
                           {relatedPost.title}
                         </CardTitle>
                       </CardHeader>
@@ -260,15 +260,15 @@ export default function BlogDetail() {
           )}
 
           {/* CTA Section */}
-          <div className="mt-16 text-center bg-gradient-to-r from-[#CCFF00]/10 to-purple-500/10 rounded-2xl p-8 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-4">
+          <div className="mt-16 text-center bg-gradient-to-r from-neon-brand/10 to-[#FF2E97]/10 rounded-2xl p-8 border border-white/10">
+            <h2 className="text-2xl font-bold text-[#F9FAFB] mb-4">
               {t("blogDetail.cta.title")}
             </h2>
             <p className="text-gray-400 mb-6 max-w-xl mx-auto">
               {t("blogDetail.cta.description")}
             </p>
             <Link href="/generate">
-              <Button className="bg-[#CCFF00] text-black hover:bg-[#CCFF00]/90 font-bold px-8 py-6 text-lg rounded-full">
+              <Button className="bg-neon-brand text-black hover:bg-neon-brand/90 font-bold px-8 py-6 text-lg rounded-full">
                 {t("blogDetail.cta.button")}
               </Button>
             </Link>

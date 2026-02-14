@@ -1,6 +1,8 @@
-import { ENV } from "./_core/env";
-
-const KIE_AI_BASE_URL = "https://api.kie.ai";
+import {
+  getApiMessage,
+  isKieInProgressState,
+  makeKieRequest,
+} from "./kie/client";
 
 // Video model types
 export type VideoModel =
@@ -72,7 +74,6 @@ export type VideoModel =
   // Runway
   | "runway-gen3-alpha";
 
-
 // Model pricing (in credits) - Based on Kie.ai official pricing
 export const VIDEO_MODEL_PRICING: Record<string, number> = {
   // Veo 3.1 (Google) - Always 8s, pricing varies by mode
@@ -80,8 +81,8 @@ export const VIDEO_MODEL_PRICING: Record<string, number> = {
   "veo3.1-quality": 250,
   "veo3.1-4k-upgrade": 120, // Additional cost for 4K
   // Legacy model names for backward compatibility
-  "veo3_fast": 60,
-  "veo3": 250,
+  veo3_fast: 60,
+  veo3: 250,
 
   // Grok Imagine (6s video)
   "grok-imagine/text-to-video": 15,
@@ -168,13 +169,24 @@ export const VIDEO_MODEL_PRICING: Record<string, number> = {
 // Calculate credit cost based on model and options
 export function calculateVideoCreditCost(
   model: string,
-  options: { duration?: string; sound?: boolean; quality?: string; resolution?: string }
+  options: {
+    duration?: string;
+    sound?: boolean;
+    quality?: string;
+    resolution?: string;
+  }
 ): number {
-  const { duration = "5", sound = false, quality = "standard", resolution = "720p" } = options;
+  const {
+    duration = "5",
+    sound = false,
+    quality = "standard",
+    resolution = "720p",
+  } = options;
 
   // Veo 3.1 (Always 8s, pricing by mode)
   if (model.startsWith("veo3")) {
-    const mode = quality === "quality" || quality === "high" ? "quality" : "fast";
+    const mode =
+      quality === "quality" || quality === "high" ? "quality" : "fast";
     let cost = mode === "quality" ? 250 : 60;
     // 4K upgrade adds extra 120 credits
     if (resolution === "4K" || resolution === "4k") {
@@ -192,8 +204,11 @@ export function calculateVideoCreditCost(
   if (model === "sora-2-pro") {
     const durationKey = duration === "15" || duration === "15s" ? "15s" : "10s";
     // Default to Standard quality unless explicitly set to high/pro
-    const qualityKey = quality === "high" || quality === "pro" ? "high" : "standard";
-    return VIDEO_MODEL_PRICING[`sora-2-pro-${qualityKey}-${durationKey}`] || 150;
+    const qualityKey =
+      quality === "high" || quality === "pro" ? "high" : "standard";
+    return (
+      VIDEO_MODEL_PRICING[`sora-2-pro-${qualityKey}-${durationKey}`] || 150
+    );
   }
 
   // Sora 2 Pro Storyboard
@@ -227,7 +242,8 @@ export function calculateVideoCreditCost(
     // Motion Control uses per-second pricing
     if (model.includes("motion-control") || model === "kling-2.6-motion") {
       const res = resolution === "1080p" ? "1080p" : "720p";
-      const pricePerSecond = VIDEO_MODEL_PRICING[`kling-2.6-motion-${res}-per-sec`] || 6;
+      const pricePerSecond =
+        VIDEO_MODEL_PRICING[`kling-2.6-motion-${res}-per-sec`] || 6;
       return pricePerSecond * parseInt(duration || "5");
     }
     // Regular text-to-video and image-to-video
@@ -262,10 +278,20 @@ export function calculateVideoCreditCost(
   }
 
   // Wan 2.6 - Resolution and duration based
-  if (model.startsWith("wan-2.6") || model === "wan/2-6-text-to-video" || model === "wan/2-6-image-to-video") {
+  if (
+    model.startsWith("wan-2.6") ||
+    model === "wan/2-6-text-to-video" ||
+    model === "wan/2-6-image-to-video"
+  ) {
     // Default to 720p unless explicitly set to 1080p to reduce costs
-    const res = resolution === "1080p" || resolution === "1080P" ? "1080p" : "720p";
-    const dur = duration === "15" || duration === "15s" ? "15s" : duration === "10" || duration === "10s" ? "10s" : "5s";
+    const res =
+      resolution === "1080p" || resolution === "1080P" ? "1080p" : "720p";
+    const dur =
+      duration === "15" || duration === "15s"
+        ? "15s"
+        : duration === "10" || duration === "10s"
+          ? "10s"
+          : "5s";
     return VIDEO_MODEL_PRICING[`wan-2.6-${res}-${dur}`] || 70;
   }
 
@@ -295,7 +321,8 @@ export function calculateVideoCreditCost(
 
 interface KieAiResponse {
   code: number;
-  msg: string;
+  msg?: string;
+  message?: string;
   data?: {
     taskId: string;
     [key: string]: unknown;
@@ -304,7 +331,8 @@ interface KieAiResponse {
 
 interface VeoStatusResponse {
   code: number;
-  msg: string;
+  msg?: string;
+  message?: string;
   data?: {
     taskId: string;
     successFlag: number; // 0: processing, 1: success, 2/3: failed
@@ -325,11 +353,20 @@ interface VeoStatusResponse {
 
 interface TaskStatusResponse {
   code: number;
-  msg: string;
+  msg?: string;
+  message?: string;
   data?: {
     taskId: string;
     model: string;
-    state: string; // "waiting", "success", "fail"
+    state:
+      | "waiting"
+      | "queuing"
+      | "queueing"
+      | "generating"
+      | "processing"
+      | "success"
+      | "fail"
+      | string;
     param: string; // JSON string of original params
     resultJson?: string; // JSON string with resultUrls array
     failCode?: string;
@@ -341,45 +378,7 @@ interface TaskStatusResponse {
   };
 }
 
-// Get API key from environment
-function getApiKey(): string {
-  const apiKey = ENV.kieAiApiKey;
-  if (!apiKey) {
-    throw new Error("KIE_AI_API_KEY is not configured");
-  }
-  return apiKey;
-}
-
-// Generic API request helper
-async function makeRequest<T>(
-  endpoint: string,
-  method: "GET" | "POST" = "GET",
-  body?: Record<string, unknown>
-): Promise<T> {
-  const url = `${KIE_AI_BASE_URL}${endpoint}`;
-  const headers: Record<string, string> = {
-    "Authorization": `Bearer ${getApiKey()}`,
-    "Content-Type": "application/json",
-  };
-
-  const options: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (body && method === "POST") {
-    options.body = JSON.stringify(body);
-  }
-
-  console.log(`[KieAI] ${method} ${endpoint}`, body ? JSON.stringify(body).substring(0, 200) : "");
-
-  const response = await fetch(url, options);
-  const data = await response.json() as T;
-
-  console.log(`[KieAI] Response:`, JSON.stringify(data).substring(0, 500));
-
-  return data;
-}
+const makeRequest = makeKieRequest;
 
 // ============ VEO 3.1 API ============
 // Endpoint: POST /api/v1/veo/generate
@@ -390,8 +389,11 @@ export interface Veo31GenerateParams {
   prompt: string;
   imageUrls?: string[]; // 1-3 reference images for image-to-video
   model?: "veo3" | "veo3_fast";
-  aspectRatio?: "16:9" | "9:16" | "Auto";
-  generationType?: "TEXT_2_VIDEO" | "FIRST_AND_LAST_FRAMES_2_VIDEO" | "REFERENCE_2_VIDEO";
+  aspectRatio?: "16:9" | "9:16" | "auto" | "Auto";
+  generationType?:
+    | "TEXT_2_VIDEO"
+    | "FIRST_AND_LAST_FRAMES_2_VIDEO"
+    | "REFERENCE_2_VIDEO";
   enableTranslation?: boolean;
   enableFallback?: boolean;
   seeds?: number;
@@ -399,7 +401,9 @@ export interface Veo31GenerateParams {
   callBackUrl?: string;
 }
 
-export async function generateVeo31Video(params: Veo31GenerateParams): Promise<KieAiResponse> {
+export async function generateVeo31Video(
+  params: Veo31GenerateParams
+): Promise<KieAiResponse> {
   const {
     prompt,
     imageUrls,
@@ -410,13 +414,13 @@ export async function generateVeo31Video(params: Veo31GenerateParams): Promise<K
     enableFallback = false,
     seeds,
     watermark,
-    callBackUrl
+    callBackUrl,
   } = params;
 
   const body: Record<string, unknown> = {
     prompt,
     model,
-    aspectRatio,
+    aspect_ratio: aspectRatio === "Auto" ? "auto" : aspectRatio,
     enableTranslation,
     enableFallback,
   };
@@ -451,17 +455,26 @@ export async function generateVeo31Video(params: Veo31GenerateParams): Promise<K
   return makeRequest<KieAiResponse>("/api/v1/veo/generate", "POST", body);
 }
 
-export async function getVeo31Status(taskId: string): Promise<VeoStatusResponse> {
-  return makeRequest<VeoStatusResponse>(`/api/v1/veo/record-info?taskId=${taskId}`);
+export async function getVeo31Status(
+  taskId: string
+): Promise<VeoStatusResponse> {
+  return makeRequest<VeoStatusResponse>(
+    `/api/v1/veo/record-info?taskId=${encodeURIComponent(taskId)}`
+  );
 }
 
 export async function getVeo31HD(taskId: string): Promise<KieAiResponse> {
-  return makeRequest<KieAiResponse>(`/api/v1/veo/get-1080p-video?taskId=${taskId}`);
+  return makeRequest<KieAiResponse>(
+    `/api/v1/veo/get-1080p-video?taskId=${encodeURIComponent(taskId)}`
+  );
 }
 
 // Veo 3.1 4K Video (POST request, supports both 16:9 and 9:16)
 // ~2x credit cost of Fast mode, recommended with callbacks, ~5-10min processing
-export async function getVeo314K(taskId: string, callBackUrl?: string): Promise<KieAiResponse> {
+export async function getVeo314K(
+  taskId: string,
+  callBackUrl?: string
+): Promise<KieAiResponse> {
   const body: Record<string, unknown> = { taskId };
   if (callBackUrl) {
     body.callBackUrl = callBackUrl;
@@ -469,6 +482,64 @@ export async function getVeo314K(taskId: string, callBackUrl?: string): Promise<
   return makeRequest<KieAiResponse>(`/api/v1/veo/get-4k-video`, "POST", body);
 }
 
+// ============ RUNWAY API ============
+
+interface RunwayGenerateParams {
+  prompt: string;
+  imageUrl?: string;
+  aspectRatio?: string;
+  duration?: string;
+  quality?: string;
+  callBackUrl?: string;
+}
+
+interface RunwayStatusResponse {
+  code: number;
+  msg?: string;
+  message?: string;
+  data?: {
+    taskId: string;
+    state?: string;
+    status?: string;
+    resultJson?: string;
+    response?: {
+      resultUrls?: string[];
+    };
+    failMsg?: string;
+    errorMessage?: string;
+    [key: string]: unknown;
+  };
+}
+
+async function generateRunwayVideo(
+  params: RunwayGenerateParams
+): Promise<KieAiResponse> {
+  const quality =
+    params.quality === "high" || params.quality === "pro" ? "high" : "low";
+  const duration = Number.parseInt(params.duration || "5", 10);
+
+  const body: Record<string, unknown> = {
+    prompt: params.prompt,
+    quality,
+    duration: Number.isFinite(duration) ? duration : 5,
+    aspectRatio: params.aspectRatio || "16:9",
+  };
+
+  if (params.imageUrl) {
+    body.imageUrl = params.imageUrl;
+  }
+  if (params.callBackUrl) {
+    body.callBackUrl = params.callBackUrl;
+  }
+
+  return makeRequest<KieAiResponse>("/api/v1/runway/generate", "POST", body);
+}
+
+async function getRunwayStatus(taskId: string): Promise<RunwayStatusResponse> {
+  return makeRequest<RunwayStatusResponse>(
+    `/api/v1/runway/record-detail?taskId=${encodeURIComponent(taskId)}`
+  );
+}
 
 // ============ GENERIC VIDEO API (Sora, Kling, Grok) ============
 
@@ -488,7 +559,9 @@ export interface GenericVideoParams {
   callBackUrl?: string;
 }
 
-export async function generateGenericVideo(params: GenericVideoParams): Promise<KieAiResponse> {
+export async function generateGenericVideo(
+  params: GenericVideoParams
+): Promise<KieAiResponse> {
   const {
     model,
     prompt,
@@ -502,17 +575,21 @@ export async function generateGenericVideo(params: GenericVideoParams): Promise<
     removeWatermark,
     characterOrientation,
     quality,
-    callBackUrl
+    callBackUrl,
   } = params;
-
-  console.log("params------>", params)
 
   const input: Record<string, unknown> = {
     prompt,
   };
 
+  const isMotionControl = model === "kling-2.6/motion-control";
+  const isWanModel = model.includes("wan");
+  const isSeedanceModel = model.includes("seedance");
+  const isHailuoModel = model.includes("hailuo");
+  const isKlingModel = model.startsWith("kling");
+
   // Motion Control için özel URL formatları
-  if (model === "kling-2.6/motion-control") {
+  if (isMotionControl) {
     // Motion Control: input_urls ve video_urls (array formatında)
     if (imageUrl) {
       input.input_urls = [imageUrl];
@@ -521,51 +598,64 @@ export async function generateGenericVideo(params: GenericVideoParams): Promise<
       input.video_urls = [videoUrl];
     }
   } else {
-    // Diğer modeller için standart format
-    // All models (Sora, Grok, Kling) use image_urls array format
     if (imageUrl) {
-      input.image_urls = [imageUrl];
-      // Some models (Wan, Seedance, Hailuo) might prefer singular/different key, adding singular for compatibility.
-      // Kie docs suggest `image` or `image_url` for some endpoints.
-      if (model.includes("wan") || model.includes("seedance") || model.includes("hailuo")) {
+      if (isSeedanceModel) {
+        // Seedance docs: input_urls (array)
+        input.input_urls = [imageUrl];
+      } else if (isHailuoModel) {
+        // Hailuo docs: image_url (single string)
         input.image_url = imageUrl;
-        input.image = imageUrl; // Some APIs use 'image'
+      } else {
+        input.image_urls = [imageUrl];
       }
     }
+
     if (videoUrl) {
-      input.video_url = videoUrl;
+      if (model === "wan/2-6-video-to-video") {
+        // Wan V2V docs: video_urls (array)
+        input.video_urls = [videoUrl];
+      } else {
+        input.video_url = videoUrl;
+      }
     }
   }
 
-  // Audio parameter mapping
-  if (sound) {
-    // Kling, Seedance, Veo typically use 'generate_audio'
-    if (model.includes("kling") || model.includes("seedance") || model.includes("veo")) {
-      input.generate_audio = true;
-    }
-    // Wan uses 'audio'
-    if (model.includes("wan")) {
-      input.audio = true;
-    }
-    // Fallback/Legacy
-    input.sound = true;
+  // Audio parameter mapping (model-specific)
+  if (isKlingModel && !isMotionControl) {
+    // Kling docs: sound boolean
+    input.sound = sound ?? false;
+  } else if (isSeedanceModel) {
+    // Seedance docs: generate_audio boolean
+    input.generate_audio = sound ?? false;
+  } else if (sound !== undefined && !isWanModel) {
+    // Safe fallback for non-Wan models
+    input.sound = sound;
   }
 
   // Quality/Resolution parameter mapping
   // Default to standard/720p parameters unless 'high' or '1080p' is requested
-  if (mode === "1080p" || mode === "high" || quality === "high" || quality === "quality" || quality === "pro") {
-    if (model.includes("wan") || model.includes("seedance")) {
+  if (
+    mode === "1080p" ||
+    mode === "high" ||
+    quality === "high" ||
+    quality === "quality" ||
+    quality === "pro"
+  ) {
+    if (isWanModel) {
       input.resolution = "1080p";
+    } else if (isSeedanceModel) {
+      // Seedance docs are strict around supported resolutions; keep it at 720p.
+      input.resolution = "720p";
     }
-    if (model.includes("hailuo")) {
+    if (isHailuoModel) {
       input.resolution = "1080P";
     }
   } else if (mode === "720p" || quality === "standard" || quality === "fast") {
     // Explicitly set 720p for clarity if needed, though often default
-    if (model.includes("wan") || model.includes("seedance")) {
+    if (isWanModel || isSeedanceModel) {
       input.resolution = "720p";
     }
-    if (model.includes("hailuo")) {
+    if (isHailuoModel) {
       input.resolution = "768P"; // Hailuo default is often 768P
     }
   }
@@ -623,7 +713,7 @@ export async function generateGenericVideo(params: GenericVideoParams): Promise<
   }
 
   // Wan models (Alibaba AI) - supports duration, aspect_ratio
-  if (model.includes("wan")) {
+  if (isWanModel) {
     input.duration = duration || "5";
     if (aspectRatio) {
       input.aspect_ratio = aspectRatio;
@@ -638,7 +728,7 @@ export async function generateGenericVideo(params: GenericVideoParams): Promise<
   }
 
   // Hailuo 2.3 (MiniMax) - fixed 6s duration, supports aspect_ratio
-  if (model.includes("hailuo")) {
+  if (isHailuoModel) {
     // Hailuo always generates 6s videos, duration is fixed
     if (aspectRatio) {
       // Hailuo might infer AR from resolution, but sending AR doesn't hurt if API wrapper supports it
@@ -647,14 +737,11 @@ export async function generateGenericVideo(params: GenericVideoParams): Promise<
   }
 
   // Seedance (ByteDance) - supports duration, aspect_ratio
-  if (model.includes("seedance")) {
-    input.duration = duration || "10";
+  if (isSeedanceModel) {
+    const defaultSeedanceDuration = model.includes("1.5") ? "8" : "6";
+    input.duration = duration || defaultSeedanceDuration;
     if (aspectRatio) {
       input.aspect_ratio = aspectRatio;
-    }
-    // SeeDance might require specific image key
-    if (imageUrl) {
-      input.image = imageUrl; // Reinforce 'image' key
     }
   }
 
@@ -668,21 +755,32 @@ export async function generateGenericVideo(params: GenericVideoParams): Promise<
   }
 
   // Debug: Full request body
-  console.log(`[KieAI] Full request body for ${model}:`, JSON.stringify(body, null, 2));
+  console.log(
+    `[KieAI] Full request body for ${model}:`,
+    JSON.stringify(body, null, 2)
+  );
 
   return makeRequest<KieAiResponse>("/api/v1/jobs/createTask", "POST", body);
 }
 
-export async function getTaskStatus(taskId: string): Promise<TaskStatusResponse> {
-  const result = await makeRequest<TaskStatusResponse>(`/api/v1/jobs/recordInfo?taskId=${taskId}`);
+export async function getTaskStatus(
+  taskId: string
+): Promise<TaskStatusResponse> {
+  const result = await makeRequest<TaskStatusResponse>(
+    `/api/v1/jobs/recordInfo?taskId=${encodeURIComponent(taskId)}`
+  );
   // Check if result data is actually present to avoid "recordInfo is null" errors downstream
   if (!result || !result.data) {
-    console.warn(`[KieAI] Task status returned no data for task ${taskId}:`, result);
-    // Return a constructed valid response indicating failure or wait
-    // If we return code 200, the caller tries to access data. 
-    // Let's return the result as is, but ensuring it's not null/undefined so callers don't crash
+    console.warn(
+      `[KieAI] Task status returned no data for task ${taskId}:`,
+      result
+    );
     if (!result) {
-      return { code: 500, msg: "API returned null response" };
+      return {
+        code: 500,
+        msg: "API returned null response",
+        message: "API returned null response",
+      };
     }
   }
   return result;
@@ -691,7 +789,21 @@ export async function getTaskStatus(taskId: string): Promise<TaskStatusResponse>
 // ============ UNIFIED VIDEO GENERATION ============
 
 export interface UnifiedVideoParams {
-  modelType: "veo3" | "sora2" | "kling" | "grok" | "kling-motion" | "wan-22" | "wan-25" | "wan-26" | "hailuo" | "seedance-lite" | "seedance-pro" | "seedance-15-pro" | "runway" | "runway-pro";
+  modelType:
+    | "veo3"
+    | "sora2"
+    | "kling"
+    | "grok"
+    | "kling-motion"
+    | "wan-22"
+    | "wan-25"
+    | "wan-26"
+    | "hailuo"
+    | "seedance-lite"
+    | "seedance-pro"
+    | "seedance-15-pro"
+    | "runway"
+    | "runway-pro";
   generationType: "text-to-video" | "image-to-video" | "video-to-video";
   prompt: string;
   imageUrl?: string; // Geriye uyumluluk
@@ -700,14 +812,39 @@ export interface UnifiedVideoParams {
   aspectRatio?: string;
   duration?: string;
   sound?: boolean;
-  quality?: "fast" | "standard" | "high" | "ultra" | "fast-4k" | "ultra-4k" | "pro" | "quality";
+  quality?:
+    | "fast"
+    | "standard"
+    | "high"
+    | "ultra"
+    | "fast-4k"
+    | "ultra-4k"
+    | "pro"
+    | "quality";
   characterOrientation?: "image" | "video";
   feature?: "default" | "characters" | "watermark-remover" | "storyboard"; // ✨ Sora 2 special features
   callBackUrl?: string;
 }
 
-export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskId: string; creditCost: number }> {
-  const { modelType, generationType, prompt, imageUrl, imageUrls, videoUrl, aspectRatio, duration, sound, quality, characterOrientation, callBackUrl } = params;
+export type UnifiedVideoModelType = UnifiedVideoParams["modelType"];
+
+export async function generateVideo(
+  params: UnifiedVideoParams
+): Promise<{ taskId: string; creditCost: number }> {
+  const {
+    modelType,
+    generationType,
+    prompt,
+    imageUrl,
+    imageUrls,
+    videoUrl,
+    aspectRatio,
+    duration,
+    sound,
+    quality,
+    characterOrientation,
+    callBackUrl,
+  } = params;
 
   let response: KieAiResponse;
   let model: string;
@@ -723,20 +860,27 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
       // User sees "Hızlı" (50 kredi) or "Kaliteli" (75 kredi) but both use fast mode
       model = "veo3_fast";
       // Map aspect ratio - Veo 3.1 supports 16:9, 9:16, Auto
-      let veoAspectRatio: "16:9" | "9:16" | "Auto" = "16:9";
-      if (aspectRatio === "9:16" || aspectRatio === "portrait") veoAspectRatio = "9:16";
-      else if (aspectRatio === "1:1" || aspectRatio === "square") veoAspectRatio = "Auto";
+      let veoAspectRatio: "16:9" | "9:16" | "auto" = "16:9";
+      if (aspectRatio === "9:16" || aspectRatio === "portrait")
+        veoAspectRatio = "9:16";
+      else if (aspectRatio === "1:1" || aspectRatio === "square")
+        veoAspectRatio = "auto";
       else veoAspectRatio = "16:9";
 
       // Veo 3.1 multi-image support (max 3 images)
-      const veoImageUrls = combinedImageUrls ? combinedImageUrls.slice(0, 3) : undefined;
+      const veoImageUrls = combinedImageUrls
+        ? combinedImageUrls.slice(0, 3)
+        : undefined;
 
       // Birden fazla görsel varsa multi-image generation type kullan
-      let veoGenerationType: "TEXT_2_VIDEO" | "FIRST_AND_LAST_FRAMES_2_VIDEO" | "REFERENCE_2_VIDEO" = "TEXT_2_VIDEO";
+      let veoGenerationType:
+        | "TEXT_2_VIDEO"
+        | "FIRST_AND_LAST_FRAMES_2_VIDEO"
+        | "REFERENCE_2_VIDEO" = "TEXT_2_VIDEO";
       if (veoImageUrls && veoImageUrls.length > 0) {
-        // 2-3 görsel varsa REFERENCE_2_VIDEO kullan (16:9 ve 9:16 destekler, veo3_fast gerekli)
+        // 2-3 görsel varsa REFERENCE_2_VIDEO kullan (docs: sadece 16:9 ve veo3_fast)
         // 1 görsel varsa FIRST_AND_LAST_FRAMES_2_VIDEO (tüm aspect ratio destekler)
-        if (veoImageUrls.length >= 2 && (veoAspectRatio === "16:9" || veoAspectRatio === "9:16")) {
+        if (veoImageUrls.length >= 2 && veoAspectRatio === "16:9") {
           veoGenerationType = "REFERENCE_2_VIDEO";
         } else {
           veoGenerationType = "FIRST_AND_LAST_FRAMES_2_VIDEO";
@@ -756,7 +900,8 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
     case "sora2":
       // Unified Sora 2 with special features support
       const { feature = "default" } = params;
-      const isSoraPro = quality === "high" || quality === "pro" || quality === "quality";
+      const isSoraPro =
+        quality === "high" || quality === "pro" || quality === "quality";
 
       // Feature-based model selection
       if (feature === "characters") {
@@ -771,9 +916,13 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
       } else {
         // Default: Standard video generation
         if (generationType === "image-to-video") {
-          model = isSoraPro ? "sora-2-pro-image-to-video" : "sora-2-image-to-video";
+          model = isSoraPro
+            ? "sora-2-pro-image-to-video"
+            : "sora-2-image-to-video";
         } else {
-          model = isSoraPro ? "sora-2-pro-text-to-video" : "sora-2-text-to-video";
+          model = isSoraPro
+            ? "sora-2-pro-text-to-video"
+            : "sora-2-text-to-video";
         }
         pricingModel = model;
       }
@@ -793,7 +942,10 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
     case "kling":
       // Kling 2.6 supports both text-to-video and image-to-video with native audio
       // Sadece tek görsel destekler
-      model = generationType === "image-to-video" ? "kling-2.6/image-to-video" : "kling-2.6/text-to-video";
+      model =
+        generationType === "image-to-video"
+          ? "kling-2.6/image-to-video"
+          : "kling-2.6/text-to-video";
       const klingImageUrl = combinedImageUrls?.[0];
       response = await generateGenericVideo({
         model: model as VideoModel,
@@ -834,7 +986,10 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
 
     case "grok":
       // Grok Imagine - Sadece tek görsel destekler
-      model = generationType === "image-to-video" ? "grok-imagine/image-to-video" : "grok-imagine/text-to-video";
+      model =
+        generationType === "image-to-video"
+          ? "grok-imagine/image-to-video"
+          : "grok-imagine/text-to-video";
       const grokImageUrl = combinedImageUrls?.[0];
       response = await generateGenericVideo({
         model: model as VideoModel,
@@ -864,7 +1019,10 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
     case "wan-25":
       // Wan 2.5 - Alibaba AI video model
       // API expects: wan2.5-t2v-preview OR wan2.5-i2v-preview
-      model = generationType === "image-to-video" ? "wan2.5-i2v-preview" : "wan2.5-t2v-preview";
+      model =
+        generationType === "image-to-video"
+          ? "wan2.5-i2v-preview"
+          : "wan2.5-t2v-preview";
       const wan25ImageUrl = combinedImageUrls?.[0];
       response = await generateGenericVideo({
         model: model as VideoModel,
@@ -903,9 +1061,20 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
       break;
 
     case "hailuo":
-      // Hailuo 2.3 - MiniMax AI video model (6s fixed duration)
-      // Kie.ai uses hailuo-2.3 (without minimax prefix)
-      model = "hailuo-2.3";
+      // Hailuo docs: dedicated model keys for T2V and I2V.
+      {
+        const hailuoHighQuality =
+          quality === "high" || quality === "pro" || quality === "quality";
+        if (generationType === "image-to-video") {
+          model = hailuoHighQuality
+            ? "hailuo/2-3-image-to-video-pro"
+            : "hailuo/2-3-image-to-video-standard";
+        } else {
+          model = hailuoHighQuality
+            ? "hailuo/02-text-to-video-pro"
+            : "hailuo/02-text-to-video-standard";
+        }
+      }
       const hailuoImageUrl = combinedImageUrls?.[0];
       response = await generateGenericVideo({
         model: model as VideoModel,
@@ -964,15 +1133,16 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
       break;
 
     case "runway":
-      // Runway Gen-3 Alpha
+    case "runway-pro":
+      // Runway uses its own dedicated endpoints in Kie docs.
       model = "runway-gen3-alpha";
-      const runwayImageUrl = combinedImageUrls?.[0];
-      response = await generateGenericVideo({
-        model: model as VideoModel,
+      pricingModel = "runway-gen3-alpha";
+      response = await generateRunwayVideo({
         prompt,
-        imageUrl: runwayImageUrl,
+        imageUrl: combinedImageUrls?.[0],
         aspectRatio,
-        duration: "5",
+        duration,
+        quality: modelType === "runway-pro" ? "high" : quality,
         callBackUrl,
       });
       break;
@@ -982,10 +1152,14 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
   }
 
   if (response.code !== 200 || !response.data?.taskId) {
-    throw new Error(response.msg || "Video generation failed");
+    throw new Error(getApiMessage(response));
   }
 
-  const creditCost = calculateVideoCreditCost(pricingModel || model, { duration, sound, quality });
+  const creditCost = calculateVideoCreditCost(pricingModel || model, {
+    duration,
+    sound,
+    quality,
+  });
 
   return {
     taskId: response.data.taskId,
@@ -996,7 +1170,7 @@ export async function generateVideo(params: UnifiedVideoParams): Promise<{ taskI
 // Get video status (unified for all models)
 export async function getVideoStatus(
   taskId: string,
-  modelType: "veo3" | "sora2" | "kling" | "grok" | "wan-22" | "wan-25" | "wan-26" | "hailuo" | "seedance-lite" | "seedance-pro" | "seedance-15-pro" | "kling-motion" | "runway"
+  modelType: UnifiedVideoModelType
 ): Promise<{
   status: "pending" | "processing" | "completed" | "failed";
   videoUrl?: string;
@@ -1007,7 +1181,7 @@ export async function getVideoStatus(
     const response = await getVeo31Status(taskId);
 
     if (response.code !== 200) {
-      return { status: "failed", error: response.msg };
+      return { status: "failed", error: getApiMessage(response) };
     }
 
     const successFlag = response.data?.successFlag;
@@ -1018,7 +1192,10 @@ export async function getVideoStatus(
       let videoUrl: string | undefined;
 
       // Yeni format: response.resultUrls (array)
-      if (response.data?.response?.resultUrls && Array.isArray(response.data.response.resultUrls)) {
+      if (
+        response.data?.response?.resultUrls &&
+        Array.isArray(response.data.response.resultUrls)
+      ) {
         videoUrl = response.data.response.resultUrls[0];
       }
       // Eski format: data.resultUrls (string veya JSON string)
@@ -1035,19 +1212,63 @@ export async function getVideoStatus(
       console.log(`[Veo3] Video URL extracted: ${videoUrl}`);
       return { status: "completed", videoUrl };
     } else {
-      const errorMsg = response.data?.errorMessage || response.msg || "Video generation failed";
+      const errorMsg =
+        response.data?.errorMessage ||
+        getApiMessage(response) ||
+        "Video generation failed";
       return { status: "failed", error: errorMsg };
     }
+  } else if (modelType === "runway" || modelType === "runway-pro") {
+    const response = await getRunwayStatus(taskId);
+    if (response.code !== 200) {
+      return { status: "failed", error: getApiMessage(response) };
+    }
+
+    const runwayState = (
+      response.data?.status ||
+      response.data?.state ||
+      ""
+    ).toString();
+    if (isKieInProgressState(runwayState)) {
+      return { status: "processing" };
+    }
+    if (runwayState.toLowerCase() === "success") {
+      let videoUrl: string | undefined;
+      if (response.data?.response?.resultUrls?.length) {
+        videoUrl = response.data.response.resultUrls[0];
+      } else if (response.data?.resultJson) {
+        try {
+          const result = JSON.parse(response.data.resultJson);
+          videoUrl = result?.resultUrls?.[0] || result?.videoUrl || result?.url;
+        } catch {
+          console.error(
+            "[Runway] Failed to parse resultJson",
+            response.data.resultJson
+          );
+        }
+      }
+      return { status: "completed", videoUrl };
+    }
+    if (runwayState.toLowerCase() === "fail") {
+      return {
+        status: "failed",
+        error:
+          response.data?.failMsg ||
+          response.data?.errorMessage ||
+          getApiMessage(response),
+      };
+    }
+    return { status: "pending" };
   } else {
     const response = await getTaskStatus(taskId);
 
     if (response.code !== 200) {
-      return { status: "failed", error: response.msg };
+      return { status: "failed", error: getApiMessage(response) };
     }
 
     const state = response.data?.state;
 
-    if (state === "waiting") {
+    if (isKieInProgressState(state)) {
       return { status: "processing" };
     } else if (state === "success") {
       let videoUrl: string | undefined;
@@ -1066,29 +1287,42 @@ export async function getVideoStatus(
             actualDuration = parseFloat(result.videoDuration);
           } else if (result.duration_s !== undefined) {
             actualDuration = parseFloat(result.duration_s);
-          } else if (result.durationList && Array.isArray(result.durationList) && result.durationList.length > 0) {
+          } else if (
+            result.durationList &&
+            Array.isArray(result.durationList) &&
+            result.durationList.length > 0
+          ) {
             actualDuration = parseFloat(result.durationList[0]);
           }
 
           // Log the parsed duration for debugging
           if (actualDuration !== undefined) {
-            console.log(`[KieAI] Actual video duration from API: ${actualDuration}s`);
+            console.log(
+              `[KieAI] Actual video duration from API: ${actualDuration}s`
+            );
           } else {
-            console.log(`[KieAI] No duration found in resultJson: ${response.data.resultJson}`);
+            console.log(
+              `[KieAI] No duration found in resultJson: ${response.data.resultJson}`
+            );
           }
         } catch {
-          console.error("[KieAI] Failed to parse resultJson", response.data.resultJson);
+          console.error(
+            "[KieAI] Failed to parse resultJson",
+            response.data.resultJson
+          );
         }
       }
       return { status: "completed", videoUrl, actualDuration };
     } else if (state === "fail") {
-      return { status: "failed", error: response.data?.failMsg || "Video generation failed" };
+      return {
+        status: "failed",
+        error: response.data?.failMsg || "Video generation failed",
+      };
     } else {
       return { status: "pending" };
     }
   }
 }
-
 
 // ============ TOPAZ IMAGE UPSCALE API ============
 
@@ -1096,10 +1330,10 @@ export type UpscaleFactor = "1" | "2" | "4" | "8";
 
 // Upscale pricing (in credits) - with 50% markup
 export const UPSCALE_PRICING: Record<UpscaleFactor, number> = {
-  "1": 15,  // 1x (no upscale, just enhancement) - 10 credits base + 50%
-  "2": 15,  // 2x upscale (≤2K output) - 10 credits base + 50%
-  "4": 30,  // 4x upscale (4K output) - 20 credits base + 50%
-  "8": 60,  // 8x upscale (8K output) - 40 credits base + 50%
+  "1": 15, // 1x (no upscale, just enhancement) - 10 credits base + 50%
+  "2": 15, // 2x upscale (≤2K output) - 10 credits base + 50%
+  "4": 30, // 4x upscale (4K output) - 20 credits base + 50%
+  "8": 60, // 8x upscale (8K output) - 40 credits base + 50%
 };
 
 export function calculateUpscaleCreditCost(factor: UpscaleFactor): number {
@@ -1112,7 +1346,9 @@ export interface TopazUpscaleParams {
   callBackUrl?: string;
 }
 
-export async function createTopazUpscaleTask(params: TopazUpscaleParams): Promise<KieAiResponse> {
+export async function createTopazUpscaleTask(
+  params: TopazUpscaleParams
+): Promise<KieAiResponse> {
   const { imageUrl, upscaleFactor, callBackUrl } = params;
 
   const body: Record<string, unknown> = {
@@ -1146,16 +1382,22 @@ export interface TopazStatusResponse {
   };
 }
 
-export async function getTopazUpscaleStatus(taskId: string): Promise<TopazStatusResponse> {
-  return makeRequest<TopazStatusResponse>(`/api/v1/jobs/recordInfo?taskId=${taskId}`);
+export async function getTopazUpscaleStatus(
+  taskId: string
+): Promise<TopazStatusResponse> {
+  return makeRequest<TopazStatusResponse>(
+    `/api/v1/jobs/recordInfo?taskId=${encodeURIComponent(taskId)}`
+  );
 }
 
 // Unified upscale function
-export async function upscaleImage(params: TopazUpscaleParams): Promise<{ taskId: string; creditCost: number }> {
+export async function upscaleImage(
+  params: TopazUpscaleParams
+): Promise<{ taskId: string; creditCost: number }> {
   const response = await createTopazUpscaleTask(params);
 
   if (response.code !== 200 || !response.data?.taskId) {
-    throw new Error(response.msg || "Upscale task creation failed");
+    throw new Error(getApiMessage(response));
   }
 
   const creditCost = calculateUpscaleCreditCost(params.upscaleFactor);
@@ -1174,26 +1416,36 @@ export async function getUpscaleStatus(taskId: string): Promise<{
 }> {
   const response = await getTopazUpscaleStatus(taskId);
 
-  console.log(`[Upscale] Status check for task ${taskId}, code: ${response.code}`);
+  console.log(
+    `[Upscale] Status check for task ${taskId}, code: ${response.code}`
+  );
 
   if (response.code !== 200) {
-    console.error(`[Upscale] API error:`, response.msg);
-    return { status: "failed", error: response.msg };
+    const errorMessage = getApiMessage(response);
+    console.error(`[Upscale] API error:`, errorMessage);
+    return { status: "failed", error: errorMessage };
   }
 
   const state = response.data?.state;
 
-  if (state === "waiting") {
+  if (isKieInProgressState(state)) {
     return { status: "processing" };
   } else if (state === "success") {
     let imageUrl: string | undefined;
     if (response.data?.resultJson) {
       try {
         const result = JSON.parse(response.data.resultJson);
-        console.log(`[Upscale] Parsed resultJson:`, JSON.stringify(result, null, 2));
+        console.log(
+          `[Upscale] Parsed resultJson:`,
+          JSON.stringify(result, null, 2)
+        );
 
         // Try resultUrls array first (like video generation)
-        if (result.resultUrls && Array.isArray(result.resultUrls) && result.resultUrls.length > 0) {
+        if (
+          result.resultUrls &&
+          Array.isArray(result.resultUrls) &&
+          result.resultUrls.length > 0
+        ) {
           imageUrl = result.resultUrls[0];
         }
         // Then try direct array
@@ -1202,7 +1454,12 @@ export async function getUpscaleStatus(taskId: string): Promise<{
         }
         // Finally try common field names
         else {
-          imageUrl = result.output || result.url || result.image_url || result.imageUrl || result.output_url;
+          imageUrl =
+            result.output ||
+            result.url ||
+            result.image_url ||
+            result.imageUrl ||
+            result.output_url;
         }
 
         console.log(`[Upscale] Extracted imageUrl:`, imageUrl);
@@ -1213,22 +1470,32 @@ export async function getUpscaleStatus(taskId: string): Promise<{
     }
     return { status: "completed", imageUrl };
   } else if (state === "fail") {
-    return { status: "failed", error: response.data?.failMsg || "Upscale failed" };
+    return {
+      status: "failed",
+      error: response.data?.failMsg || "Upscale failed",
+    };
   }
 
   return { status: "pending" };
 }
 
-
 // ============ SEEDREAM 4.5 TEXT-TO-IMAGE API ============
 
-export type SeedreamAspectRatio = "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
+export type SeedreamAspectRatio =
+  | "1:1"
+  | "4:3"
+  | "3:4"
+  | "16:9"
+  | "9:16"
+  | "2:3"
+  | "3:2"
+  | "21:9";
 export type SeedreamQuality = "basic" | "high";
 
 // Seedream pricing (in credits)
 export const SEEDREAM_PRICING: Record<SeedreamQuality, number> = {
-  "basic": 8,  // 2K output
-  "high": 15,  // 4K output
+  basic: 8, // 2K output
+  high: 15, // 4K output
 };
 
 export function calculateSeedreamCreditCost(quality: SeedreamQuality): number {
@@ -1242,8 +1509,15 @@ export interface SeedreamGenerateParams {
   callBackUrl?: string;
 }
 
-export async function createSeedreamTask(params: SeedreamGenerateParams): Promise<KieAiResponse> {
-  const { prompt, aspectRatio = "1:1", quality = "basic", callBackUrl } = params;
+export async function createSeedreamTask(
+  params: SeedreamGenerateParams
+): Promise<KieAiResponse> {
+  const {
+    prompt,
+    aspectRatio = "1:1",
+    quality = "basic",
+    callBackUrl,
+  } = params;
 
   const body: Record<string, unknown> = {
     model: "seedream/4.5-text-to-image",
@@ -1271,8 +1545,16 @@ export interface SeedreamEditParams {
   callBackUrl?: string;
 }
 
-export async function createSeedreamEditTask(params: SeedreamEditParams): Promise<KieAiResponse> {
-  const { prompt, imageUrls, aspectRatio = "1:1", quality = "basic", callBackUrl } = params;
+export async function createSeedreamEditTask(
+  params: SeedreamEditParams
+): Promise<KieAiResponse> {
+  const {
+    prompt,
+    imageUrls,
+    aspectRatio = "1:1",
+    quality = "basic",
+    callBackUrl,
+  } = params;
 
   const body: Record<string, unknown> = {
     model: "seedream/4.5-edit",
@@ -1291,16 +1573,22 @@ export async function createSeedreamEditTask(params: SeedreamEditParams): Promis
   return makeRequest<KieAiResponse>("/api/v1/jobs/createTask", "POST", body);
 }
 
-export async function getSeedreamStatus(taskId: string): Promise<TaskStatusResponse> {
-  return makeRequest<TaskStatusResponse>(`/api/v1/jobs/recordInfo?taskId=${taskId}`);
+export async function getSeedreamStatus(
+  taskId: string
+): Promise<TaskStatusResponse> {
+  return makeRequest<TaskStatusResponse>(
+    `/api/v1/jobs/recordInfo?taskId=${encodeURIComponent(taskId)}`
+  );
 }
 
 // Unified Seedream image generation function
-export async function generateSeedreamImage(params: SeedreamGenerateParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateSeedreamImage(
+  params: SeedreamGenerateParams
+): Promise<{ taskId: string; creditCost: number }> {
   const response = await createSeedreamTask(params);
 
   if (response.code !== 200 || !response.data?.taskId) {
-    throw new Error(response.msg || "Seedream task creation failed");
+    throw new Error(getApiMessage(response));
   }
 
   const creditCost = calculateSeedreamCreditCost(params.quality || "basic");
@@ -1312,11 +1600,13 @@ export async function generateSeedreamImage(params: SeedreamGenerateParams): Pro
 }
 
 // Unified Seedream Edit (image-to-image) function
-export async function generateSeedreamEditImage(params: SeedreamEditParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateSeedreamEditImage(
+  params: SeedreamEditParams
+): Promise<{ taskId: string; creditCost: number }> {
   const response = await createSeedreamEditTask(params);
 
   if (response.code !== 200 || !response.data?.taskId) {
-    throw new Error(response.msg || "Seedream edit task creation failed");
+    throw new Error(getApiMessage(response));
   }
 
   const creditCost = calculateSeedreamCreditCost(params.quality || "basic");
@@ -1336,12 +1626,12 @@ export async function getSeedreamImageStatus(taskId: string): Promise<{
   const response = await getSeedreamStatus(taskId);
 
   if (response.code !== 200) {
-    return { status: "failed", error: response.msg };
+    return { status: "failed", error: getApiMessage(response) };
   }
 
   const state = response.data?.state;
 
-  if (state === "waiting") {
+  if (isKieInProgressState(state)) {
     return { status: "processing" };
   } else if (state === "success") {
     let imageUrl: string | undefined;
@@ -1350,12 +1640,18 @@ export async function getSeedreamImageStatus(taskId: string): Promise<{
         const result = JSON.parse(response.data.resultJson);
         imageUrl = result.resultUrls?.[0];
       } catch {
-        console.error("[Seedream] Failed to parse resultJson", response.data.resultJson);
+        console.error(
+          "[Seedream] Failed to parse resultJson",
+          response.data.resultJson
+        );
       }
     }
     return { status: "completed", imageUrl };
   } else if (state === "fail") {
-    return { status: "failed", error: response.data?.failMsg || "Image generation failed" };
+    return {
+      status: "failed",
+      error: response.data?.failMsg || "Image generation failed",
+    };
   }
 
   return { status: "pending" };
@@ -1413,7 +1709,15 @@ export type GenericImageModel =
   // Z-Image
   | "z-image";
 
-export type ImageAspectRatio = "1:1" | "4:3" | "3:4" | "16:9" | "9:16" | "2:3" | "3:2" | "21:9";
+export type ImageAspectRatio =
+  | "1:1"
+  | "4:3"
+  | "3:4"
+  | "16:9"
+  | "9:16"
+  | "2:3"
+  | "3:2"
+  | "21:9";
 export type ImageQuality = "basic" | "standard" | "high" | "ultra";
 
 // Model-specific pricing (in credits)
@@ -1478,7 +1782,6 @@ export function calculateImageModelCreditCost(modelKey: string): number {
   return IMAGE_MODEL_PRICING[modelKey] || 10;
 }
 
-
 export interface GenericImageGenerateParams {
   model: GenericImageModel | string;
   prompt: string;
@@ -1488,8 +1791,17 @@ export interface GenericImageGenerateParams {
   callBackUrl?: string;
 }
 
-export async function createGenericImageTask(params: GenericImageGenerateParams): Promise<KieAiResponse> {
-  const { model, prompt, imageUrls, aspectRatio = "1:1", quality = "standard", callBackUrl } = params;
+export async function createGenericImageTask(
+  params: GenericImageGenerateParams
+): Promise<KieAiResponse> {
+  const {
+    model,
+    prompt,
+    imageUrls,
+    aspectRatio = "1:1",
+    quality = "standard",
+    callBackUrl,
+  } = params;
 
   let endpoint = "/api/v1/jobs/createTask";
   let body: Record<string, unknown>;
@@ -1551,8 +1863,10 @@ export async function createGenericImageTask(params: GenericImageGenerateParams)
       else if (aspectRatio === "9:16") imageSize = "portrait_16_9";
       else if (aspectRatio === "4:3") imageSize = "landscape_4_3";
       else if (aspectRatio === "3:4") imageSize = "portrait_4_3";
-      else if (aspectRatio === "3:2") imageSize = "landscape_4_3"; // Map to closest
-      else if (aspectRatio === "2:3") imageSize = "portrait_4_3"; // Map to closest
+      else if (aspectRatio === "3:2")
+        imageSize = "landscape_4_3"; // Map to closest
+      else if (aspectRatio === "2:3")
+        imageSize = "portrait_4_3"; // Map to closest
       else if (aspectRatio === "1:1") imageSize = "square";
       else if (aspectRatio === "21:9") imageSize = "landscape_16_9"; // Map to closest
 
@@ -1599,7 +1913,8 @@ export async function createGenericImageTask(params: GenericImageGenerateParams)
     if (model.startsWith("flux-2/")) {
       // Kie.ai supports "1K" or "2K" for Flux 2 models
       // Use 2K for high quality, 1K for standard
-      input.resolution = quality === "high" || quality === "ultra" ? "2K" : "1K";
+      input.resolution =
+        quality === "high" || quality === "ultra" ? "2K" : "1K";
     }
 
     // Qwen endpoints are strict and don't expect 'quality' in input payload.
@@ -1614,17 +1929,22 @@ export async function createGenericImageTask(params: GenericImageGenerateParams)
     };
   }
 
-  console.log(`[KieAI] Creating image task at ${endpoint} for model: ${model}`, JSON.stringify(body, null, 2));
+  console.log(
+    `[KieAI] Creating image task at ${endpoint} for model: ${model}`,
+    JSON.stringify(body, null, 2)
+  );
 
   return makeRequest<KieAiResponse>(endpoint, "POST", body);
 }
 
 // Unified function for generating images with new models
-export async function generateImageWithModel(params: GenericImageGenerateParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateImageWithModel(
+  params: GenericImageGenerateParams
+): Promise<{ taskId: string; creditCost: number }> {
   const response = await createGenericImageTask(params);
 
   if (response.code !== 200 || !response.data?.taskId) {
-    throw new Error(response.msg || "Image generation task creation failed");
+    throw new Error(getApiMessage(response));
   }
 
   const creditCost = calculateImageModelCreditCost(params.model);
@@ -1636,7 +1956,10 @@ export async function generateImageWithModel(params: GenericImageGenerateParams)
 }
 
 // Get generic image task status (reuses existing task status endpoint)
-export async function getGenericImageStatus(taskId: string, model?: string): Promise<{
+export async function getGenericImageStatus(
+  taskId: string,
+  model?: string
+): Promise<{
   status: "pending" | "processing" | "completed" | "failed";
   imageUrl?: string;
   error?: string;
@@ -1644,23 +1967,31 @@ export async function getGenericImageStatus(taskId: string, model?: string): Pro
   // 4o-image uses a different status endpoint
   if (taskId && !taskId.includes("_") && taskId.length === 32) {
     // 4o-image task IDs are 32-char hex strings without underscores
-    const response = await makeRequest<TaskStatusResponse>(`/api/v1/gpt4o-image/record-info?taskId=${taskId}`);
+    const response = await makeRequest<TaskStatusResponse>(
+      `/api/v1/gpt4o-image/record-info?taskId=${taskId}`
+    );
 
     if (response.code !== 200) {
-      return { status: "failed", error: response.msg };
+      return { status: "failed", error: getApiMessage(response) };
     }
 
     // 4o-image uses 'status' instead of 'state', and 'response.resultUrls' instead of 'resultJson'
     const data = response.data as any;
     const apiStatus = data?.status;
 
-    if (apiStatus === "GENERATING" || !apiStatus) {
+    if (isKieInProgressState(apiStatus)) {
       return { status: "processing" };
     } else if (apiStatus === "SUCCESS" && data?.successFlag === 1) {
       const imageUrl = data?.response?.resultUrls?.[0];
       return { status: "completed", imageUrl };
-    } else if (apiStatus === "GENERATE_FAILED" || apiStatus === "CREATE_TASK_FAILED") {
-      return { status: "failed", error: data?.errorMessage || "Image generation failed" };
+    } else if (
+      apiStatus === "GENERATE_FAILED" ||
+      apiStatus === "CREATE_TASK_FAILED"
+    ) {
+      return {
+        status: "failed",
+        error: data?.errorMessage || "Image generation failed",
+      };
     }
 
     return { status: "pending" };
@@ -1668,15 +1999,17 @@ export async function getGenericImageStatus(taskId: string, model?: string): Pro
 
   // Flux Kontext uses a different status endpoint
   if (taskId.startsWith("fluxkontext_")) {
-    const response = await makeRequest<TaskStatusResponse>(`/api/v1/flux/kontext/record-info?taskId=${taskId}`);
+    const response = await makeRequest<TaskStatusResponse>(
+      `/api/v1/flux/kontext/record-info?taskId=${taskId}`
+    );
 
     if (response.code !== 200) {
-      return { status: "failed", error: response.msg };
+      return { status: "failed", error: getApiMessage(response) };
     }
 
     const state = response.data?.state;
 
-    if (state === "waiting") {
+    if (isKieInProgressState(state)) {
       return { status: "processing" };
     } else if (state === "success") {
       let imageUrl: string | undefined;
@@ -1685,12 +2018,18 @@ export async function getGenericImageStatus(taskId: string, model?: string): Pro
           const result = JSON.parse(response.data.resultJson);
           imageUrl = result.resultUrls?.[0];
         } catch {
-          console.error("[FluxKontext] Failed to parse resultJson", response.data.resultJson);
+          console.error(
+            "[FluxKontext] Failed to parse resultJson",
+            response.data.resultJson
+          );
         }
       }
       return { status: "completed", imageUrl };
     } else if (state === "fail") {
-      return { status: "failed", error: response.data?.failMsg || "Image generation failed" };
+      return {
+        status: "failed",
+        error: response.data?.failMsg || "Image generation failed",
+      };
     }
 
     return { status: "pending" };
@@ -1700,26 +2039,37 @@ export async function getGenericImageStatus(taskId: string, model?: string): Pro
   const response = await getTaskStatus(taskId);
 
   if (response.code !== 200) {
-    return { status: "failed", error: response.msg };
+    return { status: "failed", error: getApiMessage(response) };
   }
 
   const state = response.data?.state;
 
-  if (state === "waiting") {
+  if (isKieInProgressState(state)) {
     return { status: "processing" };
   } else if (state === "success") {
     let imageUrl: string | undefined;
     if (response.data?.resultJson) {
       try {
         const result = JSON.parse(response.data.resultJson);
-        console.log(`[GenericImage] Parsed resultJson:`, JSON.stringify(result, null, 2));
+        console.log(
+          `[GenericImage] Parsed resultJson:`,
+          JSON.stringify(result, null, 2)
+        );
 
         // Try resultUrls array first
-        if (result.resultUrls && Array.isArray(result.resultUrls) && result.resultUrls.length > 0) {
+        if (
+          result.resultUrls &&
+          Array.isArray(result.resultUrls) &&
+          result.resultUrls.length > 0
+        ) {
           imageUrl = result.resultUrls[0];
         }
         // Try images array (common in some APIs)
-        else if (result.images && Array.isArray(result.images) && result.images.length > 0) {
+        else if (
+          result.images &&
+          Array.isArray(result.images) &&
+          result.images.length > 0
+        ) {
           imageUrl = result.images[0].url || result.images[0];
         }
         // Try direct array
@@ -1728,12 +2078,21 @@ export async function getGenericImageStatus(taskId: string, model?: string): Pro
         }
         // Finally try common field names
         else {
-          imageUrl = result.output || result.url || result.image_url || result.imageUrl || result.output_url || result.resultUrl;
+          imageUrl =
+            result.output ||
+            result.url ||
+            result.image_url ||
+            result.imageUrl ||
+            result.output_url ||
+            result.resultUrl;
         }
 
         console.log(`[GenericImage] Extracted imageUrl: ${imageUrl}`);
       } catch (error) {
-        console.error("[GenericImage] Failed to parse resultJson", response.data.resultJson);
+        console.error(
+          "[GenericImage] Failed to parse resultJson",
+          response.data.resultJson
+        );
         // Fallback: use resultJson directly if it looks like a URL
         if (response.data.resultJson.startsWith("http")) {
           imageUrl = response.data.resultJson;
@@ -1742,12 +2101,14 @@ export async function getGenericImageStatus(taskId: string, model?: string): Pro
     }
     return { status: "completed", imageUrl };
   } else if (state === "fail") {
-    return { status: "failed", error: response.data?.failMsg || "Image generation failed" };
+    return {
+      status: "failed",
+      error: response.data?.failMsg || "Image generation failed",
+    };
   }
 
   return { status: "pending" };
 }
-
 
 // ============ SPECIALIZED MODEL FUNCTIONS ============
 
@@ -1759,7 +2120,9 @@ export interface Flux2ProParams {
   callBackUrl?: string;
 }
 
-export async function generateFlux2ProImage(params: Flux2ProParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateFlux2ProImage(
+  params: Flux2ProParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "flux-2/pro-image-to-image",
     prompt: params.prompt,
@@ -1776,7 +2139,9 @@ export interface FourOImageParams {
   callBackUrl?: string;
 }
 
-export async function generate4oImage(params: FourOImageParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generate4oImage(
+  params: FourOImageParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "4o-image",
     prompt: params.prompt,
@@ -1793,7 +2158,9 @@ export interface FluxKontextParams {
   callBackUrl?: string;
 }
 
-export async function generateFluxKontextImage(params: FluxKontextParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateFluxKontextImage(
+  params: FluxKontextParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "flux-kontext-pro",
     prompt: params.prompt,
@@ -1811,7 +2178,9 @@ export interface Imagen4Params {
   callBackUrl?: string;
 }
 
-export async function generateImagen4Image(params: Imagen4Params): Promise<{ taskId: string; creditCost: number }> {
+export async function generateImagen4Image(
+  params: Imagen4Params
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "google/imagen4-fast",
     prompt: params.prompt,
@@ -1828,7 +2197,9 @@ export interface IdeogramV3Params {
   callBackUrl?: string;
 }
 
-export async function generateIdeogramV3Image(params: IdeogramV3Params): Promise<{ taskId: string; creditCost: number }> {
+export async function generateIdeogramV3Image(
+  params: IdeogramV3Params
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "ideogram/v3-reframe",
     prompt: params.prompt,
@@ -1846,7 +2217,9 @@ export interface IdeogramCharacterParams {
   callBackUrl?: string;
 }
 
-export async function generateIdeogramCharacterImage(params: IdeogramCharacterParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateIdeogramCharacterImage(
+  params: IdeogramCharacterParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "ideogram/character",
     prompt: params.prompt,
@@ -1863,7 +2236,9 @@ export interface QwenImageParams {
   callBackUrl?: string;
 }
 
-export async function generateQwenImage(params: QwenImageParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateQwenImage(
+  params: QwenImageParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "qwen/text-to-image",
     prompt: params.prompt,
@@ -1879,7 +2254,9 @@ export interface ZImageParams {
   callBackUrl?: string;
 }
 
-export async function generateZImage(params: ZImageParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateZImage(
+  params: ZImageParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "z-image",
     prompt: params.prompt,
@@ -1896,7 +2273,9 @@ export interface GrokImagineParams {
   callBackUrl?: string;
 }
 
-export async function generateGrokImagineImage(params: GrokImagineParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateGrokImagineImage(
+  params: GrokImagineParams
+): Promise<{ taskId: string; creditCost: number }> {
   const body: Record<string, unknown> = {
     model: "grok-imagine/text-to-image",
     input: {
@@ -1913,10 +2292,14 @@ export async function generateGrokImagineImage(params: GrokImagineParams): Promi
     body.callBackUrl = params.callBackUrl;
   }
 
-  const response = await makeRequest<KieAiResponse>("/api/v1/jobs/createTask", "POST", body);
+  const response = await makeRequest<KieAiResponse>(
+    "/api/v1/jobs/createTask",
+    "POST",
+    body
+  );
 
   if (response.code !== 200 || !response.data?.taskId) {
-    throw new Error(response.msg || "Grok Imagine task creation failed");
+    throw new Error(getApiMessage(response));
   }
 
   return {
@@ -1932,7 +2315,9 @@ export interface GPTImageParams {
   callBackUrl?: string;
 }
 
-export async function generateGPTImage(params: GPTImageParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateGPTImage(
+  params: GPTImageParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "gpt-image/1.5-text-to-image",
     prompt: params.prompt,
@@ -1948,7 +2333,9 @@ export interface Flux11ProParams {
   callBackUrl?: string;
 }
 
-export async function generateFlux11ProImage(params: Flux11ProParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateFlux11ProImage(
+  params: Flux11ProParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "flux-1.1-pro",
     prompt: params.prompt,
@@ -1964,7 +2351,9 @@ export interface Flux11UltraParams {
   callBackUrl?: string;
 }
 
-export async function generateFlux11UltraImage(params: Flux11UltraParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateFlux11UltraImage(
+  params: Flux11UltraParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "flux-1.1-pro-ultra",
     prompt: params.prompt,
@@ -1981,7 +2370,9 @@ export interface RecraftV3Params {
   callBackUrl?: string;
 }
 
-export async function generateRecraftV3Image(params: RecraftV3Params): Promise<{ taskId: string; creditCost: number }> {
+export async function generateRecraftV3Image(
+  params: RecraftV3Params
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "recraft-v3",
     prompt: params.prompt,
@@ -1997,7 +2388,9 @@ export interface Recraft20BParams {
   callBackUrl?: string;
 }
 
-export async function generateRecraft20BImage(params: Recraft20BParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateRecraft20BImage(
+  params: Recraft20BParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "recraft-20b",
     prompt: params.prompt,
@@ -2014,7 +2407,9 @@ export interface QwenImageEditParams {
   callBackUrl?: string;
 }
 
-export async function generateQwenImageEdit(params: QwenImageEditParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateQwenImageEdit(
+  params: QwenImageEditParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "qwen/image-edit",
     prompt: params.prompt,
@@ -2032,7 +2427,9 @@ export interface QwenImageToImageParams {
   callBackUrl?: string;
 }
 
-export async function generateQwenImageToImage(params: QwenImageToImageParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateQwenImageToImage(
+  params: QwenImageToImageParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "qwen/image-to-image",
     prompt: params.prompt,
@@ -2050,7 +2447,9 @@ export interface NanoBananaEditParams {
   callBackUrl?: string;
 }
 
-export async function generateNanoBananaEdit(params: NanoBananaEditParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateNanoBananaEdit(
+  params: NanoBananaEditParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "google/nano-banana-edit",
     prompt: params.prompt,
@@ -2068,7 +2467,9 @@ export interface IdeogramCharacterEditParams {
   callBackUrl?: string;
 }
 
-export async function generateIdeogramCharacterEdit(params: IdeogramCharacterEditParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateIdeogramCharacterEdit(
+  params: IdeogramCharacterEditParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "ideogram/character-edit",
     prompt: params.prompt,
@@ -2086,7 +2487,9 @@ export interface IdeogramCharacterRemixParams {
   callBackUrl?: string;
 }
 
-export async function generateIdeogramCharacterRemix(params: IdeogramCharacterRemixParams): Promise<{ taskId: string; creditCost: number }> {
+export async function generateIdeogramCharacterRemix(
+  params: IdeogramCharacterRemixParams
+): Promise<{ taskId: string; creditCost: number }> {
   return generateImageWithModel({
     model: "ideogram/character-remix",
     prompt: params.prompt,

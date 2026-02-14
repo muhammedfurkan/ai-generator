@@ -269,9 +269,9 @@ export default function Gallery() {
   // Loading durumunda bekle, hemen redirect etme
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-gray-300 text-lg">{t("common.loading")}</p>
         </div>
       </div>
@@ -386,7 +386,7 @@ export default function Gallery() {
         );
       case "pending":
         return (
-          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+          <Badge className="bg-[#00F5FF]/20 text-[#00F5FF] border-[#00F5FF]/30">
             {t("gallery.status.pending")}
           </Badge>
         );
@@ -652,7 +652,7 @@ export default function Gallery() {
                 </p>
                 <Button
                   onClick={() => navigate("/generate")}
-                  className="gradient-button text-white rounded-full px-6"
+                  className="gradient-button text-[#F9FAFB] rounded-full px-6"
                 >
                   {t("gallery.emptyStates.createNow")}
                 </Button>
@@ -677,12 +677,12 @@ export default function Gallery() {
                         {/* Pending veya Processing durumundaki görseller için özel görünüm */}
                         {image.status === "pending" ||
                         image.status === "processing" ? (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-900/30 to-purple-900/30">
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#00F5FF]/30 to-[#FF2E97]/30">
                             <div className="relative">
-                              <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping" />
-                              <Loader2 className="w-12 h-12 text-blue-400 animate-spin relative z-10" />
+                              <div className="absolute inset-0 rounded-full bg-[#00F5FF]/20 animate-ping" />
+                              <Loader2 className="w-12 h-12 text-[#00F5FF] animate-spin relative z-10" />
                             </div>
-                            <p className="text-sm text-blue-300 mt-4 font-medium">
+                            <p className="text-sm text-[#00F5FF] mt-4 font-medium">
                               {image.status === "pending"
                                 ? t("gallery.status.queued")
                                 : t("gallery.status.processing")}
@@ -753,8 +753,8 @@ export default function Gallery() {
                                 }}
                                 className={`absolute top-2 left-2 z-20 p-1.5 rounded-lg transition-all ${
                                   selectedImageIds.includes(image.id)
-                                    ? "bg-[#CCFF00] text-black"
-                                    : "bg-black/50 text-white hover:bg-black/70"
+                                    ? "bg-neon-brand text-black"
+                                    : "bg-black/50 text-[#F9FAFB] hover:bg-black/70"
                                 }`}
                               >
                                 {selectedImageIds.includes(image.id) ? (
@@ -771,7 +771,7 @@ export default function Gallery() {
                               className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 cursor-pointer ${
                                 isSelectionMode &&
                                 selectedImageIds.includes(image.id)
-                                  ? "ring-2 ring-[#CCFF00] ring-offset-2 ring-offset-black"
+                                  ? "ring-2 ring-neon-brand ring-offset-2 ring-offset-black"
                                   : ""
                               }`}
                               onClick={() => {
@@ -802,10 +802,10 @@ export default function Gallery() {
                                     "image"
                                   );
                                 }}
-                                className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-[#CCFF00] hover:text-black transition-all"
+                                className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-neon-brand hover:text-black transition-all"
                                 title={t("gallery.actions.quickDownload")}
                               >
-                                <Download className="h-5 w-5 text-white hover:text-black" />
+                                <Download className="h-5 w-5 text-[#F9FAFB] hover:text-black" />
                               </button>
                               <button
                                 onClick={e => handleToggleFavorite(image.id, e)}
@@ -815,7 +815,7 @@ export default function Gallery() {
                                   className={`h-5 w-5 transition-all ${
                                     favoriteIds.includes(image.id)
                                       ? "fill-red-500 text-red-500"
-                                      : "text-white"
+                                      : "text-[#F9FAFB]"
                                   }`}
                                 />
                               </button>
@@ -831,7 +831,7 @@ export default function Gallery() {
                                 className="p-2 rounded-full bg-black/50 backdrop-blur-sm hover:bg-red-500 transition-all"
                                 title={t("gallery.actions.delete")}
                               >
-                                <Trash2 className="h-5 w-5 text-white" />
+                                <Trash2 className="h-5 w-5 text-[#F9FAFB]" />
                               </button>
                             </div>
 
@@ -871,7 +871,7 @@ export default function Gallery() {
                     </div>
 
                     <div className="glass-card absolute bottom-0 left-0 right-0 border-0 rounded-none bg-gradient-to-t from-black/90 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <p className="line-clamp-2 text-xs text-white">
+                      <p className="line-clamp-2 text-xs text-[#F9FAFB]">
                         {image.prompt}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -910,7 +910,7 @@ export default function Gallery() {
                   </p>
                   <Button
                     onClick={() => navigate("/video-generate")}
-                    className="gradient-button text-white rounded-full px-6"
+                    className="gradient-button text-[#F9FAFB] rounded-full px-6"
                   >
                     {t("gallery.emptyStates.createVideo")}
                   </Button>
@@ -974,7 +974,7 @@ export default function Gallery() {
                                   })
                                 }
                               >
-                                <Play className="w-12 h-12 text-white" />
+                                <Play className="w-12 h-12 text-[#F9FAFB]" />
                               </div>
                             </>
                           ) : video.status === "processing" ||
@@ -1062,7 +1062,7 @@ export default function Gallery() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="hover:bg-red-500 hover:text-white hover:border-red-500"
+                                className="hover:bg-red-500 hover:text-[#F9FAFB] hover:border-red-500"
                                 onClick={() => {
                                   if (
                                     confirm(
@@ -1097,7 +1097,7 @@ export default function Gallery() {
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="flex-1 hover:bg-red-500 hover:text-white hover:border-red-500"
+                                className="flex-1 hover:bg-red-500 hover:text-[#F9FAFB] hover:border-red-500"
                                 onClick={() => {
                                   if (
                                     confirm(
@@ -1157,7 +1157,7 @@ export default function Gallery() {
                   </p>
                   <Button
                     onClick={() => navigate("/upscale")}
-                    className="gradient-button text-white rounded-full px-6"
+                    className="gradient-button text-[#F9FAFB] rounded-full px-6"
                   >
                     {t("gallery.emptyStates.doUpscale")}
                   </Button>
@@ -1200,13 +1200,13 @@ export default function Gallery() {
                                   })
                                 }
                               >
-                                <ZoomIn className="w-8 h-8 text-white" />
+                                <ZoomIn className="w-8 h-8 text-[#F9FAFB]" />
                               </div>
                             </>
                           ) : item.status === "processing" ? (
                             <div className="w-full h-full flex items-center justify-center">
                               <div className="text-center">
-                                <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-[#CCFF00]" />
+                                <Loader2 className="w-8 h-8 mx-auto mb-2 animate-spin text-neon-brand" />
                                 <p className="text-sm text-muted-foreground">
                                   {t("gallery.status.processing")}
                                 </p>
@@ -1235,10 +1235,10 @@ export default function Gallery() {
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${
                                 item.status === "completed"
-                                  ? "bg-green-500/80 text-white"
+                                  ? "bg-green-500/80 text-[#F9FAFB]"
                                   : item.status === "processing"
                                     ? "bg-yellow-500/80 text-black"
-                                    : "bg-red-500/80 text-white"
+                                    : "bg-red-500/80 text-[#F9FAFB]"
                               }`}
                             >
                               {item.status === "completed"
@@ -1251,7 +1251,7 @@ export default function Gallery() {
 
                           {/* Upscale Factor Badge */}
                           <div className="absolute top-2 left-2">
-                            <span className="px-2 py-1 rounded-full text-xs font-bold bg-[#CCFF00] text-black">
+                            <span className="px-2 py-1 rounded-full text-xs font-bold bg-neon-brand text-black">
                               {item.upscaleFactor}x
                             </span>
                           </div>

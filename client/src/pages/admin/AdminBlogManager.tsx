@@ -39,7 +39,16 @@ import {
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 
-const CATEGORIES = ["Video", "Rehber", "Trend", "İpuçları", "Sosyal Medya", "Marka", "Teknoloji", "Diğer"];
+const CATEGORIES = [
+  "Video",
+  "Rehber",
+  "Trend",
+  "İpuçları",
+  "Sosyal Medya",
+  "Marka",
+  "Teknoloji",
+  "Diğer",
+];
 
 interface BlogPost {
   id: number;
@@ -63,7 +72,9 @@ export default function AdminBlogManager() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
-  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "published" | "archived">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "draft" | "published" | "archived"
+  >("all");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,11 +91,12 @@ export default function AdminBlogManager() {
 
   const utils = trpc.useUtils();
 
-  const { data: postsData, isLoading: postsLoading } = trpc.blog.adminList.useQuery({
-    limit: 50,
-    offset: 0,
-    status: statusFilter,
-  });
+  const { data: postsData, isLoading: postsLoading } =
+    trpc.blog.adminList.useQuery({
+      limit: 50,
+      offset: 0,
+      status: statusFilter,
+    });
 
   const createMutation = trpc.blog.create.useMutation({
     onSuccess: () => {
@@ -93,7 +105,7 @@ export default function AdminBlogManager() {
       resetForm();
       utils.blog.adminList.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.blog.update.useMutation({
@@ -103,7 +115,7 @@ export default function AdminBlogManager() {
       setSelectedPost(null);
       utils.blog.adminList.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deleteMutation = trpc.blog.delete.useMutation({
@@ -113,7 +125,7 @@ export default function AdminBlogManager() {
       setSelectedPost(null);
       utils.blog.adminList.invalidate();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const resetForm = () => {
@@ -157,7 +169,7 @@ export default function AdminBlogManager() {
 
       const data = await response.json();
       if (data.url) {
-        setFormData((prev) => ({ ...prev, coverImage: data.url }));
+        setFormData(prev => ({ ...prev, coverImage: data.url }));
         toast.success("Resim başarıyla yüklendi");
       }
     } catch (error) {
@@ -186,11 +198,23 @@ export default function AdminBlogManager() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "published":
-        return <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">Yayında</span>;
+        return (
+          <span className="px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
+            Yayında
+          </span>
+        );
       case "draft":
-        return <span className="px-2 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">Taslak</span>;
+        return (
+          <span className="px-2 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">
+            Taslak
+          </span>
+        );
       case "archived":
-        return <span className="px-2 py-1 rounded-full text-xs bg-zinc-500/20 text-zinc-400">Arşiv</span>;
+        return (
+          <span className="px-2 py-1 rounded-full text-xs bg-zinc-500/20 text-zinc-400">
+            Arşiv
+          </span>
+        );
       default:
         return null;
     }
@@ -204,10 +228,12 @@ export default function AdminBlogManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Blog Yönetimi</h2>
-          <p className="text-sm text-zinc-500">Blog yazılarını ekleyin, düzenleyin ve yönetin</p>
+          <p className="text-sm text-zinc-500">
+            Blog yazılarını ekleyin, düzenleyin ve yönetin
+          </p>
         </div>
         <Button
-          className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
           onClick={() => {
             resetForm();
             setIsCreateOpen(true);
@@ -226,8 +252,8 @@ export default function AdminBlogManager() {
           className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-500/20">
-              <FileText className="h-5 w-5 text-blue-400" />
+            <div className="p-2 rounded-lg bg-[#00F5FF]/20">
+              <FileText className="h-5 w-5 text-[#00F5FF]" />
             </div>
             <div>
               <p className="text-2xl font-bold">{postsData?.total || 0}</p>
@@ -278,12 +304,15 @@ export default function AdminBlogManager() {
           className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
         >
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-purple-500/20">
-              <BarChart3 className="h-5 w-5 text-purple-400" />
+            <div className="p-2 rounded-lg bg-[#7C3AED]/20">
+              <BarChart3 className="h-5 w-5 text-[#7C3AED]" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-purple-400">
-                {posts.reduce((acc: number, p: BlogPost) => acc + p.viewCount, 0)}
+              <p className="text-2xl font-bold text-[#7C3AED]">
+                {posts.reduce(
+                  (acc: number, p: BlogPost) => acc + p.viewCount,
+                  0
+                )}
               </p>
               <p className="text-xs text-zinc-500">Toplam Görüntülenme</p>
             </div>
@@ -293,7 +322,10 @@ export default function AdminBlogManager() {
 
       {/* Filter */}
       <div className="flex items-center gap-4">
-        <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+        <Select
+          value={statusFilter}
+          onValueChange={(v: any) => setStatusFilter(v)}
+        >
           <SelectTrigger className="w-40 bg-zinc-900 border-white/10">
             <SelectValue placeholder="Durum" />
           </SelectTrigger>
@@ -341,7 +373,9 @@ export default function AdminBlogManager() {
                     <div className="flex items-center gap-3 mt-1 text-xs text-zinc-500">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {format(new Date(post.createdAt), "d MMM yyyy", { locale: tr })}
+                        {format(new Date(post.createdAt), "d MMM yyyy", {
+                          locale: tr,
+                        })}
                       </span>
                       <span>{post.category}</span>
                       <span className="flex items-center gap-1">
@@ -360,7 +394,11 @@ export default function AdminBlogManager() {
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => openEditDialog(post)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openEditDialog(post)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button
@@ -382,36 +420,54 @@ export default function AdminBlogManager() {
       </motion.div>
 
       {/* Create/Edit Dialog */}
-      <Dialog open={isCreateOpen || isEditOpen} onOpenChange={() => { setIsCreateOpen(false); setIsEditOpen(false); }}>
+      <Dialog
+        open={isCreateOpen || isEditOpen}
+        onOpenChange={() => {
+          setIsCreateOpen(false);
+          setIsEditOpen(false);
+        }}
+      >
         <DialogContent className="bg-zinc-900 border-white/10 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEditOpen ? "Blog Yazısını Düzenle" : "Yeni Blog Yazısı"}</DialogTitle>
+            <DialogTitle>
+              {isEditOpen ? "Blog Yazısını Düzenle" : "Yeni Blog Yazısı"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Başlık *</label>
               <Input
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Blog yazısı başlığı"
                 className="bg-zinc-800 border-white/10"
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Kısa Açıklama *</label>
+              <label className="text-sm font-medium mb-2 block">
+                Kısa Açıklama *
+              </label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 placeholder="Kart görünümünde gösterilecek kısa açıklama"
                 className="bg-zinc-800 border-white/10"
                 rows={2}
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">İçerik (Markdown) *</label>
+              <label className="text-sm font-medium mb-2 block">
+                İçerik (Markdown) *
+              </label>
               <Textarea
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
                 placeholder="Blog yazısının tam içeriği..."
                 className="bg-zinc-800 border-white/10 font-mono"
                 rows={10}
@@ -419,7 +475,9 @@ export default function AdminBlogManager() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Kapak Görseli</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Kapak Görseli
+                </label>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -430,10 +488,16 @@ export default function AdminBlogManager() {
                 />
                 {formData.coverImage ? (
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-zinc-800 border border-white/10">
-                    <img src={formData.coverImage} alt="Kapak" className="w-full h-full object-cover" />
+                    <img
+                      src={formData.coverImage}
+                      alt="Kapak"
+                      className="w-full h-full object-cover"
+                    />
                     <button
                       type="button"
-                      onClick={() => setFormData({ ...formData, coverImage: "" })}
+                      onClick={() =>
+                        setFormData({ ...formData, coverImage: "" })
+                      }
                       className="absolute top-2 right-2 p-1 rounded-full bg-red-500/80 hover:bg-red-500"
                     >
                       <X className="h-4 w-4" />
@@ -442,28 +506,37 @@ export default function AdminBlogManager() {
                 ) : (
                   <label
                     htmlFor="cover-image-upload"
-                    className={`flex flex-col items-center justify-center aspect-video rounded-lg border-2 border-dashed border-white/20 hover:border-lime-500/50 bg-zinc-800 cursor-pointer ${isUploading ? "opacity-50" : ""}`}
+                    className={`flex flex-col items-center justify-center aspect-video rounded-lg border-2 border-dashed border-white/20 hover:border-[#00F5FF]/50 bg-zinc-800 cursor-pointer ${isUploading ? "opacity-50" : ""}`}
                   >
                     {isUploading ? (
-                      <Loader2 className="h-8 w-8 text-lime-400 animate-spin" />
+                      <Loader2 className="h-8 w-8 text-[#00F5FF] animate-spin" />
                     ) : (
                       <>
                         <ImagePlus className="h-8 w-8 text-zinc-400 mb-2" />
-                        <span className="text-sm text-zinc-400">Resim Yükle</span>
+                        <span className="text-sm text-zinc-400">
+                          Resim Yükle
+                        </span>
                       </>
                     )}
                   </label>
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Kategori</label>
-                <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+                <label className="text-sm font-medium mb-2 block">
+                  Kategori
+                </label>
+                <Select
+                  value={formData.category}
+                  onValueChange={v => setFormData({ ...formData, category: v })}
+                >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    {CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -474,22 +547,33 @@ export default function AdminBlogManager() {
                 <label className="text-sm font-medium mb-2 block">Yazar</label>
                 <Input
                   value={formData.author}
-                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, author: e.target.value })
+                  }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Okuma Süresi</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Okuma Süresi
+                </label>
                 <Input
                   value={formData.readTime}
-                  onChange={(e) => setFormData({ ...formData, readTime: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, readTime: e.target.value })
+                  }
                   placeholder="5 dk"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Durum</label>
-                <Select value={formData.status} onValueChange={(v: "draft" | "published") => setFormData({ ...formData, status: v })}>
+                <Select
+                  value={formData.status}
+                  onValueChange={(v: "draft" | "published") =>
+                    setFormData({ ...formData, status: v })
+                  }
+                >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
                   </SelectTrigger>
@@ -502,11 +586,17 @@ export default function AdminBlogManager() {
             </div>
           </div>
           <DialogFooter className="mt-6">
-            <Button variant="outline" onClick={() => { setIsCreateOpen(false); setIsEditOpen(false); }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsCreateOpen(false);
+                setIsEditOpen(false);
+              }}
+            >
               İptal
             </Button>
             <Button
-              className="bg-lime-500 hover:bg-lime-600 text-black"
+              className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
               onClick={() => {
                 if (isEditOpen && selectedPost) {
                   updateMutation.mutate({ id: selectedPost.id, ...formData });
@@ -514,9 +604,17 @@ export default function AdminBlogManager() {
                   createMutation.mutate(formData);
                 }
               }}
-              disabled={createMutation.isPending || updateMutation.isPending || !formData.title || !formData.description || !formData.content}
+              disabled={
+                createMutation.isPending ||
+                updateMutation.isPending ||
+                !formData.title ||
+                !formData.description ||
+                !formData.content
+              }
             >
-              {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {(createMutation.isPending || updateMutation.isPending) && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
               {isEditOpen ? "Güncelle" : "Oluştur"}
             </Button>
           </DialogFooter>
@@ -530,7 +628,8 @@ export default function AdminBlogManager() {
             <DialogTitle>Blog Yazısını Sil</DialogTitle>
           </DialogHeader>
           <p className="text-zinc-400">
-            "{selectedPost?.title}" başlıklı yazıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+            "{selectedPost?.title}" başlıklı yazıyı silmek istediğinize emin
+            misiniz? Bu işlem geri alınamaz.
           </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
@@ -538,10 +637,14 @@ export default function AdminBlogManager() {
             </Button>
             <Button
               variant="destructive"
-              onClick={() => selectedPost && deleteMutation.mutate({ id: selectedPost.id })}
+              onClick={() =>
+                selectedPost && deleteMutation.mutate({ id: selectedPost.id })
+              }
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {deleteMutation.isPending && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
               Sil
             </Button>
           </DialogFooter>

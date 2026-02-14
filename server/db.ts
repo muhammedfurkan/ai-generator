@@ -1,4 +1,4 @@
-import { eq, desc, sql, and } from "drizzle-orm";
+import { eq, desc, sql, and, inArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser,
@@ -20,6 +20,28 @@ import {
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+const SETTINGS_CACHE_TTL_MS = 60_000;
+const signupBonusCache = {
+  value: 25,
+  expiresAt: 0,
+};
+const featurePricingCache = new Map<
+  string,
+  { credits: number; expiresAt: number }
+>();
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+function isDuplicateEntryError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "ER_DUP_ENTRY"
+  );
+}
 
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
@@ -39,8 +61,12 @@ export async function getDb() {
  * Returns the configured value or 25 as default
  */
 export async function getSignupBonusCredits(): Promise<number> {
+  if (signupBonusCache.expiresAt > Date.now()) {
+    return signupBonusCache.value;
+  }
+
   const db = await getDb();
-  if (!db) return 25; // Default fallback
+  if (!db) return signupBonusCache.value; // Default fallback
 
   try {
     const result = await db
@@ -52,13 +78,16 @@ export async function getSignupBonusCredits(): Promise<number> {
     if (result.length > 0 && result[0].value) {
       const credits = parseInt(result[0].value, 10);
       if (!isNaN(credits) && credits >= 0) {
+        signupBonusCache.value = credits;
+        signupBonusCache.expiresAt = Date.now() + SETTINGS_CACHE_TTL_MS;
         return credits;
       }
     }
-    return 25; // Default fallback
+    signupBonusCache.expiresAt = Date.now() + SETTINGS_CACHE_TTL_MS;
+    return signupBonusCache.value;
   } catch (error) {
     console.error("[Database] Failed to get signup bonus credits:", error);
-    return 25; // Default fallback
+    return signupBonusCache.value;
   }
 }
 
@@ -70,8 +99,13 @@ export async function getFeaturePricingByKey(
   featureKey: string,
   defaultValue: number = 50
 ): Promise<number> {
+  const cached = featurePricingCache.get(featureKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.credits;
+  }
+
   const db = await getDb();
-  if (!db) return defaultValue; // Default fallback
+  if (!db) return cached?.credits ?? defaultValue; // Default fallback
 
   try {
     const result = await db
@@ -84,15 +118,23 @@ export async function getFeaturePricingByKey(
       .limit(1);
 
     if (result.length > 0 && result[0].isActive) {
+      featurePricingCache.set(featureKey, {
+        credits: result[0].credits,
+        expiresAt: Date.now() + SETTINGS_CACHE_TTL_MS,
+      });
       return result[0].credits;
     }
+    featurePricingCache.set(featureKey, {
+      credits: defaultValue,
+      expiresAt: Date.now() + SETTINGS_CACHE_TTL_MS,
+    });
     return defaultValue; // Default fallback
   } catch (error) {
     console.error(
       `[Database] Failed to get feature pricing for ${featureKey}:`,
       error
     );
-    return defaultValue; // Default fallback
+    return cached?.credits ?? defaultValue; // Default fallback
   }
 }
 
@@ -123,7 +165,10 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     const assignNullable = (field: TextField) => {
       const value = user[field];
       if (value === undefined) return;
-      const normalized = value ?? null;
+      const normalized =
+        field === "email" && typeof value === "string"
+          ? normalizeEmail(value)
+          : (value ?? null);
       values[field] = normalized;
       updateSet[field] = normalized;
     };
@@ -197,8 +242,20 @@ export async function getUserByEmail(email: string) {
     return undefined;
   }
 
-  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
 
+  // Fast path: hit normalized unique index.
+  const exactResult = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, normalizedEmail))
+    .limit(1);
+
+  if (exactResult.length > 0) {
+    return exactResult[0];
+  }
+
+  // Compatibility path: for legacy mixed-case email rows.
   const result = await db
     .select()
     .from(users)
@@ -244,9 +301,10 @@ export async function createUserWithPassword(data: {
   }
 
   const NEW_USER_CREDITS = await getSignupBonusCredits();
+  const normalizedEmail = normalizeEmail(data.email);
 
   const result = await db.insert(users).values({
-    email: data.email,
+    email: normalizedEmail,
     name: data.name,
     passwordHash: data.passwordHash,
     loginMethod: "email",
@@ -395,6 +453,7 @@ export async function upsertClerkUser(data: {
   }
 
   const NEW_USER_CREDITS = await getSignupBonusCredits();
+  const normalizedEmail = data.email ? normalizeEmail(data.email) : null;
 
   try {
     // Step 1: Check if user exists by clerkId (existing Google user)
@@ -422,11 +481,11 @@ export async function upsertClerkUser(data: {
     }
 
     // Step 2: Check if user exists by email (existing email/password user)
-    if (data.email) {
+    if (normalizedEmail) {
       const existingByEmail = await db
         .select()
         .from(users)
-        .where(eq(users.email, data.email))
+        .where(eq(users.email, normalizedEmail))
         .limit(1);
 
       if (existingByEmail && existingByEmail.length > 0) {
@@ -456,7 +515,7 @@ export async function upsertClerkUser(data: {
     );
     await db.insert(users).values({
       clerkId: data.clerkId,
-      email: data.email ?? undefined,
+      email: normalizedEmail ?? undefined,
       name: data.name ?? undefined,
       loginMethod: "google",
       emailVerified: true, // Google accounts are pre-verified
@@ -489,7 +548,7 @@ export async function createUserWithGoogle(data: {
   const NEW_USER_CREDITS = await getSignupBonusCredits();
 
   const result = await db.insert(users).values({
-    email: data.email,
+    email: normalizeEmail(data.email),
     name: data.name,
     clerkId: data.googleId, // Store Google ID in clerkId field
     loginMethod: "google",
@@ -543,17 +602,16 @@ export async function deductCredits(
   }
 
   try {
-    const user = await getUserById(userId);
-    if (!user || user.credits < amount) {
+    if (amount <= 0) {
       return false;
     }
 
-    await db
+    const result = await db
       .update(users)
-      .set({ credits: user.credits - amount })
-      .where(eq(users.id, userId));
+      .set({ credits: sql`${users.credits} - ${amount}` })
+      .where(and(eq(users.id, userId), sql`${users.credits} >= ${amount}`));
 
-    return true;
+    return (result[0]?.affectedRows ?? 0) > 0;
   } catch (error) {
     console.error("[Database] Failed to deduct credits:", error);
     return false;
@@ -628,12 +686,12 @@ export async function getUserGeneratedImagesCount(
   }
 
   try {
-    const result = await db
-      .select({ count: generatedImages.id })
+    const [result] = await db
+      .select({ count: sql<number>`COUNT(*)` })
       .from(generatedImages)
       .where(eq(generatedImages.userId, userId));
 
-    return result.length > 0 ? result.length : 0;
+    return Number(result?.count ?? 0);
   } catch (error) {
     console.error("[Database] Failed to get generated images count:", error);
     return 0;
@@ -705,7 +763,7 @@ export async function getPendingImages(userId: number) {
       .where(
         and(
           eq(generatedImages.userId, userId),
-          sql`${generatedImages.status} IN ('pending', 'processing')`
+          inArray(generatedImages.status, ["pending", "processing"])
         )
       )
       .orderBy(desc(generatedImages.createdAt));
@@ -731,24 +789,48 @@ export async function refundCredits(
   }
 
   try {
-    const user = await getUserById(userId);
-    if (!user) {
+    if (amount <= 0) {
+      return false;
+    }
+
+    const refundResult = await db.transaction(async tx => {
+      const user = await tx
+        .select({ credits: users.credits })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      if (user.length === 0) {
+        return null;
+      }
+
+      const balanceBefore = Number(user[0].credits ?? 0);
+      const balanceAfter = balanceBefore + amount;
+
+      await tx
+        .update(users)
+        .set({ credits: sql`${users.credits} + ${amount}` })
+        .where(eq(users.id, userId));
+
+      await tx.insert(creditTransactions).values({
+        userId,
+        type: "add",
+        amount,
+        reason: `İade: ${reason}`,
+        balanceBefore,
+        balanceAfter,
+      });
+
+      return { balanceAfter };
+    });
+
+    if (!refundResult) {
       console.error("[Database] Cannot refund credits: user not found");
       return false;
     }
 
-    const newBalance = user.credits + amount;
-
-    await db
-      .update(users)
-      .set({ credits: newBalance })
-      .where(eq(users.id, userId));
-
-    // Record the refund transaction
-    await recordCreditTransaction(userId, "add", amount, `İade: ${reason}`);
-
     console.log(
-      `[Database] Refunded ${amount} credits to user ${userId}. New balance: ${newBalance}`
+      `[Database] Refunded ${amount} credits to user ${userId}. New balance: ${refundResult.balanceAfter}`
     );
     return true;
   } catch (error) {
@@ -771,17 +853,16 @@ export async function addCredits(
   }
 
   try {
-    const user = await getUserById(userId);
-    if (!user) {
+    if (amount <= 0) {
       return false;
     }
 
-    await db
+    const result = await db
       .update(users)
-      .set({ credits: user.credits + amount })
+      .set({ credits: sql`${users.credits} + ${amount}` })
       .where(eq(users.id, userId));
 
-    return true;
+    return (result[0]?.affectedRows ?? 0) > 0;
   } catch (error) {
     console.error("[Database] Failed to add credits:", error);
     return false;
@@ -970,12 +1051,17 @@ export async function getSystemSetting(key: string): Promise<string | null> {
   const db = await getDb();
   if (!db) return null;
 
-  const result = await db
-    .select()
-    .from(systemSettings)
-    .where(eq(systemSettings.key, key))
-    .limit(1);
-  return result.length > 0 ? result[0].value : null;
+  try {
+    const result = await db
+      .select({ value: systemSettings.value })
+      .from(systemSettings)
+      .where(eq(systemSettings.key, key))
+      .limit(1);
+    return result.length > 0 ? result[0].value : null;
+  } catch (error) {
+    console.error("[Database] Failed to get system setting:", error);
+    return null;
+  }
 }
 
 // User Prompt Templates
@@ -1068,21 +1154,23 @@ export async function getDashboardStats() {
   }
 
   try {
-    const totalUsers = await db.select({ count: sql`COUNT(*)` }).from(users);
-
-    const totalCreditsIssued = await db
-      .select({ sum: sql`SUM(amount)` })
-      .from(creditTransactions)
-      .where(eq(creditTransactions.type, "add"));
-
-    const totalCreditsSold = await db
-      .select({ sum: sql`SUM(amount)` })
-      .from(creditTransactions)
-      .where(eq(creditTransactions.type, "purchase"));
-
-    const totalGeneratedImages = await db
-      .select({ count: sql`COUNT(*)` })
-      .from(generatedImages);
+    const [
+      totalUsers,
+      totalCreditsIssued,
+      totalCreditsSold,
+      totalGeneratedImages,
+    ] = await Promise.all([
+      db.select({ count: sql`COUNT(*)` }).from(users),
+      db
+        .select({ sum: sql`SUM(amount)` })
+        .from(creditTransactions)
+        .where(eq(creditTransactions.type, "add")),
+      db
+        .select({ sum: sql`SUM(amount)` })
+        .from(creditTransactions)
+        .where(eq(creditTransactions.type, "purchase")),
+      db.select({ count: sql`COUNT(*)` }).from(generatedImages),
+    ]);
 
     return {
       totalUsers: Number(totalUsers[0]?.count) || 0,
@@ -1233,26 +1321,25 @@ export async function toggleFavorite(
   if (!db) throw new Error("Database not available");
 
   try {
-    // Check if already favorited
-    const existing = await db
-      .select()
-      .from(favorites)
-      .where(and(eq(favorites.userId, userId), eq(favorites.imageId, imageId)))
-      .limit(1);
+    const deleted = await db
+      .delete(favorites)
+      .where(and(eq(favorites.userId, userId), eq(favorites.imageId, imageId)));
 
-    if (existing.length > 0) {
-      // Remove from favorites
-      await db.delete(favorites).where(eq(favorites.id, existing[0].id));
-
+    if ((deleted[0]?.affectedRows ?? 0) > 0) {
       return { isFavorited: false };
-    } else {
-      // Add to favorites
+    }
+
+    try {
       await db.insert(favorites).values({
         userId,
         imageId,
       });
-
       return { isFavorited: true };
+    } catch (error) {
+      if (isDuplicateEntryError(error)) {
+        return { isFavorited: true };
+      }
+      throw error;
     }
   } catch (error) {
     console.error("[Database] Failed to toggle favorite:", error);
@@ -1272,7 +1359,7 @@ export async function isFavorited(
 
   try {
     const result = await db
-      .select()
+      .select({ id: favorites.id })
       .from(favorites)
       .where(and(eq(favorites.userId, userId), eq(favorites.imageId, imageId)))
       .limit(1);
@@ -2148,33 +2235,30 @@ export async function toggleVideoFavorite(
   if (!db) throw new Error("Database not available");
 
   try {
-    // Check if already favorited
-    const existing = await db
-      .select()
-      .from(videoFavorites)
+    const deleted = await db
+      .delete(videoFavorites)
       .where(
         and(
           eq(videoFavorites.userId, userId),
           eq(videoFavorites.videoId, videoId)
         )
-      )
-      .limit(1);
+      );
 
-    if (existing.length > 0) {
-      // Remove from favorites
-      await db
-        .delete(videoFavorites)
-        .where(eq(videoFavorites.id, existing[0].id));
-
+    if ((deleted[0]?.affectedRows ?? 0) > 0) {
       return { isFavorited: false };
-    } else {
-      // Add to favorites
+    }
+
+    try {
       await db.insert(videoFavorites).values({
         userId,
         videoId,
       });
-
       return { isFavorited: true };
+    } catch (error) {
+      if (isDuplicateEntryError(error)) {
+        return { isFavorited: true };
+      }
+      throw error;
     }
   } catch (error) {
     console.error("[Database] Failed to toggle video favorite:", error);
@@ -2194,7 +2278,7 @@ export async function isVideoFavorited(
 
   try {
     const result = await db
-      .select()
+      .select({ id: videoFavorites.id })
       .from(videoFavorites)
       .where(
         and(
@@ -2281,30 +2365,16 @@ export async function recordVideoFavorite(
   if (!db) return false;
 
   try {
-    const { videoFavorites } = await import("../drizzle/schema");
-    const { and, eq } = await import("drizzle-orm");
-
-    // Check if already favorited
-    const existing = await db
-      .select()
-      .from(videoFavorites)
-      .where(
-        and(
-          eq(videoFavorites.userId, userId),
-          eq(videoFavorites.videoId, videoId)
-        )
-      )
-      .limit(1);
-
-    if (existing.length > 0) {
-      return true; // Already favorited
+    try {
+      await db.insert(videoFavorites).values({
+        userId,
+        videoId,
+      });
+    } catch (error) {
+      if (!isDuplicateEntryError(error)) {
+        throw error;
+      }
     }
-
-    await db.insert(videoFavorites).values({
-      userId,
-      videoId,
-    });
-
     return true;
   } catch (error) {
     console.error("[Database] Failed to record video favorite:", error);
@@ -2320,9 +2390,6 @@ export async function removeVideoFavorite(
   if (!db) return false;
 
   try {
-    const { videoFavorites } = await import("../drizzle/schema");
-    const { and, eq } = await import("drizzle-orm");
-
     await db
       .delete(videoFavorites)
       .where(
@@ -2344,10 +2411,6 @@ export async function getVideoFavorites(userId: number, limit: number = 50) {
   if (!db) return [];
 
   try {
-    const { videoFavorites, videoGenerations } =
-      await import("../drizzle/schema");
-    const { eq, desc } = await import("drizzle-orm");
-
     const favorites = await db
       .select({
         id: videoFavorites.id,

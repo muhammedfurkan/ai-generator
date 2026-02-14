@@ -72,19 +72,23 @@ class ErrorBoundary extends Component<Props, State> {
       const isSession = isSessionError(this.state.error);
 
       return (
-        <div className="flex items-center justify-center min-h-screen p-4 md:p-8 bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900">
+        <div className="flex items-center justify-center min-h-screen p-4 md:p-8 bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900">
           <div className="flex flex-col items-center w-full max-w-lg p-6 md:p-8 glass-card rounded-2xl border border-white/10">
-            <div className={cn(
-              "w-16 h-16 rounded-full flex items-center justify-center mb-6",
-              isSession
-                ? "bg-orange-500/20 text-orange-400"
-                : "bg-red-500/20 text-red-400"
-            )}>
+            <div
+              className={cn(
+                "w-16 h-16 rounded-full flex items-center justify-center mb-6",
+                isSession
+                  ? "bg-orange-500/20 text-orange-400"
+                  : "bg-red-500/20 text-red-400"
+              )}
+            >
               <AlertTriangle size={32} />
             </div>
 
-            <h2 className="text-xl md:text-2xl font-semibold mb-2 text-center text-white">
-              {isSession ? "Oturumunuz Sona Erdi" : "Beklenmedik Bir Hata Oluştu"}
+            <h2 className="text-xl md:text-2xl font-semibold mb-2 text-center text-[#F9FAFB]">
+              {isSession
+                ? "Oturumunuz Sona Erdi"
+                : "Beklenmedik Bir Hata Oluştu"}
             </h2>
 
             <p className="text-muted-foreground text-center mb-6 text-sm md:text-base">
@@ -109,9 +113,9 @@ class ErrorBoundary extends Component<Props, State> {
                     onClick={this.handleLogin}
                     className={cn(
                       "flex items-center justify-center gap-2 px-6 py-3 rounded-full",
-                      "bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium",
-                      "hover:from-blue-600 hover:to-purple-700 transition-all duration-300",
-                      "shadow-lg shadow-blue-500/25"
+                      "bg-gradient-to-r from-[#00F5FF] to-[#FF2E97] text-[#F9FAFB] font-medium",
+                      "hover:from-[#00F5FF] hover:to-[#FF2E97] transition-all duration-300",
+                      "shadow-lg shadow-[#00F5FF]/25"
                     )}
                   >
                     <LogIn size={18} />
@@ -134,9 +138,9 @@ class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleReload}
                   className={cn(
                     "flex items-center justify-center gap-2 px-6 py-3 rounded-full",
-                    "bg-gradient-to-r from-blue-500 to-purple-600 text-white font-medium",
-                    "hover:from-blue-600 hover:to-purple-700 transition-all duration-300",
-                    "shadow-lg shadow-blue-500/25"
+                    "bg-gradient-to-r from-[#00F5FF] to-[#FF2E97] text-[#F9FAFB] font-medium",
+                    "hover:from-[#00F5FF] hover:to-[#FF2E97] transition-all duration-300",
+                    "shadow-lg shadow-[#00F5FF]/25"
                   )}
                 >
                   <RotateCcw size={18} />

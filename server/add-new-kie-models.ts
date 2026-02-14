@@ -1,9 +1,9 @@
 /**
  * Yeni Kie.ai Modellerini Veritabanına Ekleyen Script
- * 
+ *
  * Kullanım:
  * 1. Bu dosyayı server dizinine kopyalayın
- * 2. `pnpm tsx server/add-new-kie-models.ts` komutu ile çalıştırın
+ * 2. `npm exec tsx server/add-new-kie-models.ts` komutu ile çalıştırın
  * 3. Veya Admin Panel'den `/admin/models` sayfasına gidip manuel olarak ekleyin
  */
 
@@ -23,7 +23,8 @@ const NEW_KIE_MODELS = [
     freeUserDailyLimit: 2,
     premiumUserDailyLimit: 20,
     priority: 2,
-    description: "OpenAI Sora 2 Pro - Yüksek kalite, uzun süre desteği (10s/15s/20s).",
+    description:
+      "OpenAI Sora 2 Pro - Yüksek kalite, uzun süre desteği (10s/15s/20s).",
     costPerRequest: "0.60",
   },
   {
@@ -107,7 +108,8 @@ const NEW_KIE_MODELS = [
     freeUserDailyLimit: 3,
     premiumUserDailyLimit: 30,
     priority: 2,
-    description: "ByteDance Seedance 1.5 Pro - Sinema kalitesi, senkronize ses, çok dilli diyalog.",
+    description:
+      "ByteDance Seedance 1.5 Pro - Sinema kalitesi, senkronize ses, çok dilli diyalog.",
     costPerRequest: "0.55",
   },
   {
@@ -121,7 +123,8 @@ const NEW_KIE_MODELS = [
     freeUserDailyLimit: 7,
     premiumUserDailyLimit: 70,
     priority: 5,
-    description: "MiniMax Hailuo 2.3 - Yüksek kaliteli AI video, text-to-video ve image-to-video.",
+    description:
+      "MiniMax Hailuo 2.3 - Yüksek kaliteli AI video, text-to-video ve image-to-video.",
     costPerRequest: "0.15",
   },
   {
@@ -244,7 +247,7 @@ async function addNewModels() {
 }
 
 // Run the script
-addNewModels().catch((error) => {
+addNewModels().catch(error => {
   console.error("❌ Fatal error:", error);
   process.exit(1);
 });

@@ -51,7 +51,7 @@ export default function AdminAnnouncements() {
       announcementsQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.adminPanel.updateAnnouncement.useMutation({
@@ -60,7 +60,7 @@ export default function AdminAnnouncements() {
       announcementsQuery.refetch();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deleteMutation = trpc.adminPanel.deleteAnnouncement.useMutation({
@@ -68,7 +68,7 @@ export default function AdminAnnouncements() {
       toast.success("Duyuru silindi");
       announcementsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const closeDialog = () => {
@@ -137,9 +137,9 @@ export default function AdminAnnouncements() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "popup":
-        return "bg-purple-500/20 text-purple-400";
+        return "bg-[#7C3AED]/20 text-[#7C3AED]";
       case "banner":
-        return "bg-blue-500/20 text-blue-400";
+        return "bg-[#00F5FF]/20 text-[#00F5FF]";
       case "notification":
         return "bg-green-500/20 text-green-400";
       case "maintenance":
@@ -155,10 +155,12 @@ export default function AdminAnnouncements() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Duyurular</h2>
-          <p className="text-sm text-zinc-500">Popup, banner ve bildirim yönetimi</p>
+          <p className="text-sm text-zinc-500">
+            Popup, banner ve bildirim yönetimi
+          </p>
         </div>
         <Button
-          className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
           onClick={() => setDialogOpen(true)}
         >
           <Plus className="h-4 w-4" />
@@ -168,7 +170,7 @@ export default function AdminAnnouncements() {
 
       {/* Announcements List */}
       <div className="space-y-4">
-        {announcementsQuery.data?.map((item) => (
+        {announcementsQuery.data?.map(item => (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, y: 10 }}
@@ -183,11 +185,15 @@ export default function AdminAnnouncements() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold">{item.title}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-xs ${getTypeColor(item.type)}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs ${getTypeColor(item.type)}`}
+                    >
                       {item.type}
                     </span>
                   </div>
-                  <p className="text-sm text-zinc-400 mt-1 line-clamp-2">{item.content}</p>
+                  <p className="text-sm text-zinc-400 mt-1 line-clamp-2">
+                    {item.content}
+                  </p>
                   <div className="flex items-center gap-4 mt-3 text-xs text-zinc-500">
                     <span className="flex items-center gap-1">
                       <Eye className="h-3 w-3" />
@@ -203,12 +209,19 @@ export default function AdminAnnouncements() {
 
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-2 py-1 rounded-full text-xs ${item.isActive ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
-                    }`}
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    item.isActive
+                      ? "bg-green-500/20 text-green-400"
+                      : "bg-red-500/20 text-red-400"
+                  }`}
                 >
                   {item.isActive ? "Aktif" : "Pasif"}
                 </span>
-                <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => openEdit(item)}
+                >
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
@@ -240,14 +253,18 @@ export default function AdminAnnouncements() {
       <Dialog open={dialogOpen} onOpenChange={closeDialog}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingItem ? "Duyuruyu Düzenle" : "Yeni Duyuru"}</DialogTitle>
+            <DialogTitle>
+              {editingItem ? "Duyuruyu Düzenle" : "Yeni Duyuru"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
               <label className="text-sm font-medium mb-2 block">Başlık *</label>
               <Input
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, title: e.target.value })
+                }
                 placeholder="Duyuru başlığı..."
                 className="bg-zinc-800 border-white/10"
               />
@@ -257,7 +274,9 @@ export default function AdminAnnouncements() {
               <label className="text-sm font-medium mb-2 block">İçerik *</label>
               <Textarea
                 value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                onChange={e =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
                 placeholder="Duyuru içeriği..."
                 className="bg-zinc-800 border-white/10 min-h-[100px]"
               />
@@ -268,7 +287,12 @@ export default function AdminAnnouncements() {
                 <label className="text-sm font-medium mb-2 block">Tip</label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as typeof formData.type })}
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      type: e.target.value as typeof formData.type,
+                    })
+                  }
                   className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2"
                 >
                   <option value="banner">Banner</option>
@@ -278,11 +302,17 @@ export default function AdminAnnouncements() {
                 </select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Hedef Kitle</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Hedef Kitle
+                </label>
                 <select
                   value={formData.targetAudience}
-                  onChange={(e) =>
-                    setFormData({ ...formData, targetAudience: e.target.value as typeof formData.targetAudience })
+                  onChange={e =>
+                    setFormData({
+                      ...formData,
+                      targetAudience: e.target
+                        .value as typeof formData.targetAudience,
+                    })
                   }
                   className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2"
                 >
@@ -296,19 +326,27 @@ export default function AdminAnnouncements() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Buton Metni</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Buton Metni
+                </label>
                 <Input
                   value={formData.buttonText}
-                  onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, buttonText: e.target.value })
+                  }
                   placeholder="İncele"
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Buton URL</label>
+                <label className="text-sm font-medium mb-2 block">
+                  Buton URL
+                </label>
                 <Input
                   value={formData.buttonUrl}
-                  onChange={(e) => setFormData({ ...formData, buttonUrl: e.target.value })}
+                  onChange={e =>
+                    setFormData({ ...formData, buttonUrl: e.target.value })
+                  }
                   placeholder="/packages"
                   className="bg-zinc-800 border-white/10"
                 />
@@ -319,25 +357,33 @@ export default function AdminAnnouncements() {
               <div className="flex items-center gap-2">
                 <Switch
                   checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, isActive: checked })
+                  }
                 />
                 <span className="text-sm">Aktif</span>
               </div>
               <div className="flex items-center gap-2">
                 <Switch
                   checked={formData.dismissible}
-                  onCheckedChange={(checked) => setFormData({ ...formData, dismissible: checked })}
+                  onCheckedChange={checked =>
+                    setFormData({ ...formData, dismissible: checked })
+                  }
                 />
                 <span className="text-sm">Kapatılabilir</span>
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={closeDialog}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >

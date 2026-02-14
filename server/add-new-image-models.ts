@@ -1,8 +1,8 @@
 /**
  * Yeni Kie.ai Görsel Modellerini Veritabanına Ekleyen Script
- * 
+ *
  * Kullanım:
- * 1. `pnpm tsx server/add-new-image-models.ts` komutu ile çalıştırın
+ * 1. `npm exec tsx server/add-new-image-models.ts` komutu ile çalıştırın
  */
 
 import "dotenv/config";

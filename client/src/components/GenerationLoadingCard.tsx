@@ -102,10 +102,13 @@ export default function GenerationLoadingCard({
     if (isVisible) {
       setCurrentMessage(getNextMessage());
 
-      intervalRef.current = setInterval(() => {
-        setCurrentMessage(getNextMessage());
-        setMessageIndex((prev) => prev + 1);
-      }, 2500 + Math.random() * 500);
+      intervalRef.current = setInterval(
+        () => {
+          setCurrentMessage(getNextMessage());
+          setMessageIndex(prev => prev + 1);
+        },
+        2500 + Math.random() * 500
+      );
 
       return () => {
         if (intervalRef.current) {
@@ -131,21 +134,25 @@ export default function GenerationLoadingCard({
             {/* Outer ring */}
             <div className="w-20 h-20 md:w-24 md:h-24 relative">
               <motion.div
-                className="absolute inset-0 rounded-full border-2 border-[#CCFF00]/20"
+                className="ai-loader-ring absolute inset-0 rounded-full"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
               />
               <motion.div
-                className="absolute inset-0 rounded-full border-t-2 border-[#CCFF00]"
+                className="ai-loader-ring-top absolute inset-0 rounded-full"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
               />
 
               {/* Inner pulsing circle */}
               <motion.div
-                className="absolute inset-4 rounded-full bg-[#CCFF00]/10"
+                className="ai-loader-core absolute inset-4 rounded-full"
                 animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
               />
 
               {/* Center icon based on type */}
@@ -155,7 +162,11 @@ export default function GenerationLoadingCard({
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 1.5, repeat: Infinity }}
                   >
-                    <svg className="w-6 h-6 md:w-8 md:h-8 text-[#CCFF00]" fill="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="ai-loader-icon w-6 h-6 md:w-8 md:h-8"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </motion.div>
@@ -164,8 +175,18 @@ export default function GenerationLoadingCard({
                     animate={{ rotate: [0, 10, -10, 0] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <svg className="w-6 h-6 md:w-8 md:h-8 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    <svg
+                      className="ai-loader-icon w-6 h-6 md:w-8 md:h-8"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                      />
                     </svg>
                   </motion.div>
                 ) : (
@@ -173,8 +194,18 @@ export default function GenerationLoadingCard({
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <svg className="w-6 h-6 md:w-8 md:h-8 text-[#CCFF00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="ai-loader-icon w-6 h-6 md:w-8 md:h-8"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </motion.div>
                 )}
@@ -203,22 +234,24 @@ export default function GenerationLoadingCard({
             <div className="mt-4 w-full max-w-xs">
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-[#CCFF00]"
+                  className="h-full bg-neon-brand"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.3 }}
                 />
               </div>
-              <div className="text-xs text-muted-foreground mt-1">{progress}%</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {progress}%
+              </div>
             </div>
           )}
 
           {/* Subtle dots indicator */}
           <div className="flex justify-center gap-1.5 mt-4">
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2].map(i => (
               <motion.div
                 key={i}
-                className="w-1.5 h-1.5 rounded-full bg-[#CCFF00]"
+                className="w-1.5 h-1.5 rounded-full ai-loader-icon"
                 animate={{
                   opacity: [0.3, 1, 0.3],
                   scale: [0.8, 1, 0.8],

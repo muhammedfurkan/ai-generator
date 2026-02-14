@@ -91,7 +91,7 @@ const AdminModalCards = lazy(() => import("./AdminModalCards"));
 function AdminPageLoader() {
   return (
     <div className="flex items-center justify-center h-64">
-      <Loader2 className="h-8 w-8 animate-spin text-lime-400" />
+      <Loader2 className="h-8 w-8 animate-spin text-[#00F5FF]" />
     </div>
   );
 }
@@ -352,7 +352,7 @@ export default function AdminLayout() {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <RefreshCw className="h-12 w-12 animate-spin text-lime-400" />
+          <RefreshCw className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-zinc-400 text-lg">Yükleniyor...</p>
         </div>
       </div>
@@ -507,7 +507,7 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex">
+    <div className="min-h-screen bg-zinc-950 text-[#F9FAFB] flex">
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -539,7 +539,7 @@ export default function AdminLayout() {
               animate={{ opacity: 1 }}
               className="flex items-center gap-2"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center">
                 <Shield className="w-5 h-5 text-black" />
               </div>
               <span className="font-bold text-lg">Admin Panel</span>
@@ -595,13 +595,13 @@ export default function AdminLayout() {
                         transition-all duration-200 group relative
                         ${
                           isActive
-                            ? "bg-lime-500/20 text-lime-400"
-                            : "text-zinc-400 hover:text-white hover:bg-white/5"
+                            ? "bg-[#00F5FF]/20 text-[#00F5FF]"
+                            : "text-zinc-400 hover:text-[#F9FAFB] hover:bg-white/5"
                         }
                       `}
                     >
                       <Icon
-                        className={`h-5 w-5 flex-shrink-0 ${isActive ? "text-lime-400" : ""}`}
+                        className={`h-5 w-5 flex-shrink-0 ${isActive ? "text-[#00F5FF]" : ""}`}
                       />
                       {sidebarOpen && (
                         <span className="text-sm font-medium">
@@ -616,7 +616,7 @@ export default function AdminLayout() {
                       {isActive && (
                         <motion.div
                           layoutId="activeNavIndicator"
-                          className="absolute left-0 top-0 bottom-0 w-1 bg-lime-400 rounded-r-full"
+                          className="absolute left-0 top-0 bottom-0 w-1 bg-[#00F5FF] rounded-r-full"
                         />
                       )}
                     </button>
@@ -632,7 +632,7 @@ export default function AdminLayout() {
           <div
             className={`flex items-center ${sidebarOpen ? "gap-3" : "justify-center"}`}
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center text-black font-bold">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center text-black font-bold">
               {user?.name?.[0] || "A"}
             </div>
             {sidebarOpen && (
@@ -696,7 +696,7 @@ export default function AdminLayout() {
                   placeholder="Ara..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-64 pl-9 bg-zinc-900 border-white/10 focus:border-lime-500/50"
+                  className="w-64 pl-9 bg-zinc-900 border-white/10 focus:border-[#00F5FF]/50"
                 />
               </div>
 

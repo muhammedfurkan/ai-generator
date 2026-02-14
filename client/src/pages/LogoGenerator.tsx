@@ -285,7 +285,7 @@ const COLOR_PALETTES = [
   {
     value: "custom",
     label: "Özel Renk",
-    colors: ["#CCFF00", "#FF00CC", "#00FFCC", "#CCCCCC"],
+    colors: ["#00F5FF", "#FF00CC", "#00FFCC", "#CCCCCC"],
     mood: "Kişiselleştirilmiş",
   },
 ];
@@ -339,7 +339,7 @@ export default function LogoGenerator() {
   const [industry, setIndustry] = useState("");
   const [logoStyle, setLogoStyle] = useState("");
   const [colorPalette, setColorPalette] = useState("");
-  const [customColor, setCustomColor] = useState("#CCFF00");
+  const [customColor, setCustomColor] = useState("#00F5FF");
   const [iconType, setIconType] = useState("combination");
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [resolution, setResolution] = useState<"1K" | "2K" | "4K">("2K");
@@ -370,9 +370,9 @@ export default function LogoGenerator() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-[#7C3AED] to-gray-900 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
+          <Loader2 className="h-12 w-12 animate-spin text-[#00F5FF]" />
           <p className="text-gray-300 text-lg">Yükleniyor...</p>
         </div>
       </div>
@@ -522,7 +522,7 @@ export default function LogoGenerator() {
           </Button>
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-[#CCFF00]" />
+              <Sparkles className="h-6 w-6 text-neon-brand" />
               Logo Oluşturucu
             </h1>
             <p className="text-muted-foreground text-sm">
@@ -555,9 +555,9 @@ export default function LogoGenerator() {
                   }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                     activeStep === step
-                      ? "bg-[#CCFF00] text-black"
+                      ? "bg-neon-brand text-black"
                       : activeStep > step
-                        ? "bg-green-500 text-white"
+                        ? "bg-green-500 text-[#F9FAFB]"
                         : "bg-white/10 text-muted-foreground"
                   }`}
                 >
@@ -587,7 +587,7 @@ export default function LogoGenerator() {
                 variants={itemVariants}
               >
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Type className="h-5 w-5 text-[#CCFF00]" />
+                  <Type className="h-5 w-5 text-neon-brand" />
                   Marka Bilgileri
                 </h2>
 
@@ -638,7 +638,7 @@ export default function LogoGenerator() {
                 variants={itemVariants}
               >
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Building2 className="h-5 w-5 text-[#CCFF00]" />
+                  <Building2 className="h-5 w-5 text-neon-brand" />
                   Sektör & Logo Stili
                 </h2>
 
@@ -651,7 +651,7 @@ export default function LogoGenerator() {
                         onClick={() => setIndustry(ind.value)}
                         className={`p-3 rounded-lg text-left transition-all ${
                           industry === ind.value
-                            ? "bg-[#CCFF00]/20 border-2 border-[#CCFF00]"
+                            ? "bg-neon-brand/20 border-2 border-neon-brand"
                             : "bg-white/5 border border-white/10 hover:bg-white/10"
                         }`}
                       >
@@ -671,7 +671,7 @@ export default function LogoGenerator() {
                         onClick={() => setLogoStyle(style.value)}
                         className={`p-3 rounded-lg text-left transition-all ${
                           logoStyle === style.value
-                            ? "bg-[#CCFF00]/20 border-2 border-[#CCFF00]"
+                            ? "bg-neon-brand/20 border-2 border-neon-brand"
                             : "bg-white/5 border border-white/10 hover:bg-white/10"
                         }`}
                       >
@@ -713,7 +713,7 @@ export default function LogoGenerator() {
                 variants={itemVariants}
               >
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Palette className="h-5 w-5 text-[#CCFF00]" />
+                  <Palette className="h-5 w-5 text-neon-brand" />
                   Renk Paleti & İkon Tipi
                 </h2>
 
@@ -726,7 +726,7 @@ export default function LogoGenerator() {
                         onClick={() => setColorPalette(palette.value)}
                         className={`p-3 rounded-lg text-left transition-all ${
                           colorPalette === palette.value
-                            ? "bg-[#CCFF00]/20 border-2 border-[#CCFF00]"
+                            ? "bg-neon-brand/20 border-2 border-neon-brand"
                             : "bg-white/5 border border-white/10 hover:bg-white/10"
                         }`}
                       >
@@ -764,7 +764,7 @@ export default function LogoGenerator() {
                         value={customColor}
                         onChange={e => setCustomColor(e.target.value)}
                         className="glass-card border-0 bg-white/8 w-32"
-                        placeholder="#CCFF00"
+                        placeholder="#00F5FF"
                       />
                     </div>
                   </div>
@@ -779,7 +779,7 @@ export default function LogoGenerator() {
                         onClick={() => setIconType(icon.value)}
                         className={`p-3 rounded-lg text-left transition-all ${
                           iconType === icon.value
-                            ? "bg-[#CCFF00]/20 border-2 border-[#CCFF00]"
+                            ? "bg-neon-brand/20 border-2 border-neon-brand"
                             : "bg-white/5 border border-white/10 hover:bg-white/10"
                         }`}
                       >
@@ -818,7 +818,7 @@ export default function LogoGenerator() {
                 variants={itemVariants}
               >
                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-[#CCFF00]" />
+                  <Sparkles className="h-5 w-5 text-neon-brand" />
                   Son Ayarlar
                 </h2>
 
@@ -846,7 +846,7 @@ export default function LogoGenerator() {
                         }
                         className={`flex-1 p-3 rounded-lg text-center transition-all ${
                           resolution === res.value
-                            ? "bg-[#CCFF00]/20 border-2 border-[#CCFF00]"
+                            ? "bg-neon-brand/20 border-2 border-neon-brand"
                             : "bg-white/5 border border-white/10 hover:bg-white/10"
                         }`}
                       >
@@ -854,7 +854,7 @@ export default function LogoGenerator() {
                         <p className="text-xs text-muted-foreground">
                           {res.description}
                         </p>
-                        <p className="text-xs text-[#CCFF00]">
+                        <p className="text-xs text-neon-brand">
                           {res.credits} kredi
                         </p>
                       </button>
@@ -873,7 +873,7 @@ export default function LogoGenerator() {
                         onClick={() => setVariationCount(count)}
                         className={`flex-1 p-3 rounded-lg text-center transition-all ${
                           variationCount === count
-                            ? "bg-[#CCFF00]/20 border-2 border-[#CCFF00]"
+                            ? "bg-neon-brand/20 border-2 border-neon-brand"
                             : "bg-white/5 border border-white/10 hover:bg-white/10"
                         }`}
                       >
@@ -958,7 +958,7 @@ export default function LogoGenerator() {
           {/* Sağ Panel - Önizleme */}
           <motion.div className="glass-card p-6" variants={itemVariants}>
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Layers className="h-5 w-5 text-[#CCFF00]" />
+              <Layers className="h-5 w-5 text-neon-brand" />
               Önizleme
             </h2>
 

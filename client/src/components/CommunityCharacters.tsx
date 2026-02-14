@@ -6,7 +6,7 @@ import { useLocation } from "wouter";
 
 export default function CommunityCharacters() {
   const [, navigate] = useLocation();
-  
+
   const { data: characters, isLoading } = trpc.aiCharacters.getPopular.useQuery(
     { limit: 8 },
     { staleTime: 1000 * 60 * 5 } // Cache for 5 minutes
@@ -33,11 +33,11 @@ export default function CommunityCharacters() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-purple-500/10 border border-purple-500/20 mb-6">
-            <Users className="h-4 w-4 text-purple-400" />
-            <span className="text-sm font-medium text-purple-300">Topluluk</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-[#7C3AED]/10 border border-[#7C3AED]/20 mb-6">
+            <Users className="h-4 w-4 text-[#7C3AED]" />
+            <span className="text-sm font-medium text-[#7C3AED]">Topluluk</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-[#F9FAFB] mb-4">
             AI Influencer'lar
           </h2>
           <p className="text-xl text-white/60 max-w-2xl mx-auto">
@@ -60,7 +60,7 @@ export default function CommunityCharacters() {
             {characters?.map((character, i) => (
               <motion.div
                 key={character.id}
-                className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-all duration-300"
+                className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 hover:border-[#7C3AED]/30 transition-all duration-300"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
@@ -75,13 +75,13 @@ export default function CommunityCharacters() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
                   />
-                  
+
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  
+
                   {/* Character Info */}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <h3 className="text-lg font-semibold text-white truncate">
+                    <h3 className="text-lg font-semibold text-[#F9FAFB] truncate">
                       {character.name}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
@@ -91,13 +91,13 @@ export default function CommunityCharacters() {
                       </div>
                     </div>
                     {character.usageCount > 0 && (
-                      <div className="flex items-center gap-1 text-purple-400 text-xs mt-1">
+                      <div className="flex items-center gap-1 text-[#7C3AED] text-xs mt-1">
                         <Sparkles className="h-3 w-3" />
                         <span>{character.usageCount} görsel</span>
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Style Badge */}
                   {character.style && (
                     <div className="absolute top-3 right-3">
@@ -122,7 +122,7 @@ export default function CommunityCharacters() {
           <Button
             variant="outline"
             size="lg"
-            className="rounded-full px-8 border-white/20 hover:bg-white/10 hover:border-purple-500/30 group"
+            className="rounded-full px-8 border-white/20 hover:bg-white/10 hover:border-[#7C3AED]/30 group"
             onClick={() => navigate("/community-characters")}
           >
             Tümünü Gör

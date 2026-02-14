@@ -2,12 +2,28 @@ import { useState, useRef, useCallback } from "react";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { Upload, Sparkles, Download, ArrowRight, ZoomIn, Image as ImageIcon, Loader2, X, RefreshCw } from "lucide-react";
+import {
+  Upload,
+  Sparkles,
+  Download,
+  ArrowRight,
+  ZoomIn,
+  Image as ImageIcon,
+  Loader2,
+  X,
+  RefreshCw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getLoginUrl } from "@/const";
 import Header from "@/components/Header";
@@ -33,15 +49,17 @@ export default function Upscale() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentResult, setCurrentResult] = useState<UpscaleResult | null>(null);
+  const [currentResult, setCurrentResult] = useState<UpscaleResult | null>(
+    null
+  );
   const [pollCount, setPollCount] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: pricing } = trpc.upscale.getPricing.useQuery();
   const utils = trpc.useUtils();
-  
+
   const createUpscaleMutation = trpc.upscale.create.useMutation({
-    onSuccess: (data) => {
+    onSuccess: data => {
       setCurrentResult({
         id: data.id,
         taskId: data.taskId,
@@ -52,7 +70,7 @@ export default function Upscale() {
       utils.upscale.list.invalidate();
       pollStatus(data.taskId);
     },
-    onError: (error) => {
+    onError: error => {
       setIsProcessing(false);
       const message = error.message.includes("INSUFFICIENT_CREDITS")
         ? t("upscale.errors.insufficientCredits")
@@ -66,45 +84,60 @@ export default function Upscale() {
     { enabled: false }
   );
 
-  const pollStatus = useCallback(async (taskId: string) => {
-    const maxPolls = 60; // 5 minutes max (5s intervals)
-    let polls = 0;
+  const pollStatus = useCallback(
+    async (taskId: string) => {
+      const maxPolls = 60; // 5 minutes max (5s intervals)
+      let polls = 0;
 
-    const poll = async () => {
-      if (polls >= maxPolls) {
-        setIsProcessing(false);
-        setCurrentResult((prev) => prev ? { ...prev, status: "failed", error: t("upscale.errors.timeout") } : null);
-        toast.error(t("upscale.errors.timeoutRetry"));
-        return;
-      }
-
-      try {
-        const result = await checkStatusQuery.refetch();
-        polls++;
-        setPollCount(polls);
-
-        if (result.data?.status === "completed" && result.data?.imageUrl) {
+      const poll = async () => {
+        if (polls >= maxPolls) {
           setIsProcessing(false);
-          const imageUrl = result.data.imageUrl;
-          setCurrentResult((prev) => prev ? { ...prev, status: "completed", imageUrl } : null);
-          toast.success(t("upscale.toast.success"));
-        } else if (result.data?.status === "failed") {
-          setIsProcessing(false);
-          const errorMsg = result.data?.error || undefined;
-          setCurrentResult((prev) => prev ? { ...prev, status: "failed", error: errorMsg } : null);
-          toast.error(result.data?.error || t("upscale.errors.failed"));
-        } else {
-          // Still processing, poll again
+          setCurrentResult(prev =>
+            prev
+              ? {
+                  ...prev,
+                  status: "failed",
+                  error: t("upscale.errors.timeout"),
+                }
+              : null
+          );
+          toast.error(t("upscale.errors.timeoutRetry"));
+          return;
+        }
+
+        try {
+          const result = await checkStatusQuery.refetch();
+          polls++;
+          setPollCount(polls);
+
+          if (result.data?.status === "completed" && result.data?.imageUrl) {
+            setIsProcessing(false);
+            const imageUrl = result.data.imageUrl;
+            setCurrentResult(prev =>
+              prev ? { ...prev, status: "completed", imageUrl } : null
+            );
+            toast.success(t("upscale.toast.success"));
+          } else if (result.data?.status === "failed") {
+            setIsProcessing(false);
+            const errorMsg = result.data?.error || undefined;
+            setCurrentResult(prev =>
+              prev ? { ...prev, status: "failed", error: errorMsg } : null
+            );
+            toast.error(result.data?.error || t("upscale.errors.failed"));
+          } else {
+            // Still processing, poll again
+            setTimeout(poll, 5000);
+          }
+        } catch (error) {
+          console.error("Poll error:", error);
           setTimeout(poll, 5000);
         }
-      } catch (error) {
-        console.error("Poll error:", error);
-        setTimeout(poll, 5000);
-      }
-    };
+      };
 
-    poll();
-  }, [checkStatusQuery]);
+      poll();
+    },
+    [checkStatusQuery]
+  );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -124,7 +157,7 @@ export default function Upscale() {
 
     setSelectedFile(file);
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       setSelectedImage(e.target?.result as string);
     };
     reader.readAsDataURL(file);
@@ -140,7 +173,9 @@ export default function Upscale() {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         input.files = dataTransfer.files;
-        handleFileSelect({ target: input } as React.ChangeEvent<HTMLInputElement>);
+        handleFileSelect({
+          target: input,
+        } as React.ChangeEvent<HTMLInputElement>);
       }
     }
   };
@@ -164,14 +199,14 @@ export default function Upscale() {
 
       const imageUrl = await new Promise<string>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        
-        xhr.upload.addEventListener("progress", (event) => {
+
+        xhr.upload.addEventListener("progress", event => {
           if (event.lengthComputable) {
             const progress = Math.round((event.loaded / event.total) * 100);
             setUploadProgress(progress);
           }
         });
-        
+
         xhr.addEventListener("load", () => {
           if (xhr.status >= 200 && xhr.status < 300) {
             try {
@@ -184,15 +219,15 @@ export default function Upscale() {
             reject(new Error(t("upscale.errors.uploadFailed")));
           }
         });
-        
+
         xhr.addEventListener("error", () => {
           reject(new Error(t("upscale.errors.uploadFailed")));
         });
-        
+
         xhr.open("POST", "/api/upload");
         xhr.send(formData);
       });
-      
+
       setIsUploading(false);
 
       // Create upscale task
@@ -203,7 +238,11 @@ export default function Upscale() {
     } catch (error) {
       setIsProcessing(false);
       setIsUploading(false);
-      toast.error(error instanceof Error ? error.message : t("upscale.errors.processingFailed"));
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("upscale.errors.processingFailed")
+      );
     }
   };
 
@@ -253,9 +292,7 @@ export default function Upscale() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-background/95">
       <Header />
-      
 
-      
       {/* Page Content */}
       <div className="container py-8 md:py-12">
         <div className="text-center mb-8">
@@ -284,18 +321,20 @@ export default function Upscale() {
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                
+
                 {!selectedImage ? (
                   <div
                     className="flex flex-col items-center justify-center py-12 cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => e.preventDefault()}
+                    onDragOver={e => e.preventDefault()}
                     onDrop={handleDrop}
                   >
                     <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                       <Upload className="h-8 w-8 text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{t("upscale.uploadTitle")}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("upscale.uploadTitle")}
+                    </h3>
                     <p className="text-muted-foreground text-sm text-center mb-4">
                       {t("upscale.uploadDesc")}
                     </p>
@@ -313,12 +352,14 @@ export default function Upscale() {
                     {isUploading && (
                       <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center rounded-lg">
                         <div className="w-3/4 h-2 bg-white/20 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-to-r from-primary to-purple-500 transition-all duration-300"
+                          <div
+                            className="h-full bg-gradient-to-r from-primary to-[#FF2E97] transition-all duration-300"
                             style={{ width: `${uploadProgress}%` }}
                           />
                         </div>
-                        <p className="text-xs text-white mt-2">{t("upscale.uploading")} {uploadProgress}%</p>
+                        <p className="text-xs text-[#F9FAFB] mt-2">
+                          {t("upscale.uploading")} {uploadProgress}%
+                        </p>
                       </div>
                     )}
                     <Button
@@ -338,19 +379,19 @@ export default function Upscale() {
             {/* Upscale Factor Selection */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">{t("upscale.scaleTitle")}</CardTitle>
-                <CardDescription>
-                  {t("upscale.scaleDesc")}
-                </CardDescription>
+                <CardTitle className="text-lg">
+                  {t("upscale.scaleTitle")}
+                </CardTitle>
+                <CardDescription>{t("upscale.scaleDesc")}</CardDescription>
               </CardHeader>
               <CardContent>
                 <RadioGroup
                   value={upscaleFactor}
-                  onValueChange={(v) => setUpscaleFactor(v as UpscaleFactor)}
+                  onValueChange={v => setUpscaleFactor(v as UpscaleFactor)}
                   className="grid grid-cols-3 gap-4"
                   disabled={isProcessing}
                 >
-                  {(["2", "4", "8"] as UpscaleFactor[]).map((factor) => (
+                  {(["2", "4", "8"] as UpscaleFactor[]).map(factor => (
                     <div key={factor}>
                       <RadioGroupItem
                         value={factor}
@@ -369,7 +410,8 @@ export default function Upscale() {
                           {pricing?.[factor]?.description || ""}
                         </span>
                         <span className="text-sm font-medium text-primary mt-2">
-                          {pricing?.[factor]?.credits || 0} {t("upscale.credits")}
+                          {pricing?.[factor]?.credits || 0}{" "}
+                          {t("upscale.credits")}
                         </span>
                       </Label>
                     </div>
@@ -395,7 +437,9 @@ export default function Upscale() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    {isUploading ? t("upscale.uploading") : t("upscale.processing")}
+                    {isUploading
+                      ? t("upscale.uploading")
+                      : t("upscale.processing")}
                   </>
                 ) : (
                   <>
@@ -411,10 +455,17 @@ export default function Upscale() {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-muted-foreground">{t("upscale.processingStatus")}</span>
-                    <span className="text-sm text-muted-foreground">{Math.min(pollCount * 5, 100)}%</span>
+                    <span className="text-sm text-muted-foreground">
+                      {t("upscale.processingStatus")}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {Math.min(pollCount * 5, 100)}%
+                    </span>
                   </div>
-                  <Progress value={Math.min(pollCount * 5, 95)} className="h-2" />
+                  <Progress
+                    value={Math.min(pollCount * 5, 95)}
+                    className="h-2"
+                  />
                   <p className="text-xs text-muted-foreground mt-2">
                     {t("upscale.processingInfo")}
                   </p>
@@ -431,9 +482,7 @@ export default function Upscale() {
                   <ImageIcon className="h-5 w-5" />
                   {t("upscale.resultTitle")}
                 </CardTitle>
-                <CardDescription>
-                  {t("upscale.resultDesc")}
-                </CardDescription>
+                <CardDescription>{t("upscale.resultDesc")}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1">
                 {isProcessing ? (
@@ -442,7 +491,8 @@ export default function Upscale() {
                     type="image"
                     className="border-0 shadow-none bg-transparent h-[400px]"
                   />
-                ) : currentResult?.status === "completed" && currentResult.imageUrl ? (
+                ) : currentResult?.status === "completed" &&
+                  currentResult.imageUrl ? (
                   <div className="space-y-4">
                     <div className="relative rounded-lg overflow-hidden bg-muted">
                       <img
@@ -467,7 +517,9 @@ export default function Upscale() {
                     <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
                       <X className="h-8 w-8 text-destructive" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{t("upscale.failedTitle")}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("upscale.failedTitle")}
+                    </h3>
                     <p className="text-muted-foreground text-sm mb-4">
                       {currentResult.error || t("upscale.failedDesc")}
                     </p>
@@ -481,7 +533,9 @@ export default function Upscale() {
                     <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
                       <ZoomIn className="h-8 w-8 text-muted-foreground" />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">{t("upscale.waitingTitle")}</h3>
+                    <h3 className="text-lg font-semibold mb-2">
+                      {t("upscale.waitingTitle")}
+                    </h3>
                     <p className="text-muted-foreground text-sm">
                       {t("upscale.waitingDesc")}
                     </p>
@@ -495,13 +549,17 @@ export default function Upscale() {
               <Card className="bg-primary/5 border-primary/20">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-primary">8K</div>
-                  <div className="text-xs text-muted-foreground">{t("upscale.maxResolution")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("upscale.maxResolution")}
+                  </div>
                 </CardContent>
               </Card>
               <Card className="bg-primary/5 border-primary/20">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-primary">AI</div>
-                  <div className="text-xs text-muted-foreground">{t("upscale.technology")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("upscale.technology")}
+                  </div>
                 </CardContent>
               </Card>
             </div>

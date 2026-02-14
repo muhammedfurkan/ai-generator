@@ -85,7 +85,7 @@ export default function AdminPricing() {
       utils.adminPanel.getFeaturePricing.invalidate();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const updateMutation = trpc.adminPanel.updateFeaturePricing.useMutation({
@@ -94,7 +94,7 @@ export default function AdminPricing() {
       utils.adminPanel.getFeaturePricing.invalidate();
       closeDialog();
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
   const deleteMutation = trpc.adminPanel.deleteFeaturePricing.useMutation({
@@ -103,16 +103,19 @@ export default function AdminPricing() {
       utils.adminPanel.getFeaturePricing.invalidate();
       setDeleteConfirm(null);
     },
-    onError: (error) => toast.error(error.message),
+    onError: error => toast.error(error.message),
   });
 
-  const initializeMutation = trpc.adminPanel.initializeFeaturePricing.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Fiyatlandırma yüklendi! ${data.inserted} eklendi, ${data.updated} güncellendi`);
-      utils.adminPanel.getFeaturePricing.invalidate();
-    },
-    onError: (error) => toast.error(error.message),
-  });
+  const initializeMutation =
+    trpc.adminPanel.initializeFeaturePricing.useMutation({
+      onSuccess: data => {
+        toast.success(
+          `Fiyatlandırma yüklendi! ${data.inserted} eklendi, ${data.updated} güncellendi`
+        );
+        utils.adminPanel.getFeaturePricing.invalidate();
+      },
+      onError: error => toast.error(error.message),
+    });
 
   const closeDialog = () => {
     setDialogOpen(false);
@@ -170,29 +173,46 @@ export default function AdminPricing() {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case "image": return <Image className="h-5 w-5" />;
-      case "video": return <Video className="h-5 w-5" />;
-      case "upscale": return <Wand2 className="h-5 w-5" />;
-      case "ai_character": return <Camera className="h-5 w-5" />;
-      case "viral_app": return <Zap className="h-5 w-5" />;
-      case "multi_angle": return <Box className="h-5 w-5" />;
+      case "image":
+        return <Image className="h-5 w-5" />;
+      case "video":
+        return <Video className="h-5 w-5" />;
+      case "upscale":
+        return <Wand2 className="h-5 w-5" />;
+      case "ai_character":
+        return <Camera className="h-5 w-5" />;
+      case "viral_app":
+        return <Zap className="h-5 w-5" />;
+      case "multi_angle":
+        return <Box className="h-5 w-5" />;
       case "product_promo":
-      case "ugc_ad": return <Film className="h-5 w-5" />;
-      default: return <DollarSign className="h-5 w-5" />;
+      case "ugc_ad":
+        return <Film className="h-5 w-5" />;
+      default:
+        return <DollarSign className="h-5 w-5" />;
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case "image": return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-      case "video": return "bg-pink-500/20 text-pink-400 border-pink-500/30";
-      case "upscale": return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-      case "ai_character": return "bg-green-500/20 text-green-400 border-green-500/30";
-      case "viral_app": return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
-      case "multi_angle": return "bg-orange-500/20 text-orange-400 border-orange-500/30";
-      case "product_promo": return "bg-red-500/20 text-red-400 border-red-500/30";
-      case "ugc_ad": return "bg-cyan-500/20 text-cyan-400 border-cyan-500/30";
-      default: return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
+      case "image":
+        return "bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30";
+      case "video":
+        return "bg-[#FF2E97]/20 text-[#FF2E97] border-[#FF2E97]/30";
+      case "upscale":
+        return "bg-[#00F5FF]/20 text-[#00F5FF] border-[#00F5FF]/30";
+      case "ai_character":
+        return "bg-green-500/20 text-green-400 border-green-500/30";
+      case "viral_app":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "multi_angle":
+        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+      case "product_promo":
+        return "bg-red-500/20 text-red-400 border-red-500/30";
+      case "ugc_ad":
+        return "bg-[#00F5FF]/20 text-[#00F5FF] border-[#00F5FF]/30";
+      default:
+        return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     }
   };
 
@@ -201,17 +221,23 @@ export default function AdminPricing() {
   };
 
   // Group by category
-  const groupedPricing = pricingQuery.data?.reduce((acc, item) => {
-    if (!acc[item.category]) acc[item.category] = [];
-    acc[item.category].push(item);
-    return acc;
-  }, {} as Record<string, typeof pricingQuery.data>);
+  const groupedPricing = pricingQuery.data?.reduce(
+    (acc, item) => {
+      if (!acc[item.category]) acc[item.category] = [];
+      acc[item.category].push(item);
+      return acc;
+    },
+    {} as Record<string, typeof pricingQuery.data>
+  );
 
   // Calculate stats
   const totalFeatures = pricingQuery.data?.length || 0;
   const activeFeatures = pricingQuery.data?.filter(p => p.isActive).length || 0;
   const avgCredits = pricingQuery.data?.length
-    ? Math.round(pricingQuery.data.reduce((sum, p) => sum + p.credits, 0) / pricingQuery.data.length)
+    ? Math.round(
+        pricingQuery.data.reduce((sum, p) => sum + p.credits, 0) /
+          pricingQuery.data.length
+      )
     : 0;
 
   return (
@@ -221,15 +247,15 @@ export default function AdminPricing() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 rounded-2xl border border-purple-500/30 p-5"
+          className="bg-gradient-to-br from-[#7C3AED]/20 to-[#FF2E97]/10 rounded-2xl border border-[#7C3AED]/30 p-5"
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-zinc-400">Toplam Özellik</p>
               <p className="text-2xl font-bold">{totalFeatures}</p>
             </div>
-            <div className="p-3 rounded-xl bg-purple-500/20">
-              <DollarSign className="h-5 w-5 text-purple-400" />
+            <div className="p-3 rounded-xl bg-[#7C3AED]/20">
+              <DollarSign className="h-5 w-5 text-[#7C3AED]" />
             </div>
           </div>
         </motion.div>
@@ -255,15 +281,15 @@ export default function AdminPricing() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-lime-500/20 to-lime-600/10 rounded-2xl border border-lime-500/30 p-5"
+          className="bg-gradient-to-br from-[#00F5FF]/20 to-[#7C3AED]/10 rounded-2xl border border-[#00F5FF]/30 p-5"
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-zinc-400">Ort. Kredi</p>
               <p className="text-2xl font-bold">{avgCredits}</p>
             </div>
-            <div className="p-3 rounded-xl bg-lime-500/20">
-              <DollarSign className="h-5 w-5 text-lime-400" />
+            <div className="p-3 rounded-xl bg-[#00F5FF]/20">
+              <DollarSign className="h-5 w-5 text-[#00F5FF]" />
             </div>
           </div>
         </motion.div>
@@ -273,7 +299,9 @@ export default function AdminPricing() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">Özellik Fiyatlandırması</h2>
-          <p className="text-sm text-zinc-500">Her özellik için kredi maliyetlerini ayarlayın</p>
+          <p className="text-sm text-zinc-500">
+            Her özellik için kredi maliyetlerini ayarlayın
+          </p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -282,14 +310,16 @@ export default function AdminPricing() {
             className="gap-2"
             onClick={() => pricingQuery.refetch()}
           >
-            <RefreshCw className={`h-4 w-4 ${pricingQuery.isFetching ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${pricingQuery.isFetching ? "animate-spin" : ""}`}
+            />
             Yenile
           </Button>
           {totalFeatures === 0 && (
             <Button
               variant="outline"
               size="sm"
-              className="gap-2 border-lime-500/30 text-lime-400 hover:bg-lime-500/10"
+              className="gap-2 border-[#00F5FF]/30 text-[#00F5FF] hover:bg-[#00F5FF]/10"
               onClick={() => initializeMutation.mutate()}
               disabled={initializeMutation.isPending}
             >
@@ -302,7 +332,7 @@ export default function AdminPricing() {
             </Button>
           )}
           <Button
-            className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+            className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
             onClick={openCreate}
           >
             <Plus className="h-4 w-4" />
@@ -322,16 +352,20 @@ export default function AdminPricing() {
           >
             <div className="px-6 py-4 border-b border-white/10 bg-zinc-800/50">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg border ${getCategoryColor(category)}`}>
+                <div
+                  className={`p-2 rounded-lg border ${getCategoryColor(category)}`}
+                >
                   {getCategoryIcon(category)}
                 </div>
                 <h3 className="font-semibold">{getCategoryLabel(category)}</h3>
-                <span className="text-xs text-zinc-500">({items?.length} özellik)</span>
+                <span className="text-xs text-zinc-500">
+                  ({items?.length} özellik)
+                </span>
               </div>
             </div>
 
             <div className="divide-y divide-white/5">
-              {items?.map((item) => (
+              {items?.map(item => (
                 <div
                   key={item.id}
                   className="px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
@@ -346,16 +380,22 @@ export default function AdminPricing() {
                       )}
                     </div>
                     <p className="text-xs text-zinc-500 mt-0.5">
-                      <code className="px-1 py-0.5 bg-zinc-800 rounded">{item.featureKey}</code>
+                      <code className="px-1 py-0.5 bg-zinc-800 rounded">
+                        {item.featureKey}
+                      </code>
                     </p>
                     {item.description && (
-                      <p className="text-xs text-zinc-400 mt-1">{item.description}</p>
+                      <p className="text-xs text-zinc-400 mt-1">
+                        {item.description}
+                      </p>
                     )}
                   </div>
 
                   <div className="flex items-center gap-4">
                     <div className="min-w-[80px] text-right">
-                      <span className="text-xl font-bold text-lime-400">{item.credits}</span>
+                      <span className="text-xl font-bold text-[#00F5FF]">
+                        {item.credits}
+                      </span>
                       <span className="text-xs text-zinc-500 ml-1">kredi</span>
                     </div>
 
@@ -385,9 +425,11 @@ export default function AdminPricing() {
       ) : (
         <div className="text-center py-12 bg-zinc-900/50 rounded-2xl border border-white/10">
           <DollarSign className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
-          <p className="text-zinc-500 mb-4">Henüz fiyatlandırma tanımlanmamış</p>
+          <p className="text-zinc-500 mb-4">
+            Henüz fiyatlandırma tanımlanmamış
+          </p>
           <Button
-            className="bg-lime-500 hover:bg-lime-600 text-black gap-2"
+            className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
             onClick={() => initializeMutation.mutate()}
             disabled={initializeMutation.isPending}
           >
@@ -399,7 +441,8 @@ export default function AdminPricing() {
             Varsayılan Fiyatları Yükle
           </Button>
           <p className="text-xs text-zinc-600 mt-3">
-            Görsel, Video, Upscale, AI Karakter ve Viral App fiyatları yüklenecek
+            Görsel, Video, Upscale, AI Karakter ve Viral App fiyatları
+            yüklenecek
           </p>
         </div>
       )}
@@ -408,26 +451,36 @@ export default function AdminPricing() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="bg-zinc-900 border-white/10 max-w-md">
           <DialogHeader>
-            <DialogTitle>{isEditing ? "Fiyat Düzenle" : "Yeni Fiyat Ekle"}</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Fiyat Düzenle" : "Yeni Fiyat Ekle"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
-              <label className="text-sm text-zinc-400 mb-1 block">Feature Key *</label>
+              <label className="text-sm text-zinc-400 mb-1 block">
+                Feature Key *
+              </label>
               <Input
                 value={form.featureKey}
-                onChange={(e) => setForm({ ...form, featureKey: e.target.value })}
+                onChange={e => setForm({ ...form, featureKey: e.target.value })}
                 placeholder="video_veo3_fast"
                 className="bg-zinc-800 border-white/10"
                 disabled={isEditing}
               />
-              <p className="text-xs text-zinc-500 mt-1">Benzersiz tanımlayıcı (değiştirilemez)</p>
+              <p className="text-xs text-zinc-500 mt-1">
+                Benzersiz tanımlayıcı (değiştirilemez)
+              </p>
             </div>
 
             <div>
-              <label className="text-sm text-zinc-400 mb-1 block">Özellik Adı *</label>
+              <label className="text-sm text-zinc-400 mb-1 block">
+                Özellik Adı *
+              </label>
               <Input
                 value={form.featureName}
-                onChange={(e) => setForm({ ...form, featureName: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, featureName: e.target.value })
+                }
                 placeholder="Video üretim (Veo 3.1 Hızlı)"
                 className="bg-zinc-800 border-white/10"
               />
@@ -435,17 +488,19 @@ export default function AdminPricing() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Kategori *</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Kategori *
+                </label>
                 <Select
                   value={form.category}
-                  onValueChange={(value) => setForm({ ...form, category: value })}
+                  onValueChange={value => setForm({ ...form, category: value })}
                   disabled={isEditing}
                 >
                   <SelectTrigger className="bg-zinc-800 border-white/10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((cat) => (
+                    {categories.map(cat => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
                       </SelectItem>
@@ -455,11 +510,15 @@ export default function AdminPricing() {
               </div>
 
               <div>
-                <label className="text-sm text-zinc-400 mb-1 block">Kredi Maliyeti *</label>
+                <label className="text-sm text-zinc-400 mb-1 block">
+                  Kredi Maliyeti *
+                </label>
                 <Input
                   type="number"
                   value={form.credits}
-                  onChange={(e) => setForm({ ...form, credits: parseInt(e.target.value) || 0 })}
+                  onChange={e =>
+                    setForm({ ...form, credits: parseInt(e.target.value) || 0 })
+                  }
                   className="bg-zinc-800 border-white/10"
                   min={0}
                 />
@@ -467,10 +526,14 @@ export default function AdminPricing() {
             </div>
 
             <div>
-              <label className="text-sm text-zinc-400 mb-1 block">Açıklama</label>
+              <label className="text-sm text-zinc-400 mb-1 block">
+                Açıklama
+              </label>
               <Textarea
                 value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, description: e.target.value })
+                }
                 placeholder="Bu özellik hakkında kısa açıklama..."
                 className="bg-zinc-800 border-white/10"
                 rows={2}
@@ -480,21 +543,31 @@ export default function AdminPricing() {
             <div className="flex items-center gap-2">
               <Switch
                 checked={form.isActive}
-                onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
+                onCheckedChange={checked =>
+                  setForm({ ...form, isActive: checked })
+                }
               />
               <label className="text-sm">Aktif</label>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={closeDialog}>
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={closeDialog}
+              >
                 İptal
               </Button>
               <Button
-                className="flex-1 bg-lime-500 hover:bg-lime-600 text-black"
+                className="flex-1 bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
-                {createMutation.isPending || updateMutation.isPending ? "Kaydediliyor..." : isEditing ? "Güncelle" : "Ekle"}
+                {createMutation.isPending || updateMutation.isPending
+                  ? "Kaydediliyor..."
+                  : isEditing
+                    ? "Güncelle"
+                    : "Ekle"}
               </Button>
             </div>
           </div>
@@ -502,7 +575,10 @@ export default function AdminPricing() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+      <Dialog
+        open={!!deleteConfirm}
+        onOpenChange={() => setDeleteConfirm(null)}
+      >
         <DialogContent className="bg-zinc-900 border-white/10 max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-400">
@@ -514,12 +590,18 @@ export default function AdminPricing() {
             Bu fiyatlandırma kalıcı olarak silinecek. Bu işlem geri alınamaz.
           </p>
           <div className="flex gap-3 mt-4">
-            <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setDeleteConfirm(null)}
+            >
               İptal
             </Button>
             <Button
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white"
-              onClick={() => deleteConfirm && deleteMutation.mutate({ id: deleteConfirm })}
+              className="flex-1 bg-red-500 hover:bg-red-600 text-[#F9FAFB]"
+              onClick={() =>
+                deleteConfirm && deleteMutation.mutate({ id: deleteConfirm })
+              }
               disabled={deleteMutation.isPending}
             >
               {deleteMutation.isPending ? "Siliniyor..." : "Sil"}
