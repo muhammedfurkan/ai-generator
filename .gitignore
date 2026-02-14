@@ -108,3 +108,5 @@ temp/
 bun.lock
 uploads/
 .env
+pnpm-lock.yaml
+package-lock.json
