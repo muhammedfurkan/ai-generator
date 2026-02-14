@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM multiAngleImages WHERE jobId IN (SELECT id FROM multiAngleJobs); DELETE FROM multiAngleJobs;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute DELETE FROM multiAngleImages WHERE jobId IN (SELECT id FROM multiAngleJobs); DELETE FROM multiAngleJobs;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1797
+}

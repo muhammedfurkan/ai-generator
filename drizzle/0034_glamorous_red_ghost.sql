@@ -1,0 +1,1 @@
+ALTER TABLE `creditPackages` ADD `bonus` int;

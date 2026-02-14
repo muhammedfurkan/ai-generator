@@ -1,0 +1,19 @@
+{
+  "query": "SELECT gi.id, gi.prompt, gi.generatedImageUrl, gi.aspectRatio, gi.resolution, gi.taskId, gi.createdAt \nFROM generatedImages gi \nJOIN users u ON gi.userId = u.id \nWHERE u.email = 'beygovau@gmail.com' \nORDER BY gi.createdAt DESC \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute SELECT gi.id, gi.prompt, gi.generatedImageUrl, gi.aspectRatio, gi.resolution, gi.taskId, gi.createdAt \nFROM generatedImages gi \nJOIN users u ON gi.userId = u.id \nWHERE u.email = 'beygovau@gmail.com' \nORDER BY gi.createdAt DESC \nLIMIT 10;",
+  "rows": [
+    {
+      "id": "60002",
+      "prompt": "Vibrant gradient background, modern aesthetic, Instagram story format, colorful abstract design, trendy visual, smooth gradients, eye-catching colors",
+      "generatedImageUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310419663032629546/LKmeEoJsnZn9U4KoySaL4G/420037/images/generated-Veyz1UurVuGDsOaoQv4BG.png?response-content-type=image/png&response-content-disposition=attachment; filename=\"generated-uj1UJdeFIFLyTFH3793hQ.png\"",
+      "aspectRatio": "9:16",
+      "resolution": "1K",
+      "taskId": "68390ba2d358b6081e14c72eac3b4c37",
+      "createdAt": "2025-12-15 10:24:27"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tprompt\tgeneratedImageUrl\taspectRatio\tresolution\ttaskId\tcreatedAt\n60002\tVibrant gradient background, modern aesthetic, Instagram story format, colorful abstract design, trendy visual, smooth gradients, eye-catching colors\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663032629546/LKmeEoJsnZn9U4KoySaL4G/420037/images/generated-Veyz1UurVuGDsOaoQv4BG.png?response-content-type=image/png&response-content-disposition=attachment; filename=\"generated-uj1UJdeFIFLyTFH3793hQ.png\"\t9:16\t1K\t68390ba2d358b6081e14c72eac3b4c37\t2025-12-15 10:24:27\n",
+  "stderr": "",
+  "execution_time_ms": 1544
+}

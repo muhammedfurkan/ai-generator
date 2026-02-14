@@ -1,0 +1,1 @@
+ALTER TABLE `ugcAdVideos` MODIFY COLUMN `videoModel` enum('veo31') NOT NULL;

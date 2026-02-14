@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, email, role FROM users WHERE email LIKE '%cayoglu%' OR email LIKE '%gmail%' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute SELECT id, name, email, role FROM users WHERE email LIKE '%cayoglu%' OR email LIKE '%gmail%' LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Anka Medya",
+      "email": "cayoglua@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "90020",
+      "name": "anka k",
+      "email": "ankamedyaa002@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "90055",
+      "name": "Hack Forum",
+      "email": "hackforumdestek@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "180001",
+      "name": "Mete",
+      "email": "ankamedya0010@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "210001",
+      "name": "Mustafa Sjahbs",
+      "email": "selox45@gmail.com",
+      "role": "user"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\temail\trole\n1\tAnka Medya\tcayoglua@gmail.com\tadmin\n90020\tanka k\tankamedyaa002@gmail.com\tuser\n90055\tHack Forum\thackforumdestek@gmail.com\tuser\n180001\tMete\tankamedya0010@gmail.com\tuser\n210001\tMustafa Sjahbs\tselox45@gmail.com\tuser\n",
+  "stderr": "",
+  "execution_time_ms": 1574
+}

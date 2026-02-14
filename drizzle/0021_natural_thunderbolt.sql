@@ -1,0 +1,1 @@
+ALTER TABLE `generatedImages` ADD `aiModel` varchar(50) DEFAULT 'qwen' NOT NULL;

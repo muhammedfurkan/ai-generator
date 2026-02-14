@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, openId, name, email, role, credits FROM users ORDER BY id LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute SELECT id, openId, name, email, role, credits FROM users ORDER BY id LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "openId": "JcbHg9aUfmNdyK6zKDNwtb",
+      "name": "Anka Medya",
+      "email": "cayoglua@gmail.com",
+      "role": "admin",
+      "credits": "185"
+    },
+    {
+      "id": "90020",
+      "openId": "CTpyGj6CMgkq992w92nDK2",
+      "name": "anka k",
+      "email": "ankamedyaa002@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "90055",
+      "openId": "KT3KXfV3H6Ey6aBwoEPEJB",
+      "name": "Hack Forum",
+      "email": "hackforumdestek@gmail.com",
+      "role": "user",
+      "credits": "65"
+    },
+    {
+      "id": "180001",
+      "openId": "HfZHhKdqpuZiKFNoUsHGjk",
+      "name": "Mete",
+      "email": "ankamedya0010@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "210001",
+      "openId": "AVYo9D3n9PPUv9HBQ4iBpF",
+      "name": "Mustafa Sjahbs",
+      "email": "selox45@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "210007",
+      "openId": "6TXdwfko2qUEW6F63tLYBr",
+      "name": "Yasemin Aydıner",
+      "email": "yaseminaydiner340@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "240001",
+      "openId": "bCwbm8HvsHL3pi4SybCA3v",
+      "name": "Selçuk Tatlı",
+      "email": "sttl246@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "390001",
+      "openId": "BpkpvC7FWJV493Y2DhjGLs",
+      "name": "abdurrahman cakir",
+      "email": "r10lunapark@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "390007",
+      "openId": "nFDiGSNKXnboMEAacCHVTf",
+      "name": "Mehmet Kalem",
+      "email": "yunqown@gmail.com",
+      "role": "user",
+      "credits": "0"
+    },
+    {
+      "id": "390016",
+      "openId": "2puYRAmCb7YjQvvtjX3fv2",
+      "name": "ncbarann",
+      "email": "ncbarann@gmail.com",
+      "role": "user",
+      "credits": "20"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\topenId\tname\temail\trole\tcredits\n1\tJcbHg9aUfmNdyK6zKDNwtb\tAnka Medya\tcayoglua@gmail.com\tadmin\t185\n90020\tCTpyGj6CMgkq992w92nDK2\tanka k\tankamedyaa002@gmail.com\tuser\t0\n90055\tKT3KXfV3H6Ey6aBwoEPEJB\tHack Forum\thackforumdestek@gmail.com\tuser\t65\n180001\tHfZHhKdqpuZiKFNoUsHGjk\tMete\tankamedya0010@gmail.com\tuser\t0\n210001\tAVYo9D3n9PPUv9HBQ4iBpF\tMustafa Sjahbs\tselox45@gmail.com\tuser\t0\n210007\t6TXdwfko2qUEW6F63tLYBr\tYasemin Aydıner\tyaseminaydiner340@gmail.com\tuser\t0\n240001\tbCwbm8HvsHL3pi4SybCA3v\tSelçuk Tatlı\tsttl246@gmail.com\tuser\t0\n390001\tBpkpvC7FWJV493Y2DhjGLs\tabdurrahman cakir\tr10lunapark@gmail.com\tuser\t0\n390007\tnFDiGSNKXnboMEAacCHVTf\tMehmet Kalem\tyunqown@gmail.com\tuser\t0\n390016\t2puYRAmCb7YjQvvtjX3fv2\tncbarann\tncbarann@gmail.com\tuser\t20\n",
+  "stderr": "",
+  "execution_time_ms": 1593
+}

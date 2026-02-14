@@ -1,0 +1,1 @@
+ALTER TABLE `multiAngleJobs` MODIFY COLUMN `angleSet` enum('temel_4','standart_6','profesyonel_8') NOT NULL;

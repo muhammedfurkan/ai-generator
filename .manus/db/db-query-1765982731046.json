@@ -1,0 +1,560 @@
+{
+  "query": "SELECT id, email, role FROM users ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute SELECT id, email, role FROM users ORDER BY id;",
+  "rows": [
+    {
+      "id": "1",
+      "email": "cayoglua@gmail.com",
+      "role": "admin"
+    },
+    {
+      "id": "90020",
+      "email": "ankamedyaa002@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "90055",
+      "email": "hackforumdestek@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "180001",
+      "email": "ankamedya0010@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "210001",
+      "email": "selox45@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "210007",
+      "email": "yaseminaydiner340@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "240001",
+      "email": "sttl246@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "390001",
+      "email": "r10lunapark@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "390007",
+      "email": "yunqown@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "390016",
+      "email": "ncbarann@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "390027",
+      "email": "furkanyaldz214772@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "420004",
+      "email": "ajanstirek@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "420010",
+      "email": "enesvaral34@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "420037",
+      "email": "beygovau@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "420039",
+      "email": "halileroglu2@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "420052",
+      "email": "mertilhan028@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "450001",
+      "email": "pamuk.3016@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "450005",
+      "email": "emreekinci042@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "450068",
+      "email": "fhisamioglu@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "480005",
+      "email": "mad.warrior.1973@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "600008",
+      "email": "huseynli.rehm@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "660001",
+      "email": "hayilmaz10@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "690001",
+      "email": "dev.fxsl@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "900001",
+      "email": "satistifiky.original@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "960005",
+      "email": "emircankunuk@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1200001",
+      "email": "cagdasw@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1260001",
+      "email": "pakonur0@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1710049",
+      "email": "mahsundalyan745@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1710077",
+      "email": "joper3100@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1710092",
+      "email": "camelbox27@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1770001",
+      "email": "sheky1881xd@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "1800004",
+      "email": "ulanyusoo33@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "2250022",
+      "email": "r10icinmucadele@hotmail.com",
+      "role": "user"
+    },
+    {
+      "id": "2460001",
+      "email": "firat.bozkurt604@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3240019",
+      "email": "mojomad454@arugy.com",
+      "role": "user"
+    },
+    {
+      "id": "3270001",
+      "email": "esepetimofficial@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3300001",
+      "email": "steelyasin@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3300009",
+      "email": "wzp982bb7h@privaterelay.appleid.com",
+      "role": "user"
+    },
+    {
+      "id": "3330001",
+      "email": "hane05878@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3360002",
+      "email": "gcinki@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3390001",
+      "email": "tabitabi2700@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3450001",
+      "email": "mustafakir0028@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540275",
+      "email": "hascimen38@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540653",
+      "email": "lanfilmizle1@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540658",
+      "email": "bststitch@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540661",
+      "email": "sablonnick5@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540669",
+      "email": "korkmaz5231@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540672",
+      "email": "karacashorts@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540678",
+      "email": "munir.onen@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3540699",
+      "email": "mfcnsz@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3570001",
+      "email": "ebubekirarslannn@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3570012",
+      "email": "bayaydinss@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3600002",
+      "email": "ehoca49@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3630002",
+      "email": "doctor.cmptr.mita2@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3630007",
+      "email": "izzettopaktas6@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660001",
+      "email": "maxipori171@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660031",
+      "email": "ysfben270@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660128",
+      "email": "mahsunkskin@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660185",
+      "email": "caglayangame1@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660194",
+      "email": "basricaneri@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660208",
+      "email": "ynsemre5944@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660244",
+      "email": "kodecra@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660261",
+      "email": "hikmettop86@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660278",
+      "email": "sarehanim25@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660300",
+      "email": "ekremmay23@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660355",
+      "email": "maitarim71@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660370",
+      "email": "jonmcgowan24@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660373",
+      "email": "oktayasemin@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3660391",
+      "email": "oktaykopcak@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3690001",
+      "email": "hasyol111@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3720003",
+      "email": "berkaykaraagac@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3720033",
+      "email": "ismekegitimleri@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3780005",
+      "email": "batuhantecno@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3780020",
+      "email": "gfbmahmutoduncu@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3780024",
+      "email": "merttcankoc@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3780103",
+      "email": "mhmtmnzclk@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3780124",
+      "email": "emin@mozcelik.com",
+      "role": "user"
+    },
+    {
+      "id": "3784173",
+      "email": "mraph766@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3784213",
+      "email": "berberbaki@yandex.com",
+      "role": "user"
+    },
+    {
+      "id": "3784299",
+      "email": "leyajaweria@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3784346",
+      "email": "serkakcap1994@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3784363",
+      "email": "ganej83668@fftube.com",
+      "role": "user"
+    },
+    {
+      "id": "3785007",
+      "email": "janielcetg@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3785734",
+      "email": "keremyilmas9090@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3788164",
+      "email": "yektugveo2@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3790914",
+      "email": "hasancan.4141@hotmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3791522",
+      "email": "tugaytiken@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3870001",
+      "email": "akayneslihan68@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3870042",
+      "email": "hydra.danismanlik@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3960002",
+      "email": "nakay98745@arugy.com",
+      "role": "user"
+    },
+    {
+      "id": "3960095",
+      "email": "irfanthrcbn@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3960156",
+      "email": "burcsozlugum@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3960204",
+      "email": "bombardiman90@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "3990016",
+      "email": "gamedevheca@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4050022",
+      "email": "sirranger221@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4080001",
+      "email": "deryataskent@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4110037",
+      "email": "mahmutebrardogan@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4140002",
+      "email": "erkinunlu001@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4140030",
+      "email": "hozgune@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4170463",
+      "email": "raynnerino@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4170566",
+      "email": "turkceastana@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4170596",
+      "email": "valperenhesap@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4170639",
+      "email": "serverlarorg@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4170933",
+      "email": "hct86c99wf@privaterelay.appleid.com",
+      "role": "user"
+    },
+    {
+      "id": "4170974",
+      "email": "sukrugksu@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4171195",
+      "email": "heryerekayit6@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4171205",
+      "email": "umit.sari.sari@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4171303",
+      "email": "haticeayvazsamsun@gmail.com",
+      "role": "user"
+    },
+    {
+      "id": "4171340",
+      "email": "ahmetaydin@ahmetaydin.info",
+      "role": "user"
+    },
+    {
+      "id": "4171428",
+      "email": "bahaorhan01@gmail.com",
+      "role": "user"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\temail\trole\n1\tcayoglua@gmail.com\tadmin\n90020\tankamedyaa002@gmail.com\tuser\n90055\thackforumdestek@gmail.com\tuser\n180001\tankamedya0010@gmail.com\tuser\n210001\tselox45@gmail.com\tuser\n210007\tyaseminaydiner340@gmail.com\tuser\n240001\tsttl246@gmail.com\tuser\n390001\tr10lunapark@gmail.com\tuser\n390007\tyunqown@gmail.com\tuser\n390016\tncbarann@gmail.com\tuser\n390027\tfurkanyaldz214772@gmail.com\tuser\n420004\tajanstirek@gmail.com\tuser\n420010\tenesvaral34@gmail.com\tuser\n420037\tbeygovau@gmail.com\tuser\n420039\thalileroglu2@gmail.com\tuser\n420052\tmertilhan028@gmail.com\tuser\n450001\tpamuk.3016@gmail.com\tuser\n450005\temreekinci042@gmail.com\tuser\n450068\tfhisamioglu@gmail.com\tuser\n480005\tmad.warrior.1973@gmail.com\tuser\n600008\thuseynli.rehm@gmail.com\tuser\n660001\thayilmaz10@gmail.com\tuser\n690001\tdev.fxsl@gmail.com\tuser\n900001\tsatistifiky.original@gmail.com\tuser\n960005\temircankunuk@gmail.com\tuser\n1200001\tcagdasw@gmail.com\tuser\n1260001\tpakonur0@gmail.com\tuser\n1710049\tmahsundalyan745@gmail.com\tuser\n1710077\tjoper3100@gmail.com\tuser\n1710092\tcamelbox27@gmail.com\tuser\n1770001\tsheky1881xd@gmail.com\tuser\n1800004\tulanyusoo33@gmail.com\tuser\n2250022\tr10icinmucadele@hotmail.com\tuser\n2460001\tfirat.bozkurt604@gmail.com\tuser\n3240019\tmojomad454@arugy.com\tuser\n3270001\tesepetimofficial@gmail.com\tuser\n3300001\tsteelyasin@gmail.com\tuser\n3300009\twzp982bb7h@privaterelay.appleid.com\tuser\n3330001\thane05878@gmail.com\tuser\n3360002\tgcinki@gmail.com\tuser\n3390001\ttabitabi2700@gmail.com\tuser\n3450001\tmustafakir0028@gmail.com\tuser\n3540275\thascimen38@gmail.com\tuser\n3540653\tlanfilmizle1@gmail.com\tuser\n3540658\tbststitch@gmail.com\tuser\n3540661\tsablonnick5@gmail.com\tuser\n3540669\tkorkmaz5231@gmail.com\tuser\n3540672\tkaracashorts@gmail.com\tuser\n3540678\tmunir.onen@gmail.com\tuser\n3540699\tmfcnsz@gmail.com\tuser\n3570001\tebubekirarslannn@gmail.com\tuser\n3570012\tbayaydinss@gmail.com\tuser\n3600002\tehoca49@gmail.com\tuser\n3630002\tdoctor.cmptr.mita2@gmail.com\tuser\n3630007\tizzettopaktas6@gmail.com\tuser\n3660001\tmaxipori171@gmail.com\tuser\n3660031\tysfben270@gmail.com\tuser\n3660128\tmahsunkskin@gmail.com\tuser\n3660185\tcaglayangame1@gmail.com\tuser\n3660194\tbasricaneri@gmail.com\tuser\n3660208\tynsemre5944@gmail.com\tuser\n3660244\tkodecra@gmail.com\tuser\n3660261\thikmettop86@gmail.com\tuser\n3660278\tsarehanim25@gmail.com\tuser\n3660300\tekremmay23@gmail.com\tuser\n3660355\tmaitarim71@gmail.com\tuser\n3660370\tjonmcgowan24@gmail.com\tuser\n3660373\toktayasemin@gmail.com\tuser\n3660391\toktaykopcak@gmail.com\tuser\n3690001\thasyol111@gmail.com\tuser\n3720003\tberkaykaraagac@gmail.com\tuser\n3720033\tismekegitimleri@gmail.com\tuser\n3780005\tbatuhantecno@gmail.com\tuser\n3780020\tgfbmahmutoduncu@gmail.com\tuser\n3780024\tmerttcankoc@gmail.com\tuser\n3780103\tmhmtmnzclk@gmail.com\tuser\n3780124\temin@mozcelik.com\tuser\n3784173\tmraph766@gmail.com\tuser\n3784213\tberberbaki@yandex.com\tuser\n3784299\tleyajaweria@gmail.com\tuser\n3784346\tserkakcap1994@gmail.com\tuser\n3784363\tganej83668@fftube.com\tuser\n3785007\tjanielcetg@gmail.com\tuser\n3785734\tkeremyilmas9090@gmail.com\tuser\n3788164\tyektugveo2@gmail.com\tuser\n3790914\thasancan.4141@hotmail.com\tuser\n3791522\ttugaytiken@gmail.com\tuser\n3870001\takayneslihan68@gmail.com\tuser\n3870042\thydra.danismanlik@gmail.com\tuser\n3960002\tnakay98745@arugy.com\tuser\n3960095\tirfanthrcbn@gmail.com\tuser\n3960156\tburcsozlugum@gmail.com\tuser\n3960204\tbombardiman90@gmail.com\tuser\n3990016\tgamedevheca@gmail.com\tuser\n4050022\tsirranger221@gmail.com\tuser\n4080001\tderyataskent@gmail.com\tuser\n4110037\tmahmutebrardogan@gmail.com\tuser\n4140002\terkinunlu001@gmail.com\tuser\n4140030\thozgune@gmail.com\tuser\n4170463\traynnerino@gmail.com\tuser\n4170566\tturkceastana@gmail.com\tuser\n4170596\tvalperenhesap@gmail.com\tuser\n4170639\tserverlarorg@gmail.com\tuser\n4170933\thct86c99wf@privaterelay.appleid.com\tuser\n4170974\tsukrugksu@gmail.com\tuser\n4171195\theryerekayit6@gmail.com\tuser\n4171205\tumit.sari.sari@gmail.com\tuser\n4171303\thaticeayvazsamsun@gmail.com\tuser\n4171340\tahmetaydin@ahmetaydin.info\tuser\n4171428\tbahaorhan01@gmail.com\tuser\n",
+  "stderr": "",
+  "execution_time_ms": 1560
+}

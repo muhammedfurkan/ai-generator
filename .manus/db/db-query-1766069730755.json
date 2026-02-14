@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, angleSet, status FROM multiAngleJobs LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute SELECT id, angleSet, status FROM multiAngleJobs LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "angleSet": "standard_9",
+      "status": "completed"
+    },
+    {
+      "id": "30001",
+      "angleSet": "standard_9",
+      "status": "completed"
+    },
+    {
+      "id": "30002",
+      "angleSet": "standard_9",
+      "status": "completed"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tangleSet\tstatus\n1\tstandard_9\tcompleted\n30001\tstandard_9\tcompleted\n30002\tstandard_9\tcompleted\n",
+  "stderr": "",
+  "execution_time_ms": 1672
+}

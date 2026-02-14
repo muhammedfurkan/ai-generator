@@ -1,0 +1,175 @@
+import { useAuth } from "@/_core/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { useLocation } from "wouter";
+import { TR } from "@/lib/tr";
+import { motion } from "framer-motion";
+import { Sparkles, Image as ImageIcon, Zap } from "lucide-react";
+import { getLoginUrl } from "@/const";
+import Header from "@/components/Header";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5 },
+  },
+};
+
+export default function Home() {
+  const { isAuthenticated } = useAuth();
+  const [, navigate] = useLocation();
+
+  const handleCreateClick = () => {
+    if (isAuthenticated) {
+      navigate("/generate");
+    } else {
+      window.location.href = getLoginUrl();
+    }
+  };
+
+  const features = [
+    {
+      icon: Sparkles,
+      title: TR.home.features.textToImage,
+      description: TR.home.features.textToImageDesc,
+    },
+    {
+      icon: ImageIcon,
+      title: TR.home.features.imageToImage,
+      description: TR.home.features.imageToImageDesc,
+    },
+    {
+      icon: Zap,
+      title: TR.home.features.quality,
+      description: TR.home.features.qualityDesc,
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+
+      {/* Hero Section */}
+      <motion.section
+        className="relative overflow-hidden py-20 sm:py-32"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="container">
+          <motion.div
+            className="mx-auto max-w-3xl text-center"
+            variants={itemVariants}
+          >
+            <h1 className="mb-6 text-4xl font-bold sm:text-6xl lg:text-7xl">
+              <span className="gradient-text">{TR.home.heroTitle}</span>
+            </h1>
+            <p className="mb-8 text-xl text-muted-foreground sm:text-2xl">
+              {TR.home.heroSubtitle}
+            </p>
+            <Button
+              onClick={handleCreateClick}
+              className="gradient-button text-white rounded-full px-8 py-6 text-lg"
+            >
+              {TR.home.ctaButton}
+            </Button>
+          </motion.div>
+        </div>
+
+        {/* Decorative elements */}
+        <div className="absolute top-0 right-0 -z-10 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -z-10 h-96 w-96 rounded-full bg-purple-500/10 blur-3xl" />
+      </motion.section>
+
+      {/* Features Section */}
+      <motion.section
+        className="py-20 sm:py-32"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
+        <div className="container">
+          <motion.div className="mb-16 text-center" variants={itemVariants}>
+            <h2 className="text-3xl font-bold sm:text-4xl">
+              Neler Yapabilirsiniz?
+            </h2>
+          </motion.div>
+
+          <motion.div
+            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+            variants={containerVariants}
+          >
+            {features.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={index}
+                  className="glass-card group"
+                  variants={itemVariants}
+                  whileHover={{ y: -5 }}
+                >
+                  <div className="mb-4 inline-flex rounded-lg bg-blue-500/20 p-3">
+                    <Icon className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <h3 className="mb-2 text-xl font-semibold">
+                    {feature.title}
+                  </h3>
+                  <p className="text-muted-foreground">{feature.description}</p>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* CTA Section */}
+      <motion.section
+        className="py-20 sm:py-32"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+      >
+        <div className="container">
+          <motion.div
+            className="liquid-glass rounded-3xl p-12 text-center sm:p-16"
+            variants={itemVariants}
+          >
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+              Hemen Başlayın
+            </h2>
+            <p className="mb-8 text-lg text-muted-foreground">
+              Yapay zeka gücüyle profesyonel görseller oluşturun
+            </p>
+            <Button
+              onClick={handleCreateClick}
+              className="gradient-button text-white rounded-full px-8 py-6 text-lg"
+            >
+              {TR.home.ctaButton}
+            </Button>
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Footer */}
+      <footer className="border-t border-white/10 bg-background/50 py-8 backdrop-blur-xl">
+        <div className="container text-center text-sm text-muted-foreground">
+          <p>© 2025 Amonify. Nano Banana Pro tarafından desteklenmektedir.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}

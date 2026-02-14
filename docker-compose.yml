@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: nanoinf-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-nanoinf_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-nanoinf}
+      MYSQL_USER: ${MYSQL_USER:-nanoinf_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-nanoinf_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - nanoinf-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NanoInf Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nanoinf-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: mysql://${MYSQL_USER:-nanoinf_user}:${MYSQL_PASSWORD:-nanoinf_password}@mysql:3306/${MYSQL_DATABASE:-nanoinf}
+      JWT_SECRET: ${JWT_SECRET}
+      VITE_APP_ID: ${VITE_APP_ID}
+      OAUTH_SERVER_URL: ${OAUTH_SERVER_URL}
+      VITE_OAUTH_PORTAL_URL: ${VITE_OAUTH_PORTAL_URL}
+      OWNER_OPEN_ID: ${OWNER_OPEN_ID}
+      OWNER_NAME: ${OWNER_NAME}
+      NANO_BANANA_API_KEY: ${NANO_BANANA_API_KEY}
+      KIE_AI_API_KEY: ${KIE_AI_API_KEY}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_ADMIN_CHAT_ID: ${TELEGRAM_ADMIN_CHAT_ID}
+      VITE_APP_TITLE: ${VITE_APP_TITLE:-NanoInf}
+      VITE_APP_LOGO: ${VITE_APP_LOGO}
+      # Storage Configuration
+      STORAGE_PROVIDER: ${STORAGE_PROVIDER:-cloudinary}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      S3_BUCKET: ${S3_BUCKET}
+      S3_REGION: ${S3_REGION}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID}
+      VITE_GOOGLE_MAPS_API_KEY: ${VITE_GOOGLE_MAPS_API_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - nanoinf-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: nanoinf-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - app
+    networks:
+      - nanoinf-network
+
+volumes:
+  mysql_data:
+    driver: local
+  nginx_logs:
+    driver: local
+
+networks:
+  nanoinf-network:
+    driver: bridge

@@ -1,0 +1,118 @@
+{
+  "query": "SELECT j.id as job_id, j.status as job_status, j.totalImages, j.completedImages, \n       i.id as image_id, i.angleName, i.status as image_status, i.taskId, i.generatedImageUrl, i.errorMessage\nFROM multiAngleJobs j \nLEFT JOIN multiAngleImages i ON j.id = i.jobId \nORDER BY j.id DESC, i.id ASC \nLIMIT 30",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3RD81TG4rcgjaLg.bf493ad42272 --database LKmeEoJsnZn9U4KoySaL4G --execute SELECT j.id as job_id, j.status as job_status, j.totalImages, j.completedImages, \n       i.id as image_id, i.angleName, i.status as image_status, i.taskId, i.generatedImageUrl, i.errorMessage\nFROM multiAngleJobs j \nLEFT JOIN multiAngleImages i ON j.id = i.jobId \nORDER BY j.id DESC, i.id ASC \nLIMIT 30",
+  "rows": [
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "1",
+      "angleName": "front facing mid shot",
+      "image_status": "processing",
+      "taskId": "749f1bde3269391120d5dccc33099cd0",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "2",
+      "angleName": "front close-up portrait",
+      "image_status": "processing",
+      "taskId": "5050a78e93c65f56fcac3c8daf0f4ae5",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "3",
+      "angleName": "three quarter angle left",
+      "image_status": "processing",
+      "taskId": "3ab780559335ad08f4849d4375fcbd3a",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "4",
+      "angleName": "three quarter angle right",
+      "image_status": "processing",
+      "taskId": "9a4678d8d943806d49160036690c2e89",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "5",
+      "angleName": "side profile left",
+      "image_status": "processing",
+      "taskId": "32b58ea740dba4920a36993773066e6a",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "6",
+      "angleName": "over the shoulder looking back",
+      "image_status": "processing",
+      "taskId": "b224f1a9fae0a89d95637087c22aa576",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "7",
+      "angleName": "looking down angle from above",
+      "image_status": "processing",
+      "taskId": "bad74d2a42182ba57a297da34dcf04a5",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "8",
+      "angleName": "looking up angle from below",
+      "image_status": "processing",
+      "taskId": "122696b20a987e4c9c8f1abf61885a2a",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    },
+    {
+      "job_id": "1",
+      "job_status": "processing",
+      "totalImages": "9",
+      "completedImages": "0",
+      "image_id": "9",
+      "angleName": "back view showing full back",
+      "image_status": "processing",
+      "taskId": "f7d81916482b75e9a30757153312283e",
+      "generatedImageUrl": "NULL",
+      "errorMessage": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "job_id\tjob_status\ttotalImages\tcompletedImages\timage_id\tangleName\timage_status\ttaskId\tgeneratedImageUrl\terrorMessage\n1\tprocessing\t9\t0\t1\tfront facing mid shot\tprocessing\t749f1bde3269391120d5dccc33099cd0\tNULL\tNULL\n1\tprocessing\t9\t0\t2\tfront close-up portrait\tprocessing\t5050a78e93c65f56fcac3c8daf0f4ae5\tNULL\tNULL\n1\tprocessing\t9\t0\t3\tthree quarter angle left\tprocessing\t3ab780559335ad08f4849d4375fcbd3a\tNULL\tNULL\n1\tprocessing\t9\t0\t4\tthree quarter angle right\tprocessing\t9a4678d8d943806d49160036690c2e89\tNULL\tNULL\n1\tprocessing\t9\t0\t5\tside profile left\tprocessing\t32b58ea740dba4920a36993773066e6a\tNULL\tNULL\n1\tprocessing\t9\t0\t6\tover the shoulder looking back\tprocessing\tb224f1a9fae0a89d95637087c22aa576\tNULL\tNULL\n1\tprocessing\t9\t0\t7\tlooking down angle from above\tprocessing\tbad74d2a42182ba57a297da34dcf04a5\tNULL\tNULL\n1\tprocessing\t9\t0\t8\tlooking up angle from below\tprocessing\t122696b20a987e4c9c8f1abf61885a2a\tNULL\tNULL\n1\tprocessing\t9\t0\t9\tback view showing full back\tprocessing\tf7d81916482b75e9a30757153312283e\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 1847
+}

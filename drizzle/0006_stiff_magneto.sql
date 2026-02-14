@@ -1,0 +1,1 @@
+ALTER TABLE `aiCharacters` ADD `isPublic` boolean DEFAULT false NOT NULL;
