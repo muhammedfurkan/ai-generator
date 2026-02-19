@@ -16,6 +16,13 @@ export const ENV = {
   smtpUser: process.env.SMTP_USER ?? "",
   smtpPass: process.env.SMTP_PASS ?? "",
   // Authentication toggles
-  emailPasswordAuthEnabled: process.env.EMAIL_PASSWORD_AUTH_ENABLED?.toLowerCase() === "true" || process.env.EMAIL_PASSWORD_AUTH_ENABLED === "1",
-  googleAuthEnabled: process.env.GOOGLE_AUTH_ENABLED !== "false" && process.env.GOOGLE_AUTH_ENABLED !== "0", // Default: true
+  emailPasswordAuthEnabled:
+    process.env.EMAIL_PASSWORD_AUTH_ENABLED?.toLowerCase() === "true" ||
+    process.env.EMAIL_PASSWORD_AUTH_ENABLED === "1",
+  googleAuthEnabled:
+    process.env.GOOGLE_AUTH_ENABLED !== "false" &&
+    process.env.GOOGLE_AUTH_ENABLED !== "0", // Default: true
+  // Audio AI providers
+  minimaxApiKey: process.env.MINIMAX_API_KEY ?? "",
+  elevenlabsApiKey: process.env.ELEVENLABS_API_KEY ?? "",
 };

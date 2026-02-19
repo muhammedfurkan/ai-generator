@@ -42,6 +42,8 @@ import {
   BarChart3,
   ArrowRightLeft,
   Shield,
+  Mic,
+  Music,
 } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -49,7 +51,7 @@ import { tr } from "date-fns/locale";
 interface ModelForm {
   modelKey: string;
   modelName: string;
-  modelType: "image" | "video" | "upscale";
+  modelType: "image" | "video" | "upscale" | "audio" | "music";
   provider: string;
   isActive: boolean;
   isMaintenanceMode: boolean;
@@ -196,6 +198,10 @@ export default function AdminModels() {
         return <Video className="h-4 w-4" />;
       case "upscale":
         return <Zap className="h-4 w-4" />;
+      case "audio":
+        return <Mic className="h-4 w-4" />;
+      case "music":
+        return <Music className="h-4 w-4" />;
       default:
         return <Cpu className="h-4 w-4" />;
     }
@@ -209,6 +215,10 @@ export default function AdminModels() {
         return "bg-[#00F5FF]/20 text-[#00F5FF] border-[#00F5FF]/30";
       case "upscale":
         return "bg-green-500/20 text-green-400 border-green-500/30";
+      case "audio":
+        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+      case "music":
+        return "bg-pink-500/20 text-pink-400 border-pink-500/30";
       default:
         return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
     }
@@ -246,6 +256,8 @@ export default function AdminModels() {
   const models = modelsQuery.data || [];
   const imageModels = models.filter((m: any) => m.modelType === "image");
   const videoModels = models.filter((m: any) => m.modelType === "video");
+  const audioModels = models.filter((m: any) => m.modelType === "audio");
+  const musicModels = models.filter((m: any) => m.modelType === "music");
 
   // Summary stats
   const totalModels = models.length;
@@ -518,6 +530,20 @@ export default function AdminModels() {
             <Video className="h-4 w-4 mr-2" />
             Video Modelleri ({videoModels.length})
           </TabsTrigger>
+          <TabsTrigger
+            value="audio"
+            className="data-[state=active]:bg-[#00F5FF] data-[state=active]:text-black"
+          >
+            <Mic className="h-4 w-4 mr-2" />
+            Ses Modelleri ({audioModels.length})
+          </TabsTrigger>
+          <TabsTrigger
+            value="music"
+            className="data-[state=active]:bg-[#00F5FF] data-[state=active]:text-black"
+          >
+            <Music className="h-4 w-4 mr-2" />
+            Müzik Modelleri ({musicModels.length})
+          </TabsTrigger>
         </TabsList>
 
         {/* Image Models Tab */}
@@ -543,6 +569,34 @@ export default function AdminModels() {
               <div className="text-center py-12 bg-zinc-900/50 rounded-2xl border border-white/10">
                 <Video className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
                 <p className="text-zinc-500">Henüz video modeli eklenmemiş</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Audio Models Tab */}
+        <TabsContent value="audio" className="mt-6">
+          <div className="grid gap-4">
+            {audioModels.map((model: any) => renderModelCard(model))}
+
+            {audioModels.length === 0 && (
+              <div className="text-center py-12 bg-zinc-900/50 rounded-2xl border border-white/10">
+                <Mic className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
+                <p className="text-zinc-500">Henüz ses modeli eklenmemiş</p>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Music Models Tab */}
+        <TabsContent value="music" className="mt-6">
+          <div className="grid gap-4">
+            {musicModels.map((model: any) => renderModelCard(model))}
+
+            {musicModels.length === 0 && (
+              <div className="text-center py-12 bg-zinc-900/50 rounded-2xl border border-white/10">
+                <Music className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
+                <p className="text-zinc-500">Henüz müzik modeli eklenmemiş</p>
               </div>
             )}
           </div>
@@ -627,6 +681,8 @@ export default function AdminModels() {
                     <SelectItem value="image">Görsel</SelectItem>
                     <SelectItem value="video">Video</SelectItem>
                     <SelectItem value="upscale">Upscale</SelectItem>
+                    <SelectItem value="audio">Ses (TTS)</SelectItem>
+                    <SelectItem value="music">Müzik</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -666,40 +722,42 @@ export default function AdminModels() {
 
             <div className="border-t border-white/10 pt-4">
               <h4 className="text-sm font-medium mb-3">Limitler</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">
-                    Maks Genişlik (px)
-                  </label>
-                  <Input
-                    type="number"
-                    value={form.maxResolutionWidth}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        maxResolutionWidth: parseInt(e.target.value) || 4096,
-                      })
-                    }
-                    className="bg-zinc-800 border-white/10"
-                  />
+              {!["audio", "music"].includes(form.modelType) && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-zinc-400 mb-1 block">
+                      Maks Genişlik (px)
+                    </label>
+                    <Input
+                      type="number"
+                      value={form.maxResolutionWidth}
+                      onChange={e =>
+                        setForm({
+                          ...form,
+                          maxResolutionWidth: parseInt(e.target.value) || 4096,
+                        })
+                      }
+                      className="bg-zinc-800 border-white/10"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-zinc-400 mb-1 block">
+                      Maks Yükseklik (px)
+                    </label>
+                    <Input
+                      type="number"
+                      value={form.maxResolutionHeight}
+                      onChange={e =>
+                        setForm({
+                          ...form,
+                          maxResolutionHeight: parseInt(e.target.value) || 4096,
+                        })
+                      }
+                      className="bg-zinc-800 border-white/10"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-zinc-400 mb-1 block">
-                    Maks Yükseklik (px)
-                  </label>
-                  <Input
-                    type="number"
-                    value={form.maxResolutionHeight}
-                    onChange={e =>
-                      setForm({
-                        ...form,
-                        maxResolutionHeight: parseInt(e.target.value) || 4096,
-                      })
-                    }
-                    className="bg-zinc-800 border-white/10"
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
             {form.modelType === "video" && (

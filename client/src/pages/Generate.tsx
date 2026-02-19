@@ -410,9 +410,6 @@ export default function Generate() {
                   </div>
                   <div className="text-left">
                     <div className="font-bold">{selectedModel.modelName}</div>
-                    <div className="text-xs text-white/40">
-                      {selectedModel.provider}
-                    </div>
                   </div>
                 </div>
                 <ChevronDown

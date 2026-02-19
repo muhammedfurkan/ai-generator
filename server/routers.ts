@@ -29,6 +29,8 @@ import { settingsRouter } from "./routers/settings";
 import { shopierRouter } from "./routers/shopier";
 import { stripeRouter } from "./routers/stripe";
 import { modalCardsRouter } from "./routers/modalCards";
+import { audioGenerationRouter } from "./routers/audioGeneration";
+import { musicGenerationRouter } from "./routers/musicGeneration";
 
 export const appRouter = router({
   // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -40,8 +42,8 @@ export const appRouter = router({
       // Clear our custom session cookie
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       // Clear Clerk session cookie
-      ctx.res.clearCookie('__session', { ...cookieOptions, maxAge: -1 });
-      console.log('[Logout] Cleared cookies:', COOKIE_NAME, '__session');
+      ctx.res.clearCookie("__session", { ...cookieOptions, maxAge: -1 });
+      console.log("[Logout] Cleared cookies:", COOKIE_NAME, "__session");
       return {
         success: true,
       } as const;
@@ -74,6 +76,8 @@ export const appRouter = router({
   shopier: shopierRouter,
   stripe: stripeRouter,
   modalCards: modalCardsRouter,
+  audioGeneration: audioGenerationRouter,
+  musicGeneration: musicGenerationRouter,
 });
 
 export type AppRouter = typeof appRouter;

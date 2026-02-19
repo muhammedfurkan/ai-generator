@@ -21,10 +21,12 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
   // Fetch global SEO settings
   const { data: globalSeo } = trpc.seo.getGlobalConfig.useQuery();
 
+  // Fetch public settings for dynamic favicon/logo
+  const { data: publicSettings } = trpc.settings.getPublicSettings.useQuery();
+
   useEffect(() => {
     if (!pageSeo && !globalSeo) return;
 
-    // Helper to update or create meta tag
     const setMetaTag = (
       name: string,
       content: string | null | undefined,
@@ -63,7 +65,7 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
 
     // Set document title
     const title =
-      pageSeo?.metaTitle || globalSeo?.defaultMetaTitle || "Amonify";
+      pageSeo?.metaTitle || globalSeo?.defaultMetaTitle || "Lumiohan";
     document.title = title;
 
     // Basic meta tags
@@ -75,7 +77,7 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
       "keywords",
       pageSeo?.metaKeywords || globalSeo?.defaultMetaKeywords
     );
-    setMetaTag("author", globalSeo?.siteName || "Amonify");
+    setMetaTag("author", globalSeo?.siteName || "Lumiohan");
 
     // Robots
     if (pageSeo?.robotsIndex !== undefined) {
@@ -89,9 +91,18 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     // Canonical URL
     setLinkTag("canonical", pageSeo?.canonicalUrl);
 
+    // Dynamic favicon from site settings
+    const faviconUrl = publicSettings?.find(
+      s => s.key === "site_favicon_url"
+    )?.value;
+    if (faviconUrl) {
+      setLinkTag("icon", faviconUrl);
+      setLinkTag("shortcut icon", faviconUrl);
+      setLinkTag("apple-touch-icon", faviconUrl);
+    }
     // Open Graph (Facebook)
     setMetaTag("og:type", "website", true);
-    setMetaTag("og:site_name", globalSeo?.siteName || "Amonify", true);
+    setMetaTag("og:site_name", globalSeo?.siteName || "Lumiohan", true);
     setMetaTag(
       "og:title",
       pageSeo?.ogTitle || pageSeo?.metaTitle || title,
@@ -160,7 +171,7 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
       // Optional: Remove dynamic tags on unmount
       // This is usually not needed as we update them on route change
     };
-  }, [pageSeo, globalSeo]);
+  }, [pageSeo, globalSeo, publicSettings]);
 
   return null; // This component doesn't render anything
 }

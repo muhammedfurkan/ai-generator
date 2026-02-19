@@ -587,7 +587,7 @@ function AddPageForm({
           onChange={e =>
             setFormData({ ...formData, metaTitle: e.target.value })
           }
-          placeholder="Sayfa Başlığı | Amonify"
+          placeholder="Sayfa Başlığı | Lumiohan"
           className="bg-zinc-800 border-white/10"
         />
       </div>
@@ -621,7 +621,7 @@ function AddPageForm({
 // Global Config Editor
 function GlobalConfigEditor({ config, onSave, isPending }: any) {
   const [formData, setFormData] = useState({
-    siteName: config?.siteName || "Amonify",
+    siteName: config?.siteName || "Lumiohan",
     siteTagline: config?.siteTagline || "",
     defaultLanguage: config?.defaultLanguage || "tr",
     defaultMetaTitle: config?.defaultMetaTitle || "",
@@ -836,8 +836,8 @@ function RobotsEditor({ config, onSave, isPending }: any) {
       `User-agent: *
 Allow: /
 
-Sitemap: https://amonify.com/sitemap.xml`,
-    sitemapUrl: config?.sitemapUrl || "https://amonify.com/sitemap.xml",
+Sitemap: https://Lumiohan.com/sitemap.xml`,
+    sitemapUrl: config?.sitemapUrl || "https://Lumiohan.com/sitemap.xml",
   });
 
   return (

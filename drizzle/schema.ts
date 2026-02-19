@@ -149,7 +149,13 @@ export const aiModelConfig = mysqlTable(
     id: int().autoincrement().notNull(),
     modelKey: varchar({ length: 100 }).notNull(),
     modelName: varchar({ length: 200 }).notNull(),
-    modelType: mysqlEnum(["image", "video", "upscale"]).notNull(),
+    modelType: mysqlEnum([
+      "image",
+      "video",
+      "upscale",
+      "audio",
+      "music",
+    ]).notNull(),
     provider: varchar({ length: 100 }).notNull(),
     isActive: tinyint().default(1).notNull(),
     isMaintenanceMode: tinyint().default(0).notNull(),
@@ -1547,5 +1553,105 @@ export const viralAppsConfig = mysqlTable(
   table => [
     primaryKey({ columns: [table.id], name: "viralAppsConfig_id" }),
     unique("viralAppsConfig_appKey_unique").on(table.appKey),
+  ]
+);
+
+export const showcaseImages = mysqlTable(
+  "showcaseImages",
+  {
+    id: int().autoincrement().notNull(),
+    imageUrl: text().notNull(),
+    thumbnailUrl: text(),
+    title: varchar({ length: 200 }),
+    aspectRatio: mysqlEnum(["square", "portrait", "landscape"])
+      .default("square")
+      .notNull(),
+    order: int().default(0).notNull(),
+    isActive: tinyint().default(1).notNull(),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp({ mode: "string" })
+      .defaultNow()
+      .onUpdateNow()
+      .notNull(),
+  },
+  table => [
+    primaryKey({ columns: [table.id], name: "showcaseImages_id" }),
+    index("showcaseImages_order_idx").on(table.order),
+    index("showcaseImages_active_order_idx").on(table.isActive, table.order),
+  ]
+);
+
+export const showcaseVideos = mysqlTable(
+  "showcaseVideos",
+  {
+    id: int().autoincrement().notNull(),
+    videoUrl: text().notNull(),
+    posterUrl: text(),
+    title: varchar({ length: 200 }),
+    order: int().default(0).notNull(),
+    isActive: tinyint().default(1).notNull(),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp({ mode: "string" })
+      .defaultNow()
+      .onUpdateNow()
+      .notNull(),
+  },
+  table => [
+    primaryKey({ columns: [table.id], name: "showcaseVideos_id" }),
+    index("showcaseVideos_order_idx").on(table.order),
+    index("showcaseVideos_active_order_idx").on(table.isActive, table.order),
+  ]
+);
+
+export const generatedAudio = mysqlTable(
+  "generatedAudio",
+  {
+    id: int().autoincrement().notNull(),
+    userId: int()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    text: text().notNull(),
+    provider: mysqlEnum(["minimax", "elevenlabs"]).notNull(),
+    model: varchar({ length: 100 }).notNull(),
+    voiceId: varchar({ length: 255 }).notNull(),
+    language: varchar({ length: 50 }),
+    speed: decimal({ precision: 3, scale: 2 }).default("1.00"),
+    audioUrl: text(),
+    durationMs: int(),
+    creditsCost: int().default(10).notNull(),
+    status: varchar({ length: 20 }).default("pending").notNull(),
+    errorMessage: text(),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    completedAt: timestamp({ mode: "string" }),
+  },
+  table => [
+    primaryKey({ columns: [table.id], name: "generatedAudio_id" }),
+    index("gen_audio_user_created_idx").on(table.userId, table.createdAt),
+    index("gen_audio_user_status_idx").on(table.userId, table.status),
+  ]
+);
+
+export const generatedMusic = mysqlTable(
+  "generatedMusic",
+  {
+    id: int().autoincrement().notNull(),
+    userId: int()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    prompt: text(),
+    lyrics: text().notNull(),
+    model: varchar({ length: 100 }).notNull().default("music-2.5"),
+    audioUrl: text(),
+    durationMs: int(),
+    creditsCost: int().default(20).notNull(),
+    status: varchar({ length: 20 }).default("pending").notNull(),
+    errorMessage: text(),
+    createdAt: timestamp({ mode: "string" }).defaultNow().notNull(),
+    completedAt: timestamp({ mode: "string" }),
+  },
+  table => [
+    primaryKey({ columns: [table.id], name: "generatedMusic_id" }),
+    index("gen_music_user_created_idx").on(table.userId, table.createdAt),
+    index("gen_music_user_status_idx").on(table.userId, table.status),
   ]
 );

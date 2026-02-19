@@ -26,6 +26,8 @@ export const translations: Translations = {
   "nav.darkMode": { tr: "Karanlık Tema", en: "Dark Mode" },
   "nav.lightMode": { tr: "Aydınlık Tema", en: "Light Mode" },
   "nav.new": { tr: "YENİ", en: "NEW" },
+  "nav.audioGenerate": { tr: "Ses Üretimi", en: "Audio Generate" },
+  "nav.musicGenerate": { tr: "Müzik Üretimi", en: "Music Generate" },
   "nav.generate": { tr: "Oluştur", en: "Create" },
   "nav.creditsSuffix": { tr: "kredi", en: "credits" },
   "nav.topUp": { tr: "Kredi Yükle", en: "Top Up" },
@@ -90,6 +92,8 @@ export const translations: Translations = {
   "home.aiVideoGallery": { tr: "AI VİDEO GALERİSİ", en: "AI VIDEO GALLERY" },
   "home.createVideo": { tr: "Video Oluştur", en: "Create Video" },
   "home.aiVideoItem": { tr: "AI Video", en: "AI Video" },
+  "home.noImages": { tr: "Henüz görsel eklenmedi", en: "No images added yet" },
+  "home.noVideos": { tr: "Henüz video eklenmedi", en: "No videos added yet" },
   "home.communityGallery": { tr: "TOPLULUK GALERİSİ", en: "COMMUNITY GALLERY" },
   "home.communityShort": { tr: "Topluluk", en: "Community" },
   "home.communityDesc": {

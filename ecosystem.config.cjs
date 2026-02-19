@@ -1,6 +1,6 @@
 module.exports = {
 	apps: [{
-		name: 'amonify',
+		name: 'lumiohan',
 		// script: 'rm -rf .next && npm run build && npm run start',
 		script: 'npm run build && npm start',
 		args: '',
@@ -14,7 +14,7 @@ module.exports = {
 		},
 		env_production: {
 			NODE_ENV: 'production',
-			HOST: 'http://localhost:3005',
+			HOST: 'https://lumiohan.com',
 			TOKENEXPIRESIN: '30d',
 			BLOCK_IP: '',
 			TZ: 'Europe/Istanbul',

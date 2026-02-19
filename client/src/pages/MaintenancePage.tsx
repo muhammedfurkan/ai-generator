@@ -90,10 +90,10 @@ export default function MaintenancePage({ message }: MaintenancePageProps) {
         <p className="text-xs text-zinc-600">
           {t("maintenance.questions")}{" "}
           <a
-            href="mailto:destek@amonify.com"
+            href="mailto:destek@Lumiohan.com"
             className="text-[#00F5FF] hover:underline"
           >
-            destek@amonify.com
+            destek@Lumiohan.com
           </a>
         </p>
       </motion.div>

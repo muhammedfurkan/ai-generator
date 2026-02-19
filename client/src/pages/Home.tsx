@@ -30,35 +30,16 @@ const HeroThreeBackground = lazy(
   () => import("@/components/home/HeroThreeBackground")
 );
 
-// Showcase görselleri - masonry grid için
-const SHOWCASE_IMAGES = [
-  { src: "/gallery/showcase-1.jpg", aspect: "square" },
-  { src: "/gallery/showcase-2.jpg", aspect: "portrait" },
-  { src: "/gallery/showcase-3.jpg", aspect: "square" },
-  { src: "/gallery/showcase-4.jpg", aspect: "portrait" },
-  { src: "/gallery/sample-1.jpg", aspect: "landscape" },
-  { src: "/gallery/sample-2.jpg", aspect: "square" },
-  { src: "/gallery/sample-3.jpg", aspect: "portrait" },
-  { src: "/gallery/sample-4.jpg", aspect: "landscape" },
-  { src: "/gallery/sample-5.jpg", aspect: "square" },
-  { src: "/gallery/sample-6.jpg", aspect: "portrait" },
-  { src: "/gallery/sample-7.jpg", aspect: "landscape" },
-  { src: "/gallery/sample-8.jpg", aspect: "square" },
-];
-
-// Video showcase
-const SHOWCASE_VIDEOS = [
-  { src: "/gallery/video-1.mp4", poster: "/gallery/showcase-2.jpg" },
-  { src: "/gallery/video-2.mp4", poster: "/gallery/showcase-3.jpg" },
-  { src: "/gallery/video-3.mp4", poster: "/gallery/showcase-4.jpg" },
-];
-
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
   const [, navigate] = useLocation();
   const { t, language } = useLanguage();
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
   const homeRef = useRef<HTMLDivElement>(null);
+
+  // Fetch showcase images and videos from API
+  const { data: showcaseImages = [] } = trpc.settings.getShowcaseImages.useQuery();
+  const { data: showcaseVideos = [] } = trpc.settings.getShowcaseVideos.useQuery();
 
   // AI Araçları kategorileri
   const AI_TOOLS = [
@@ -510,33 +491,39 @@ export default function Home() {
 
               {/* Masonry Grid */}
               <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
-                {SHOWCASE_IMAGES.map((img, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.03 }}
-                    className="break-inside-avoid group cursor-pointer"
-                    onClick={() => handleToolClick("/generate")}
-                  >
-                    <div className="relative rounded-xl overflow-hidden bg-white/5">
-                      <img
-                        src={img.src}
-                        alt={`AI Generated ${index + 1}`}
-                        className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                        <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                          <span className="text-[#F9FAFB] text-xs font-medium">
-                            AI Generated
-                          </span>
-                          <Wand2 className="w-4 h-4 text-neon-brand" />
+                {showcaseImages.length > 0 ? (
+                  showcaseImages.map((img, index) => (
+                    <motion.div
+                      key={img.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.03 }}
+                      className="break-inside-avoid group cursor-pointer"
+                      onClick={() => handleToolClick("/generate")}
+                    >
+                      <div className="relative rounded-xl overflow-hidden bg-white/5">
+                        <img
+                          src={img.thumbnailUrl || img.imageUrl}
+                          alt={img.title || `AI Generated ${index + 1}`}
+                          className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <span className="text-[#F9FAFB] text-xs font-medium">
+                              {img.title || "AI Generated"}
+                            </span>
+                            <Wand2 className="w-4 h-4 text-neon-brand" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center text-zinc-500 py-12">
+                    {t("home.noImages")}
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -559,42 +546,48 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {SHOWCASE_VIDEOS.map((video, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="group cursor-pointer"
-                    onClick={() =>
-                      setPlayingVideo(playingVideo === index ? null : index)
-                    }
-                  >
-                    <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white/5">
-                      <video
-                        src={video.src}
-                        poster={video.poster}
-                        className="w-full h-full object-cover"
-                        muted
-                        loop
-                        playsInline
-                        autoPlay={playingVideo === index}
-                      />
-                      {playingVideo !== index && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
-                          <div className="w-16 h-16 rounded-full bg-neon-brand flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <Play className="w-8 h-8 text-black ml-1" />
+                {showcaseVideos.length > 0 ? (
+                  showcaseVideos.map((video, index) => (
+                    <motion.div
+                      key={video.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="group cursor-pointer"
+                      onClick={() =>
+                        setPlayingVideo(playingVideo === index ? null : index)
+                      }
+                    >
+                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white/5">
+                        <video
+                          src={video.videoUrl}
+                          poster={video.posterUrl || undefined}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                          autoPlay={playingVideo === index}
+                        />
+                        {playingVideo !== index && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
+                            <div className="w-16 h-16 rounded-full bg-neon-brand flex items-center justify-center group-hover:scale-110 transition-transform">
+                              <Play className="w-8 h-8 text-black ml-1" />
+                            </div>
                           </div>
+                        )}
+                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                          <span className="text-[#F9FAFB] text-sm font-medium">
+                            {video.title || `${t("home.aiVideoItem")} #${index + 1}`}
+                          </span>
                         </div>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                        <span className="text-[#F9FAFB] text-sm font-medium">
-                          {t("home.aiVideoItem")} #{index + 1}
-                        </span>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center text-zinc-500 py-12">
+                    {t("home.noVideos")}
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -760,10 +753,10 @@ export default function Home() {
                   <div className="flex items-center gap-2 mb-4">
                     <img
                       src="/Logo-02.png"
-                      alt="Amonify"
+                      alt="Lumiohan"
                       className="h-8 w-auto"
                     />
-                    <span className="text-xl font-bold">Amonify</span>
+                    <span className="text-xl font-bold">Lumiohan</span>
                   </div>
                   <p className="text-muted-foreground text-sm mb-4">
                     {t("footer.description")}
@@ -861,7 +854,7 @@ export default function Home() {
               {/* Bottom Bar */}
               <div className="border-t border-white/10 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-sm text-muted-foreground">
-                  © {new Date().getFullYear()} Amonify. {t("footer.rights")}
+                  © {new Date().getFullYear()} Lumiohan. {t("footer.rights")}
                 </p>
                 <div className="flex gap-4 text-sm text-muted-foreground">
                   <a

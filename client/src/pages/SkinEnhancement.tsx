@@ -277,7 +277,7 @@ export default function SkinEnhancement() {
       <div className="md:hidden sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-white/10">
         <div className="flex items-center justify-between px-4 py-3">
           <Link href="/">
-            <img src="/Logo-02.png" alt="Amonify" className="h-8" />
+            <img src="/Logo-02.png" alt="Lumiohan" className="h-8" />
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-xs text-white/60">

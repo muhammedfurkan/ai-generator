@@ -206,29 +206,6 @@ const VIRAL_APPS = [
   { id: "smile", emoji: "😊", name: "Gülümseme", hot: true },
 ];
 
-// Gallery images - same as desktop
-const GALLERY_IMAGES = [
-  "/gallery/sample-1.jpg",
-  "/gallery/sample-2.jpg",
-  "/gallery/sample-3.jpg",
-  "/gallery/sample-4.jpg",
-  "/gallery/sample-5.jpg",
-  "/gallery/sample-6.jpg",
-  "/gallery/sample-7.jpg",
-  "/gallery/sample-8.jpg",
-  "/gallery/showcase-1.jpg",
-  "/gallery/showcase-2.jpg",
-  "/gallery/showcase-3.jpg",
-  "/gallery/showcase-4.jpg",
-];
-
-// Video gallery
-const VIDEO_GALLERY = [
-  { id: 1, thumbnail: "/gallery/showcase-1.jpg", title: "AI Video #1" },
-  { id: 2, thumbnail: "/gallery/showcase-2.jpg", title: "AI Video #2" },
-  { id: 3, thumbnail: "/gallery/showcase-3.jpg", title: "AI Video #3" },
-];
-
 export default function MobileHome() {
   const { t } = useLanguage();
   const { isAuthenticated, user } = useAuth();
@@ -241,6 +218,10 @@ export default function MobileHome() {
   const [, navigate] = useLocation();
   const bannerRef = useRef<HTMLDivElement>(null);
   const [activeSlide, setActiveSlide] = useState(0);
+
+  // Fetch showcase images and videos
+  const { data: showcaseImages = [] } = trpc.settings.getShowcaseImages.useQuery();
+  const { data: showcaseVideos = [] } = trpc.settings.getShowcaseVideos.useQuery();
 
   // Fetch community characters
   const { data: communityCharacters } = trpc.aiCharacters.getPopular.useQuery(
@@ -300,7 +281,7 @@ export default function MobileHome() {
       {/* Mobile Header */}
       <div className="ai-page-bg sticky top-0 z-40 border-b border-white/10">
         <div className="flex items-center justify-between px-4 py-3">
-          <img src="/Logo-02.png" alt="Amonify" className="h-10" />
+          <img src="/Logo-02.png" alt="Lumiohan" className="h-10" />
           <div className="flex items-center gap-2">
             <button
               onClick={() =>
@@ -570,25 +551,31 @@ export default function MobileHome() {
 
         {/* Masonry Grid - 2 columns */}
         <div className="columns-2 gap-2 space-y-2">
-          {GALLERY_IMAGES.slice(0, 8).map((img, i) => (
-            <div
-              key={i}
-              className={`break-inside-avoid rounded-xl overflow-hidden ${
-                i % 3 === 0
-                  ? "aspect-[3/4]"
-                  : i % 3 === 1
-                    ? "aspect-square"
-                    : "aspect-[4/5]"
-              }`}
-            >
-              <OptimizedImage
-                src={img}
-                alt={`AI Generated ${i + 1}`}
-                className="w-full h-full"
-                placeholderColor="#111827"
-              />
+          {showcaseImages.length > 0 ? (
+            showcaseImages.slice(0, 8).map((img, i) => (
+              <div
+                key={img.id}
+                className={`break-inside-avoid rounded-xl overflow-hidden ${
+                  i % 3 === 0
+                    ? "aspect-[3/4]"
+                    : i % 3 === 1
+                      ? "aspect-square"
+                      : "aspect-[4/5]"
+                }`}
+              >
+                <OptimizedImage
+                  src={img.thumbnailUrl || img.imageUrl}
+                  alt={img.title || `AI Generated ${i + 1}`}
+                  className="w-full h-full"
+                  placeholderColor="#111827"
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-span-2 text-center text-white/50 py-8">
+              {t("home.noImages")}
             </div>
-          ))}
+          )}
         </div>
       </div>
 
@@ -610,32 +597,38 @@ export default function MobileHome() {
           className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {VIDEO_GALLERY.map(video => (
-            <div
-              key={video.id}
-              onClick={() => handleNavigation("/video-generate")}
-              className="flex-shrink-0 w-32 rounded-xl overflow-hidden relative active:opacity-80"
-            >
-              <div className="aspect-[9/16] relative">
-                <OptimizedImage
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full"
-                  placeholderColor="#111827"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 bg-neon-brand rounded-full flex items-center justify-center">
-                    <Play className="h-5 w-5 text-black fill-black ml-0.5" />
+          {showcaseVideos.length > 0 ? (
+            showcaseVideos.map(video => (
+              <div
+                key={video.id}
+                onClick={() => handleNavigation("/video-generate")}
+                className="flex-shrink-0 w-32 rounded-xl overflow-hidden relative active:opacity-80"
+              >
+                <div className="aspect-[9/16] relative">
+                  <OptimizedImage
+                    src={video.posterUrl || "/gallery/placeholder.jpg"}
+                    alt={video.title || "AI Video"}
+                    className="w-full h-full"
+                    placeholderColor="#111827"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 bg-neon-brand rounded-full flex items-center justify-center">
+                      <Play className="h-5 w-5 text-black fill-black ml-0.5" />
+                    </div>
                   </div>
-                </div>
-                <div className="absolute bottom-2 left-2 right-2">
-                  <div className="text-[10px] font-medium text-[#F9FAFB]">
-                    {video.title}
+                  <div className="absolute bottom-2 left-2 right-2">
+                    <div className="text-[10px] font-medium text-[#F9FAFB]">
+                      {video.title || "AI Video"}
+                    </div>
                   </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="w-full text-center text-white/50 py-8">
+              {t("home.noVideos")}
             </div>
-          ))}
+          )}
         </div>
       </div>
 

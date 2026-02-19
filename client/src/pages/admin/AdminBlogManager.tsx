@@ -84,7 +84,7 @@ export default function AdminBlogManager() {
     content: "",
     coverImage: "",
     category: "Rehber",
-    author: "Amonify",
+    author: "Lumiohan",
     readTime: "5 dk",
     status: "draft" as "draft" | "published",
   });
@@ -135,7 +135,7 @@ export default function AdminBlogManager() {
       content: "",
       coverImage: "",
       category: "Rehber",
-      author: "Amonify",
+      author: "Lumiohan",
       readTime: "5 dk",
       status: "draft",
     });

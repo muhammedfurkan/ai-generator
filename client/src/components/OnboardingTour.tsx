@@ -33,7 +33,7 @@ interface TourStep {
 const getTourSteps = (signupBonusCredits: string): TourStep[] => [
   {
     id: "welcome",
-    title: "Amonify'a Hoş Geldin! 🎉",
+    title: "Lumiohan'a Hoş Geldin! 🎉",
     description:
       "Yapay zeka ile görsel ve video oluşturmanın en kolay yolu. Seni adım adım tanıştıralım.",
     icon: <Sparkles className="w-8 h-8" />,
@@ -97,7 +97,7 @@ const getTourSteps = (signupBonusCredits: string): TourStep[] => [
     id: "complete",
     title: "Hazırsın! 🚀",
     description:
-      "Artık Amonify'ın tüm özelliklerini kullanabilirsin. Hemen ilk görselini oluşturmaya başla!",
+      "Artık Lumiohan'ın tüm özelliklerini kullanabilirsin. Hemen ilk görselini oluşturmaya başla!",
     icon: <Check className="w-8 h-8" />,
     position: "center",
     action: {

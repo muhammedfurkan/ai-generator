@@ -16,6 +16,7 @@ import {
   Wand2,
   Settings2,
   Play,
+  Search,
 } from "lucide-react";
 import InsufficientCreditsDialog from "@/components/InsufficientCreditsDialog";
 import Header from "@/components/Header";
@@ -23,16 +24,19 @@ import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-const MODEL_DISPLAY_INFO: Record<string, { icon: string }> = {
-  veo3: { icon: "🎬" },
-  sora2: { icon: "🎥" },
-  kling: { icon: "⚡" },
-  "wan-26": { icon: "🐉" },
-  grok: { icon: "🤖" },
-  hailuo: { icon: "🎭" },
-  "seedance-lite": { icon: "🌱" },
-  "seedance-pro": { icon: "💎" },
-  "seedance-15-pro": { icon: "🚀" },
+const MODEL_DISPLAY_INFO: Record<
+  string,
+  { icon: string; color: string; isNew?: boolean; isFeatured?: boolean }
+> = {
+  veo3: { icon: "🎬", color: "#4285F4", isFeatured: true },
+  sora2: { icon: "🎥", color: "#10A37F", isFeatured: true },
+  kling: { icon: "⚡", color: "#F59E0B" },
+  "wan-26": { icon: "🐉", color: "#EF4444" },
+  grok: { icon: "🤖", color: "#8B5CF6" },
+  hailuo: { icon: "🎭", color: "#EC4899" },
+  "seedance-lite": { icon: "🌱", color: "#22C55E", isNew: true },
+  "seedance-pro": { icon: "💎", color: "#06B6D4", isNew: true },
+  "seedance-15-pro": { icon: "🚀", color: "#7C3AED", isNew: true },
 };
 
 const QUALITY_LABELS: Record<string, string> = {
@@ -73,6 +77,7 @@ export default function VideoGenerate() {
   const [currentVideoId, setCurrentVideoId] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [showModelSelector, setShowModelSelector] = useState(false);
+  const [modelSearch, setModelSearch] = useState("");
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -141,6 +146,7 @@ export default function VideoGenerate() {
         !modelSelectorRef.current.contains(event.target as Node)
       ) {
         setShowModelSelector(false);
+        setModelSearch("");
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -465,7 +471,7 @@ export default function VideoGenerate() {
           {/* Main Generation Card */}
           <div className="bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 mb-6">
             {/* Model Selector */}
-            <div className="mb-6" ref={modelSelectorRef}>
+            <div className="mb-6 relative" ref={modelSelectorRef}>
               <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
                 {t("generate.modelLabel")}
               </label>
@@ -474,7 +480,12 @@ export default function VideoGenerate() {
                 className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-[#7C3AED]/10 flex items-center justify-center text-xl">
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+                    style={{
+                      background: `${MODEL_DISPLAY_INFO[selectedModelData?.modelKey || selectedModel]?.color || "#7C3AED"}20`,
+                    }}
+                  >
                     {MODEL_DISPLAY_INFO[
                       selectedModelData?.modelKey || selectedModel
                     ]?.icon || "🎬"}
@@ -482,9 +493,6 @@ export default function VideoGenerate() {
                   <div className="text-left">
                     <div className="font-bold">
                       {selectedModelData?.modelName || t("video.selectModel")}
-                    </div>
-                    <div className="text-xs text-white/40">
-                      {selectedModelData?.provider || ""}
                     </div>
                   </div>
                 </div>
@@ -498,63 +506,200 @@ export default function VideoGenerate() {
 
               <AnimatePresence>
                 {showModelSelector && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="mt-2 p-2 bg-black/95 backdrop-blur-xl border border-white/10 rounded-2xl max-h-64 overflow-y-auto"
-                  >
-                    <div className="space-y-1">
-                      {activeVideoModels
-                        .filter(model => !model.isMaintenanceMode) // Bakımda olanları listeden çıkar
-                        .map(model => {
-                          const displayInfo = MODEL_DISPLAY_INFO[
-                            model.modelKey
-                          ] || { icon: "🎬" };
+                  <>
+                    {/* Backdrop */}
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+                      onClick={() => { setShowModelSelector(false); setModelSearch(""); }}
+                    />
+                    {/* Modal */}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                      transition={{ duration: 0.18 }}
+                      className="absolute left-0 right-0 z-50 mt-2 p-4 bg-[#0D0D0D]/98 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-semibold text-white/80">
+                          {t("generate.modelLabel")}
+                        </span>
+                        <button
+                          onClick={() => { setShowModelSelector(false); setModelSearch(""); }}
+                          className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-4 h-4 text-white/40" />
+                        </button>
+                      </div>
 
-                          return (
-                            <button
-                              key={model.modelKey}
-                              onClick={() => (
-                                setSelectedModel(model.modelKey),
-                                setShowModelSelector(false)
-                              )}
-                              className={cn(
-                                "w-full text-left p-3 rounded-xl transition-all hover:bg-white/5",
-                                selectedModel === model.modelKey &&
-                                  "bg-white/10"
-                              )}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="text-2xl">
+                      {/* Search */}
+                      <div className="relative mb-3">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+                        <input
+                          type="text"
+                          autoFocus
+                          value={modelSearch}
+                          onChange={e => setModelSearch(e.target.value)}
+                          placeholder="Model ara..."
+                          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/25 outline-none focus:border-white/20 focus:bg-white/8 transition-all"
+                        />
+                        {modelSearch && (
+                          <button
+                            onClick={() => setModelSearch("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 hover:text-white/60 transition-colors"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto pr-1">
+                        {activeVideoModels
+                          .filter(model => !model.isMaintenanceMode)
+                          .filter(model => {
+                            if (!modelSearch.trim()) return true;
+                            const q = modelSearch.toLowerCase();
+                            return (
+                              model.modelName.toLowerCase().includes(q) ||
+                              model.provider.toLowerCase().includes(q) ||
+                              model.modelKey.toLowerCase().includes(q)
+                            );
+                          })
+                          .map(model => {
+                            const displayInfo = MODEL_DISPLAY_INFO[
+                              model.modelKey
+                            ] || { icon: "🎬", color: "#7C3AED" };
+                            const isSelected =
+                              selectedModel === model.modelKey;
+                            const featureTags: string[] = [];
+                            if ((model as any).supportsTextToVideo !== false)
+                              featureTags.push("T2V");
+                            if ((model as any).supportsImageToVideo !== false)
+                              featureTags.push("I2V");
+                            if ((model as any).hasAudioSupport)
+                              featureTags.push("Audio");
+                            if ((model as any).supportsVideoToVideo)
+                              featureTags.push("V2V");
+
+                            return (
+                              <button
+                                key={model.modelKey}
+                                onClick={() => {
+                                  setSelectedModel(model.modelKey);
+                                  setShowModelSelector(false);
+                                  setModelSearch("");
+                                }}
+                                className={cn(
+                                  "relative text-left p-3.5 rounded-xl border transition-all duration-200 group",
+                                  isSelected
+                                    ? "border-transparent bg-white/10 ring-1 ring-inset"
+                                    : "border-white/8 bg-white/[0.03] hover:bg-white/7 hover:border-white/15"
+                                )}
+                                style={undefined}
+                              >
+                                {/* Selected ring overlay */}
+                                {isSelected && (
+                                  <div
+                                    className="absolute inset-0 rounded-xl ring-1 ring-inset pointer-events-none"
+                                    style={{
+                                      boxShadow: `inset 0 0 0 1.5px ${displayInfo.color}`,
+                                    }}
+                                  />
+                                )}
+
+                                {/* NEW / FEATURED badges */}
+                                {(displayInfo.isNew ||
+                                  displayInfo.isFeatured) && (
+                                  <div className="absolute top-2 right-2">
+                                    <span
+                                      className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                                      style={{
+                                        background: `${displayInfo.color}30`,
+                                        color: displayInfo.color,
+                                      }}
+                                    >
+                                      {displayInfo.isNew ? "NEW" : "★"}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Icon */}
+                                <div
+                                  className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl mb-3"
+                                  style={{
+                                    background: `${displayInfo.color}18`,
+                                  }}
+                                >
                                   {displayInfo.icon}
                                 </div>
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className={cn(
-                                        "text-sm font-bold",
-                                        selectedModel === model.modelKey
-                                          ? "text-[#7C3AED]"
-                                          : "text-[#F9FAFB]"
-                                      )}
-                                    >
-                                      {model.modelName}
-                                    </div>
+
+                                {/* Name & Provider */}
+                                <div className="mb-2.5">
+                                  <div
+                                    className={cn(
+                                      "text-sm font-bold leading-tight",
+                                      isSelected
+                                        ? "text-white"
+                                        : "text-white/80 group-hover:text-white"
+                                    )}
+                                  >
+                                    {model.modelName}
                                   </div>
-                                  <div className="text-xs text-white/40">
+                                  <div className="text-[11px] text-white/35 mt-0.5">
                                     {model.provider}
                                   </div>
                                 </div>
-                                {selectedModel === model.modelKey && (
-                                  <Check className="w-4 h-4 text-[#7C3AED]" />
-                                )}
-                              </div>
-                            </button>
-                          );
-                        })}
-                    </div>
-                  </motion.div>
+
+                                {/* Feature Tags */}
+                                <div className="flex flex-wrap gap-1">
+                                  {featureTags.map(tag => (
+                                    <span
+                                      key={tag}
+                                      className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
+                                      style={
+                                        tag === "Audio"
+                                          ? {
+                                              background: "#22C55E18",
+                                              color: "#22C55E",
+                                            }
+                                          : {
+                                              background: `${displayInfo.color}15`,
+                                              color: `${displayInfo.color}CC`,
+                                            }
+                                      }
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              </button>
+                            );
+                          })}
+                        {/* Empty state */}
+                        {activeVideoModels
+                          .filter(model => !model.isMaintenanceMode)
+                          .filter(model => {
+                            if (!modelSearch.trim()) return false;
+                            const q = modelSearch.toLowerCase();
+                            return !(
+                              model.modelName.toLowerCase().includes(q) ||
+                              model.provider.toLowerCase().includes(q) ||
+                              model.modelKey.toLowerCase().includes(q)
+                            );
+                          }).length ===
+                          activeVideoModels.filter(
+                            m => !m.isMaintenanceMode
+                          ).length &&
+                          modelSearch.trim() && (
+                            <div className="col-span-3 py-8 text-center text-white/30 text-sm">
+                              "<span className="text-white/50">{modelSearch}</span>" için sonuç bulunamadı
+                            </div>
+                          )}
+                      </div>
+                    </motion.div>
+                  </>
                 )}
               </AnimatePresence>
             </div>

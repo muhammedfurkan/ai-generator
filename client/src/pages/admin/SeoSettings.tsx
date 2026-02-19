@@ -777,7 +777,7 @@ function AddPageForm({
           onChange={e =>
             setFormData({ ...formData, metaTitle: e.target.value })
           }
-          placeholder="Sayfa Başlığı | Amonify"
+          placeholder="Sayfa Başlığı | Lumiohan"
         />
       </div>
       <div>
@@ -807,7 +807,7 @@ function GlobalConfigTab({
   isMobile = false,
 }: any) {
   const [formData, setFormData] = useState({
-    siteName: globalConfig?.siteName || "Amonify",
+    siteName: globalConfig?.siteName || "Lumiohan",
     siteTagline: globalConfig?.siteTagline || "",
     defaultLanguage: globalConfig?.defaultLanguage || "tr",
     defaultMetaTitle: globalConfig?.defaultMetaTitle || "",

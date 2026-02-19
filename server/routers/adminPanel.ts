@@ -32,6 +32,8 @@ import {
   jobQueue,
   systemRateLimits,
   userWarnings,
+  showcaseImages,
+  showcaseVideos,
 } from "../../drizzle/schema";
 import {
   eq,
@@ -2725,6 +2727,50 @@ export const adminPanelRouter = router({
         description: "Sora videolarındaki filigranları kaldırır.",
         costPerRequest: "0.10",
       },
+      // Audio TTS Models
+      {
+        modelKey: "minimax-tts",
+        modelName: "Minimax TTS",
+        modelType: "audio" as const,
+        provider: "Minimax",
+        isActive: true,
+        isMaintenanceMode: false,
+        freeUserDailyLimit: 10,
+        premiumUserDailyLimit: 100,
+        priority: 1,
+        description:
+          "Minimax metinden sese dönüştürme. Speech-02 HD ve Turbo modelleri destekli.",
+        costPerRequest: "0.005",
+      },
+      {
+        modelKey: "elevenlabs-tts",
+        modelName: "ElevenLabs TTS",
+        modelType: "audio" as const,
+        provider: "ElevenLabs",
+        isActive: true,
+        isMaintenanceMode: false,
+        freeUserDailyLimit: 5,
+        premiumUserDailyLimit: 50,
+        priority: 2,
+        description:
+          "ElevenLabs metinden sese dönüştürme. Multilingual v2 ve diğer modeller.",
+        costPerRequest: "0.01",
+      },
+      // Music Generation Models
+      {
+        modelKey: "minimax-music",
+        modelName: "Minimax Music 2.5",
+        modelType: "music" as const,
+        provider: "Minimax",
+        isActive: true,
+        isMaintenanceMode: false,
+        freeUserDailyLimit: 5,
+        premiumUserDailyLimit: 30,
+        priority: 1,
+        description:
+          "Minimax Music 2.5 - Sözlerden ve stil açıklamasından müzik üretimi.",
+        costPerRequest: "0.05",
+      },
     ];
 
     let inserted = 0;
@@ -2780,7 +2826,7 @@ export const adminPanelRouter = router({
       z.object({
         modelKey: z.string(),
         modelName: z.string(),
-        modelType: z.enum(["image", "video", "upscale"]),
+        modelType: z.enum(["image", "video", "upscale", "audio", "music"]),
         provider: z.string(),
         isActive: z
           .union([z.boolean(), z.number()])
@@ -4032,5 +4078,271 @@ export const adminPanelRouter = router({
           message: "Ayarlar kaydedilemedi",
         });
       }
+    }),
+
+  // ============ SHOWCASE MANAGEMENT ============
+
+  // Get all showcase images
+  getShowcaseImages: adminProcedure.query(async () => {
+    const db = await requireAdminDb();
+    const images = await db
+      .select()
+      .from(showcaseImages)
+      .orderBy(asc(showcaseImages.order), desc(showcaseImages.createdAt));
+    return images;
+  }),
+
+  // Create showcase image
+  createShowcaseImage: adminProcedure
+    .input(
+      z.object({
+        imageUrl: z.string().min(1),
+        thumbnailUrl: z.string().optional(),
+        title: z.string().optional(),
+        aspectRatio: z
+          .enum(["square", "portrait", "landscape"])
+          .default("square"),
+        order: z.number().default(0),
+        isActive: z.boolean().default(true),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireAdminDb();
+
+      const [result] = await db.insert(showcaseImages).values({
+        imageUrl: input.imageUrl,
+        thumbnailUrl: input.thumbnailUrl,
+        title: input.title,
+        aspectRatio: input.aspectRatio,
+        order: input.order,
+        isActive: input.isActive ? 1 : 0,
+      });
+
+      await logActivity(
+        ctx.user.id,
+        "showcase.createImage",
+        undefined,
+        undefined,
+        null,
+        input
+      );
+
+      return { id: result.insertId, success: true };
+    }),
+
+  // Update showcase image
+  updateShowcaseImage: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        imageUrl: z.string().min(1),
+        thumbnailUrl: z.string().optional(),
+        title: z.string().optional(),
+        aspectRatio: z.enum(["square", "portrait", "landscape"]),
+        order: z.number(),
+        isActive: z.boolean(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireAdminDb();
+
+      const [existing] = await db
+        .select()
+        .from(showcaseImages)
+        .where(eq(showcaseImages.id, input.id))
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Görsel bulunamadı",
+        });
+      }
+
+      await db
+        .update(showcaseImages)
+        .set({
+          imageUrl: input.imageUrl,
+          thumbnailUrl: input.thumbnailUrl,
+          title: input.title,
+          aspectRatio: input.aspectRatio,
+          order: input.order,
+          isActive: input.isActive ? 1 : 0,
+          updatedAt: new Date(),
+        })
+        .where(eq(showcaseImages.id, input.id));
+
+      await logActivity(
+        ctx.user.id,
+        "showcase.updateImage",
+        undefined,
+        undefined,
+        existing,
+        input
+      );
+
+      return { success: true };
+    }),
+
+  // Delete showcase image
+  deleteShowcaseImage: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireAdminDb();
+
+      const [existing] = await db
+        .select()
+        .from(showcaseImages)
+        .where(eq(showcaseImages.id, input.id))
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Görsel bulunamadı",
+        });
+      }
+
+      await db.delete(showcaseImages).where(eq(showcaseImages.id, input.id));
+
+      await logActivity(
+        ctx.user.id,
+        "showcase.deleteImage",
+        undefined,
+        undefined,
+        existing,
+        null
+      );
+
+      return { success: true };
+    }),
+
+  // Get all showcase videos
+  getShowcaseVideos: adminProcedure.query(async () => {
+    const db = await requireAdminDb();
+    const videos = await db
+      .select()
+      .from(showcaseVideos)
+      .orderBy(asc(showcaseVideos.order), desc(showcaseVideos.createdAt));
+    return videos;
+  }),
+
+  // Create showcase video
+  createShowcaseVideo: adminProcedure
+    .input(
+      z.object({
+        videoUrl: z.string().min(1),
+        posterUrl: z.string().optional(),
+        title: z.string().optional(),
+        order: z.number().default(0),
+        isActive: z.boolean().default(true),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireAdminDb();
+
+      const [result] = await db.insert(showcaseVideos).values({
+        videoUrl: input.videoUrl,
+        posterUrl: input.posterUrl,
+        title: input.title,
+        order: input.order,
+        isActive: input.isActive ? 1 : 0,
+      });
+
+      await logActivity(
+        ctx.user.id,
+        "showcase.createVideo",
+        undefined,
+        undefined,
+        null,
+        input
+      );
+
+      return { id: result.insertId, success: true };
+    }),
+
+  // Update showcase video
+  updateShowcaseVideo: adminProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        videoUrl: z.string().min(1),
+        posterUrl: z.string().optional(),
+        title: z.string().optional(),
+        order: z.number(),
+        isActive: z.boolean(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireAdminDb();
+
+      const [existing] = await db
+        .select()
+        .from(showcaseVideos)
+        .where(eq(showcaseVideos.id, input.id))
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Video bulunamadı",
+        });
+      }
+
+      await db
+        .update(showcaseVideos)
+        .set({
+          videoUrl: input.videoUrl,
+          posterUrl: input.posterUrl,
+          title: input.title,
+          order: input.order,
+          isActive: input.isActive ? 1 : 0,
+          updatedAt: new Date(),
+        })
+        .where(eq(showcaseVideos.id, input.id));
+
+      await logActivity(
+        ctx.user.id,
+        "showcase.updateVideo",
+        undefined,
+        undefined,
+        existing,
+        input
+      );
+
+      return { success: true };
+    }),
+
+  // Delete showcase video
+  deleteShowcaseVideo: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await requireAdminDb();
+
+      const [existing] = await db
+        .select()
+        .from(showcaseVideos)
+        .where(eq(showcaseVideos.id, input.id))
+        .limit(1);
+
+      if (!existing) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Video bulunamadı",
+        });
+      }
+
+      await db.delete(showcaseVideos).where(eq(showcaseVideos.id, input.id));
+
+      await logActivity(
+        ctx.user.id,
+        "showcase.deleteVideo",
+        undefined,
+        undefined,
+        existing,
+        null
+      );
+
+      return { success: true };
     }),
 });

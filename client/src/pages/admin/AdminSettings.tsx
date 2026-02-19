@@ -1,7 +1,7 @@
 /**
  * Admin Settings - Site Ayarları (Tam Entegrasyon)
  */
-import { useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -32,18 +32,20 @@ import {
   Shield,
   Wrench,
   Users,
-  Palette,
   Plus,
   RefreshCw,
   AlertCircle,
+  Upload,
+  X,
+  ImageIcon,
 } from "lucide-react";
-
 export default function AdminSettings() {
   const [activeCategory, setActiveCategory] = useState<string>("general");
   const [editedValues, setEditedValues] = useState<
     Record<string, string | null>
   >({});
   const [isAddingOpen, setIsAddingOpen] = useState(false);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
 
   const settingsQuery = trpc.adminPanel.getSiteSettings.useQuery({
     category: activeCategory,
@@ -146,6 +148,21 @@ export default function AdminSettings() {
     const hasChanges = editedValues[setting.key] !== undefined;
 
     switch (setting.inputType) {
+      case "image":
+        return (
+          <ImageUploadInput
+            settingKey={setting.key}
+            value={value}
+            isUploading={uploadingKey === setting.key}
+            hasChanges={hasChanges}
+            onUploadStart={() => setUploadingKey(setting.key)}
+            onUploadEnd={() => setUploadingKey(null)}
+            onChange={(url: string) =>
+              setEditedValues({ ...editedValues, [setting.key]: url })
+            }
+            onSave={() => handleSave(setting.key)}
+          />
+        );
       case "boolean":
         return (
           <div className="flex items-center gap-3">
@@ -446,6 +463,165 @@ export default function AdminSettings() {
   );
 }
 
+// Image Upload Input Component
+function ImageUploadInput({
+  settingKey,
+  value,
+  isUploading,
+  hasChanges,
+  onUploadStart,
+  onUploadEnd,
+  onChange,
+  onSave,
+}: {
+  settingKey: string;
+  value: string | null;
+  isUploading: boolean;
+  hasChanges: boolean;
+  onUploadStart: () => void;
+  onUploadEnd: () => void;
+  onChange: (url: string) => void;
+  onSave: () => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+      "image/x-icon",
+    ];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error(
+        "Geçersiz dosya türü. PNG, JPG, GIF, WebP, SVG veya ICO yükleyin."
+      );
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Dosya boyutu 2MB'ı geçemez.");
+      return;
+    }
+
+    onUploadStart();
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(err || "Yükleme başarısız");
+      }
+
+      const data = (await response.json()) as { url: string };
+      onChange(data.url);
+      toast.success("Görsel yüklendi, kaydetmeyi unutmayın.");
+    } catch (error: any) {
+      toast.error(error.message || "Görsel yüklenirken hata oluştu.");
+    } finally {
+      onUploadEnd();
+      // Reset file input so same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Preview */}
+      {value ? (
+        <div className="relative inline-flex items-center gap-3 p-3 bg-zinc-800 rounded-xl border border-white/10">
+          <img
+            src={value}
+            alt="Önizleme"
+            className="h-12 w-auto max-w-[200px] object-contain rounded"
+            onError={e => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-zinc-400 font-mono truncate max-w-[180px]">
+              {value}
+            </p>
+            <button
+              onClick={() => onChange("")}
+              className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
+            >
+              <X className="h-3 w-3" />
+              Temizle
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 p-3 bg-zinc-800/50 rounded-xl border border-white/10 border-dashed">
+          <ImageIcon className="h-8 w-8 text-zinc-600" />
+          <p className="text-sm text-zinc-500">Henüz görsel seçilmedi</p>
+        </div>
+      )}
+
+      {/* Controls */}
+      <div className="flex flex-wrap items-center gap-2">
+        {/* File upload button */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml,image/x-icon"
+          className="hidden"
+          onChange={handleFileChange}
+          disabled={isUploading}
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading}
+          className="border-white/20 hover:border-white/40 gap-2"
+        >
+          {isUploading ? (
+            <RefreshCw className="h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="h-4 w-4" />
+          )}
+          {isUploading ? "Yükleniyor..." : "Dosya Yükle"}
+        </Button>
+
+        {/* Or enter URL directly */}
+        <Input
+          value={value || ""}
+          onChange={e => onChange(e.target.value)}
+          className="bg-zinc-800 border-white/10 text-sm max-w-xs"
+          placeholder="veya URL girin (https://...)"
+        />
+
+        {hasChanges && (
+          <Button
+            size="sm"
+            onClick={onSave}
+            className="bg-[#00F5FF] text-black hover:bg-[#00F5FF] gap-1"
+          >
+            <Save className="h-4 w-4" />
+            Kaydet
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Add Setting Form
 function AddSettingForm({
   category,
@@ -521,6 +697,7 @@ function AddSettingForm({
               <SelectItem value="url">URL</SelectItem>
               <SelectItem value="email">E-posta</SelectItem>
               <SelectItem value="json">JSON</SelectItem>
+              <SelectItem value="image">Görsel (URL/Upload)</SelectItem>
             </SelectContent>
           </Select>
         </div>

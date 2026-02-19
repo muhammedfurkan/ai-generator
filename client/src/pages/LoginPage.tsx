@@ -139,7 +139,7 @@ export function LoginPage() {
             className="hidden lg:block text-[#F9FAFB]"
           >
             <div className="flex items-center gap-3 mb-6">
-              <img src="/Logo-01.png" alt="Amonify" className="h-16 w-auto" />
+              <img src="/Logo-01.png" alt="Lumiohan" className="h-16 w-auto" />
             </div>
             <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-[#7C3AED] via-[#FF2E97] to-[#7C3AED] bg-clip-text text-transparent">
               {t("auth.login.branding.title")}
@@ -202,7 +202,7 @@ export function LoginPage() {
               <div className="mb-8 text-center">
                 <img
                   src="/Logo-02.png"
-                  alt="Amonify"
+                  alt="Lumiohan"
                   className="h-12 w-auto mx-auto mb-4 lg:hidden"
                 />
                 <h2 className="text-3xl font-bold text-[#F9FAFB] mb-2">

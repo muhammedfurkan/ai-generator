@@ -39,6 +39,8 @@ const LogoGenerator = lazy(() => import("@/pages/LogoGenerator"));
 const PromptCompiler = lazy(() => import("@/pages/PromptCompiler"));
 const MotionControl = lazy(() => import("@/pages/MotionControl"));
 const Apps = lazy(() => import("@/pages/Apps"));
+const AudioGenerate = lazy(() => import("@/pages/AudioGenerate"));
+const MusicGenerate = lazy(() => import("@/pages/MusicGenerate"));
 const UserProfilePage = lazy(() =>
   import("@/pages/UserProfilePage").then(m => ({ default: m.UserProfilePage }))
 );
@@ -105,6 +107,8 @@ function Router() {
         <Route path={"/video-generate"} component={VideoGenerate} />
         <Route path={"/motion-control"} component={MotionControl} />
         <Route path={"/apps"} component={Apps} />
+        <Route path={"/audio-generate"} component={AudioGenerate} />
+        <Route path={"/music-generate"} component={MusicGenerate} />
         <Route path={"/upscale"} component={Upscale} />
         <Route path={"/blog"} component={Blog} />
         <Route path={"/blog/:slug"} component={BlogDetail} />

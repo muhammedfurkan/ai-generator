@@ -125,7 +125,7 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                       <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700 flex items-center justify-center shadow-xl">
                         <img
                           src="/Logo-02.png"
-                          alt="Amonify Logo"
+                          alt="Lumiohan Logo"
                           className="w-16 h-16 object-contain"
                         />
                       </div>
@@ -149,7 +149,7 @@ export function WelcomePopup({ isNewUser = false }: WelcomePopupProps) {
                     className="text-center mb-6"
                   >
                     <h2 className="text-2xl font-bold text-[#F9FAFB] mb-2">
-                      Amonify'a Hoş Geldin! 🎉
+                      Lumiohan'a Hoş Geldin! 🎉
                     </h2>
                     <p className="text-zinc-400 text-sm">
                       Yapay zeka ile görsel ve video oluşturmanın en kolay yolu

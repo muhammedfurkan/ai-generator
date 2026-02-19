@@ -18,6 +18,8 @@ import {
   Layers,
   BookOpen,
   Crown,
+  Mic,
+  Music,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
@@ -45,6 +47,12 @@ export default function Header() {
   const creditsQuery = trpc.generation.getCredits.useQuery(undefined, {
     enabled: isAuthenticated,
   });
+
+  // Fetch dynamic logo URL from site settings
+  const { data: publicSettings } = trpc.settings.getPublicSettings.useQuery();
+  const logoUrl =
+    publicSettings?.find(s => s.key === "site_logo_url")?.value ||
+    "/Logo-01.png";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -94,6 +102,12 @@ export default function Header() {
       badge: t("nav.new"),
     },
     { label: t("nav.aiCharacter"), path: "/ai-influencer", icon: Sparkles },
+    { label: t("nav.audioGenerate"), path: "/audio-generate", icon: Mic },
+    {
+      label: t("nav.musicGenerate"),
+      path: "/music-generate",
+      icon: Music,
+    },
   ];
 
   return (
@@ -115,7 +129,7 @@ export default function Header() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <img src="/Logo-01.png" alt="Amonify" className="h-12 w-auto" />
+          <img src={logoUrl} alt="Logo" className="h-12 w-auto" />
         </motion.button>
 
         {/* Desktop Navigation */}

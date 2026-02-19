@@ -267,6 +267,20 @@
       "when": 1771081278769,
       "tag": "0037_youthful_goblin_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1771186894799,
+      "tag": "0038_broad_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1771444510697,
+      "tag": "0039_foamy_reptil",
+      "breakpoints": true
     }
   ]
 }

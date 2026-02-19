@@ -11,7 +11,7 @@ const MESSAGE_POOLS = {
     "🪄 Sihirli kelimeler render ediliyor",
     "🎨 AI sanatçı ilham alıyor",
     "⚙️ Model ayarlanıyor, dokunmayın",
-    "🚀 Amonify motorları ısınıyor",
+    "🚀 Lumiohan motorları ısınıyor",
     "👀 Birazdan efsane geliyor",
     "🧩 Eksik prompt parçaları tamamlanıyor",
     "😌 İngilizce bilmemen sorun değil",
@@ -23,7 +23,7 @@ const MESSAGE_POOLS = {
     "🪄 Sihirli kelimeler render ediliyor",
     "🎨 AI sanatçı ilham alıyor",
     "⚙️ Model ayarlanıyor, dokunmayın",
-    "🚀 Amonify motorları ısınıyor",
+    "🚀 Lumiohan motorları ısınıyor",
     "👀 Birazdan efsane geliyor",
     "🧩 Eksik prompt parçaları tamamlanıyor",
     "😌 İngilizce bilmemen sorun değil",
@@ -37,7 +37,7 @@ const MESSAGE_POOLS = {
     "🪄 Sihirli kelimeler render ediliyor",
     "🎥 Video sahneleri oluşturuluyor",
     "⚙️ Model ayarlanıyor, dokunmayın",
-    "🚀 Amonify motorları ısınıyor",
+    "🚀 Lumiohan motorları ısınıyor",
     "👀 Birazdan efsane geliyor",
     "🎞️ Kare kare işleniyor...",
     "😌 İngilizce bilmemen sorun değil",
@@ -50,7 +50,7 @@ const MESSAGE_POOLS = {
     "🎨 Marka kimliği oluşturuluyor",
     "🪄 Sihirli kelimeler render ediliyor",
     "⚙️ Vektörler hesaplanıyor",
-    "🚀 Amonify motorları ısınıyor",
+    "🚀 Lumiohan motorları ısınıyor",
     "👀 Birazdan efsane logo geliyor",
     "🧩 Tasarım detayları işleniyor",
     "😌 Profesyonel logo yolda",
@@ -285,7 +285,7 @@ export default function GenerationLoadingCard({
             transition={{ delay: 1 }}
             className="mt-4 text-xs text-muted-foreground"
           >
-            Amonify • Prompt bilmiyorsan, biz düşünüyoruz
+            Lumiohan • Prompt bilmiyorsan, biz düşünüyoruz
           </motion.p>
         </div>
       </CardContent>

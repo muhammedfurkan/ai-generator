@@ -167,7 +167,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-white/10 bg-background/50 py-8 backdrop-blur-xl">
         <div className="container text-center text-sm text-muted-foreground">
-          <p>© 2025 Amonify. Nano Banana Pro tarafından desteklenmektedir.</p>
+          <p>© 2025 Lumiohan. Nano Banana Pro tarafından desteklenmektedir.</p>
         </div>
       </footer>
     </div>

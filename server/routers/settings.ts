@@ -4,7 +4,14 @@
  */
 import { router, publicProcedure } from "../_core/trpc";
 import { getDb } from "../db";
-import { siteSettings, viralAppsConfig, aiModelConfig, creditPackages } from "../../drizzle/schema";
+import {
+  siteSettings,
+  viralAppsConfig,
+  aiModelConfig,
+  creditPackages,
+  showcaseImages,
+  showcaseVideos,
+} from "../../drizzle/schema";
 import { eq, asc } from "drizzle-orm";
 import { VIRAL_APP_TEMPLATES } from "../../shared/const";
 
@@ -44,6 +51,8 @@ export const settingsRouter = router({
         "credit_cost_2k",
         "credit_cost_4k",
         "signup_bonus_credits",
+        "site_logo_url",
+        "site_favicon_url",
       ];
 
       const settings = await db
@@ -63,18 +72,22 @@ export const settingsRouter = router({
     const db = await getDb();
     if (!db) {
       // Fallback to static templates
-      return VIRAL_APP_TEMPLATES.filter(app => app.popular).slice(0, 4).map(app => ({
-        id: app.id,
-        title: app.title,
-        description: app.description,
-        credits: app.credits,
-        coverImage: `/apps/${app.id}.png`,
-        popular: app.popular,
-      }));
+      return VIRAL_APP_TEMPLATES.filter(app => app.popular)
+        .slice(0, 4)
+        .map(app => ({
+          id: app.id,
+          title: app.title,
+          description: app.description,
+          credits: app.credits,
+          coverImage: `/apps/${app.id}.png`,
+          popular: app.popular,
+        }));
     }
 
     try {
-      const dbApps = await db.select().from(viralAppsConfig)
+      const dbApps = await db
+        .select()
+        .from(viralAppsConfig)
         .where(eq(viralAppsConfig.isActive, true))
         .orderBy(asc(viralAppsConfig.sortOrder), asc(viralAppsConfig.name));
 
@@ -92,16 +105,16 @@ export const settingsRouter = router({
       const dbAppIds = new Set(dbAppsFormatted.map(app => app.id));
 
       // Filter static templates that are not in database
-      const staticAppsNotInDb = VIRAL_APP_TEMPLATES
-        .filter(app => !dbAppIds.has(app.id))
-        .map(app => ({
-          id: app.id,
-          title: app.title,
-          description: app.description,
-          credits: app.credits,
-          coverImage: `/apps/${app.id}.png`,
-          popular: app.popular,
-        }));
+      const staticAppsNotInDb = VIRAL_APP_TEMPLATES.filter(
+        app => !dbAppIds.has(app.id)
+      ).map(app => ({
+        id: app.id,
+        title: app.title,
+        description: app.description,
+        credits: app.credits,
+        coverImage: `/apps/${app.id}.png`,
+        popular: app.popular,
+      }));
 
       // Merge all apps
       const allApps = [...dbAppsFormatted, ...staticAppsNotInDb];
@@ -114,73 +127,81 @@ export const settingsRouter = router({
       return appsToShow;
     } catch (error) {
       console.error("[Settings] Error fetching viral apps:", error);
-      return VIRAL_APP_TEMPLATES.filter(app => app.popular).slice(0, 4).map(app => ({
-        id: app.id,
-        title: app.title,
-        description: app.description,
-        credits: app.credits,
-        coverImage: `/apps/${app.id}.png`,
-        popular: app.popular,
-      }));
+      return VIRAL_APP_TEMPLATES.filter(app => app.popular)
+        .slice(0, 4)
+        .map(app => ({
+          id: app.id,
+          title: app.title,
+          description: app.description,
+          credits: app.credits,
+          coverImage: `/apps/${app.id}.png`,
+          popular: app.popular,
+        }));
     }
   }),
 
   // Get public credit packages for /packages page
-  getPublicPackages: publicProcedure.query(async (): Promise<PublicPackage[]> => {
-    const db = await getDb();
-    if (!db) {
-      return [];
+  getPublicPackages: publicProcedure.query(
+    async (): Promise<PublicPackage[]> => {
+      const db = await getDb();
+      if (!db) {
+        return [];
+      }
+
+      try {
+        const packages = await db
+          .select()
+          .from(creditPackages)
+          .where(eq(creditPackages.isActive, true))
+          .orderBy(asc(creditPackages.sortOrder));
+
+        console.log(`[Settings] Fetched ${packages.length} active package(s)`);
+
+        const mappedPackages: PublicPackage[] = packages.map(pkg => {
+          // Parse features safely
+          let features: string[] = [];
+          try {
+            features = pkg.features ? JSON.parse(pkg.features) : [];
+          } catch (e) {
+            console.error(
+              `[Settings] Failed to parse features for package ${pkg.id}:`,
+              e
+            );
+          }
+
+          const mapped: PublicPackage = {
+            id: pkg.id,
+            name: pkg.name,
+            description: pkg.description,
+            credits: pkg.credits,
+            price: pkg.price?.toString() ?? "0",
+            originalPrice: pkg.originalPrice?.toString() ?? null,
+            badge: pkg.badge,
+            features,
+            usage1k: pkg.usage1k,
+            usage2k: pkg.usage2k,
+            usage4k: pkg.usage4k,
+            shopierUrl: pkg.shopierUrl,
+            isHighlighted: pkg.isHighlighted ? true : false,
+            sortOrder: pkg.sortOrder,
+            bonus: pkg.bonus,
+          };
+
+          // Debug: Ensure ID is present
+          if (!mapped.id) {
+            console.error(`[Settings] ⚠️  Package missing ID! Raw data:`, pkg);
+          }
+
+          return mapped;
+        });
+
+        return mappedPackages;
+      } catch (error) {
+        console.error("[Settings] Error fetching packages:", error);
+        return [];
+      }
     }
-
-    try {
-      const packages = await db.select()
-        .from(creditPackages)
-        .where(eq(creditPackages.isActive, true))
-        .orderBy(asc(creditPackages.sortOrder));
-
-      console.log(`[Settings] Fetched ${packages.length} active package(s)`);
-
-      const mappedPackages: PublicPackage[] = packages.map(pkg => {
-        // Parse features safely
-        let features: string[] = [];
-        try {
-          features = pkg.features ? JSON.parse(pkg.features) : [];
-        } catch (e) {
-          console.error(`[Settings] Failed to parse features for package ${pkg.id}:`, e);
-        }
-
-        const mapped: PublicPackage = {
-          id: pkg.id,
-          name: pkg.name,
-          description: pkg.description,
-          credits: pkg.credits,
-          price: pkg.price?.toString() ?? "0",
-          originalPrice: pkg.originalPrice?.toString() ?? null,
-          badge: pkg.badge,
-          features,
-          usage1k: pkg.usage1k,
-          usage2k: pkg.usage2k,
-          usage4k: pkg.usage4k,
-          shopierUrl: pkg.shopierUrl,
-          isHighlighted: pkg.isHighlighted ? true : false,
-          sortOrder: pkg.sortOrder,
-          bonus: pkg.bonus,
-        };
-
-        // Debug: Ensure ID is present
-        if (!mapped.id) {
-          console.error(`[Settings] ⚠️  Package missing ID! Raw data:`, pkg);
-        }
-
-        return mapped;
-      });
-
-      return mappedPackages;
-    } catch (error) {
-      console.error("[Settings] Error fetching packages:", error);
-      return [];
-    }
-  }),
+  ),
 
   // Get active announcements for frontend display
   getPublicAnnouncements: publicProcedure.query(async () => {
@@ -196,7 +217,8 @@ export const settingsRouter = router({
       const now = new Date();
 
       // Get active announcements that are within date range
-      const activeAnnouncements = await db.select()
+      const activeAnnouncements = await db
+        .select()
         .from(announcements)
         .where(
           and(
@@ -207,10 +229,7 @@ export const settingsRouter = router({
               lte(announcements.startDate, now)
             ),
             // Either no end date or end date is in the future
-            or(
-              isNull(announcements.endDate),
-              gte(announcements.endDate, now)
-            )
+            or(isNull(announcements.endDate), gte(announcements.endDate, now))
           )
         )
         .orderBy(desc(announcements.priority), desc(announcements.createdAt));
@@ -247,7 +266,8 @@ export const settingsRouter = router({
     }
 
     try {
-      const activeFaqs = await db.select()
+      const activeFaqs = await db
+        .select()
         .from(faqs)
         .where(eq(faqs.isActive, true))
         .orderBy(asc(faqs.sortOrder), asc(faqs.id));
@@ -273,23 +293,27 @@ export const settingsRouter = router({
     }
 
     try {
-      const settings = await db.select()
-        .from(siteSettings);
+      const settings = await db.select().from(siteSettings);
 
-      const packageSettings = settings.reduce((acc, setting) => {
-        acc[setting.key] = setting.value;
-        return acc;
-      }, {} as Record<string, string>);
+      const packageSettings = settings.reduce(
+        (acc, setting) => {
+          acc[setting.key] = setting.value;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
       // Only return messages if enabled and text is not empty
       const bonusEnabled = packageSettings["packages_bonus_message"] === "true";
       const bonusText = packageSettings["packages_bonus_text"] || "";
-      const validityEnabled = packageSettings["packages_validity_message"] === "true";
+      const validityEnabled =
+        packageSettings["packages_validity_message"] === "true";
       const validityText = packageSettings["packages_validity_text"] || "";
 
       return {
         bonusMessage: bonusEnabled && bonusText.trim() ? bonusText : null,
-        validityMessage: validityEnabled && validityText.trim() ? validityText : null,
+        validityMessage:
+          validityEnabled && validityText.trim() ? validityText : null,
       };
     } catch (error) {
       console.error("[Settings] Error fetching package messages:", error);
@@ -305,20 +329,21 @@ export const settingsRouter = router({
     }
 
     try {
-      const activeModels = await db.select({
-        id: aiModelConfig.id,
-        modelKey: aiModelConfig.modelKey,
-        modelName: aiModelConfig.modelName,
-        modelType: aiModelConfig.modelType,
-        provider: aiModelConfig.provider,
-        description: aiModelConfig.description,
-        coverImageDesktop: aiModelConfig.coverImageDesktop,
-        coverImageMobile: aiModelConfig.coverImageMobile,
-        coverDescription: aiModelConfig.coverDescription,
-        priority: aiModelConfig.priority,
-        isMaintenanceMode: aiModelConfig.isMaintenanceMode,
-        configJson: aiModelConfig.configJson,
-      })
+      const activeModels = await db
+        .select({
+          id: aiModelConfig.id,
+          modelKey: aiModelConfig.modelKey,
+          modelName: aiModelConfig.modelName,
+          modelType: aiModelConfig.modelType,
+          provider: aiModelConfig.provider,
+          description: aiModelConfig.description,
+          coverImageDesktop: aiModelConfig.coverImageDesktop,
+          coverImageMobile: aiModelConfig.coverImageMobile,
+          coverDescription: aiModelConfig.coverDescription,
+          priority: aiModelConfig.priority,
+          isMaintenanceMode: aiModelConfig.isMaintenanceMode,
+          configJson: aiModelConfig.configJson,
+        })
         .from(aiModelConfig)
         .where(eq(aiModelConfig.isActive, true))
         .orderBy(asc(aiModelConfig.priority), asc(aiModelConfig.modelName));
@@ -329,7 +354,7 @@ export const settingsRouter = router({
         try {
           return JSON.parse(configJson);
         } catch (e) {
-          console.error('[Settings] Failed to parse model configJson:', e);
+          console.error("[Settings] Failed to parse model configJson:", e);
           return {};
         }
       };
@@ -352,7 +377,11 @@ export const settingsRouter = router({
             coverDescription: m.coverDescription,
             isMaintenanceMode: m.isMaintenanceMode || false,
             // Model-specific configuration
-            supportedAspectRatios: config.supportedAspectRatios || ["1:1", "16:9", "9:16"],
+            supportedAspectRatios: config.supportedAspectRatios || [
+              "1:1",
+              "16:9",
+              "9:16",
+            ],
             supportedResolutions: config.supportedResolutions || ["1K", "2K"],
             defaultAspectRatio: config.defaultAspectRatio || "1:1",
             defaultResolution: config.defaultResolution || "1K",
@@ -374,14 +403,15 @@ export const settingsRouter = router({
             coverDescription: m.coverDescription,
             isMaintenanceMode: m.isMaintenanceMode,
             // Model-specific configuration
-            supportedAspectRatios:
-              isSora2
-                ? ["16:9", "9:16", "1:1"]
-                : config.supportedAspectRatios,
-            supportedDurations:
-              isSora2 ? ["10", "15"] : config.supportedDurations,
-            supportedQualities:
-              isSora2 ? ["standard", "pro"] : config.supportedQualities,
+            supportedAspectRatios: isSora2
+              ? ["16:9", "9:16", "1:1"]
+              : config.supportedAspectRatios,
+            supportedDurations: isSora2
+              ? ["10", "15"]
+              : config.supportedDurations,
+            supportedQualities: isSora2
+              ? ["standard", "pro"]
+              : config.supportedQualities,
             supportedResolutions: config.supportedResolutions,
             defaultAspectRatio: isSora2 ? "16:9" : config.defaultAspectRatio,
             defaultDuration: isSora2 ? "10" : config.defaultDuration,
@@ -402,6 +432,57 @@ export const settingsRouter = router({
     } catch (error) {
       console.error("[Settings] Error fetching public models:", error);
       return { imageModels: [], videoModels: [] };
+    }
+  }),
+
+  // Get showcase images for homepage
+  getShowcaseImages: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) {
+      return [];
+    }
+
+    try {
+      const images = await db
+        .select({
+          id: showcaseImages.id,
+          imageUrl: showcaseImages.imageUrl,
+          thumbnailUrl: showcaseImages.thumbnailUrl,
+          title: showcaseImages.title,
+          aspectRatio: showcaseImages.aspectRatio,
+        })
+        .from(showcaseImages)
+        .where(eq(showcaseImages.isActive, 1))
+        .orderBy(asc(showcaseImages.order));
+      return images;
+    } catch (error) {
+      console.error("[Settings] Error fetching showcase images:", error);
+      return [];
+    }
+  }),
+
+  // Get showcase videos for homepage
+  getShowcaseVideos: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) {
+      return [];
+    }
+
+    try {
+      const videos = await db
+        .select({
+          id: showcaseVideos.id,
+          videoUrl: showcaseVideos.videoUrl,
+          posterUrl: showcaseVideos.posterUrl,
+          title: showcaseVideos.title,
+        })
+        .from(showcaseVideos)
+        .where(eq(showcaseVideos.isActive, 1))
+        .orderBy(asc(showcaseVideos.order));
+      return videos;
+    } catch (error) {
+      console.error("[Settings] Error fetching showcase videos:", error);
+      return [];
     }
   }),
 });

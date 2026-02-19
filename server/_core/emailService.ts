@@ -15,7 +15,7 @@ const SMTP_CONFIG = {
 // Email templates in Turkish
 const EMAIL_TEMPLATES = {
   verification: {
-    subject: "E-posta Doğrulama - Amonify",
+    subject: "E-posta Doğrulama - Lumiohan",
     getHtml: (code: string, name: string) => `
 <!DOCTYPE html>
 <html lang="tr">
@@ -28,7 +28,7 @@ const EMAIL_TEMPLATES = {
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <!-- Header -->
     <div style="text-align: center; margin-bottom: 40px;">
-      <h1 style="color: #a855f7; font-size: 32px; margin: 0; font-weight: bold;">Amonify</h1>
+      <h1 style="color: #a855f7; font-size: 32px; margin: 0; font-weight: bold;">Lumiohan</h1>
       <p style="color: #9ca3af; font-size: 14px; margin-top: 8px;">AI Görsel Üretim Platformu</p>
     </div>
 
@@ -40,7 +40,7 @@ const EMAIL_TEMPLATES = {
       </h2>
       
       <p style="color: #d1d5db; font-size: 16px; line-height: 1.6; text-align: center; margin: 0 0 32px 0;">
-        Amonify'a hoş geldiniz! Hesabınızı aktifleştirmek için aşağıdaki doğrulama kodunu kullanın.
+        Lumiohan'a hoş geldiniz! Hesabınızı aktifleştirmek için aşağıdaki doğrulama kodunu kullanın.
       </p>
 
       <!-- Verification Code -->
@@ -69,7 +69,7 @@ const EMAIL_TEMPLATES = {
     <!-- Footer -->
     <div style="text-align: center; margin-top: 32px;">
       <p style="color: #6b7280; font-size: 12px; margin: 0;">
-        © ${new Date().getFullYear()} Amonify. Tüm hakları saklıdır.
+        © ${new Date().getFullYear()} Lumiohan. Tüm hakları saklıdır.
       </p>
     </div>
   </div>
@@ -134,7 +134,7 @@ export async function sendVerificationEmail(
     const template = EMAIL_TEMPLATES.verification;
 
     await transporter.sendMail({
-      from: `"Amonify" <${SMTP_CONFIG.auth.user}>`,
+      from: `"Lumiohan" <${SMTP_CONFIG.auth.user}>`,
       to: to,
       subject: template.subject,
       html: template.getHtml(code, name),

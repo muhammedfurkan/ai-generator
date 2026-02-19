@@ -16,6 +16,8 @@ import {
   aiModelConfig,
   siteSettings,
   featurePricing,
+  generatedAudio,
+  generatedMusic,
 } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
@@ -2522,4 +2524,224 @@ export async function updateAiModelStats(
   } catch (error) {
     console.error("[Database] Failed to update AI model stats:", error);
   }
+}
+
+export async function getAiModelConfig(modelKey: string) {
+  const db = await getDb();
+  if (!db) return null;
+  try {
+    const { aiModelConfig } = await import("../drizzle/schema");
+    const [model] = await db
+      .select()
+      .from(aiModelConfig)
+      .where(eq(aiModelConfig.modelKey, modelKey))
+      .limit(1);
+    return model ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Audio Generation ─────────────────────────────────────────────────────────
+
+export async function createAudioGeneration(data: {
+  userId: number;
+  text: string;
+  provider: "minimax" | "elevenlabs";
+  model: string;
+  voiceId: string;
+  language?: string;
+  speed?: number;
+  creditsCost: number;
+}): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const result = await db.insert(generatedAudio).values({
+      userId: data.userId,
+      text: data.text,
+      provider: data.provider,
+      model: data.model,
+      voiceId: data.voiceId,
+      language: data.language ?? null,
+      speed: data.speed ? String(data.speed) : "1.00",
+      creditsCost: data.creditsCost,
+      status: "pending",
+    });
+    return result[0].insertId;
+  } catch (error) {
+    console.error("[Database] Failed to create audio generation:", error);
+    return null;
+  }
+}
+
+export async function updateAudioGenerationStatus(
+  id: number,
+  status: "pending" | "processing" | "completed" | "failed",
+  data?: { audioUrl?: string; durationMs?: number; errorMessage?: string }
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const updateData: Record<string, unknown> = { status };
+    if (data?.audioUrl) updateData.audioUrl = data.audioUrl;
+    if (data?.durationMs != null) updateData.durationMs = data.durationMs;
+    if (data?.errorMessage) updateData.errorMessage = data.errorMessage;
+    if (status === "completed" || status === "failed") {
+      updateData.completedAt = sql`NOW()`;
+    }
+
+    await db
+      .update(generatedAudio)
+      .set(updateData)
+      .where(eq(generatedAudio.id, id));
+    return true;
+  } catch (error) {
+    console.error(
+      "[Database] Failed to update audio generation status:",
+      error
+    );
+    return false;
+  }
+}
+
+export async function getUserAudioGenerations(
+  userId: number,
+  limit = 50,
+  offset = 0
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(generatedAudio)
+    .where(eq(generatedAudio.userId, userId))
+    .orderBy(desc(generatedAudio.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getUserAudioCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(generatedAudio)
+    .where(eq(generatedAudio.userId, userId));
+  return Number(result[0]?.count ?? 0);
+}
+
+export async function getAudioGenerationById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(generatedAudio)
+    .where(eq(generatedAudio.id, id))
+    .limit(1);
+  return result[0] ?? null;
+}
+
+// ─── Music Generation ─────────────────────────────────────────────────────────
+
+export async function createMusicGeneration(data: {
+  userId: number;
+  lyrics: string;
+  prompt?: string;
+  model?: string;
+  creditsCost: number;
+}): Promise<number | null> {
+  const db = await getDb();
+  if (!db) return null;
+
+  try {
+    const result = await db.insert(generatedMusic).values({
+      userId: data.userId,
+      lyrics: data.lyrics,
+      prompt: data.prompt ?? null,
+      model: data.model ?? "music-2.5",
+      creditsCost: data.creditsCost,
+      status: "pending",
+    });
+    return result[0].insertId;
+  } catch (error) {
+    console.error("[Database] Failed to create music generation:", error);
+    return null;
+  }
+}
+
+export async function updateMusicGenerationStatus(
+  id: number,
+  status: "pending" | "processing" | "completed" | "failed",
+  data?: { audioUrl?: string; durationMs?: number; errorMessage?: string }
+): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  try {
+    const updateData: Record<string, unknown> = { status };
+    if (data?.audioUrl) updateData.audioUrl = data.audioUrl;
+    if (data?.durationMs != null) updateData.durationMs = data.durationMs;
+    if (data?.errorMessage) updateData.errorMessage = data.errorMessage;
+    if (status === "completed" || status === "failed") {
+      updateData.completedAt = sql`NOW()`;
+    }
+
+    await db
+      .update(generatedMusic)
+      .set(updateData)
+      .where(eq(generatedMusic.id, id));
+    return true;
+  } catch (error) {
+    console.error(
+      "[Database] Failed to update music generation status:",
+      error
+    );
+    return false;
+  }
+}
+
+export async function getUserMusicGenerations(
+  userId: number,
+  limit = 50,
+  offset = 0
+) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(generatedMusic)
+    .where(eq(generatedMusic.userId, userId))
+    .orderBy(desc(generatedMusic.createdAt))
+    .limit(limit)
+    .offset(offset);
+}
+
+export async function getUserMusicCount(userId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(generatedMusic)
+    .where(eq(generatedMusic.userId, userId));
+  return Number(result[0]?.count ?? 0);
+}
+
+export async function getMusicGenerationById(id: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(generatedMusic)
+    .where(eq(generatedMusic.id, id))
+    .limit(1);
+  return result[0] ?? null;
 }
