@@ -447,41 +447,53 @@ export default function VideoGenerate() {
     : 50;
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-[#F9FAFB]">
+    <div className="min-h-screen bg-[#080808] text-[#F9FAFB] overflow-x-hidden">
+      {/* Ambient background glows */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-[0.07] blur-[120px]"
+          style={{ background: MODEL_DISPLAY_INFO[selectedModel]?.color || "#7C3AED" }}
+        />
+        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full opacity-[0.05] blur-[120px] bg-[#FF2E97]" />
+      </div>
+
       <Header />
 
-      <div className="pt-16 pb-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-black mb-2">
-                {t("video.title")}
-              </h1>
-              <p className="text-white/40 text-sm">{t("video.subtitle")}</p>
+      <div className="pt-16 min-h-screen flex flex-col">
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 md:px-8 py-4 border-b border-white/[0.06]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-[#FF2E97] flex items-center justify-center">
+              <Video className="w-4 h-4 text-white" />
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
-              <Zap className="w-4 h-4 text-[#7C3AED]" />
-              <span className="text-lg font-bold text-[#7C3AED]">
-                {user?.credits ?? 0}
-              </span>
-            </div>
+            <span className="font-bold text-base">{t("video.title")}</span>
           </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+            <Zap className="w-3.5 h-3.5 text-[#7C3AED]" />
+            <span className="text-sm font-bold text-white">{user?.credits ?? 0}</span>
+            <span className="text-xs text-white/30">kredi</span>
+          </div>
+        </div>
 
-          {/* Main Generation Card */}
-          <div className="bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-xl border border-white/10 rounded-3xl p-6 md:p-8 mb-6">
+        {/* Main two-column layout */}
+        <div className="flex flex-col lg:flex-row flex-1 gap-0">
+
+          {/* ── LEFT PANEL ── */}
+          <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 border-r border-white/[0.06] flex flex-col">
+            <div className="flex-1 overflow-y-auto p-5 space-y-5">
+
             {/* Model Selector */}
             <div className="mb-6 relative" ref={modelSelectorRef}>
-              <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                 {t("generate.modelLabel")}
               </label>
               <button
                 onClick={() => setShowModelSelector(!showModelSelector)}
-                className="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.08] hover:border-white/15 transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-xl"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
                     style={{
                       background: `${MODEL_DISPLAY_INFO[selectedModelData?.modelKey || selectedModel]?.color || "#7C3AED"}20`,
                     }}
@@ -491,14 +503,17 @@ export default function VideoGenerate() {
                     ]?.icon || "🎬"}
                   </div>
                   <div className="text-left">
-                    <div className="font-bold">
+                    <div className="font-semibold text-sm leading-tight">
                       {selectedModelData?.modelName || t("video.selectModel")}
+                    </div>
+                    <div className="text-[11px] text-white/30">
+                      {selectedModelData?.provider || ""}
                     </div>
                   </div>
                 </div>
                 <ChevronDown
                   className={cn(
-                    "w-5 h-5 text-white/40 transition-transform",
+                    "w-4 h-4 text-white/30 transition-transform group-hover:text-white/50",
                     showModelSelector && "rotate-180"
                   )}
                 />
@@ -706,99 +721,64 @@ export default function VideoGenerate() {
 
             {/* Mode Toggle - Hide for Sora 2 special features */}
             {!(selectedModel === "sora2" && soraFeature !== "default") && (
-              <div className="mb-6">
-                <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                   {t("video.modeLabel")}
                 </label>
-                <div
-                  className={cn(
-                    "inline-flex rounded-xl bg-white/5 p-1 w-full",
-                    // Dinamik grid: Kaç mod destekleniyorsa o kadar sütun
-                    (() => {
-                      let modeCount = 0;
-                      if (
-                        (selectedModelData as any)?.supportsTextToVideo !==
-                        false
-                      )
-                        modeCount++;
-                      if (
-                        (selectedModelData as any)?.supportsImageToVideo !==
-                        false
-                      )
-                        modeCount++;
-                      if ((selectedModelData as any)?.supportsVideoToVideo)
-                        modeCount++;
-                      if ((selectedModelData as any)?.supportsReferenceVideo)
-                        modeCount++;
-                      return modeCount === 1
-                        ? "grid grid-cols-1"
-                        : modeCount === 2
-                          ? "grid grid-cols-2 gap-1"
-                          : modeCount === 3
-                            ? "grid grid-cols-2 sm:grid-cols-3 gap-1"
-                            : "grid grid-cols-2 sm:grid-cols-4 gap-1";
-                    })()
-                  )}
-                >
-                  {/* Text to Video - Varsayılan olarak hep aktif (false değilse) */}
-                  {(selectedModelData as any)?.supportsTextToVideo !==
-                    false && (
+                <div className="flex gap-1.5 flex-wrap">
+                  {(selectedModelData as any)?.supportsTextToVideo !== false && (
                     <button
                       onClick={() => setGenerationType("text-to-video")}
                       className={cn(
-                        "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
                         generationType === "text-to-video"
-                          ? "bg-[#7C3AED] text-[#F9FAFB]"
-                          : "text-white/60 hover:text-[#F9FAFB]"
+                          ? "bg-white/10 border-white/20 text-white"
+                          : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
                       )}
                     >
+                      <Sparkles className="w-3 h-3" />
                       {t("video.textToVideo")}
                     </button>
                   )}
-
-                  {/* Image to Video */}
-                  {(selectedModelData as any)?.supportsImageToVideo !==
-                    false && (
+                  {(selectedModelData as any)?.supportsImageToVideo !== false && (
                     <button
                       onClick={() => setGenerationType("image-to-video")}
                       className={cn(
-                        "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
                         generationType === "image-to-video"
-                          ? "bg-[#7C3AED] text-[#F9FAFB]"
-                          : "text-white/60 hover:text-[#F9FAFB]"
+                          ? "bg-white/10 border-white/20 text-white"
+                          : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
                       )}
                     >
+                      <Upload className="w-3 h-3" />
                       {t("video.imageToVideo")}
                     </button>
                   )}
-
-                  {/* Reference to Video (Veo 3.1) */}
-                  {/* Reference to Video (Veo 3.1) */}
                   {(selectedModelData as any)?.supportsReferenceVideo && (
                     <button
                       onClick={() => setGenerationType("reference-to-video")}
                       className={cn(
-                        "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
                         generationType === "reference-to-video"
-                          ? "bg-[#7C3AED] text-[#F9FAFB]"
-                          : "text-white/60 hover:text-[#F9FAFB]"
+                          ? "bg-white/10 border-white/20 text-white"
+                          : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
                       )}
                     >
+                      <Play className="w-3 h-3" />
                       {t("video.refToVideo")}
                     </button>
                   )}
-
-                  {/* Video to Video (Wan 2.6) */}
                   {(selectedModelData as any)?.supportsVideoToVideo && (
                     <button
                       onClick={() => setGenerationType("video-to-video")}
                       className={cn(
-                        "px-4 py-2.5 rounded-lg text-sm font-bold transition-all",
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
                         generationType === "video-to-video"
-                          ? "bg-[#7C3AED] text-[#F9FAFB]"
-                          : "text-white/60 hover:text-[#F9FAFB]"
+                          ? "bg-white/10 border-white/20 text-white"
+                          : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
                       )}
                     >
+                      <Video className="w-3 h-3" />
                       {t("video.videoToVideo")}
                     </button>
                   )}
@@ -808,30 +788,30 @@ export default function VideoGenerate() {
 
             {/* Image Upload for Image-to-Video (Single) */}
             {generationType === "image-to-video" && (
-              <div className="mb-6">
-                <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                   {t("video.sourceImage")}
                 </label>
                 {imagePreview ? (
-                  <div className="relative">
+                  <div className="relative rounded-xl overflow-hidden bg-black/30 border border-white/10">
                     <img
                       src={imagePreview}
                       alt="Upload"
-                      className="w-full h-48 object-contain rounded-xl"
+                      className="w-full h-40 object-contain"
                     />
                     <button
                       onClick={removeImage}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center transition-all"
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all">
-                    <Upload className="w-8 h-8 text-white/40" />
-                    <span className="text-sm text-white/60">
-                      {t("common.upload")}
-                    </span>
+                  <label className="flex flex-col items-center justify-center gap-2 p-6 border border-dashed border-white/10 rounded-xl hover:border-white/20 hover:bg-white/[0.02] cursor-pointer transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                      <Upload className="w-5 h-5 text-white/30" />
+                    </div>
+                    <span className="text-xs text-white/40">{t("common.upload")}</span>
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -846,142 +826,114 @@ export default function VideoGenerate() {
 
             {/* Reference Image Upload (Multi) - Veo 3.1 */}
             {generationType === "reference-to-video" && (
-              <div className="mb-6">
-                <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                   {t("generate.referenceImages")} (Max 3)
                 </label>
-
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Previews */}
+                <div className="grid grid-cols-4 gap-2">
                   {imagePreviews.map((preview, idx) => (
-                    <div
-                      key={idx}
-                      className="relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/10 group"
-                    >
-                      <img
-                        src={preview}
-                        alt={`Reference ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/10 group">
+                      <img src={preview} alt={`Reference ${idx + 1}`} className="w-full h-full object-cover" />
                       <button
                         onClick={() => removeImageAtIndex(idx)}
-                        className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                        className="absolute top-1 right-1 w-5 h-5 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                       >
                         <X className="w-3 h-3" />
                       </button>
                     </div>
                   ))}
-
-                  {/* Upload Button */}
                   {imageFiles.length < 3 && (
-                    <label className="aspect-square flex flex-col items-center justify-center gap-2 border-2 border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all bg-white/5 hover:bg-white/10">
-                      <Upload className="w-6 h-6 text-white/40" />
-                      <span className="text-xs text-white/60 text-center">
-                        Referans
-                        <br />
-                        Ekle
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={e => handleImageUpload(e, true)}
-                        className="hidden"
-                      />
+                    <label className="aspect-square flex flex-col items-center justify-center gap-1 border border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all bg-white/[0.02] hover:bg-white/[0.04]">
+                      <Upload className="w-4 h-4 text-white/30" />
+                      <span className="text-[10px] text-white/40">Ekle</span>
+                      <input type="file" accept="image/*" multiple onChange={e => handleImageUpload(e, true)} className="hidden" />
                     </label>
                   )}
                 </div>
-                <p className="text-xs text-white/40 mt-2">
-                  * 3 görsele kadar yükleyebilirsiniz. İlk görsel başlangıç,
-                  diğerleri stil/akış referansı olur.
-                </p>
               </div>
             )}
 
             {/* Video Upload for Video-to-Video */}
             {generationType === "video-to-video" && (
-              <div className="mb-6">
-                <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                   {t("video.sourceVideo")} (Max 50MB)
                 </label>
                 {videoPreview ? (
-                  <div className="relative group">
-                    <video
-                      src={videoPreview}
-                      className="w-full h-48 object-contain rounded-xl bg-black/50"
-                      controls
-                    />
+                  <div className="relative group rounded-xl overflow-hidden border border-white/10">
+                    <video src={videoPreview} className="w-full h-40 object-contain bg-black/50" controls />
                     <button
                       onClick={removeVideo}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center gap-2 p-8 border-2 border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all bg-white/5 hover:bg-white/10">
-                    <Video className="w-8 h-8 text-white/40" />
-                    <span className="text-sm text-white/60">Video Seç</span>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      className="hidden"
-                    />
+                  <label className="flex flex-col items-center justify-center gap-2 p-6 border border-dashed border-white/10 rounded-xl hover:border-white/20 hover:bg-white/[0.02] cursor-pointer transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                      <Video className="w-5 h-5 text-white/30" />
+                    </div>
+                    <span className="text-xs text-white/40">Video Seç</span>
+                    <input type="file" accept="video/*" onChange={handleVideoUpload} className="hidden" />
                   </label>
                 )}
               </div>
             )}
 
             {/* Prompt Input */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-xs font-bold text-white/60 uppercase tracking-wider">
-                  Video Açıklaması
-                </label>
+            <div className="">
+              <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
+                Video Açıklaması
+              </label>
+              <div className="relative rounded-xl bg-white/[0.04] border border-white/[0.08] focus-within:border-white/20 transition-colors">
+                <Textarea
+                  value={prompt}
+                  onChange={e => setPrompt(e.target.value)}
+                  placeholder={
+                    generationType === "text-to-video"
+                      ? t("video.placeholders.textToVideo")
+                      : t("video.placeholders.imageToVideo")
+                  }
+                  className="bg-transparent border-0 focus-visible:ring-0 resize-none text-sm min-h-[140px] placeholder:text-white/20 p-4 pb-2"
+                  rows={6}
+                  maxLength={5000}
+                />
+                <div className="flex items-center justify-between px-4 pb-3 pt-1">
+                  <span className="text-[11px] text-white/20">{prompt.length}/5000</span>
+                  <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-white/40 hover:text-white/70 transition-all">
+                    <Wand2 className="w-3 h-3" />
+                    Geliştir
+                  </button>
+                </div>
               </div>
-              <Textarea
-                value={prompt}
-                onChange={e => setPrompt(e.target.value)}
-                placeholder={
-                  generationType === "text-to-video"
-                    ? t("video.placeholders.textToVideo")
-                    : t("video.placeholders.imageToVideo")
-                }
-                className="bg-white/5 border-white/10 focus:border-[#7C3AED]/50 resize-none text-base min-h-[120px]"
-                rows={5}
-                maxLength={5000}
-              />
             </div>
 
             {/* Sora 2 Characters - Character Prompt & Safety Instruction */}
             {selectedModel === "sora2" && soraFeature === "characters" && (
               <>
-                <div className="mb-6">
-                  <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+                <div className="">
+                  <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                     {t("video.sora.characterDescription")}
                   </label>
                   <Textarea
                     value={prompt}
                     onChange={e => setPrompt(e.target.value)}
                     placeholder={t("video.placeholders.characterDesc")}
-                    className="bg-white/5 border-white/10 focus:border-[#7C3AED]/50 resize-none text-base min-h-[100px]"
+                    className="bg-white/[0.04] border-white/[0.08] focus:border-white/20 resize-none text-sm min-h-[90px]"
                     rows={4}
                     maxLength={5000}
                   />
                 </div>
-                <div className="mb-6">
-                  <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+                <div className="">
+                  <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                     {t("video.sora.safetyInstructions")}
                   </label>
                   <Textarea
                     value={(window as any).__sora_safety_instruction || ""}
-                    onChange={e =>
-                      ((window as any).__sora_safety_instruction =
-                        e.target.value)
-                    }
+                    onChange={e => ((window as any).__sora_safety_instruction = e.target.value)}
                     placeholder={t("video.placeholders.safetyInstructions")}
-                    className="bg-white/5 border-white/10 focus:border-[#7C3AED]/50 resize-none text-base min-h-[80px]"
+                    className="bg-white/[0.04] border-white/[0.08] focus:border-white/20 resize-none text-sm min-h-[70px]"
                     rows={3}
                     maxLength={5000}
                   />
@@ -990,56 +942,40 @@ export default function VideoGenerate() {
             )}
 
             {/* Sora 2 Watermark - Video URL Input */}
-            {selectedModel === "sora2" &&
-              soraFeature === "watermark-remover" && (
-                <div className="mb-6">
-                  <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                    {t("video.sora.videoURL")}
-                  </label>
-                  <input
-                    type="url"
-                    value={(window as any).__sora_video_url || ""}
-                    onChange={e =>
-                      ((window as any).__sora_video_url = e.target.value)
-                    }
-                    placeholder="https://sora.chatgpt.com/p/s_..."
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:border-[#7C3AED]/50 focus:outline-none text-[#F9FAFB]"
-                    maxLength={500}
-                  />
-                  <p className="text-xs text-white/40 mt-2">
-                    {t("video.sora.watermarkHint")}
-                  </p>
-                </div>
-              )}
+            {selectedModel === "sora2" && soraFeature === "watermark-remover" && (
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
+                  {t("video.sora.videoURL")}
+                </label>
+                <input
+                  type="url"
+                  value={(window as any).__sora_video_url || ""}
+                  onChange={e => ((window as any).__sora_video_url = e.target.value)}
+                  placeholder="https://sora.chatgpt.com/p/s_..."
+                  className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl focus:border-white/20 focus:outline-none text-sm text-white placeholder:text-white/20"
+                  maxLength={500}
+                />
+                <p className="text-[11px] text-white/25 mt-1.5">{t("video.sora.watermarkHint")}</p>
+              </div>
+            )}
 
             {/* Sora 2 Storyboard - Multi-Image Upload */}
             {selectedModel === "sora2" && soraFeature === "storyboard" && (
-              <div className="mb-6">
-                <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">
                   {t("video.sora.storyboardImages")}
                 </label>
-                <p className="text-xs text-white/40 mb-3">
-                  {t("video.sora.storyboardHint")}
-                </p>
                 {imagePreviews.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-3">
+                  <div className="grid grid-cols-4 gap-2 mb-2">
                     {imagePreviews.map((preview, idx) => (
                       <div key={idx} className="relative group aspect-square">
-                        <img
-                          src={preview}
-                          alt={`Frame ${idx + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
+                        <img src={preview} alt={`Frame ${idx + 1}`} className="w-full h-full object-cover rounded-lg" />
                         <button
                           onClick={() => {
-                            setImageFiles(prev =>
-                              prev.filter((_, i) => i !== idx)
-                            );
-                            setImagePreviews(prev =>
-                              prev.filter((_, i) => i !== idx)
-                            );
+                            setImageFiles(prev => prev.filter((_, i) => i !== idx));
+                            setImagePreviews(prev => prev.filter((_, i) => i !== idx));
                           }}
-                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-[#F9FAFB] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -1047,346 +983,263 @@ export default function VideoGenerate() {
                     ))}
                   </div>
                 )}
-                <label className="flex items-center justify-center gap-2 p-6 border-2 border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all">
-                  <Upload className="w-5 h-5 text-white/40" />
-                  <span className="text-sm text-white/60">
-                    Görsel Yükle ({imageFiles.length})
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
+                <label className="flex items-center justify-center gap-2 p-4 border border-dashed border-white/10 rounded-xl hover:border-white/20 cursor-pointer transition-all hover:bg-white/[0.02]">
+                  <Upload className="w-4 h-4 text-white/30" />
+                  <span className="text-xs text-white/40">Görsel Yükle ({imageFiles.length})</span>
+                  <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                 </label>
               </div>
             )}
 
             {/* Sora 2 Special Features */}
-            {selectedModel === "sora2" &&
-              (selectedModelData as any)?.specialFeatures?.length > 0 && (
-                <div className="mb-6">
-                  <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                    Özellik
-                  </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {selectedModel === "sora2" && (selectedModelData as any)?.specialFeatures?.length > 0 && (
+              <div className="">
+                <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">Özellik</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { key: "default", label: "🎬 Standart" },
+                    { key: "characters", label: "👤 Karakter" },
+                    { key: "storyboard", label: "📋 Storyboard" },
+                    { key: "watermark-remover", label: "🔧 Watermark" },
+                  ].map(({ key, label }) => (
                     <button
-                      onClick={() => setSoraFeature("default")}
+                      key={key}
+                      onClick={() => setSoraFeature(key as any)}
                       className={cn(
-                        "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
-                        soraFeature === "default"
-                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                          : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
+                        "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
+                        soraFeature === key
+                          ? "bg-white/10 border-white/25 text-white"
+                          : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
                       )}
                     >
-                      🎬 Standart Video
+                      {label}
                     </button>
-                    <button
-                      onClick={() => setSoraFeature("characters")}
-                      className={cn(
-                        "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
-                        soraFeature === "characters"
-                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                          : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                      )}
-                    >
-                      👤 Karakter
-                    </button>
-                    <button
-                      onClick={() => setSoraFeature("storyboard")}
-                      className={cn(
-                        "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
-                        soraFeature === "storyboard"
-                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                          : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                      )}
-                    >
-                      📋 Storyboard
-                    </button>
-                    <button
-                      onClick={() => setSoraFeature("watermark-remover")}
-                      className={cn(
-                        "py-3 px-4 rounded-lg text-sm font-bold transition-all border",
-                        soraFeature === "watermark-remover"
-                          ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                          : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                      )}
-                    >
-                      🔧 Watermark
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
             {/* Quick Settings - Hide for Sora 2 watermark feature */}
-            {!(
-              selectedModel === "sora2" && soraFeature === "watermark-remover"
-            ) && (
-              <div
-                className={cn(
-                  "grid gap-4 mb-6",
-                  // Dinamik grid: Kaç ayar görünüyorsa o kadar kolon
-                  (() => {
-                    let settingsCount = 0;
-                    if (selectedModelData?.supportedAspectRatios)
-                      settingsCount++;
-                    // Storyboard için duration yerine n_frames kullanımı olacağı için gizlenecek
-                    if (
-                      selectedModelData?.supportedDurations &&
-                      !(
-                        selectedModel === "sora2" &&
-                        soraFeature === "storyboard"
-                      )
-                    )
-                      settingsCount++;
-                    if (
-                      selectedModelData?.supportedQualities &&
-                      selectedModelData.supportedQualities.length > 0
-                    )
-                      settingsCount++;
-                    if (
-                      (selectedModelData as any)?.supportedResolutions &&
-                      (selectedModelData as any).supportedResolutions.length > 0
-                    )
-                      settingsCount++; // Added resolution to count
-                    return settingsCount === 1
-                      ? "grid-cols-1"
-                      : settingsCount === 2
-                        ? "grid-cols-2"
-                        : "grid-cols-2 md:grid-cols-4"; // Optimized grid
-                  })()
-                )}
-              >
+            {!(selectedModel === "sora2" && soraFeature === "watermark-remover") && (
+              <div className="space-y-3">
                 {/* Aspect Ratio */}
                 {selectedModelData?.supportedAspectRatios && (
                   <div>
-                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                      Oran
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedModelData.supportedAspectRatios
-                        .slice(0, 4)
-                        .map((ratio: string) => (
-                          <button
-                            key={ratio}
-                            onClick={() => setAspectRatio(ratio)}
-                            className={cn(
-                              "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[60px]", // More flex button
-                              aspectRatio === ratio
-                                ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                                : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                            )}
-                          >
-                            {ratio}
-                          </button>
-                        ))}
+                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">Oran</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedModelData.supportedAspectRatios.slice(0, 5).map((ratio: string) => (
+                        <button
+                          key={ratio}
+                          onClick={() => setAspectRatio(ratio)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border min-w-[50px]",
+                            aspectRatio === ratio
+                              ? "bg-white/10 border-white/25 text-white"
+                              : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
+                          )}
+                        >
+                          {ratio}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
 
-                {/* Duration - Hide if only 'auto' is supported (for Veo 3.1) */}
+                {/* Duration */}
                 {selectedModelData?.supportedDurations &&
-                  !(
-                    selectedModelData.supportedDurations.length === 1 &&
-                    selectedModelData.supportedDurations[0] === "auto"
-                  ) && (
+                  !(selectedModelData.supportedDurations.length === 1 && selectedModelData.supportedDurations[0] === "auto") &&
+                  !(selectedModel === "sora2" && soraFeature === "storyboard") && (
                     <div>
-                      <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                        Süre
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedModelData.supportedDurations.slice(0, 4).map(
-                          (
-                            dur: string // Increased slice to 4
-                          ) => (
-                            <button
-                              key={dur}
-                              onClick={() => setDuration(dur)}
-                              className={cn(
-                                "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[60px]",
-                                duration === dur
-                                  ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                                  : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                              )}
-                            >
-                              {dur === "auto" ? "Oto" : dur + "s"}
-                            </button>
-                          )
-                        )}
+                      <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">Süre</label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedModelData.supportedDurations.slice(0, 5).map((dur: string) => (
+                          <button
+                            key={dur}
+                            onClick={() => setDuration(dur)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border min-w-[50px]",
+                              duration === dur
+                                ? "bg-white/10 border-white/25 text-white"
+                                : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
+                            )}
+                          >
+                            {dur === "auto" ? "Oto" : dur + "s"}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
 
                 {/* Quality */}
-                {selectedModelData?.supportedQualities &&
-                  selectedModelData.supportedQualities.length > 0 && (
-                    <div>
-                      <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                        Kalite
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedModelData.supportedQualities
-                          .slice(0, 4)
-                          .map((qual: string) => (
-                            <button
-                              key={qual}
-                              onClick={() => setQuality(qual)}
-                              className={cn(
-                                "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[80px]",
-                                quality === qual
-                                  ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                                  : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                              )}
-                            >
-                              {QUALITY_LABELS[qual] || qual}
-                            </button>
-                          ))}
-                      </div>
+                {selectedModelData?.supportedQualities && selectedModelData.supportedQualities.length > 0 && (
+                  <div>
+                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">Kalite</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedModelData.supportedQualities.slice(0, 4).map((qual: string) => (
+                        <button
+                          key={qual}
+                          onClick={() => setQuality(qual)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
+                            quality === qual
+                              ? "bg-white/10 border-white/25 text-white"
+                              : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
+                          )}
+                        >
+                          {QUALITY_LABELS[qual] || qual}
+                        </button>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                {/* Resolution (NEW) */}
-                {(selectedModelData as any)?.supportedResolutions &&
-                  (selectedModelData as any).supportedResolutions.length >
-                    0 && (
-                    <div>
-                      <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">
-                        Çözünürlük
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {(selectedModelData as any).supportedResolutions
-                          .slice(0, 3)
-                          .map((res: string) => (
-                            <button
-                              key={res}
-                              onClick={() => setResolution(res)}
-                              className={cn(
-                                "flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all border min-w-[70px]",
-                                resolution === res
-                                  ? "bg-[#7C3AED]/20 border-[#7C3AED] text-[#7C3AED]"
-                                  : "bg-white/5 border-white/10 text-white/60 hover:bg-white/10"
-                              )}
-                            >
-                              {res}
-                            </button>
-                          ))}
-                      </div>
+                {/* Resolution */}
+                {(selectedModelData as any)?.supportedResolutions && (selectedModelData as any).supportedResolutions.length > 0 && (
+                  <div>
+                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest mb-2 block">Çözünürlük</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(selectedModelData as any).supportedResolutions.slice(0, 4).map((res: string) => (
+                        <button
+                          key={res}
+                          onClick={() => setResolution(res)}
+                          className={cn(
+                            "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border",
+                            resolution === res
+                              ? "bg-white/10 border-white/25 text-white"
+                              : "border-white/[0.06] text-white/40 hover:text-white/70 hover:border-white/10"
+                          )}
+                        >
+                          {res}
+                        </button>
+                      ))}
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
             )}
 
             {/* Audio Toggle */}
-            {selectedModel !== "sora2" &&
-              (selectedModelData as any)?.hasAudioSupport && (
-                <div className="mb-6 flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        "w-10 h-10 rounded-lg flex items-center justify-center",
-                        enableAudio
-                          ? "bg-[#7C3AED]/20 text-[#7C3AED]"
-                          : "bg-white/10 text-white/40"
-                      )}
-                    >
-                      {enableAudio ? (
-                        <Video className="w-5 h-5" />
-                      ) : (
-                        <X className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm">Ses Üretimi</div>
-                      <div className="text-xs text-white/40">
-                        Videoya uygun ses efekti oluştur
-                      </div>
-                    </div>
+            {selectedModel !== "sora2" && (selectedModelData as any)?.hasAudioSupport && (
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+                <div className="flex items-center gap-2.5">
+                  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center text-base",
+                    enableAudio ? "bg-[#22C55E]/15 text-[#22C55E]" : "bg-white/5 text-white/30"
+                  )}>
+                    🔊
                   </div>
-                  <button
-                    onClick={() => setEnableAudio(!enableAudio)}
-                    className={cn(
-                      "w-12 h-6 rounded-full relative transition-colors",
-                      enableAudio ? "bg-[#7C3AED]" : "bg-white/20"
-                    )}
-                  >
-                    <motion.div
-                      animate={{ x: enableAudio ? 24 : 0 }}
-                      className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm"
-                    />
-                  </button>
+                  <div>
+                    <div className="text-sm font-semibold leading-tight">Ses Üretimi</div>
+                    <div className="text-[11px] text-white/30">Videoya uygun ses efekti</div>
+                  </div>
                 </div>
-              )}
+                <button
+                  onClick={() => setEnableAudio(!enableAudio)}
+                  className={cn("w-10 h-5 rounded-full relative transition-colors", enableAudio ? "bg-[#22C55E]" : "bg-white/15")}
+                >
+                  <motion.div
+                    animate={{ x: enableAudio ? 20 : 1 }}
+                    className="absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow-sm"
+                  />
+                </button>
+              </div>
+            )}
 
-            {/* Generate Button */}
-            <motion.button
-              onClick={handleGenerate}
-              disabled={
-                generateMutation.isPending ||
-                isUploading ||
-                !prompt.trim() ||
-                (generationType === "image-to-video" && !imageFile) ||
-                (generationType === "reference-to-video" &&
-                  imageFiles.length === 0) ||
-                !!(
-                  currentVideoId &&
-                  statusData?.status !== "completed" &&
-                  statusData?.status !== "failed"
-                )
-              }
-              className={cn(
-                "w-full py-4 rounded-2xl font-black text-base transition-all flex items-center justify-center gap-3",
-                generateMutation.isPending ||
+            </div>{/* end space-y-5 (scrollable content) */}
+
+            {/* Generate Button - sticky at bottom of left panel */}
+            <div className="p-5 border-t border-white/[0.06]">
+              <motion.button
+                onClick={handleGenerate}
+                disabled={
+                  generateMutation.isPending ||
                   isUploading ||
                   !prompt.trim() ||
                   (generationType === "image-to-video" && !imageFile) ||
-                  (generationType === "reference-to-video" &&
-                    imageFiles.length === 0)
-                  ? "bg-white/10 text-white/30 cursor-not-allowed"
-                  : "bg-gradient-to-r from-[#7C3AED] to-[#FF2E97] text-[#F9FAFB] shadow-lg shadow-[#7C3AED]/50 hover:shadow-xl hover:shadow-[#7C3AED]/60"
-              )}
-              whileTap={{ scale: 0.98 }}
-            >
-              {generateMutation.isPending
-                ? t("video.generating")
-                : isUploading
-                  ? t("video.uploading")
-                  : `${t("video.generate")} (${displayCreditCost} kredi)`}
-            </motion.button>
-          </div>
+                  (generationType === "reference-to-video" && imageFiles.length === 0) ||
+                  !!(currentVideoId && statusData?.status !== "completed" && statusData?.status !== "failed")
+                }
+                className={cn(
+                  "w-full py-3.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2",
+                  generateMutation.isPending || isUploading || !prompt.trim() ||
+                  (generationType === "image-to-video" && !imageFile) ||
+                  (generationType === "reference-to-video" && imageFiles.length === 0)
+                    ? "bg-white/[0.06] text-white/25 cursor-not-allowed"
+                    : "bg-gradient-to-r from-[#7C3AED] to-[#FF2E97] text-white shadow-lg shadow-[#7C3AED]/30 hover:shadow-[#7C3AED]/50 hover:scale-[1.01]"
+                )}
+                whileTap={{ scale: 0.98 }}
+              >
+                {generateMutation.isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />{t("video.generating")}</>
+                ) : isUploading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" />{t("video.uploading")}</>
+                ) : (
+                  <><Sparkles className="w-4 h-4" />{t("video.generate")} · {displayCreditCost} kredi</>
+                )}
+              </motion.button>
+            </div>
 
-          {/* Recent Generations */}
-          {videoHistoryQuery.data?.videos &&
-            videoHistoryQuery.data.videos.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-xl font-bold mb-4">Son Oluşturulanlar</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {videoHistoryQuery.data.videos.slice(0, 4).map((vid: any) => (
+          </div>{/* end left panel */}
+
+          {/* ── RIGHT PANEL ── */}
+          <div className="flex-1 overflow-y-auto p-5">
+            {videoHistoryQuery.data?.videos && videoHistoryQuery.data.videos.length > 0 ? (
+              <>
+                <h2 className="text-xs font-bold text-white/30 uppercase tracking-widest mb-4">Son Oluşturulanlar</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {videoHistoryQuery.data.videos.map((vid: any) => (
                     <div
                       key={vid.id}
-                      className="group relative aspect-video rounded-xl overflow-hidden bg-white/5 border border-white/10"
+                      className="group relative aspect-video rounded-xl overflow-hidden bg-white/[0.04] border border-white/[0.06] hover:border-white/15 transition-all"
                     >
                       {vid.status === "completed" && vid.videoUrl ? (
-                        <video
-                          src={vid.videoUrl}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : vid.status === "processing" ? (
+                        <>
+                          <video src={vid.videoUrl} className="w-full h-full object-cover" muted loop
+                            onMouseEnter={e => (e.target as HTMLVideoElement).play()}
+                            onMouseLeave={e => { const v = e.target as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="w-8 h-8 rounded-full bg-black/60 flex items-center justify-center">
+                              <Play className="w-4 h-4 text-white ml-0.5" />
+                            </div>
+                          </div>
+                        </>
+                      ) : vid.status === "processing" || vid.status === "pending" ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                          <Loader2 className="w-6 h-6 animate-spin text-white/30" />
+                          <span className="text-[10px] text-white/25">İşleniyor</span>
+                        </div>
+                      ) : vid.status === "failed" ? (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Loader2 className="w-8 h-8 animate-spin text-white/40" />
+                          <span className="text-[11px] text-red-400/60">Başarısız</span>
                         </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <Video className="w-8 h-8 text-white/20" />
+                          <Video className="w-6 h-6 text-white/10" />
+                        </div>
+                      )}
+                      {/* Model badge */}
+                      {vid.modelType && (
+                        <div className="absolute bottom-2 left-2 px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-sm">
+                          <span className="text-[9px] text-white/50 font-medium">{vid.modelType}</span>
                         </div>
                       )}
                     </div>
                   ))}
                 </div>
+              </>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-center py-20">
+                <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center mb-4">
+                  <Video className="w-7 h-7 text-white/15" />
+                </div>
+                <p className="text-white/20 text-sm font-medium">Henüz video oluşturulmadı</p>
+                <p className="text-white/10 text-xs mt-1">Soldaki panelden başlayabilirsiniz</p>
               </div>
             )}
-        </div>
-      </div>
+          </div>{/* end right panel */}
+
+        </div>{/* end two-column */}
+      </div>{/* end flex flex-col */}
 
       {/* Dialogs */}
       {showCreditsDialog && (
