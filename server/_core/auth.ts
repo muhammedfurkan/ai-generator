@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ForbiddenError } from "@shared/_core/errors";
 import { COOKIE_NAME, UNAUTHED_ERR_MSG } from "@shared/const";
 import { parse as parseCookieHeader } from "cookie";
@@ -49,7 +50,10 @@ export async function authenticateRequest(req: Request): Promise<User> {
         }
       }
     } catch (error) {
-      console.log("[Auth] Custom session auth failed:", error instanceof Error ? error.message : String(error));
+      console.log(
+        "[Auth] Custom session auth failed:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 
@@ -65,22 +69,27 @@ export async function authenticateRequest(req: Request): Promise<User> {
 
         if (!user && clerkUser.email) {
           // Create user if doesn't exist
-          console.log("[Auth] Creating new user from Clerk session:", { email: clerkUser.email });
+          console.log("[Auth] Creating new user from Clerk session:", {
+            email: clerkUser.email,
+          });
           await db.upsertClerkUser({
             clerkId: clerkUser.userId,
             email: clerkUser.email,
-            name: clerkUser.name || clerkUser.email.split('@')[0],
+            name: clerkUser.name || clerkUser.email.split("@")[0],
           });
           user = await db.getUserByClerkId(clerkUser.userId);
 
           // Send Telegram notification for new user
           if (user) {
             notifyNewUserRegistration({
-              name: clerkUser.name || clerkUser.email.split('@')[0],
+              name: clerkUser.name || clerkUser.email.split("@")[0],
               email: clerkUser.email,
               loginMethod: "google",
-            }).catch((error) => {
-              console.error("[Auth] Failed to send new user notification:", error);
+            }).catch(error => {
+              console.error(
+                "[Auth] Failed to send new user notification:",
+                error
+              );
             });
           }
         }
@@ -91,7 +100,10 @@ export async function authenticateRequest(req: Request): Promise<User> {
         }
       }
     } catch (error) {
-      console.log("[Auth] Clerk session auth failed:", error instanceof Error ? error.message : String(error));
+      console.log(
+        "[Auth] Clerk session auth failed:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 

@@ -7,6 +7,7 @@ Bu rehber, NanoInf platformunu VPS üzerine Docker ile nasıl kuracağınızı a
 ## Sistem Gereksinimleri
 
 ### Minimum Gereksinimler
+
 - **CPU**: 2 Core
 - **RAM**: 4 GB
 - **Disk**: 20 GB SSD
@@ -14,6 +15,7 @@ Bu rehber, NanoInf platformunu VPS üzerine Docker ile nasıl kuracağınızı a
 - **Network**: 100 Mbps
 
 ### Önerilen Gereksinimler
+
 - **CPU**: 4 Core
 - **RAM**: 8 GB
 - **Disk**: 50 GB SSD
@@ -49,6 +51,7 @@ bash install.sh
 ```
 
 Bu script otomatik olarak:
+
 - ✅ Sistemi günceller
 - ✅ Docker ve Docker Compose kurar
 - ✅ Firewall ayarlarını yapar
@@ -75,6 +78,7 @@ nano /opt/nanoinf/.env
 ```
 
 **MUTLAKA doldurun:**
+
 ```env
 VITE_APP_ID=your_manus_app_id
 OWNER_OPEN_ID=your_owner_open_id
@@ -86,6 +90,7 @@ KIE_AI_API_KEY=your_kie_ai_api_key
 ```
 
 **Opsiyonel (Telegram bot için):**
+
 ```env
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 TELEGRAM_ADMIN_CHAT_ID=your_telegram_chat_id
@@ -98,6 +103,7 @@ bash setup-ssl.sh yourdomain.com admin@yourdomain.com
 ```
 
 Veya mevcut sertifikalarınızı kopyalayın:
+
 ```bash
 cp /path/to/fullchain.pem /opt/nanoinf/ssl/
 cp /path/to/privkey.pem /opt/nanoinf/ssl/
@@ -279,11 +285,13 @@ sudo fail2ban-client status
 ### SSL/TLS
 
 Let's Encrypt ile otomatik SSL:
+
 ```bash
 bash setup-ssl.sh yourdomain.com
 ```
 
 Manuel SSL:
+
 ```bash
 # Sertifikaları kopyala
 cp fullchain.pem /opt/nanoinf/ssl/
@@ -440,10 +448,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
+          cpus: "2"
           memory: 4G
         reservations:
-          cpus: '1'
+          cpus: "1"
           memory: 2G
 ```
 

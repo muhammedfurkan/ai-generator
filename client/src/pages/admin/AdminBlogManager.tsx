@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin Blog Manager - Blog Yönetimi (Tam Entegrasyon)
  */

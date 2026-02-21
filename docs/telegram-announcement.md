@@ -16,12 +16,14 @@ Hemen kayıt olun ve AI dünyasını keşfedin!
 ## 🌟 TEMEL ÖZELLİKLER
 
 ### 📸 AI Görsel Oluşturma
+
 • **Nano Banana Pro** - En gelişmiş modelimiz (1K/2K/4K)
 • **Qwen** - Referans görsel destekli
 • **SeeDream 4.5** - Yüksek kalite, uygun fiyat
 • Prompt İyileştirici ile basit fikirlerinizi profesyonel promptlara dönüştürün!
 
 ### 🎬 AI Video Oluşturma
+
 • **Veo 3.1** - Google'ın en güçlü video modeli
 • **Sora 2** - OpenAI'ın video yapay zekası
 • **Kling 2.5 Turbo** - Hızlı ve kaliteli
@@ -30,12 +32,14 @@ Hemen kayıt olun ve AI dünyasını keşfedin!
 • AI ile Viral Prompt Üretici!
 
 ### 👤 AI Influencer
+
 • Tek fotoğraftan sınırsız içerik üretin
 • 55 farklı Türkiye lokasyonu
 • Otomatik prompt üretici
 • Topluluk karakterleri ile ilham alın
 
 ### 🔥 Viral Video Uygulamaları
+
 • Sarılma, Öpücük, Dans
 • Yaş Dönüşümü, Anime Dönüşümü
 • Konuşan Fotoğraf, Lip Sync
@@ -47,33 +51,40 @@ Hemen kayıt olun ve AI dünyasını keşfedin!
 ## ✨ YENİ ÖZELLİKLER
 
 ### 🎯 Prompt Ustası
+
 Türkçe yazın, profesyonel İngilizce prompt alın!
 • 4 çıktı tipi (Görsel, Video, Universal)
 • 7 farklı stil seçeneği
 • Sadece 1 kredi!
 
 ### 🖼️ Logo Oluşturucu
+
 Profesyonel logolar saniyeler içinde!
 • 20 sektör, 12 stil, 12 renk paleti
 • 4 adımlı kolay wizard
 
 ### 📐 Çoklu Açı Fotoğraf
+
 Tek fotoğraftan 4-8 farklı açıda profesyonel çekimler!
 • Temel Set (4 açı) - 80 kredi
 • Standart Set (6 açı) - 120 kredi
 • Profesyonel Set (8 açı) - 160 kredi
 
 ### 🛍️ Ürün Tanıtım Videosu
+
 E-ticaret ürünleriniz için profesyonel videolar!
 • 4 farklı stil (Minimal, Premium, Tech, Viral)
 
 ### 📱 UGC Reklam Videosu
+
 TikTok/Instagram için gerçekçi UGC reklamları!
 
 ### 🔬 Görsel Upscale
+
 Düşük kaliteli görselleri 2x, 4x, 8x büyütün!
 
 ### 💆 Cilt İyileştirme
+
 Doğal görünümlü cilt düzeltme!
 • Natural Clean, Soft Glow, Studio Look
 

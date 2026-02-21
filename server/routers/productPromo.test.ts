@@ -63,13 +63,16 @@ describe("Product Promo Video Generator", () => {
         tech_futuristic: {
           name: "Tech / Futuristic",
           nameTr: "Teknoloji / Fütüristik",
-          description: "Neon aksan, dijital ışık efektleri, modern teknoloji estetiği",
+          description:
+            "Neon aksan, dijital ışık efektleri, modern teknoloji estetiği",
           credits: 135,
         },
       };
 
       expect(STYLE_PRESETS.tech_futuristic.credits).toBe(135);
-      expect(STYLE_PRESETS.tech_futuristic.nameTr).toBe("Teknoloji / Fütüristik");
+      expect(STYLE_PRESETS.tech_futuristic.nameTr).toBe(
+        "Teknoloji / Fütüristik"
+      );
     });
 
     it("should have social_viral preset with 90 credits", () => {
@@ -77,7 +80,8 @@ describe("Product Promo Video Generator", () => {
         social_viral: {
           name: "Social Media Viral",
           nameTr: "Sosyal Medya Viral",
-          description: "Hızlı kesimler, enerjik kamera hareketi, cesur aydınlatma",
+          description:
+            "Hızlı kesimler, enerjik kamera hareketi, cesur aydınlatma",
           credits: 90,
         },
       };
@@ -89,7 +93,11 @@ describe("Product Promo Video Generator", () => {
 
   describe("Prompt Generation", () => {
     it("should generate correct prompt for minimal_clean style", () => {
-      const generatePrompt = (stylePreset: string, productName?: string, slogan?: string): string => {
+      const generatePrompt = (
+        stylePreset: string,
+        productName?: string,
+        slogan?: string
+      ): string => {
         const prompts: Record<string, string> = {
           minimal_clean: `Create a short vertical product promo video using the provided product image.
 The product must remain IDENTICAL in shape, color, logo, and texture.
@@ -101,7 +109,8 @@ No distortion. No logo changes. No extra objects.`,
         };
 
         let prompt = prompts[stylePreset] || "";
-        if (productName) prompt += `\n\nProduct name to display: "${productName}"`;
+        if (productName)
+          prompt += `\n\nProduct name to display: "${productName}"`;
         if (slogan) prompt += `\nSlogan/tagline: "${slogan}"`;
         return prompt;
       };
@@ -113,14 +122,23 @@ No distortion. No logo changes. No extra objects.`,
     });
 
     it("should include product name and slogan when provided", () => {
-      const generatePrompt = (stylePreset: string, productName?: string, slogan?: string): string => {
+      const generatePrompt = (
+        stylePreset: string,
+        productName?: string,
+        slogan?: string
+      ): string => {
         let prompt = "Base prompt";
-        if (productName) prompt += `\n\nProduct name to display: "${productName}"`;
+        if (productName)
+          prompt += `\n\nProduct name to display: "${productName}"`;
         if (slogan) prompt += `\nSlogan/tagline: "${slogan}"`;
         return prompt;
       };
 
-      const prompt = generatePrompt("minimal_clean", "Premium Kulaklık", "Müziğin Yeni Boyutu");
+      const prompt = generatePrompt(
+        "minimal_clean",
+        "Premium Kulaklık",
+        "Müziğin Yeni Boyutu"
+      );
       expect(prompt).toContain('Product name to display: "Premium Kulaklık"');
       expect(prompt).toContain('Slogan/tagline: "Müziğin Yeni Boyutu"');
     });
@@ -179,7 +197,11 @@ No distortion. No logo changes. No extra objects.`,
       const { storagePut } = await import("../storage");
 
       const buffer = Buffer.from("test video data");
-      const result = await storagePut("product-promo/1/1-123.mp4", buffer, "video/mp4");
+      const result = await storagePut(
+        "product-promo/1/1-123.mp4",
+        buffer,
+        "video/mp4"
+      );
 
       expect(result.url).toContain("product-promo");
       expect(result.url).toContain(".mp4");

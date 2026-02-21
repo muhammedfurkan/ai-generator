@@ -1,6 +1,7 @@
 # Kie.ai Yeni Modeller - Admin Panel'e Eklenecek
 
 ## 1. SORA 2 PRO
+
 **Model Key:** `sora-2-pro`
 **Model Adı:** Sora 2 Pro
 **Tip:** Video
@@ -10,6 +11,7 @@
 **Kredi Maliyeti:** 40-65 (süreye göre)
 
 ## 2. SORA 2 PRO STORYBOARD
+
 **Model Key:** `sora-2-pro-storyboard`
 **Model Adı:** Sora 2 Pro Storyboard
 **Tip:** Video
@@ -18,6 +20,7 @@
 **Kredi Maliyeti:** 80
 
 ## 3. KLING 2.1
+
 **Model Key:** `kling-2.1`
 **Model Adı:** Kling 2.1
 **Tip:** Video
@@ -27,6 +30,7 @@
 **Kredi Maliyeti:** 35-60 (süreye göre)
 
 ## 4. KLING 2.5
+
 **Model Key:** `kling-2.5`
 **Model Adı:** Kling 2.5  
 **Tip:** Video
@@ -36,6 +40,7 @@
 **Kredi Maliyeti:** 40-70 (süreye göre)
 
 ## 5. SEEDANCE 1.0 LITE
+
 **Model Key:** `seedance/1.0-lite`
 **Model Adı:** Seedance 1.0 Lite
 **Tip:** Video
@@ -45,6 +50,7 @@
 **Kredi Maliyeti:** 20-35 (süreye göre)
 
 ## 6. SEEDANCE 1.0 PRO
+
 **Model Key:** `seedance/1.0-pro`
 **Model Adı:** Seedance 1.0 Pro
 **Tip:** Video
@@ -54,6 +60,7 @@
 **Kredi Maliyeti:** 30-50 (süreye göre)
 
 ## 7. SEEDANCE 1.5 PRO
+
 **Model Key:** `seedance/1.5-pro`
 **Model Adı:** Seedance 1.5 Pro
 **Tip:** Video
@@ -63,6 +70,7 @@
 **Kredi Maliyeti:** 55-95 (süreye göre)
 
 ## 8. HAILUO 2.3
+
 **Model Key:** `hailuo-2.3`
 **Model Adı:** Hailuo 2.3
 **Tip:** Video
@@ -72,6 +80,7 @@
 **Kredi Maliyeti:** 25
 
 ## 9. WAN 2.2
+
 **Model Key:** `wan-2.2`
 **Model Adı:** Wan 2.2
 **Tip:** Video
@@ -81,6 +90,7 @@
 **Kredi Maliyeti:** 30-55 (süreye göre)
 
 ## 10. WAN 2.5
+
 **Model Key:** `wan-2.5`
 **Model Adı:** Wan 2.5
 **Tip:** Video
@@ -90,6 +100,7 @@
 **Kredi Maliyeti:** 35-60 (süreye göre)
 
 ## 11. WAN 2.6
+
 **Model Key:** `wan-2.6`
 **Model Adı:** Wan 2.6
 **Tip:** Video
@@ -99,6 +110,7 @@
 **Kredi Maliyeti:** 40-70 (süreye göre)
 
 ## 12. SORA WATERMARK REMOVER
+
 **Model Key:** `sora-watermark-remover`
 **Model Adı:** Sora Watermark Remover
 **Tip:** Video (Utility)

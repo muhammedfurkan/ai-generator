@@ -27,7 +27,17 @@ interface CreateTaskResponse {
  */
 export async function createGenerationTask(input: {
   prompt: string;
-  aspectRatio: "1:1" | "16:9" | "9:16" | "4:3" | "3:4" | "3:2" | "2:3" | "21:9" | "4:5" | "5:4";
+  aspectRatio:
+    | "1:1"
+    | "16:9"
+    | "9:16"
+    | "4:3"
+    | "3:4"
+    | "3:2"
+    | "2:3"
+    | "21:9"
+    | "4:5"
+    | "5:4";
   resolution: "1K" | "2K" | "4K";
   referenceImageUrls?: string[]; // Çoklu görsel desteği (max 8)
   referenceImageUrl?: string; // Geriye uyumluluk için
@@ -58,22 +68,33 @@ export async function createGenerationTask(input: {
     };
 
     // Add reference images if available - upload to kie.ai storage
-    const imageUrls = input.referenceImageUrls || (input.referenceImageUrl ? [input.referenceImageUrl] : []);
-    
+    const imageUrls =
+      input.referenceImageUrls ||
+      (input.referenceImageUrl ? [input.referenceImageUrl] : []);
+
     if (imageUrls.length > 0) {
-      console.log(`[Nano Banana API] Processing ${imageUrls.length} reference image(s)...`);
+      console.log(
+        `[Nano Banana API] Processing ${imageUrls.length} reference image(s)...`
+      );
       const uploadedUrls: string[] = [];
 
       for (let i = 0; i < Math.min(imageUrls.length, 8); i++) {
         const imageUrl = imageUrls[i];
-        console.log(`[Nano Banana API] Uploading reference image ${i + 1}/${imageUrls.length} to kie.ai storage...`);
+        console.log(
+          `[Nano Banana API] Uploading reference image ${i + 1}/${imageUrls.length} to kie.ai storage...`
+        );
         const uploadResult = await uploadToKieFromUrl(imageUrl);
 
         if (uploadResult.success && uploadResult.fileUrl) {
           uploadedUrls.push(uploadResult.fileUrl);
-          console.log(`[Nano Banana API] Image ${i + 1} uploaded to kie.ai:`, uploadResult.fileUrl);
+          console.log(
+            `[Nano Banana API] Image ${i + 1} uploaded to kie.ai:`,
+            uploadResult.fileUrl
+          );
         } else {
-          console.warn(`[Nano Banana API] Failed to upload image ${i + 1}, using original URL`);
+          console.warn(
+            `[Nano Banana API] Failed to upload image ${i + 1}, using original URL`
+          );
           console.warn("[Nano Banana API] Upload error:", uploadResult.error);
           // Fallback to original URL
           uploadedUrls.push(imageUrl);
@@ -82,16 +103,21 @@ export async function createGenerationTask(input: {
 
       if (uploadedUrls.length > 0) {
         (payload.input as Record<string, unknown>).image_input = uploadedUrls;
-        console.log(`[Nano Banana API] Total ${uploadedUrls.length} reference image(s) ready for API`);
+        console.log(
+          `[Nano Banana API] Total ${uploadedUrls.length} reference image(s) ready for API`
+        );
       }
     }
 
-    console.log("[Nano Banana API] Creating task with payload:", JSON.stringify(payload, null, 2));
+    console.log(
+      "[Nano Banana API] Creating task with payload:",
+      JSON.stringify(payload, null, 2)
+    );
 
     const response = await fetch(`${API_BASE_URL}/jobs/createTask`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
@@ -100,7 +126,11 @@ export async function createGenerationTask(input: {
     // Check if response is OK before parsing JSON
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[Nano Banana API] HTTP error:", response.status, errorText);
+      console.error(
+        "[Nano Banana API] HTTP error:",
+        response.status,
+        errorText
+      );
       return {
         taskId: "",
         success: false,
@@ -113,7 +143,9 @@ export async function createGenerationTask(input: {
       data = (await response.json()) as Record<string, unknown>;
     } catch (parseError) {
       console.error("[Nano Banana API] JSON parse error:", parseError);
-      const responseText = await response.text().catch(() => "Unable to read response");
+      const responseText = await response
+        .text()
+        .catch(() => "Unable to read response");
       console.error("[Nano Banana API] Response text:", responseText);
       return {
         taskId: "",
@@ -121,10 +153,16 @@ export async function createGenerationTask(input: {
         error: "API yanıtı işlenemedi",
       };
     }
-    console.log("[Nano Banana API] Task creation response:", JSON.stringify(data, null, 2));
+    console.log(
+      "[Nano Banana API] Task creation response:",
+      JSON.stringify(data, null, 2)
+    );
 
     if ((data as Record<string, unknown>).code === 200) {
-      const taskData = (data as Record<string, unknown>).data as Record<string, unknown>;
+      const taskData = (data as Record<string, unknown>).data as Record<
+        string,
+        unknown
+      >;
       const taskId = taskData?.taskId as string;
       if (taskId) {
         console.log("[Nano Banana API] Task created successfully:", taskId);
@@ -138,7 +176,9 @@ export async function createGenerationTask(input: {
     return {
       taskId: "",
       success: false,
-      error: (data as Record<string, unknown>).message as string || "Görsel üretimi başarısız oldu",
+      error:
+        ((data as Record<string, unknown>).message as string) ||
+        "Görsel üretimi başarısız oldu",
     };
   } catch (error) {
     console.error("[Nano Banana API] Error creating task:", error);
@@ -153,7 +193,9 @@ export async function createGenerationTask(input: {
 /**
  * Get the status of a generation task using GET /jobs/recordInfo
  */
-export async function getTaskStatus(taskId: string): Promise<TaskStatusResponse | null> {
+export async function getTaskStatus(
+  taskId: string
+): Promise<TaskStatusResponse | null> {
   const apiKey = process.env.NANO_BANANA_API_KEY;
   if (!apiKey) {
     console.error("[Nano Banana API] API key not configured");
@@ -167,14 +209,18 @@ export async function getTaskStatus(taskId: string): Promise<TaskStatusResponse 
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
     });
 
     // Check if response is OK before parsing JSON
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[Nano Banana API] HTTP error on status check:", response.status, errorText);
+      console.error(
+        "[Nano Banana API] HTTP error on status check:",
+        response.status,
+        errorText
+      );
       return null;
     }
 
@@ -182,7 +228,10 @@ export async function getTaskStatus(taskId: string): Promise<TaskStatusResponse 
     try {
       data = (await response.json()) as TaskStatusResponse;
     } catch (parseError) {
-      console.error("[Nano Banana API] JSON parse error on status check:", parseError);
+      console.error(
+        "[Nano Banana API] JSON parse error on status check:",
+        parseError
+      );
       return null;
     }
     console.log("[Nano Banana API] Task status response code:", data.code);
@@ -211,10 +260,14 @@ export async function pollTaskCompletionWithError(
 
       if (!status) {
         lastError = "Görev durumu alınamadı";
-        console.warn(`[Nano Banana API] Attempt ${attempt + 1}/${maxAttempts}: ${lastError}`);
+        console.warn(
+          `[Nano Banana API] Attempt ${attempt + 1}/${maxAttempts}: ${lastError}`
+        );
       } else if (status.code === 200 && status.data) {
         const taskState = status.data.state;
-        console.log(`[Nano Banana API] Task state (attempt ${attempt + 1}/${maxAttempts}): ${taskState}`);
+        console.log(
+          `[Nano Banana API] Task state (attempt ${attempt + 1}/${maxAttempts}): ${taskState}`
+        );
 
         if (taskState === "success") {
           // Parse resultJson to get image URLs
@@ -229,31 +282,62 @@ export async function pollTaskCompletionWithError(
               }
 
               // resultUrls veya images array'ini kontrol et
-              const imageUrls = (result.resultUrls || result.images || result.output || result.result) as string[];
-              if (imageUrls && Array.isArray(imageUrls) && imageUrls.length > 0) {
+              const imageUrls = (result.resultUrls ||
+                result.images ||
+                result.output ||
+                result.result) as string[];
+              if (
+                imageUrls &&
+                Array.isArray(imageUrls) &&
+                imageUrls.length > 0
+              ) {
                 const imageUrl = imageUrls[0];
-                console.log("[Nano Banana API] Task completed successfully, image URL:", imageUrl);
+                console.log(
+                  "[Nano Banana API] Task completed successfully, image URL:",
+                  imageUrl
+                );
                 return { imageUrl, error: null };
               }
 
               // Tek bir URL olarak dönebilir
-              const singleUrl = (result.url || result.imageUrl || result.output_url) as string;
+              const singleUrl = (result.url ||
+                result.imageUrl ||
+                result.output_url) as string;
               if (singleUrl && typeof singleUrl === "string") {
-                console.log("[Nano Banana API] Task completed successfully, single image URL:", singleUrl);
+                console.log(
+                  "[Nano Banana API] Task completed successfully, single image URL:",
+                  singleUrl
+                );
                 return { imageUrl: singleUrl, error: null };
               }
 
-              console.warn("[Nano Banana API] Task completed but no image URLs found in resultJson");
-              console.warn("[Nano Banana API] resultJson parsed content:", JSON.stringify(result));
+              console.warn(
+                "[Nano Banana API] Task completed but no image URLs found in resultJson"
+              );
+              console.warn(
+                "[Nano Banana API] resultJson parsed content:",
+                JSON.stringify(result)
+              );
               lastError = "Sonuç bulunamadı";
             } catch (parseError) {
-              console.error("[Nano Banana API] Failed to parse resultJson:", parseError);
-              console.error("[Nano Banana API] resultJson content:", status.data.resultJson);
-              console.error("[Nano Banana API] resultJson type:", typeof status.data.resultJson);
+              console.error(
+                "[Nano Banana API] Failed to parse resultJson:",
+                parseError
+              );
+              console.error(
+                "[Nano Banana API] resultJson content:",
+                status.data.resultJson
+              );
+              console.error(
+                "[Nano Banana API] resultJson type:",
+                typeof status.data.resultJson
+              );
               lastError = "Sonuç işlenemedi";
             }
           } else {
-            console.warn("[Nano Banana API] Task completed but no resultJson found");
+            console.warn(
+              "[Nano Banana API] Task completed but no resultJson found"
+            );
             lastError = "Sonuç bulunamadı";
           }
           return { imageUrl: null, error: lastError };
@@ -261,19 +345,28 @@ export async function pollTaskCompletionWithError(
 
         if (taskState === "fail") {
           // Get detailed error message from API
-          const rawError = status.data.failMsg || "Görsel üretimi başarısız oldu";
-          
+          const rawError =
+            status.data.failMsg || "Görsel üretimi başarısız oldu";
+
           // Türkçe'ye çevir
           const translatedError = translateApiError(rawError);
           lastError = `API_ERROR - ${translatedError}`;
 
-          console.error(`[Nano Banana API] Task failed. Raw error: ${rawError}, Translated: ${translatedError}`);
+          console.error(
+            `[Nano Banana API] Task failed. Raw error: ${rawError}, Translated: ${translatedError}`
+          );
           return { imageUrl: null, error: lastError };
         }
 
-        if (taskState === "waiting" || taskState === "queuing" || taskState === "generating") {
+        if (
+          taskState === "waiting" ||
+          taskState === "queuing" ||
+          taskState === "generating"
+        ) {
           lastError = null;
-          console.log(`[Nano Banana API] Task still processing... (${taskState})`);
+          console.log(
+            `[Nano Banana API] Task still processing... (${taskState})`
+          );
         }
       } else {
         lastError = `API_ERROR - ${status?.message || "Bilinmeyen hata"}`;
@@ -285,15 +378,19 @@ export async function pollTaskCompletionWithError(
     }
 
     if (attempt < maxAttempts - 1) {
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
+      await new Promise(resolve => setTimeout(resolve, delayMs));
     }
   }
 
-  console.error(`[Nano Banana API] Task polling timed out after ${maxAttempts} attempts`);
+  console.error(
+    `[Nano Banana API] Task polling timed out after ${maxAttempts} attempts`
+  );
   // If we have a specific error, return it; otherwise return timeout
   return {
     imageUrl: null,
-    error: lastError || "TIMEOUT - Görsel üretimi zaman aşımına uğradı (maksimum bekleme süresi aşıldı)"
+    error:
+      lastError ||
+      "TIMEOUT - Görsel üretimi zaman aşımına uğradı (maksimum bekleme süresi aşıldı)",
   };
 }
 
@@ -305,6 +402,10 @@ export async function pollTaskCompletion(
   maxAttempts: number = 600,
   delayMs: number = 2000
 ): Promise<string | null> {
-  const result = await pollTaskCompletionWithError(taskId, maxAttempts, delayMs);
+  const result = await pollTaskCompletionWithError(
+    taskId,
+    maxAttempts,
+    delayMs
+  );
   return result.imageUrl;
 }

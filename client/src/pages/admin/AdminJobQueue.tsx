@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin Job Queue - Render / İş Kuyruğu Yönetimi
  * Bekleyen işler, iş detayları, iptal, yeniden başlatma

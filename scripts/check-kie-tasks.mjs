@@ -16,11 +16,11 @@ const taskIds = [
 
 async function checkTaskStatus(taskId) {
   const url = `${API_BASE_URL}/jobs/recordInfo?taskId=${encodeURIComponent(taskId)}`;
-  
+
   const response = await fetch(url, {
     method: "GET",
     headers: {
-      "Authorization": `Bearer ${API_KEY}`,
+      Authorization: `Bearer ${API_KEY}`,
     },
   });
 
@@ -30,7 +30,7 @@ async function checkTaskStatus(taskId) {
 
 async function main() {
   console.log("Checking Kie API task statuses...\n");
-  
+
   for (const taskId of taskIds) {
     console.log(`Task: ${taskId}`);
     const status = await checkTaskStatus(taskId);

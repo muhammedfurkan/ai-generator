@@ -55,12 +55,12 @@ describe("Prompt Enhancer Router", () => {
       expect(result.enhanced.length).toBeGreaterThan(50);
       // Should contain quality enhancers
       const lowerEnhanced = result.enhanced.toLowerCase();
-      const hasQualityWords = 
+      const hasQualityWords =
         lowerEnhanced.includes("detailed") ||
         lowerEnhanced.includes("professional") ||
         lowerEnhanced.includes("8k") ||
         lowerEnhanced.includes("quality");
-      
+
       expect(hasQualityWords).toBe(true);
     }, 15000); // 15 second timeout
 
@@ -72,7 +72,7 @@ describe("Prompt Enhancer Router", () => {
 
     it("should reject very long prompt", async () => {
       const longPrompt = "a".repeat(501);
-      
+
       await expect(
         caller.promptEnhancer.enhance({ prompt: longPrompt })
       ).rejects.toThrow();

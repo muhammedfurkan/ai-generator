@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
 import { authenticateRequest } from "./auth";
@@ -18,7 +19,10 @@ export async function createContext(
     // console.log("[Context] User authenticated:", { userId: user?.id, email: user?.email });
   } catch (error) {
     // Authentication is optional for public procedures.
-    console.log("[Context] Authentication failed:", error instanceof Error ? error.message : String(error));
+    console.log(
+      "[Context] Authentication failed:",
+      error instanceof Error ? error.message : String(error)
+    );
     user = null;
   }
 

@@ -72,11 +72,7 @@ const DEFAULT_PACKAGES = [
     price: "2000.00",
     originalPrice: null,
     badge: null,
-    features: JSON.stringify([
-      "4000 kredi",
-      "VIP destek",
-      "Özel temsilci",
-    ]),
+    features: JSON.stringify(["4000 kredi", "VIP destek", "Özel temsilci"]),
     usage1k: 400,
     usage2k: 266,
     usage4k: 200,
@@ -102,14 +98,18 @@ async function seedPackages() {
     const existingPackages = await db.select().from(creditPackages);
 
     if (existingPackages.length > 0) {
-      console.log(`⚠️  Database already has ${existingPackages.length} package(s).`);
+      console.log(
+        `⚠️  Database already has ${existingPackages.length} package(s).`
+      );
       console.log("Choose an action:");
-      console.log("  - To clear and reseed, delete packages first via admin panel");
+      console.log(
+        "  - To clear and reseed, delete packages first via admin panel"
+      );
       console.log("  - To add more, this script will insert new packages\n");
 
       console.log("Current packages:");
       console.table(
-        existingPackages.map((pkg) => ({
+        existingPackages.map(pkg => ({
           ID: pkg.id,
           Name: pkg.name,
           Credits: pkg.credits,
@@ -133,9 +133,8 @@ async function seedPackages() {
 
     console.log("\n✨ Seeding completed successfully!");
     console.log("🔗 Visit /packages to see the packages");
-
   } catch (error: any) {
-    if (error.code === 'ER_DUP_ENTRY') {
+    if (error.code === "ER_DUP_ENTRY") {
       console.error("❌ Duplicate entry error. Packages may already exist.");
     } else {
       console.error("❌ Error:", error);

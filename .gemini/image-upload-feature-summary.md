@@ -3,6 +3,7 @@
 ## Yapılan Değişiklikler
 
 ### Eklenen Modeller
+
 Aşağıdaki modeller için görsel yükleme (reference image upload) özelliği eklendi:
 
 1. **Qwen Image Edit** (`qwen/image-edit`)
@@ -13,11 +14,13 @@ Aşağıdaki modeller için görsel yükleme (reference image upload) özelliği
 ### Özellikler
 
 #### Görsel Yükleme Limitleri
+
 - **Maksimum Görsel Sayısı**: 3 adet
 - **Maksimum Dosya Boyutu**: 20 MB (her görsel için)
 - **Desteklenen Formatlar**: JPG, PNG, WebP
 
 #### Kullanıcı Arayüzü
+
 - Bu modeller seçildiğinde, otomatik olarak "Referans Görseller (Gerekli)" bölümü gösterilir
 - Kullanıcılar drag-and-drop veya tıklayarak görsel yükleyebilir
 - Yüklenen görseller grid formatında önizlenir
@@ -25,6 +28,7 @@ Aşağıdaki modeller için görsel yükleme (reference image upload) özelliği
 - Yüklenen görsel sayısı görsel olarak gösterilir (örn: "2/3")
 
 #### Validasyonlar
+
 - Edit modları için referans görsel zorunludur
 - Maksimum 3 görsele izin verilir
 - Her görsel 20 MB'ı geçemez
@@ -35,18 +39,22 @@ Aşağıdaki modeller için görsel yükleme (reference image upload) özelliği
 #### `/home/nano-influencer/client/src/pages/Generate.tsx`
 
 **Değişiklik 1:** Qwen ve SeeDream edit modelleri için yeni görsel yükleme bölümleri eklendi
+
 - Satır 392-490: SeeDream edit modelleri için bölüm güncellendi
 - Satır 442-490: Qwen edit modelleri için yeni bölüm eklendi
 
 **Değişiklik 2:** Diğer modeller için görsel gösterimi güncellendi
+
 - Satır 492-500: `nano-banana-pro`, `seedream-edit`, `seedream`, `bytedance/seedream-v4-edit`, `bytedance/seedream-4.5-edit`, `qwen/image-edit`, `qwen/image-to-image` modelleri hariç tutuldu
 
 **Değişiklik 3:** Advanced Settings bölümü güncellendi
+
 - Satır 615-623: Aynı modeller için generic upload bölümü devre dışı bırakıldı
 
 ### Backend Uyumluluğu
 
 Backend'de bu modeller için gerekli API entegrasyonları zaten mevcut:
+
 - `server/kieAiApi.ts` içinde model tanımları var
 - `scripts/seed-new-models.sql` içinde veritabanı kayıtları mevcut
 - Görsel yükleme ve işleme mekanizması çalışıyor

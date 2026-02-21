@@ -7,11 +7,13 @@ Stripe Adaptive Pricing, kullanıcıların konumlarına göre otomatik olarak ye
 ## ✅ Implementasyon Durumu
 
 ### Backend (Tamamlandı ✅)
+
 - `server/routers/stripe.ts` içinde `adaptive_pricing: { enabled: true }` mevcut
 - Orijinal para birimi ve tutar metadata'da saklanıyor
 - Order kayıtları hem TRY hem de converted currency bilgisini içeriyor
 
 ### Frontend (Basitleştirilmiş Yaklaşım ✅)
+
 - **Seçilen Strateji**: Otomatik IP-based currency selection
 - Currency Selector Element kullanmıyoruz (daha basit UX için)
 - Kullanıcıya bilgilendirme banner'ı gösteriliyor
@@ -36,10 +38,12 @@ Stripe Adaptive Pricing, kullanıcıların konumlarına göre otomatik olarak ye
 ## 📋 Stripe Dashboard Ayarları
 
 ### Adım 1: Dashboard'a Giriş
+
 1. https://dashboard.stripe.com/settings/adaptive-pricing adresine gidin
 2. **Test Mode** ve **Live Mode** için ayrı ayrı etkinleştirin
 
 ### Adım 2: Adaptive Pricing Ayarları
+
 ```
 ☑️ Enable Adaptive Pricing for Checkout
 ☑️ Automatically detect customer currency
@@ -47,7 +51,9 @@ Stripe Adaptive Pricing, kullanıcıların konumlarına göre otomatik olarak ye
 ```
 
 ### Adım 3: Supported Currencies
+
 En yaygın para birimleri:
+
 - ✅ TRY - Turkish Lira (base currency)
 - ✅ USD - US Dollar
 - ✅ EUR - Euro
@@ -76,10 +82,13 @@ LOCAL_BASE_URL=https://yourdomain.com
 ## 💰 Fiyatlandırma Örneği
 
 ### Base Price (TRY)
+
 - Paket: 150 TRY
 
 ### Adaptive Pricing Conversion (Örnek)
+
 Stripe, gerçek zamanlı exchange rate kullanır:
+
 - 🇹🇷 Turkey: **150 TRY**
 - 🇺🇸 USA: **~$5.00 USD** (güncel kur)
 - 🇪🇺 Europe: **~€4.50 EUR** (güncel kur)
@@ -92,24 +101,27 @@ Stripe, gerçek zamanlı exchange rate kullanır:
 ### Test Mode'da Deneme
 
 1. **Türkiye'den test**:
+
    ```bash
    # Normal bağlantı - TRY göreceksiniz
    ```
 
 2. **Farklı ülkelerden test**:
+
    ```bash
    # VPN ile farklı ülke IP'si kullanın
    # Örnek: USA VPN → USD göreceksiniz
    ```
 
 3. **Test Credit Cards**:
+
    ```
    # Türkiye
    4000 0056 1000 0004
-   
+
    # USA
    4242 4242 4242 4242
-   
+
    # Euro Zone
    4000 0025 0000 3155
    ```
@@ -135,17 +147,20 @@ checkout.session.completed
 ## 🚨 Önemli Notlar
 
 ### Compliance (Yasal Uyum)
+
 - ✅ AB'de fiyat gösteriminde currency selector zorunlu (Stripe otomatik handle eder)
 - ✅ Bazı ülkelerde yerel para birimi gösterimi yasal zorunlu
 - ✅ Stripe tüm compliance gereksinimlerini karşılar
 
 ### Best Practices
+
 1. ✅ Base currency'yi (TRY) açıkça göster
 2. ✅ Otomatik conversion'dan bahset
 3. ✅ Final fiyatı Stripe Checkout'ta göster
 4. ✅ Order history'de hem base hem presentment currency kaydet
 
 ### Limitasyonlar
+
 - ❌ Payment Intents API'de desteklenmez (sadece Checkout Sessions)
 - ❌ Subscription fiyatlandırmasında farklı yaklaşım gerekir
 - ⚠️ Bazı ödeme methodları belirli currency'lerde çalışmaz
@@ -160,16 +175,19 @@ checkout.session.completed
 ## 🆘 Sorun Giderme
 
 ### "Adaptive Pricing not working"
+
 1. Dashboard'da enable edildi mi kontrol edin
 2. `adaptive_pricing: { enabled: true }` backend'de var mı?
 3. Test/Live mode'u doğru mu?
 
 ### "Currency not changing"
+
 1. IP-based detection IP değişikliği gerektirir (VPN kullanın)
 2. Browser cache'i temizleyin
 3. Incognito mode'da test edin
 
 ### "Webhook failed"
+
 1. Webhook secret doğru mu?
 2. presentment_details'i doğru parse ediyor musunuz?
 3. Stripe Dashboard > Webhooks > Events log kontrol edin
@@ -177,6 +195,7 @@ checkout.session.completed
 ## 📞 Destek
 
 Sorun yaşarsanız:
+
 1. Stripe Dashboard > Logs kontrol edin
 2. Console'da error logları inceleyin
 3. `server/routers/stripe.ts` log mesajlarını kontrol edin

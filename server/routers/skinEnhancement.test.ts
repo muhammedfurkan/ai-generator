@@ -63,7 +63,7 @@ describe("Skin Enhancement Router", () => {
         "studio_look",
         "no_makeup_real",
       ]);
-      
+
       // Check each mode has required fields
       modes.forEach(mode => {
         expect(mode).toHaveProperty("id");
@@ -136,8 +136,13 @@ describe("Skin Enhancement Router", () => {
     });
 
     it("should accept valid enhancement modes", async () => {
-      const validModes = ["natural_clean", "soft_glow", "studio_look", "no_makeup_real"];
-      
+      const validModes = [
+        "natural_clean",
+        "soft_glow",
+        "studio_look",
+        "no_makeup_real",
+      ];
+
       for (const mode of validModes) {
         // This test just validates the input schema accepts these modes
         const input = {
@@ -145,7 +150,7 @@ describe("Skin Enhancement Router", () => {
           mode: mode as any,
           proMode: false,
         };
-        
+
         // The input should be valid (not throw on schema validation)
         expect(input.mode).toBe(mode);
       }
@@ -157,7 +162,7 @@ describe("Skin Enhancement Router", () => {
         mode: "natural_clean" as const,
         proMode: true,
       };
-      
+
       expect(input.proMode).toBe(true);
     });
 
@@ -168,7 +173,7 @@ describe("Skin Enhancement Router", () => {
         imageWidth: 1024,
         imageHeight: 768,
       };
-      
+
       expect(input.imageWidth).toBe(1024);
       expect(input.imageHeight).toBe(768);
     });
@@ -181,7 +186,10 @@ describe("Skin Enhancement Router", () => {
       await expect(
         caller.skinEnhancement.batchEnhance({
           images: [
-            { imageUrl: "https://example.com/image1.jpg", mode: "natural_clean" },
+            {
+              imageUrl: "https://example.com/image1.jpg",
+              mode: "natural_clean",
+            },
           ],
         })
       ).rejects.toThrow();
@@ -199,7 +207,7 @@ describe("Skin Enhancement Router", () => {
 
     it("should reject more than 10 images", async () => {
       const caller = appRouter.createCaller(createProtectedContext());
-      
+
       const images = Array.from({ length: 11 }, (_, i) => ({
         imageUrl: `https://example.com/image${i}.jpg`,
         mode: "natural_clean" as const,
@@ -225,7 +233,7 @@ describe("Skin Enhancement Router", () => {
         limit: 20,
         offset: 10,
       };
-      
+
       expect(input.limit).toBeLessThanOrEqual(50);
       expect(input.offset).toBeGreaterThanOrEqual(0);
     });
@@ -271,10 +279,10 @@ describe("Skin Enhancement Router", () => {
     it("should calculate correct cost for single enhancement", () => {
       const baseCost = 3;
       const proModeExtra = 2;
-      
+
       // Without pro mode
       expect(baseCost).toBe(3);
-      
+
       // With pro mode
       expect(baseCost + proModeExtra).toBe(5);
     });
@@ -282,10 +290,10 @@ describe("Skin Enhancement Router", () => {
     it("should calculate correct cost for batch enhancement", () => {
       const batchCost = 10;
       const proModeExtra = 2;
-      
+
       // Without pro mode
       expect(batchCost).toBe(10);
-      
+
       // With pro mode
       expect(batchCost + proModeExtra).toBe(12);
     });
@@ -295,7 +303,7 @@ describe("Skin Enhancement Router", () => {
     it("should define minimum resolution", () => {
       const MIN_WIDTH = 256;
       const MIN_HEIGHT = 256;
-      
+
       expect(MIN_WIDTH).toBe(256);
       expect(MIN_HEIGHT).toBe(256);
     });
@@ -303,7 +311,7 @@ describe("Skin Enhancement Router", () => {
     it("should define maximum resolution", () => {
       const MAX_WIDTH = 4096;
       const MAX_HEIGHT = 4096;
-      
+
       expect(MAX_WIDTH).toBe(4096);
       expect(MAX_HEIGHT).toBe(4096);
     });

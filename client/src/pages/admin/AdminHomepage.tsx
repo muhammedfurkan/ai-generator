@@ -1,14 +1,18 @@
-/**
- * Admin Homepage Layout - Ana Sayfa Düzeni, Bölüm Yönetimi ve Showcase Yönetimi
- */
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion, Reorder } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -16,398 +20,436 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 import {
-  Layout,
+  Camera,
+  Edit,
+  ExternalLink,
   Eye,
   EyeOff,
   GripVertical,
-  Plus,
-  Save,
-  RefreshCw,
-  Trash2,
-  Settings,
   Home,
-  Sparkles,
-  Users,
-  MessageSquare,
-  CreditCard,
-  HelpCircle,
-  Zap,
   Image as ImageIcon,
-  Video as VideoIcon,
-  Star,
-  Edit,
-  Upload,
+  Layout,
+  Plus,
+  RefreshCw,
+  Save,
+  Search,
+  Trash2,
+  Video,
 } from "lucide-react";
+import {
+  DEFAULT_WEB_UI_CONFIG,
+  HOME_SECTION_IDS,
+  parseWebUiConfig,
+  type HomeSectionId,
+  type WebUiConfig,
+} from "@/lib/webUiConfig";
 
-interface Section {
-  id: number;
-  sectionKey: string;
-  title: string;
-  isVisible: number | boolean;
-  order: number;
-  config: string | null;
-}
+const WEB_UI_SETTING_KEY = "web_ui_config";
 
-interface ShowcaseImage {
-  id: number;
-  imageUrl: string;
-  thumbnailUrl?: string | null;
-  title?: string | null;
-  aspectRatio: "square" | "portrait" | "landscape";
-  order: number;
-  isActive: number | boolean;
-}
-
-interface ShowcaseVideo {
-  id: number;
-  videoUrl: string;
-  posterUrl?: string | null;
-  title?: string | null;
-  order: number;
-  isActive: number | boolean;
-}
-
-const SECTION_ICONS: Record<string, React.ElementType> = {
-  hero: Sparkles,
-  features: Zap,
-  howItWorks: Settings,
-  pricing: CreditCard,
-  testimonials: MessageSquare,
-  gallery: ImageIcon,
-  faq: HelpCircle,
-  cta: Star,
-  partners: Users,
-  stats: Star,
-  videoShowcase: VideoIcon,
+const WEB_UI_SETTING_META = {
+  key: WEB_UI_SETTING_KEY,
+  category: "general" as const,
+  label: "Web UI Konfigürasyonu",
+  description: "Web ana sayfa görünürlük/sıra ayarları",
+  inputType: "json" as const,
+  isPublic: true,
 };
 
-const DEFAULT_SECTIONS = [
-  { sectionKey: "hero", title: "Hero Bölümü", order: 1 },
-  { sectionKey: "features", title: "Özellikler", order: 2 },
-  { sectionKey: "howItWorks", title: "Nasıl Çalışır", order: 3 },
-  { sectionKey: "gallery", title: "Galeri", order: 4 },
-  { sectionKey: "testimonials", title: "Kullanıcı Yorumları", order: 5 },
-  { sectionKey: "pricing", title: "Fiyatlandırma", order: 6 },
-  { sectionKey: "faq", title: "Sıkça Sorulan Sorular", order: 7 },
-  { sectionKey: "cta", title: "Aksiyon Çağrısı", order: 8 },
-];
+const SECTION_LABELS: Record<HomeSectionId, string> = {
+  "ai-tools": "AI Araçları",
+  models: "Model Kartları",
+  images: "Görsel Galeri",
+  videos: "Video Galeri",
+  community: "Topluluk",
+  cta: "Alt CTA",
+};
+
+type ActiveFilter = "all" | "active" | "inactive";
+type AspectRatio = "square" | "portrait" | "landscape";
+
+interface ShowcaseImageItem {
+  id: number;
+  imageUrl: string;
+  thumbnailUrl: string | null;
+  title: string | null;
+  aspectRatio: AspectRatio;
+  order: number;
+  isActive: number | boolean;
+}
+
+interface ShowcaseVideoItem {
+  id: number;
+  videoUrl: string;
+  posterUrl: string | null;
+  title: string | null;
+  order: number;
+  isActive: number | boolean;
+}
+
+interface ImageFormState {
+  imageUrl: string;
+  thumbnailUrl: string;
+  title: string;
+  aspectRatio: AspectRatio;
+  order: number;
+  isActive: boolean;
+}
+
+interface VideoFormState {
+  videoUrl: string;
+  posterUrl: string;
+  title: string;
+  order: number;
+  isActive: boolean;
+}
+
+const emptyImageForm: ImageFormState = {
+  imageUrl: "",
+  thumbnailUrl: "",
+  title: "",
+  aspectRatio: "square",
+  order: 0,
+  isActive: true,
+};
+
+const emptyVideoForm: VideoFormState = {
+  videoUrl: "",
+  posterUrl: "",
+  title: "",
+  order: 0,
+  isActive: true,
+};
+
+const asBool = (value: number | boolean) => value === true || value === 1;
 
 export default function AdminHomepage() {
-  const [activeTab, setActiveTab] = useState("layout");
-  const [sections, setSections] = useState<Section[]>([]);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Image states
-  const [imageDialog, setImageDialog] = useState(false);
-  const [editingImage, setEditingImage] = useState<ShowcaseImage | null>(null);
-  const [imageForm, setImageForm] = useState({
-    imageUrl: "",
-    thumbnailUrl: "",
-    title: "",
-    aspectRatio: "square" as "square" | "portrait" | "landscape",
-    order: 0,
-    isActive: true,
-  });
-
-  // Video states
-  const [videoDialog, setVideoDialog] = useState(false);
-  const [editingVideo, setEditingVideo] = useState<ShowcaseVideo | null>(null);
-  const [videoForm, setVideoForm] = useState({
-    videoUrl: "",
-    posterUrl: "",
-    title: "",
-    order: 0,
-    isActive: true,
-  });
-
+  const [, navigate] = useLocation();
   const utils = trpc.useUtils();
 
-  // Layout Queries
-  const sectionsQuery = trpc.adminPanel.getHomepageSections.useQuery(
-    undefined,
-    {
-      retry: false,
-    }
-  );
+  const settingsQuery = trpc.adminPanel.getSiteSettings.useQuery({});
+  const createSettingMutation = trpc.adminPanel.createSiteSetting.useMutation();
+  const updateSettingMutation = trpc.adminPanel.updateSiteSetting.useMutation();
 
-  useEffect(() => {
-    if (sectionsQuery.error) {
-      const defaultSections = DEFAULT_SECTIONS.map((s, i) => ({
-        id: i + 1,
-        sectionKey: s.sectionKey,
-        title: s.title,
-        isVisible: true,
-        order: s.order,
-        config: null,
-      }));
-      setSections(defaultSections);
-    }
-  }, [sectionsQuery.error]);
-
-  // Showcase Queries
   const imagesQuery = trpc.adminPanel.getShowcaseImages.useQuery();
   const videosQuery = trpc.adminPanel.getShowcaseVideos.useQuery();
 
-  // Layout Mutations
-  const updateOrderMutation =
-    trpc.adminPanel.updateHomepageSectionOrder.useMutation({
-      onSuccess: () => {
-        toast.success("Sıralama kaydedildi");
-        setHasChanges(false);
-        utils.adminPanel.getHomepageSections.invalidate();
-      },
-      onError: error => toast.error(error.message),
-    });
+  const createImageMutation = trpc.adminPanel.createShowcaseImage.useMutation();
+  const updateImageMutation = trpc.adminPanel.updateShowcaseImage.useMutation();
+  const deleteImageMutation = trpc.adminPanel.deleteShowcaseImage.useMutation();
 
-  const updateSectionMutation =
-    trpc.adminPanel.updateHomepageSection.useMutation({
-      onSuccess: () => {
-        toast.success("Bölüm güncellendi");
-        utils.adminPanel.getHomepageSections.invalidate();
-      },
-      onError: error => toast.error(error.message),
-    });
+  const createVideoMutation = trpc.adminPanel.createShowcaseVideo.useMutation();
+  const updateVideoMutation = trpc.adminPanel.updateShowcaseVideo.useMutation();
+  const deleteVideoMutation = trpc.adminPanel.deleteShowcaseVideo.useMutation();
 
-  const initSectionsMutation =
-    trpc.adminPanel.initializeHomepageSections.useMutation({
-      onSuccess: () => {
-        toast.success("Varsayılan bölümler oluşturuldu");
-        utils.adminPanel.getHomepageSections.invalidate();
-      },
-      onError: error => toast.error(error.message),
-    });
+  const settingRow = useMemo(
+    () => settingsQuery.data?.find(item => item.key === WEB_UI_SETTING_KEY),
+    [settingsQuery.data]
+  );
 
-  // Showcase Image Mutations
-  const createImageMutation = trpc.adminPanel.createShowcaseImage.useMutation({
-    onSuccess: async () => {
-      toast.success("Görsel eklendi");
-      await utils.adminPanel.getShowcaseImages.invalidate();
-      resetImageForm();
-      setImageDialog(false);
-    },
-    onError: error => toast.error(error.message),
-  });
+  const parsedConfig = useMemo(
+    () => parseWebUiConfig(settingRow?.value),
+    [settingRow?.value]
+  );
 
-  const updateImageMutation = trpc.adminPanel.updateShowcaseImage.useMutation({
-    onSuccess: async () => {
-      toast.success("Görsel güncellendi");
-      await utils.adminPanel.getShowcaseImages.invalidate();
-      resetImageForm();
-      setImageDialog(false);
-    },
-    onError: error => toast.error(error.message),
-  });
+  const [activeTab, setActiveTab] = useState("layout");
+  const [draftConfig, setDraftConfig] = useState<WebUiConfig>(parsedConfig);
 
-  const deleteImageMutation = trpc.adminPanel.deleteShowcaseImage.useMutation({
-    onSuccess: async () => {
-      toast.success("Görsel silindi");
-      await utils.adminPanel.getShowcaseImages.invalidate();
-    },
-    onError: error => toast.error(error.message),
-  });
+  const [imageSearch, setImageSearch] = useState("");
+  const [imageFilter, setImageFilter] = useState<ActiveFilter>("all");
+  const [videoSearch, setVideoSearch] = useState("");
+  const [videoFilter, setVideoFilter] = useState<ActiveFilter>("all");
 
-  // Showcase Video Mutations
-  const createVideoMutation = trpc.adminPanel.createShowcaseVideo.useMutation({
-    onSuccess: async () => {
-      toast.success("Video eklendi");
-      await utils.adminPanel.getShowcaseVideos.invalidate();
-      resetVideoForm();
-      setVideoDialog(false);
-    },
-    onError: error => toast.error(error.message),
-  });
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [editingImageId, setEditingImageId] = useState<number | null>(null);
+  const [imageForm, setImageForm] = useState<ImageFormState>(emptyImageForm);
 
-  const updateVideoMutation = trpc.adminPanel.updateShowcaseVideo.useMutation({
-    onSuccess: async () => {
-      toast.success("Video güncellendi");
-      await utils.adminPanel.getShowcaseVideos.invalidate();
-      resetVideoForm();
-      setVideoDialog(false);
-    },
-    onError: error => toast.error(error.message),
-  });
-
-  const deleteVideoMutation = trpc.adminPanel.deleteShowcaseVideo.useMutation({
-    onSuccess: async () => {
-      toast.success("Video silindi");
-      await utils.adminPanel.getShowcaseVideos.invalidate();
-    },
-    onError: error => toast.error(error.message),
-  });
+  const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
+  const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
+  const [videoForm, setVideoForm] = useState<VideoFormState>(emptyVideoForm);
 
   useEffect(() => {
-    if (sectionsQuery.data && sectionsQuery.data.length > 0) {
-      setSections(sectionsQuery.data as Section[]);
-    }
-  }, [sectionsQuery.data]);
+    setDraftConfig(parsedConfig);
+  }, [parsedConfig]);
 
-  // Layout Handlers
-  const handleReorder = (newOrder: Section[]) => {
-    const updatedSections = newOrder.map((section, index) => ({
-      ...section,
-      order: index + 1,
-    }));
-    setSections(updatedSections);
-    setHasChanges(true);
-  };
+  const layoutDirty = useMemo(
+    () =>
+      JSON.stringify({
+        sectionOrder: draftConfig.home.sectionOrder,
+        sectionVisibility: draftConfig.home.sectionVisibility,
+      }) !==
+      JSON.stringify({
+        sectionOrder: parsedConfig.home.sectionOrder,
+        sectionVisibility: parsedConfig.home.sectionVisibility,
+      }),
+    [
+      draftConfig.home.sectionOrder,
+      draftConfig.home.sectionVisibility,
+      parsedConfig,
+    ]
+  );
 
-  const handleSaveOrder = async () => {
-    setIsSaving(true);
+  const images = (imagesQuery.data ?? []) as ShowcaseImageItem[];
+  const videos = (videosQuery.data ?? []) as ShowcaseVideoItem[];
+
+  const filteredImages = useMemo(() => {
+    const q = imageSearch.trim().toLocaleLowerCase("tr-TR");
+    return images.filter(item => {
+      const active = asBool(item.isActive);
+      if (imageFilter === "active" && !active) return false;
+      if (imageFilter === "inactive" && active) return false;
+      if (!q) return true;
+      const haystack = `${item.title ?? ""} ${item.imageUrl}`.toLocaleLowerCase(
+        "tr-TR"
+      );
+      return haystack.includes(q);
+    });
+  }, [imageFilter, imageSearch, images]);
+
+  const filteredVideos = useMemo(() => {
+    const q = videoSearch.trim().toLocaleLowerCase("tr-TR");
+    return videos.filter(item => {
+      const active = asBool(item.isActive);
+      if (videoFilter === "active" && !active) return false;
+      if (videoFilter === "inactive" && active) return false;
+      if (!q) return true;
+      const haystack = `${item.title ?? ""} ${item.videoUrl}`.toLocaleLowerCase(
+        "tr-TR"
+      );
+      return haystack.includes(q);
+    });
+  }, [videoFilter, videoSearch, videos]);
+
+  const saveLayout = async () => {
+    const payload = JSON.stringify(draftConfig, null, 2);
+
     try {
-      await updateOrderMutation.mutateAsync({
-        sections: sections.map(s => ({ id: s.id, order: s.order })),
-      });
-    } finally {
-      setIsSaving(false);
+      if (settingRow) {
+        await updateSettingMutation.mutateAsync({
+          key: WEB_UI_SETTING_KEY,
+          value: payload,
+        });
+      } else {
+        await createSettingMutation.mutateAsync({
+          ...WEB_UI_SETTING_META,
+          value: payload,
+        });
+      }
+
+      await Promise.all([
+        utils.adminPanel.getSiteSettings.invalidate(),
+        utils.settings.getPublicSettings.invalidate(),
+      ]);
+      toast.success("Ana sayfa düzeni kaydedildi. Web tarafına yansıdı.");
+    } catch (error: any) {
+      toast.error(error?.message || "Ana sayfa düzeni kaydedilemedi.");
     }
   };
 
-  const handleToggleVisibility = async (section: Section) => {
-    await updateSectionMutation.mutateAsync({
-      id: section.id,
-      isVisible: !section.isVisible,
-    });
-    setSections(prev =>
-      prev.map(s =>
-        s.id === section.id ? { ...s, isVisible: !s.isVisible } : s
-      )
-    );
+  const resetLayout = () => {
+    setDraftConfig(prev => ({
+      ...prev,
+      home: {
+        ...prev.home,
+        sectionOrder: [...DEFAULT_WEB_UI_CONFIG.home.sectionOrder],
+        sectionVisibility: { ...DEFAULT_WEB_UI_CONFIG.home.sectionVisibility },
+      },
+    }));
   };
 
-  const handleInitializeSections = () => {
-    initSectionsMutation.mutate();
+  const reorderSections = (newOrder: HomeSectionId[]) => {
+    setDraftConfig(prev => ({
+      ...prev,
+      home: {
+        ...prev.home,
+        sectionOrder: newOrder,
+      },
+    }));
   };
 
-  // Image Handlers
-  const resetImageForm = () => {
+  const toggleSection = (sectionId: HomeSectionId, checked: boolean) => {
+    setDraftConfig(prev => ({
+      ...prev,
+      home: {
+        ...prev.home,
+        sectionVisibility: {
+          ...prev.home.sectionVisibility,
+          [sectionId]: checked,
+        },
+      },
+    }));
+  };
+
+  const startCreateImage = () => {
+    setEditingImageId(null);
+    setImageForm(emptyImageForm);
+    setIsImageDialogOpen(true);
+  };
+
+  const startEditImage = (item: ShowcaseImageItem) => {
+    setEditingImageId(item.id);
     setImageForm({
-      imageUrl: "",
-      thumbnailUrl: "",
-      title: "",
-      aspectRatio: "square",
-      order: 0,
-      isActive: true,
+      imageUrl: item.imageUrl,
+      thumbnailUrl: item.thumbnailUrl ?? "",
+      title: item.title ?? "",
+      aspectRatio: item.aspectRatio,
+      order: item.order,
+      isActive: asBool(item.isActive),
     });
-    setEditingImage(null);
+    setIsImageDialogOpen(true);
   };
 
-  const handleAddImage = () => {
-    resetImageForm();
-    setImageDialog(true);
-  };
-
-  const handleEditImage = (image: ShowcaseImage) => {
-    setEditingImage(image);
-    setImageForm({
-      imageUrl: image.imageUrl,
-      thumbnailUrl: image.thumbnailUrl || "",
-      title: image.title || "",
-      aspectRatio: image.aspectRatio,
-      order: image.order,
-      isActive: !!image.isActive,
-    });
-    setImageDialog(true);
-  };
-
-  const handleSaveImage = () => {
-    if (!imageForm.imageUrl) {
-      toast.error("Görsel URL'si gerekli");
+  const submitImage = async () => {
+    if (!imageForm.imageUrl.trim()) {
+      toast.error("Görsel URL zorunlu.");
       return;
     }
 
-    if (editingImage) {
-      updateImageMutation.mutate({
-        id: editingImage.id,
-        ...imageForm,
-      });
-    } else {
-      createImageMutation.mutate(imageForm);
+    const payload = {
+      imageUrl: imageForm.imageUrl.trim(),
+      thumbnailUrl: imageForm.thumbnailUrl.trim() || undefined,
+      title: imageForm.title.trim() || undefined,
+      aspectRatio: imageForm.aspectRatio,
+      order: Number(imageForm.order) || 0,
+      isActive: imageForm.isActive,
+    };
+
+    try {
+      if (editingImageId) {
+        await updateImageMutation.mutateAsync({
+          id: editingImageId,
+          ...payload,
+        });
+      } else {
+        await createImageMutation.mutateAsync(payload);
+      }
+      await utils.adminPanel.getShowcaseImages.invalidate();
+      toast.success("Görsel kaydedildi.");
+      setIsImageDialogOpen(false);
+      setImageForm(emptyImageForm);
+      setEditingImageId(null);
+    } catch (error: any) {
+      toast.error(error?.message || "Görsel kaydedilemedi.");
     }
   };
 
-  const handleDeleteImage = (id: number) => {
-    if (confirm("Bu görseli silmek istediğinizden emin misiniz?")) {
-      deleteImageMutation.mutate({ id });
-    }
-  };
-
-  // Video Handlers
-  const resetVideoForm = () => {
-    setVideoForm({
-      videoUrl: "",
-      posterUrl: "",
-      title: "",
-      order: 0,
-      isActive: true,
+  const toggleImageActive = async (item: ShowcaseImageItem) => {
+    await updateImageMutation.mutateAsync({
+      id: item.id,
+      imageUrl: item.imageUrl,
+      thumbnailUrl: item.thumbnailUrl ?? undefined,
+      title: item.title ?? undefined,
+      aspectRatio: item.aspectRatio,
+      order: item.order,
+      isActive: !asBool(item.isActive),
     });
-    setEditingVideo(null);
+    await utils.adminPanel.getShowcaseImages.invalidate();
   };
 
-  const handleAddVideo = () => {
-    resetVideoForm();
-    setVideoDialog(true);
+  const removeImage = async (id: number) => {
+    if (!confirm("Bu görseli silmek istiyor musun?")) return;
+    await deleteImageMutation.mutateAsync({ id });
+    await utils.adminPanel.getShowcaseImages.invalidate();
+    toast.success("Görsel silindi.");
   };
 
-  const handleEditVideo = (video: ShowcaseVideo) => {
-    setEditingVideo(video);
+  const startCreateVideo = () => {
+    setEditingVideoId(null);
+    setVideoForm(emptyVideoForm);
+    setIsVideoDialogOpen(true);
+  };
+
+  const startEditVideo = (item: ShowcaseVideoItem) => {
+    setEditingVideoId(item.id);
     setVideoForm({
-      videoUrl: video.videoUrl,
-      posterUrl: video.posterUrl || "",
-      title: video.title || "",
-      order: video.order,
-      isActive: !!video.isActive,
+      videoUrl: item.videoUrl,
+      posterUrl: item.posterUrl ?? "",
+      title: item.title ?? "",
+      order: item.order,
+      isActive: asBool(item.isActive),
     });
-    setVideoDialog(true);
+    setIsVideoDialogOpen(true);
   };
 
-  const handleSaveVideo = () => {
-    if (!videoForm.videoUrl) {
-      toast.error("Video URL'si gerekli");
+  const submitVideo = async () => {
+    if (!videoForm.videoUrl.trim()) {
+      toast.error("Video URL zorunlu.");
       return;
     }
 
-    if (editingVideo) {
-      updateVideoMutation.mutate({
-        id: editingVideo.id,
-        ...videoForm,
-      });
-    } else {
-      createVideoMutation.mutate(videoForm);
+    const payload = {
+      videoUrl: videoForm.videoUrl.trim(),
+      posterUrl: videoForm.posterUrl.trim() || undefined,
+      title: videoForm.title.trim() || undefined,
+      order: Number(videoForm.order) || 0,
+      isActive: videoForm.isActive,
+    };
+
+    try {
+      if (editingVideoId) {
+        await updateVideoMutation.mutateAsync({
+          id: editingVideoId,
+          ...payload,
+        });
+      } else {
+        await createVideoMutation.mutateAsync(payload);
+      }
+      await utils.adminPanel.getShowcaseVideos.invalidate();
+      toast.success("Video kaydedildi.");
+      setIsVideoDialogOpen(false);
+      setVideoForm(emptyVideoForm);
+      setEditingVideoId(null);
+    } catch (error: any) {
+      toast.error(error?.message || "Video kaydedilemedi.");
     }
   };
 
-  const handleDeleteVideo = (id: number) => {
-    if (confirm("Bu videoyu silmek istediğinizden emin misiniz?")) {
-      deleteVideoMutation.mutate({ id });
-    }
+  const toggleVideoActive = async (item: ShowcaseVideoItem) => {
+    await updateVideoMutation.mutateAsync({
+      id: item.id,
+      videoUrl: item.videoUrl,
+      posterUrl: item.posterUrl ?? undefined,
+      title: item.title ?? undefined,
+      order: item.order,
+      isActive: !asBool(item.isActive),
+    });
+    await utils.adminPanel.getShowcaseVideos.invalidate();
+  };
+
+  const removeVideo = async (id: number) => {
+    if (!confirm("Bu videoyu silmek istiyor musun?")) return;
+    await deleteVideoMutation.mutateAsync({ id });
+    await utils.adminPanel.getShowcaseVideos.invalidate();
+    toast.success("Video silindi.");
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Layout className="h-5 w-5 text-[#7C3AED]" />
+            <Home className="h-5 w-5 text-[#00F5FF]" />
             Ana Sayfa Yönetimi
           </h2>
           <p className="text-sm text-zinc-500">
-            Ana sayfa düzeni ve showcase içeriklerini yönetin
+            Bölüm sırası/görünürlüğü ve showcase içeriklerini tek panelden yönet
           </p>
+        </div>
+
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="border-white/20"
+            onClick={() => navigate("/admin/web-control")}
+          >
+            Web Kontrol Merkezi
+            <ExternalLink className="h-4 w-4 ml-2" />
+          </Button>
         </div>
       </div>
 
-      {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3 bg-zinc-900/50">
           <TabsTrigger value="layout">
@@ -416,517 +458,505 @@ export default function AdminHomepage() {
           </TabsTrigger>
           <TabsTrigger value="images">
             <ImageIcon className="h-4 w-4 mr-2" />
-            AI İle Oluşturuldu
+            Görseller
           </TabsTrigger>
           <TabsTrigger value="videos">
-            <VideoIcon className="h-4 w-4 mr-2" />
-            AI Video Galerisi
+            <Video className="h-4 w-4 mr-2" />
+            Videolar
           </TabsTrigger>
         </TabsList>
 
-        {/* Layout Tab */}
-        <TabsContent value="layout" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-zinc-500">
-              Ana sayfa bölümlerinin sıralamasını ve görünürlüğünü yönetin
-            </p>
+        <TabsContent value="layout" className="space-y-4">
+          <div className="rounded-xl border border-[#00F5FF]/25 bg-[#00F5FF]/5 p-4 text-sm text-[#A7FAFF]">
+            Bu bölümde yaptığın değişiklikler `web_ui_config` üzerinden web ana
+            sayfasına anında yansır.
+          </div>
+
+          <div className="flex flex-wrap justify-between gap-3">
+            <div className="text-sm text-zinc-400">
+              Bölümleri sürükleyip bırak, görünürlüklerini anında ayarla.
+            </div>
             <div className="flex gap-2">
-              {hasChanges && (
-                <Button
-                  onClick={handleSaveOrder}
-                  disabled={isSaving}
-                  className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black gap-2"
-                >
-                  {isSaving ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  Kaydet
-                </Button>
-              )}
-              <Button variant="outline" onClick={handleInitializeSections}>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-white/20"
+                onClick={resetLayout}
+              >
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Varsayılanları Yükle
+                Varsayılan Düzen
+              </Button>
+              <Button
+                type="button"
+                onClick={saveLayout}
+                disabled={
+                  !layoutDirty ||
+                  updateSettingMutation.isPending ||
+                  createSettingMutation.isPending
+                }
+                className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
+              >
+                {updateSettingMutation.isPending ||
+                createSettingMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                Düzeni Kaydet
               </Button>
             </div>
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 rounded-2xl border border-white/10"
+            className="rounded-2xl border border-white/10 bg-zinc-900/50"
           >
-            {sections.length === 0 ? (
-              <div className="p-12 text-center">
-                <Layout className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
-                <p className="text-zinc-500 mb-4">Henüz bölüm bulunamadı</p>
-                <Button onClick={handleInitializeSections}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Varsayılan Bölümleri Oluştur
-                </Button>
-              </div>
-            ) : (
-              <Reorder.Group
-                axis="y"
-                values={sections}
-                onReorder={handleReorder}
-                className="divide-y divide-white/5"
-              >
-                {sections.map(section => {
-                  const Icon = SECTION_ICONS[section.sectionKey] || Settings;
-                  return (
-                    <Reorder.Item
-                      key={section.id}
-                      value={section}
-                      className="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors cursor-grab active:cursor-grabbing"
-                    >
-                      <GripVertical className="h-5 w-5 text-zinc-600" />
-                      <div
-                        className={`p-2 rounded-lg ${section.isVisible ? "bg-[#00F5FF]/20" : "bg-zinc-800"}`}
+            <Reorder.Group
+              axis="y"
+              values={draftConfig.home.sectionOrder}
+              onReorder={reorderSections}
+              className="divide-y divide-white/5"
+            >
+              {draftConfig.home.sectionOrder.map(sectionId => {
+                const visible = draftConfig.home.sectionVisibility[sectionId];
+
+                return (
+                  <Reorder.Item
+                    key={sectionId}
+                    value={sectionId}
+                    className="flex items-center gap-4 p-4 cursor-grab active:cursor-grabbing"
+                  >
+                    <GripVertical className="h-5 w-5 text-zinc-600" />
+                    <div className="flex-1">
+                      <p
+                        className={`font-medium ${visible ? "" : "text-zinc-500"}`}
                       >
-                        <Icon
-                          className={`h-5 w-5 ${section.isVisible ? "text-[#00F5FF]" : "text-zinc-500"}`}
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p
-                          className={`font-medium ${section.isVisible ? "" : "text-zinc-500"}`}
-                        >
-                          {section.title}
-                        </p>
-                        <p className="text-xs text-zinc-500 font-mono">
-                          {section.sectionKey}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            section.isVisible
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-zinc-700 text-zinc-400"
-                          }`}
-                        >
-                          {section.isVisible ? "Görünür" : "Gizli"}
-                        </span>
-                        <span className="text-xs text-zinc-500 w-8 text-center">
-                          #{section.order}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleToggleVisibility(section)}
-                          className={
-                            section.isVisible
-                              ? "text-[#00F5FF]"
-                              : "text-zinc-500"
-                          }
-                        >
-                          {section.isVisible ? (
-                            <Eye className="h-4 w-4" />
-                          ) : (
-                            <EyeOff className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                    </Reorder.Item>
-                  );
-                })}
-              </Reorder.Group>
-            )}
+                        {SECTION_LABELS[sectionId]}
+                      </p>
+                      <p className="text-xs text-zinc-500 font-mono">
+                        {sectionId}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-[11px] px-2 py-0.5 rounded-full ${
+                          visible
+                            ? "bg-green-500/15 text-green-400"
+                            : "bg-zinc-700 text-zinc-300"
+                        }`}
+                      >
+                        {visible ? "Görünür" : "Gizli"}
+                      </span>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => toggleSection(sectionId, !visible)}
+                        className={visible ? "text-[#00F5FF]" : "text-zinc-500"}
+                      >
+                        {visible ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </Reorder.Item>
+                );
+              })}
+            </Reorder.Group>
           </motion.div>
         </TabsContent>
 
-        {/* Images Tab */}
-        <TabsContent value="images" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-zinc-500">
-              "AI İle Oluşturuldu" bölümü için kapak görselleri
-            </p>
+        <TabsContent value="images" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              <div className="relative w-[320px] max-w-full">
+                <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  value={imageSearch}
+                  onChange={e => setImageSearch(e.target.value)}
+                  placeholder="Görsel ara..."
+                  className="pl-9 bg-zinc-800 border-white/10"
+                />
+              </div>
+              <Select
+                value={imageFilter}
+                onValueChange={value => setImageFilter(value as ActiveFilter)}
+              >
+                <SelectTrigger className="w-[140px] bg-zinc-800 border-white/10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tümü</SelectItem>
+                  <SelectItem value="active">Aktif</SelectItem>
+                  <SelectItem value="inactive">Pasif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button
-              onClick={handleAddImage}
-              className="bg-[#7C3AED] hover:bg-[#7C3AED]"
+              onClick={startCreateImage}
+              className="bg-[#7C3AED] hover:bg-[#6A2FD2]"
             >
               <Plus className="h-4 w-4 mr-2" />
               Görsel Ekle
             </Button>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
-          >
-            {imagesQuery.isLoading ? (
-              <div className="text-center py-12">
-                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-zinc-600" />
-              </div>
-            ) : !imagesQuery.data || imagesQuery.data.length === 0 ? (
-              <div className="text-center py-12">
-                <ImageIcon className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
-                <p className="text-zinc-500 mb-4">Henüz görsel eklenmedi</p>
-                <Button onClick={handleAddImage}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  İlk Görseli Ekle
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {imagesQuery.data.map((image: ShowcaseImage) => (
-                  <div
-                    key={image.id}
-                    className="bg-zinc-800 rounded-lg p-4 space-y-3"
-                  >
-                    <div className="aspect-square bg-zinc-900 rounded-lg overflow-hidden">
-                      <img
-                        src={image.thumbnailUrl || image.imageUrl}
-                        alt={image.title || "Showcase"}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium truncate">
-                          {image.title || "Başlıksız"}
-                        </span>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            image.isActive
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-zinc-700 text-zinc-400"
-                          }`}
-                        >
-                          {image.isActive ? "Aktif" : "Pasif"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <span className="bg-zinc-900 px-2 py-1 rounded">
-                          {image.aspectRatio}
-                        </span>
-                        <span>Sıra: {image.order}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditImage(image)}
-                          className="flex-1"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Düzenle
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteImage(image.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredImages.map(item => (
+              <div
+                key={item.id}
+                className="rounded-xl border border-white/10 bg-zinc-900/50 p-3 space-y-3"
+              >
+                <div className="aspect-square rounded-lg overflow-hidden bg-zinc-950/50">
+                  <img
+                    src={item.thumbnailUrl || item.imageUrl}
+                    alt={item.title || "showcase image"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm font-medium truncate">
+                    {item.title || "Başlıksız"}
+                  </p>
+                  <p className="text-[11px] text-zinc-500">
+                    #{item.order} - {item.aspectRatio}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <Switch
+                    checked={asBool(item.isActive)}
+                    onCheckedChange={() => void toggleImageActive(item)}
+                  />
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-white/20"
+                      onClick={() => startEditImage(item)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-red-500/30 text-red-300"
+                      onClick={() => void removeImage(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                ))}
+                </div>
               </div>
-            )}
-          </motion.div>
+            ))}
+          </div>
+
+          {filteredImages.length === 0 && (
+            <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-8 text-center text-zinc-500">
+              Filtreye uygun görsel yok.
+            </div>
+          )}
         </TabsContent>
 
-        {/* Videos Tab */}
-        <TabsContent value="videos" className="space-y-6">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-zinc-500">
-              "AI Video Galerisi" bölümü için videolar
-            </p>
+        <TabsContent value="videos" className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap gap-2">
+              <div className="relative w-[320px] max-w-full">
+                <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Input
+                  value={videoSearch}
+                  onChange={e => setVideoSearch(e.target.value)}
+                  placeholder="Video ara..."
+                  className="pl-9 bg-zinc-800 border-white/10"
+                />
+              </div>
+              <Select
+                value={videoFilter}
+                onValueChange={value => setVideoFilter(value as ActiveFilter)}
+              >
+                <SelectTrigger className="w-[140px] bg-zinc-800 border-white/10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tümü</SelectItem>
+                  <SelectItem value="active">Aktif</SelectItem>
+                  <SelectItem value="inactive">Pasif</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button
-              onClick={handleAddVideo}
-              className="bg-[#7C3AED] hover:bg-[#7C3AED]"
+              onClick={startCreateVideo}
+              className="bg-[#7C3AED] hover:bg-[#6A2FD2]"
             >
               <Plus className="h-4 w-4 mr-2" />
               Video Ekle
             </Button>
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
-          >
-            {videosQuery.isLoading ? (
-              <div className="text-center py-12">
-                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-zinc-600" />
-              </div>
-            ) : !videosQuery.data || videosQuery.data.length === 0 ? (
-              <div className="text-center py-12">
-                <VideoIcon className="h-12 w-12 mx-auto mb-4 text-zinc-600" />
-                <p className="text-zinc-500 mb-4">Henüz video eklenmedi</p>
-                <Button onClick={handleAddVideo}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  İlk Videoyu Ekle
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {videosQuery.data.map((video: ShowcaseVideo) => (
-                  <div
-                    key={video.id}
-                    className="bg-zinc-800 rounded-lg p-4 space-y-3"
-                  >
-                    <div className="aspect-[9/16] bg-zinc-900 rounded-lg overflow-hidden">
-                      {video.posterUrl ? (
-                        <img
-                          src={video.posterUrl}
-                          alt={video.title || "Video"}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <VideoIcon className="h-12 w-12 text-zinc-600" />
-                        </div>
-                      )}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredVideos.map(item => (
+              <div
+                key={item.id}
+                className="rounded-xl border border-white/10 bg-zinc-900/50 p-3 space-y-3"
+              >
+                <div className="aspect-[9/16] rounded-lg overflow-hidden bg-zinc-950/50">
+                  {item.posterUrl ? (
+                    <img
+                      src={item.posterUrl}
+                      alt={item.title || "video"}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full grid place-items-center">
+                      <Camera className="h-8 w-8 text-zinc-600" />
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium truncate">
-                          {video.title || "Başlıksız"}
-                        </span>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full ${
-                            video.isActive
-                              ? "bg-green-500/20 text-green-400"
-                              : "bg-zinc-700 text-zinc-400"
-                          }`}
-                        >
-                          {video.isActive ? "Aktif" : "Pasif"}
-                        </span>
-                      </div>
-                      <div className="text-xs text-zinc-500">
-                        Sıra: {video.order}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditVideo(video)}
-                          className="flex-1"
-                        >
-                          <Edit className="h-3 w-3 mr-1" />
-                          Düzenle
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteVideo(video.id)}
-                          className="text-red-400 hover:text-red-300"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-medium truncate">
+                    {item.title || "Başlıksız"}
+                  </p>
+                  <p className="text-[11px] text-zinc-500">#{item.order}</p>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <Switch
+                    checked={asBool(item.isActive)}
+                    onCheckedChange={() => void toggleVideoActive(item)}
+                  />
+                  <div className="flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-white/20"
+                      onClick={() => startEditVideo(item)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="border-red-500/30 text-red-300"
+                      onClick={() => void removeVideo(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                ))}
+                </div>
               </div>
-            )}
-          </motion.div>
+            ))}
+          </div>
+
+          {filteredVideos.length === 0 && (
+            <div className="rounded-xl border border-white/10 bg-zinc-900/40 p-8 text-center text-zinc-500">
+              Filtreye uygun video yok.
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
-      {/* Image Dialog */}
-      <Dialog open={imageDialog} onOpenChange={setImageDialog}>
-        <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
+      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+        <DialogContent className="bg-zinc-900 border-white/10 max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {editingImage ? "Görseli Düzenle" : "Yeni Görsel Ekle"}
+              {editingImageId ? "Görseli Düzenle" : "Görsel Ekle"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+
+          <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>Görsel URL *</Label>
               <Input
                 value={imageForm.imageUrl}
                 onChange={e =>
-                  setImageForm({ ...imageForm, imageUrl: e.target.value })
+                  setImageForm(prev => ({ ...prev, imageUrl: e.target.value }))
                 }
-                placeholder="https://example.com/image.jpg"
                 className="bg-zinc-800 border-white/10"
+                placeholder="https://..."
               />
             </div>
+
             <div className="space-y-2">
-              <Label>Thumbnail URL (Opsiyonel)</Label>
+              <Label>Thumbnail URL</Label>
               <Input
                 value={imageForm.thumbnailUrl}
                 onChange={e =>
-                  setImageForm({ ...imageForm, thumbnailUrl: e.target.value })
+                  setImageForm(prev => ({
+                    ...prev,
+                    thumbnailUrl: e.target.value,
+                  }))
                 }
-                placeholder="https://example.com/thumb.jpg"
                 className="bg-zinc-800 border-white/10"
               />
             </div>
-            <div className="space-y-2">
-              <Label>Başlık (Opsiyonel)</Label>
-              <Input
-                value={imageForm.title}
-                onChange={e =>
-                  setImageForm({ ...imageForm, title: e.target.value })
-                }
-                placeholder="Görsel başlığı"
-                className="bg-zinc-800 border-white/10"
-              />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Başlık</Label>
+                <Input
+                  value={imageForm.title}
+                  onChange={e =>
+                    setImageForm(prev => ({ ...prev, title: e.target.value }))
+                  }
+                  className="bg-zinc-800 border-white/10"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Aspect Ratio</Label>
+                <Select
+                  value={imageForm.aspectRatio}
+                  onValueChange={value =>
+                    setImageForm(prev => ({
+                      ...prev,
+                      aspectRatio: value as AspectRatio,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="bg-zinc-800 border-white/10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="square">square</SelectItem>
+                    <SelectItem value="portrait">portrait</SelectItem>
+                    <SelectItem value="landscape">landscape</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Aspect Ratio</Label>
-              <Select
-                value={imageForm.aspectRatio}
-                onValueChange={(value: "square" | "portrait" | "landscape") =>
-                  setImageForm({ ...imageForm, aspectRatio: value })
-                }
-              >
-                <SelectTrigger className="bg-zinc-800 border-white/10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="square">Square (1:1)</SelectItem>
-                  <SelectItem value="portrait">Portrait (3:4)</SelectItem>
-                  <SelectItem value="landscape">Landscape (4:3)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Sıra</Label>
                 <Input
                   type="number"
                   value={imageForm.order}
                   onChange={e =>
-                    setImageForm({
-                      ...imageForm,
-                      order: parseInt(e.target.value) || 0,
-                    })
+                    setImageForm(prev => ({
+                      ...prev,
+                      order: Number(e.target.value) || 0,
+                    }))
                   }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Durum</Label>
-                <div className="flex items-center space-x-2 h-10">
-                  <Switch
-                    checked={imageForm.isActive}
-                    onCheckedChange={checked =>
-                      setImageForm({ ...imageForm, isActive: checked })
-                    }
-                  />
-                  <Label>{imageForm.isActive ? "Aktif" : "Pasif"}</Label>
-                </div>
+              <div className="rounded-xl border border-white/10 bg-zinc-950/40 px-3 py-2 flex items-center justify-between mt-7 md:mt-0">
+                <span className="text-sm text-zinc-300">Aktif</span>
+                <Switch
+                  checked={imageForm.isActive}
+                  onCheckedChange={checked =>
+                    setImageForm(prev => ({ ...prev, isActive: checked }))
+                  }
+                />
               </div>
             </div>
           </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setImageDialog(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-white/20"
+              onClick={() => setIsImageDialogOpen(false)}
+            >
               İptal
             </Button>
             <Button
-              onClick={handleSaveImage}
-              className="bg-[#7C3AED] hover:bg-[#7C3AED]"
-              disabled={
-                createImageMutation.isPending || updateImageMutation.isPending
-              }
+              type="button"
+              onClick={submitImage}
+              className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
             >
-              {createImageMutation.isPending ||
-              updateImageMutation.isPending ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
               Kaydet
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Video Dialog */}
-      <Dialog open={videoDialog} onOpenChange={setVideoDialog}>
-        <DialogContent className="bg-zinc-900 border-white/10 max-w-lg">
+      <Dialog open={isVideoDialogOpen} onOpenChange={setIsVideoDialogOpen}>
+        <DialogContent className="bg-zinc-900 border-white/10 max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {editingVideo ? "Videoyu Düzenle" : "Yeni Video Ekle"}
+              {editingVideoId ? "Videoyu Düzenle" : "Video Ekle"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+
+          <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>Video URL *</Label>
               <Input
                 value={videoForm.videoUrl}
                 onChange={e =>
-                  setVideoForm({ ...videoForm, videoUrl: e.target.value })
+                  setVideoForm(prev => ({ ...prev, videoUrl: e.target.value }))
                 }
-                placeholder="https://example.com/video.mp4"
                 className="bg-zinc-800 border-white/10"
+                placeholder="https://..."
               />
             </div>
+
             <div className="space-y-2">
-              <Label>Poster/Thumbnail URL (Opsiyonel)</Label>
+              <Label>Poster URL</Label>
               <Input
                 value={videoForm.posterUrl}
                 onChange={e =>
-                  setVideoForm({ ...videoForm, posterUrl: e.target.value })
+                  setVideoForm(prev => ({ ...prev, posterUrl: e.target.value }))
                 }
-                placeholder="https://example.com/poster.jpg"
                 className="bg-zinc-800 border-white/10"
               />
             </div>
-            <div className="space-y-2">
-              <Label>Başlık (Opsiyonel)</Label>
-              <Input
-                value={videoForm.title}
-                onChange={e =>
-                  setVideoForm({ ...videoForm, title: e.target.value })
-                }
-                placeholder="Video başlığı"
-                className="bg-zinc-800 border-white/10"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Başlık</Label>
+                <Input
+                  value={videoForm.title}
+                  onChange={e =>
+                    setVideoForm(prev => ({ ...prev, title: e.target.value }))
+                  }
+                  className="bg-zinc-800 border-white/10"
+                />
+              </div>
               <div className="space-y-2">
                 <Label>Sıra</Label>
                 <Input
                   type="number"
                   value={videoForm.order}
                   onChange={e =>
-                    setVideoForm({
-                      ...videoForm,
-                      order: parseInt(e.target.value) || 0,
-                    })
+                    setVideoForm(prev => ({
+                      ...prev,
+                      order: Number(e.target.value) || 0,
+                    }))
                   }
                   className="bg-zinc-800 border-white/10"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Durum</Label>
-                <div className="flex items-center space-x-2 h-10">
-                  <Switch
-                    checked={videoForm.isActive}
-                    onCheckedChange={checked =>
-                      setVideoForm({ ...videoForm, isActive: checked })
-                    }
-                  />
-                  <Label>{videoForm.isActive ? "Aktif" : "Pasif"}</Label>
-                </div>
-              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-zinc-950/40 px-3 py-2 flex items-center justify-between">
+              <span className="text-sm text-zinc-300">Aktif</span>
+              <Switch
+                checked={videoForm.isActive}
+                onCheckedChange={checked =>
+                  setVideoForm(prev => ({ ...prev, isActive: checked }))
+                }
+              />
             </div>
           </div>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setVideoDialog(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-white/20"
+              onClick={() => setIsVideoDialogOpen(false)}
+            >
               İptal
             </Button>
             <Button
-              onClick={handleSaveVideo}
-              className="bg-[#7C3AED] hover:bg-[#7C3AED]"
-              disabled={
-                createVideoMutation.isPending || updateVideoMutation.isPending
-              }
+              type="button"
+              onClick={submitVideo}
+              className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
             >
-              {createVideoMutation.isPending ||
-              updateVideoMutation.isPending ? (
-                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
               Kaydet
             </Button>
           </DialogFooter>

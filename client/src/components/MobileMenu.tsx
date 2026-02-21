@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { getLoginUrl } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useWebUiConfig } from "@/hooks/useWebUiConfig";
+import { orderByIds } from "@/lib/webUiConfig";
 import {
   User,
   BookOpen,
@@ -11,6 +13,8 @@ import {
   Image,
   LogOut,
   Sparkles,
+  Mic,
+  Music,
 } from "lucide-react";
 
 interface MobileMenuProps {
@@ -82,6 +86,7 @@ const LanguageButton = memo(function LanguageButton({
 function MobileMenuContent({ isOpen, onClose }: MobileMenuProps) {
   const { t, language, setLanguage } = useLanguage();
   const { isAuthenticated, logout } = useAuth();
+  const { webUiConfig, featureFlags } = useWebUiConfig();
   const [, navigate] = useLocation();
 
   // Memoized navigation handler
@@ -109,6 +114,74 @@ function MobileMenuContent({ isOpen, onClose }: MobileMenuProps) {
   const setTurkish = useCallback(() => setLanguage("tr"), [setLanguage]);
   const setEnglish = useCallback(() => setLanguage("en"), [setLanguage]);
 
+  const mobileMenuItems = orderByIds(
+    [
+      {
+        id: "upscale",
+        icon: Zap,
+        label: t("nav.upscale"),
+        path: "/upscale",
+        featureKey: "upscale_enabled",
+      },
+      {
+        id: "video-generate",
+        icon: Video,
+        label: t("nav.videoCreate"),
+        path: "/video-generate",
+        featureKey: "video_generation_enabled",
+      },
+      {
+        id: "motion-control",
+        icon: Video,
+        label: t("nav.motionControl"),
+        path: "/motion-control",
+        badge: t("nav.new"),
+        featureKey: "video_generation_enabled",
+      },
+      {
+        id: "ai-influencer",
+        icon: Sparkles,
+        label: t("nav.aiCharacter"),
+        path: "/ai-influencer",
+        featureKey: "ai_influencer_enabled",
+      },
+      {
+        id: "audio-generate",
+        icon: Mic,
+        label: t("nav.audioGenerate"),
+        path: "/audio-generate",
+        featureKey: "audio_generation_enabled",
+      },
+      {
+        id: "music-generate",
+        icon: Music,
+        label: t("nav.musicGenerate"),
+        path: "/music-generate",
+        featureKey: "music_generation_enabled",
+      },
+      {
+        id: "gallery",
+        icon: Image,
+        label: t("nav.gallery"),
+        path: "/gallery",
+        featureKey: "gallery_enabled",
+      },
+      {
+        id: "blog",
+        icon: BookOpen,
+        label: t("nav.blog"),
+        path: "/blog",
+        featureKey: "blog_enabled",
+      },
+      { id: "profile", icon: User, label: t("nav.profile"), path: "/profile" },
+    ].filter(
+      item =>
+        !item.featureKey ||
+        featureFlags[item.featureKey as keyof typeof featureFlags]
+    ),
+    webUiConfig.navigation.mobileMenuNavOrder
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -116,42 +189,15 @@ function MobileMenuContent({ isOpen, onClose }: MobileMenuProps) {
       <div className="px-4 py-4 space-y-2 max-h-[70vh] overflow-y-auto">
         {isAuthenticated ? (
           <>
-            <MenuItem
-              icon={Zap}
-              label={t("nav.upscale")}
-              onClick={() => handleNavigate("/upscale")}
-            />
-            <MenuItem
-              icon={Video}
-              label={t("nav.videoCreate")}
-              onClick={() => handleNavigate("/video-generate")}
-            />
-            <MenuItem
-              icon={Video}
-              label={t("nav.motionControl")}
-              badge={t("nav.new")}
-              onClick={() => handleNavigate("/motion-control")}
-            />
-            <MenuItem
-              icon={Sparkles}
-              label={t("nav.aiCharacter")}
-              onClick={() => handleNavigate("/ai-influencer")}
-            />
-            <MenuItem
-              icon={Image}
-              label={t("nav.gallery")}
-              onClick={() => handleNavigate("/gallery")}
-            />
-            <MenuItem
-              icon={BookOpen}
-              label={t("nav.blog")}
-              onClick={() => handleNavigate("/blog")}
-            />
-            <MenuItem
-              icon={User}
-              label={t("nav.profile")}
-              onClick={() => handleNavigate("/profile")}
-            />
+            {mobileMenuItems.map(item => (
+              <MenuItem
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                badge={item.badge}
+                onClick={() => handleNavigate(item.path)}
+              />
+            ))}
 
             {/* Language Switcher */}
             <div className="border-t border-white/10 pt-3 mt-2">

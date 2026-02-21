@@ -5,6 +5,7 @@ Bu proje artık Stripe ödeme sistemini desteklemektedir. Kullanıcılar kredi p
 ## ✅ Yapılanlar
 
 ### 1. Backend Entegrasyonu
+
 - ✅ `server/routers/stripe.ts` - Stripe checkout session oluşturma
 - ✅ `server/routes/stripeWebhook.ts` - Webhook event handler
 - ✅ `drizzle/schema.ts` - `stripeOrders` tablosu eklendi
@@ -12,25 +13,30 @@ Bu proje artık Stripe ödeme sistemini desteklemektedir. Kullanıcılar kredi p
 - ✅ tRPC router'a Stripe router eklendi
 
 ### 2. Frontend Güncellemeleri
+
 - ✅ `/packages` sayfası giriş yapmadan görülebilir hale getirildi
 - ✅ Stripe checkout entegrasyonu eklendi
 - ✅ Paket satın alma sırasında Shopier veya Stripe seçimi yapılabiliyor
 
 ### 3. Database
+
 - ✅ `stripeOrders` tablosu oluşturuldu
 - ✅ Migration başarıyla çalıştırıldı
 
 ## 📋 Kurulum Adımları
 
 ### 1. Stripe Hesabı Oluşturun
+
 1. [Stripe Dashboard](https://dashboard.stripe.com/register) üzerinden hesap oluşturun
 2. Test modunda çalışmak için "Test Mode" açık olduğundan emin olun
 
 ### 2. API Anahtarlarını Alın
+
 1. [API Keys sayfasına](https://dashboard.stripe.com/test/apikeys) gidin
-2. **Secret Key** (sk_test_... ile başlayan) ve **Publishable Key** (pk_test_... ile başlayan) değerlerini kopyalayın
+2. **Secret Key** (sk*test*... ile başlayan) ve **Publishable Key** (pk*test*... ile başlayan) değerlerini kopyalayın
 
 ### 3. Webhook Secret Oluşturun
+
 1. [Webhooks sayfasına](https://dashboard.stripe.com/test/webhooks) gidin
 2. **Add endpoint** butonuna tıklayın
 3. Endpoint URL'ini girin: `https://YOUR_DOMAIN.com/stripe/webhook`
@@ -41,9 +47,10 @@ Bu proje artık Stripe ödeme sistemini desteklemektedir. Kullanıcılar kredi p
    - `payment_intent.payment_failed`
    - `charge.refunded`
 5. **Add endpoint** butonuna tıklayın
-6. Oluşan webhook'un detay sayfasında **Signing secret** (whsec_... ile başlayan) değerini kopyalayın
+6. Oluşan webhook'un detay sayfasında **Signing secret** (whsec\_... ile başlayan) değerini kopyalayın
 
 ### 4. Environment Variables Ayarlayın
+
 `.env` dosyanızda aşağıdaki değerleri güncelleyin:
 
 ```bash
@@ -53,11 +60,13 @@ STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_PUBLISHABLE_KEY_HERE
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET_HERE
 ```
 
-⚠️ **ÖNEMLİ:** 
+⚠️ **ÖNEMLİ:**
+
 - Test modunda çalışırken `sk_test_` ve `pk_test_` ile başlayan anahtarları kullanın
 - Production'a geçerken `sk_live_` ve `pk_live_` anahtarlarını kullanın
 
 ### 5. Uygulamayı Yeniden Başlatın
+
 ```bash
 pnpm dev  # Development mode
 # veya
@@ -67,20 +76,25 @@ pnpm start  # Production mode
 ## 🧪 Test Etme
 
 ### Test Kartları (Test Modunda)
+
 Stripe test modunda aşağıdaki kart bilgilerini kullanabilirsiniz:
 
 **Başarılı Ödeme:**
+
 - Kart Numarası: `4242 4242 4242 4242`
 - CVC: Herhangi 3 rakam (örn: `123`)
 - Son Kullanma: Gelecekteki herhangi bir tarih (örn: `12/34`)
 
 **Ödeme Hatası:**
+
 - Kart Numarası: `4000 0000 0000 0002`
 
 **3D Secure Test:**
+
 - Kart Numarası: `4000 0027 6000 3184`
 
 ### Test Akışı
+
 1. Tarayıcınızda `/packages` sayfasına gidin
 2. Giriş yapmadan paketleri görebileceğinizi doğrulayın
 3. Bir pakete tıklayın
@@ -95,11 +109,13 @@ Stripe test modunda aşağıdaki kart bilgilerini kullanabilirsiniz:
 ## 📊 Ödeme Takibi
 
 ### Stripe Dashboard
+
 - [Payments](https://dashboard.stripe.com/test/payments) - Tüm ödemeleri görün
 - [Events](https://dashboard.stripe.com/test/events) - Webhook event'lerini kontrol edin
 - [Logs](https://dashboard.stripe.com/test/logs) - Webhook delivery durumunu görün
 
 ### Database
+
 - `stripeOrders` tablosunda tüm Stripe ödemeleri kayıtlıdır
 - `creditTransactions` tablosunda kredi işlemleri görülebilir
 - `users` tablosunda güncel kredi bakiyeleri bulunur
@@ -138,18 +154,21 @@ Production'a geçmek için:
 ## 🆘 Sorun Giderme
 
 ### Webhook çalışmıyor
+
 1. Stripe Dashboard → Webhooks → Events sekmesini kontrol edin
 2. Webhook delivery durumunu kontrol edin
 3. Server loglarında hata mesajlarını kontrol edin
 4. `STRIPE_WEBHOOK_SECRET` doğru olduğundan emin olun
 
 ### Krediler eklenmiyor
+
 1. Stripe Dashboard → Events'te `checkout.session.completed` event'ini kontrol edin
 2. Database'de `stripeOrders` tablosunu kontrol edin
 3. `creditTransactions` tablosunu kontrol edin
 4. Server loglarında hata mesajlarını arayın
 
 ### Test ödemeleri production'da görünüyor
+
 1. Doğru API anahtarlarını kullandığınızdan emin olun
 2. Test ve Live mode karıştırılmamış olmalı
 3. Her environment için ayrı webhook endpoint kullanın

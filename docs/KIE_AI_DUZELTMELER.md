@@ -12,21 +12,26 @@
 #### ✅ Yeni Eklenen Modeller:
 
 **Flux Modelleri:**
+
 - `generateFlux11ProImage()` - Flux 1.1 Pro (15 kredi)
 - `generateFlux11UltraImage()` - Flux 1.1 Pro Ultra 4K (25 kredi)
 
 **Recraft Modelleri (Vektör Sanat & Grafik Tasarım):**
+
 - `generateRecraftV3Image()` - Recraft V3 (15 kredi)
 - `generateRecraft20BImage()` - Recraft 20B (12 kredi)
 
 **Qwen Modelleri:**
+
 - `generateQwenImageEdit()` - Qwen Image Edit (10 kredi)
 - `generateQwenImageToImage()` - Qwen Image-to-Image (10 kredi)
 
 **Nano Banana Edit (Google):**
+
 - `generateNanoBananaEdit()` - 8 görsele kadar edit (12 kredi)
 
 **Ideogram Modelleri:**
+
 - `generateIdeogramCharacterEdit()` - Karakter editing (14 kredi)
 - `generateIdeogramCharacterRemix()` - Karakter remixing (14 kredi)
 
@@ -35,6 +40,7 @@
 `server/routers/generation.ts` dosyasında:
 
 #### ✅ AIModel Type Güncellemesi
+
 ```typescript
 export type AIModel =
   | "qwen"
@@ -50,13 +56,15 @@ export type AIModel =
   | "qwen-image-to-image"
   | "nano-banana-edit"
   | "ideogram-character-edit"
-  | "ideogram-character-remix"
+  | "ideogram-character-remix";
 ```
 
 #### ✅ Zod Validation Şeması Güncellendi
+
 Frontend'den gelen istekler için tüm yeni modeller artık validate ediliyor.
 
 #### ✅ Model Mapping Tablosu Güncellendi
+
 ```typescript
 const kieAiModelMap: Record<string, string> = {
   // ... mevcut mappingler
@@ -75,6 +83,7 @@ const kieAiModelMap: Record<string, string> = {
 ### 3. Switch Case Eklendi
 
 Tüm yeni modeller için generation logic eklendi:
+
 ```typescript
 switch (aiModel) {
   case "flux-1.1-pro":
@@ -90,6 +99,7 @@ switch (aiModel) {
 ### 4. Image-to-Image Validation
 
 Referans görsel gerektiren modeller için otomatik doğrulama:
+
 ```typescript
 const imageToImageModels = [
   "flux-2-pro",
@@ -97,19 +107,21 @@ const imageToImageModels = [
   "qwen-image-to-image",
   "nano-banana-edit",
   "ideogram-character-edit",
-  "ideogram-character-remix"
+  "ideogram-character-remix",
 ];
 ```
 
 ## 📊 Kullanıcılar Artık Şunları Yapabilir:
 
 ### ✅ Text-to-Image Modelleri
+
 - Flux 1.1 Pro - Hızlı ve detaylı görsel üretimi
 - Flux 1.1 Pro Ultra - 4K ultra yüksek çözünürlük
 - Recraft V3 - Vektör sanat ve grafik tasarım
 - Recraft 20B - Gelişmiş grafik modeli
 
 ### ✅ Image-to-Image (Edit) Modelleri
+
 - **Qwen Image Edit** - Mevcut görseli düzenle
 - **Qwen Image-to-Image** - Görselden görsele dönüşüm
 - **Nano Banana Edit** - Google'ın edit modeli (8 görsele kadar)
@@ -121,11 +133,13 @@ const imageToImageModels = [
 Tüm düzeltmeler Kie.ai'nin resmi API dökümantasyonuna göre yapıldı:
 
 ### API Endpoints:
+
 - ✅ `/api/v1/jobs/createTask` - Tüm yeni modeller için kullanılıyor
 - ✅ `/api/v1/jobs/recordInfo` - Status polling için
 - ✅ Model-specific parameters doğru şekilde mapping yapılıyor
 
 ### Parameter Mappings:
+
 - ✅ `aspect_ratio` - Tüm modellerde destekleniyor
 - ✅ `quality` - Ultra models için "ultra" parametresi
 - ✅ `image_urls` - Multi-image input için
@@ -134,9 +148,11 @@ Tüm düzeltmeler Kie.ai'nin resmi API dökümantasyonuna göre yapıldı:
 ## 📝 Sonraki Adımlar (Opsiyonel)
 
 ### Frontend UI Güncellemesi
+
 `client/src/pages/Generate.tsx` dosyasında model seçeneklerini kullanıcıya sunmak için:
 
 1. **Model Dropdown'ına Ekle:**
+
 ```tsx
 <option value="flux-1.1-pro">Flux 1.1 Pro</option>
 <option value="flux-1.1-pro-ultra">Flux 1.1 Ultra (4K)</option>
@@ -148,12 +164,13 @@ Tüm düzeltmeler Kie.ai'nin resmi API dökümantasyonuna göre yapıldı:
 ```
 
 2. **Model Açıklamaları Ekle:**
-Her modelin ne işe yaradığını kullanıcıya göster.
+   Her modelin ne işe yaradığını kullanıcıya göster.
 
 3. **Edit Mode UI:**
-Image-to-image modelleri için "Referans Görsel Yükle" bölümünü göster.
+   Image-to-image modelleri için "Referans Görsel Yükle" bölümünü göster.
 
 ### Database Güncellemesi
+
 Admin panelinden `/admin/models` sayfasına giderek yeni modelleri ekle:
 
 ```sql
@@ -172,19 +189,22 @@ INSERT INTO aiModelConfig (modelKey, name, provider, modelType, creditCost) VALU
 ## ✅ Test Edilmesi Gerekenler
 
 1. **Backend Test:**
+
 ```bash
 # Sunucuyu başlat
 pnpm dev
 ```
 
 2. **TypeScript Compile:**
+
 ```bash
 # Type hataları olup olmadığını kontrol et
 pnpm build
 ```
 
 3. **Model Test:**
-Her yeni model için en az bir test generation yapılmalı:
+   Her yeni model için en az bir test generation yapılmalı:
+
 - Text-to-image modelleri için prompt ile test
 - Image-to-image modelleri için referans görsel + prompt ile test
 
@@ -202,6 +222,6 @@ Her yeni model için en az bir test generation yapılmalı:
 ✅ **Tüm modeller** frontend'de kullanılabilir hale geldi  
 ✅ **Image-to-image** validation otomatiğe alındı  
 ✅ **Kie.ai dökümantasyonu** ile %100 uyumlu  
-✅ **Kullanıcılar** artık tüm modelleri kullanabilir  
+✅ **Kullanıcılar** artık tüm modelleri kullanabilir
 
 Sisteminiz artık Kie.ai'nin sunduğu **tüm image generation modellerini** destekliyor ve kullanıcılar dökümantasyona göre görsel oluşturabilirler! 🚀

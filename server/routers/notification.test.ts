@@ -1,5 +1,9 @@
 import { describe, it, expect, vi } from "vitest";
-import { notificationRouter, createNotification, checkLowCredits } from "./notification";
+import {
+  notificationRouter,
+  createNotification,
+  checkLowCredits,
+} from "./notification";
 
 vi.mock("../db", () => ({
   getDb: vi.fn().mockResolvedValue({
@@ -62,9 +66,21 @@ describe("createNotification helper", () => {
   });
 
   it("should accept all notification types", async () => {
-    const types = ["generation_complete", "low_credits", "welcome", "referral_bonus", "system", "credit_added"] as const;
+    const types = [
+      "generation_complete",
+      "low_credits",
+      "welcome",
+      "referral_bonus",
+      "system",
+      "credit_added",
+    ] as const;
     for (const type of types) {
-      const result = await createNotification({ userId: 1, type, title: `Test ${type}`, message: `Test message for ${type}` });
+      const result = await createNotification({
+        userId: 1,
+        type,
+        title: `Test ${type}`,
+        message: `Test message for ${type}`,
+      });
       expect(typeof result).toBe("boolean");
     }
   });

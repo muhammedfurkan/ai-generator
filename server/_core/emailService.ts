@@ -126,7 +126,9 @@ export async function sendVerificationEmail(
   const transporter = createTransporter();
 
   if (!transporter) {
-    console.error("[EmailService] Cannot send email: transporter not available");
+    console.error(
+      "[EmailService] Cannot send email: transporter not available"
+    );
     return { success: false, error: "E-posta servisi yapılandırılmamış" };
   }
 
@@ -146,7 +148,7 @@ export async function sendVerificationEmail(
     console.error("[EmailService] Failed to send verification email:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "E-posta gönderilemedi"
+      error: error instanceof Error ? error.message : "E-posta gönderilemedi",
     };
   }
 }

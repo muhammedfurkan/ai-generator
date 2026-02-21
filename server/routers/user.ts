@@ -1,5 +1,10 @@
 import { protectedProcedure, router } from "../_core/trpc";
-import { getUserById, getUserGeneratedImagesCount, addCredits, getCreditTransactions } from "../db";
+import {
+  getUserById,
+  getUserGeneratedImagesCount,
+  addCredits,
+  getCreditTransactions,
+} from "../db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -40,9 +45,11 @@ export const userRouter = router({
    */
   getPaymentHistory: protectedProcedure
     .input(
-      z.object({
-        limit: z.number().int().positive().max(100).optional().default(50),
-      }).optional()
+      z
+        .object({
+          limit: z.number().int().positive().max(100).optional().default(50),
+        })
+        .optional()
     )
     .query(async ({ ctx, input }) => {
       const limit = input?.limit || 50;

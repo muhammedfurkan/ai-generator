@@ -8,20 +8,24 @@
 ## 🎯 Kullanıcı İstekleri
 
 ### 1. Generation Mode: 3 Seçenek ✅
+
 - ✅ Text to Video
-- ✅ Image to Video  
+- ✅ Image to Video
 - ✅ Reference to Video (multi-image)
 
 ### 2. Quality Options: 2 Seçenek ✅
+
 - ✅ **Hızlı (Fast)** - 60 kredi
 - ✅ **Kaliteli (Quality)** - 250 kredi
 
 ### 3. Aspect Ratio: Sadece Yatay/Dikey ✅
+
 - ✅ **16:9** (Yatay)
 - ✅ **9:16** (Dikey)
 - ❌ **1:1** Kaldırıldı
 
 ### 4. Duration: Otomatik ✅
+
 - ✅ **8 saniye** (sabit)
 - Kullanıcı seçemez, otomatik
 
@@ -34,6 +38,7 @@
 #### getPricing - Veo 3.1 Güncellendi
 
 **ÖNCESİ:**
+
 ```typescript
 veo3: {
   options: [
@@ -47,6 +52,7 @@ veo3: {
 ```
 
 **SONRASI:**
+
 ```typescript
 veo3: {
   options: [
@@ -66,6 +72,7 @@ veo3: {
 #### Generation Mode Toggle - 3 Butonlu
 
 **Yeni UI:**
+
 ```tsx
 ┌───────────────┬───────────────┬───────────────┐
 │ Text to Video │ Image to Video│ Reference to  │
@@ -74,8 +81,11 @@ veo3: {
 ```
 
 **Kod:**
+
 ```tsx
-<div className="grid grid-cols-3 gap-1"> {/* Veo 3.1 için 3 kolon */}
+<div className="grid grid-cols-3 gap-1">
+  {" "}
+  {/* Veo 3.1 için 3 kolon */}
   <button>Text to Video</button>
   <button>Image to Video</button>
   <button>Reference to Video</button> {/* ✨ YENİ */}
@@ -83,6 +93,7 @@ veo3: {
 ```
 
 **Conditional Rendering:**
+
 - Veo 3.1 seçiliyse: **3 buton**
 - Diğer modeller: **2 buton** (Text, Image)
 
@@ -125,18 +136,20 @@ veo3: {
 ### Reference to Video Desteği
 
 **Backend:**
+
 - `imageUrls` parametresi zaten mevcut (max 8 görsel)
 - Veo 3.1 API 1-3 görsel destekliyor
 - Frontend'den array olarak gönderiliyor
 
 **Frontend:**
+
 - "Reference to Video" butonu `supportsReferenceVideo` kontrolü ile gösteriliyor
 - Image upload bölümü çoklu görsel yüklemesi destekliyor (max 8)
 
 ### Quality Pricing
 
 | Quality | Duration | Credits | Price (USD) |
-|---------|----------|---------|-------------|
+| ------- | -------- | ------- | ----------- |
 | Fast    | 8s       | 60      | $0.30       |
 | Quality | 8s       | 250     | $1.25       |
 
@@ -149,7 +162,7 @@ veo3: {
 ✅ **2 Aspect Ratio** (16:9, 9:16) - 1:1 yok  
 ✅ **Duration otomatik** (8s, kullanıcı seçmez)  
 ✅ **Reference to Video** butonu çalışıyor  
-✅ **Doğru fiyatlandırma** (60/250 kredi)  
+✅ **Doğru fiyatlandırma** (60/250 kredi)
 
 ---
 
@@ -182,24 +195,24 @@ veo3: {
 ```typescript
 // Veo 3.1 Fast
 calculateVideoCreditCost("veo3.1-fast", {
-  quality: "fast"
-}) // = 60 ✅
+  quality: "fast",
+}); // = 60 ✅
 
 // Veo 3.1 Quality
 calculateVideoCreditCost("veo3.1-quality", {
-  quality: "quality"
-}) // = 250 ✅
+  quality: "quality",
+}); // = 250 ✅
 ```
 
 ---
 
 ## 📁 Değiştirilen Dosyalar
 
-| Dosya | Değişiklik | Açıklama |
-|-------|-----------|----------|
-| `server/routers/videoGeneration.ts` | ~15 satır | Veo 3.1 config + reference support |
-| `client/src/pages/VideoGenerate.tsx` | ~20 satır | 3-button toggle + conditional grid |
-| `VEO_3_1_UPDATE.md` | +150 satır | Dokümentasyon |
+| Dosya                                | Değişiklik | Açıklama                           |
+| ------------------------------------ | ---------- | ---------------------------------- |
+| `server/routers/videoGeneration.ts`  | ~15 satır  | Veo 3.1 config + reference support |
+| `client/src/pages/VideoGenerate.tsx` | ~20 satır  | 3-button toggle + conditional grid |
+| `VEO_3_1_UPDATE.md`                  | +150 satır | Dokümentasyon                      |
 
 ---
 
@@ -228,6 +241,7 @@ pm2 reload 0
 ## 💡 Kullanım Örnekleri
 
 ### Text to Video
+
 ```
 Prompt: "A cinematic sunset over mountains, slow camera pan"
 Quality: Fast (60 kr)
@@ -236,6 +250,7 @@ Duration: 8s (auto)
 ```
 
 ### Image to Video
+
 ```
 Upload: 1 image (reference)
 Prompt: "Camera zooms in, soft lighting"
@@ -245,6 +260,7 @@ Duration: 8s (auto)
 ```
 
 ### Reference to Video
+
 ```
 Upload: 2-3 images (multi-reference)
 Prompt: "Smooth transitions between scenes"
@@ -258,6 +274,7 @@ Duration: 8s (auto)
 **🎉 Veo 3.1 tüm özelliklerle güncellendi!**
 
 **Özet:**
+
 - ✅ 3 generation mode
 - ✅ 2 quality seçeneği
 - ✅ Sadece yatay/dikey

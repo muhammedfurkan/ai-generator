@@ -21,17 +21,20 @@ Bu script, TiDB Cloud üzerindeki uzak MySQL veritabanınızdaki tüm verileri g
 Script'i çalıştırmadan önce sisteminizde `mysql` ve `mysqldump` komutlarının yüklü olması gerekir.
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt update
 sudo apt install mysql-client
 ```
 
 **macOS (Homebrew):**
+
 ```bash
 brew install mysql-client
 ```
 
 **CentOS/RHEL:**
+
 ```bash
 sudo yum install mysql
 ```
@@ -51,6 +54,7 @@ sudo systemctl start mysql
 Script içinde aşağıdaki bilgiler önceden tanımlıdır:
 
 **Uzak Veritabanı (TiDB Cloud):**
+
 - Host: `gateway02.us-east-1.prod.aws.tidbcloud.com`
 - Port: `4000`
 - User: `3RD81TG4rcgjaLg.bf493ad42272`
@@ -58,6 +62,7 @@ Script içinde aşağıdaki bilgiler önceden tanımlıdır:
 - Database: `LKmeEoJsnZn9U4KoySaL4G` (TiDB Cloud otomatik adı)
 
 **Lokal Veritabanı:**
+
 - Host: `localhost`
 - Port: `3306`
 - User: `root`
@@ -136,7 +141,7 @@ Script aşağıdaki adımları otomatik olarak gerçekleştirir:
 ═══════════════════════════════════════════════════
 TABLO SATIR SAYILARI KARŞILAŞTIRMASI
 ═══════════════════════════════════════════════════
-TABLO ADI                           UZAK            LOKAL           DURUM     
+TABLO ADI                           UZAK            LOKAL           DURUM
 ───────────────────────────────────────────────────
 users                               142             142             ✓
 generatedImages                     1523            1523            ✓
@@ -193,8 +198,9 @@ backups/
 ### Dosya Boyutları
 
 Veritabanı boyutuna bağlı olarak dump dosyaları büyük olabilir:
+
 - **Küçük DB**: 1-10 MB
-- **Orta DB**: 10-100 MB  
+- **Orta DB**: 10-100 MB
 - **Büyük DB**: 100 MB - 1 GB+
 
 ## ⚠️ Hata Yönetimi
@@ -206,6 +212,7 @@ Veritabanı boyutuna bağlı olarak dump dosyaları büyük olabilir:
 ```
 
 **Çözüm:**
+
 - İnternet bağlantınızı kontrol edin
 - TiDB Cloud sunucusunun erişilebilir olduğundan emin olun
 - Kullanıcı adı ve şifrenin doğru olduğunu kontrol edin
@@ -217,6 +224,7 @@ Veritabanı boyutuna bağlı olarak dump dosyaları büyük olabilir:
 ```
 
 **Çözüm:**
+
 ```bash
 # Ubuntu/Debian
 sudo apt install mysql-client
@@ -232,6 +240,7 @@ brew install mysql-client
 ```
 
 **Çözüm:**
+
 ```bash
 # MySQL'i başlat
 sudo systemctl start mysql
@@ -243,6 +252,7 @@ sudo systemctl status mysql
 ### Otomatik Rollback
 
 Eğer import sırasında hata oluşursa, script otomatik olarak:
+
 1. Import işlemini durdurur
 2. Hata mesajını gösterir
 3. Önceki lokal yedekten geri yükleme yapar
@@ -329,6 +339,7 @@ rm -rf backups/old_*
 ### Import Çok Yavaş
 
 Import işlemi veritabanı boyutuna bağlı olarak uzun sürebilir:
+
 - 100 MB → ~1-2 dakika
 - 1 GB → ~10-15 dakika
 - 10 GB → ~60+ dakika

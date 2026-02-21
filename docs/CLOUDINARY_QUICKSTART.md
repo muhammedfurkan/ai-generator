@@ -53,11 +53,13 @@ pm2 restart nano-influencer
 4. **Başarılı!** Görsel Cloudinary'ye yüklendi
 
 Log'ları kontrol et:
+
 ```bash
 pm2 logs nano-influencer
 ```
 
 Şunu göreceksin:
+
 ```
 [Storage] Cloudinary upload success: https://res.cloudinary.com/...
 ```
@@ -67,6 +69,7 @@ pm2 logs nano-influencer
 ## 🎉 TAMAM!
 
 **Şimdi ne oldu?**
+
 - ✅ Tüm görseller/videolar Cloudinary'de saklanıyor
 - ✅ Global CDN ile ultra hızlı yükleme
 - ✅ Otomatik optimizasyon (WebP, boyut, vs.)
@@ -74,6 +77,7 @@ pm2 logs nano-influencer
 - ✅ 25GB/ay ücretsiz bandwidth
 
 **Cloudinary Dashboard:**
+
 - [console.cloudinary.com](https://console.cloudinary.com)
 - Media Library → `nanoinf` klasörü altında tüm dosyalar
 - Kullanım istatistikleri
@@ -86,11 +90,13 @@ pm2 logs nano-influencer
 ### Hata: "Cloudinary not configured"
 
 `.env` dosyasını kontrol et:
+
 ```bash
 cat /home/nano-influencer/.env | grep CLOUDINARY
 ```
 
 Üç satır da dolu olmalı:
+
 ```bash
 CLOUDINARY_CLOUD_NAME=dxyz123abc  # ✅ Dolu
 CLOUDINARY_API_KEY=123456789      # ✅ Dolu
@@ -98,6 +104,7 @@ CLOUDINARY_API_SECRET=abcxyz      # ✅ Dolu
 ```
 
 Boşsa, .env'i tekrar düzenle:
+
 ```bash
 nano /home/nano-influencer/.env
 ```
@@ -105,6 +112,7 @@ nano /home/nano-influencer/.env
 ### Hata: "Upload failed"
 
 API credentials yanlış olabilir:
+
 1. [Cloudinary Dashboard](https://console.cloudinary.com) → Settings → Access Keys
 2. Credentials'ı tekrar kopyala
 3. `.env` dosyasına yapıştır
@@ -135,10 +143,12 @@ pm2 start ecosystem.config.cjs
 - ✅ **Dosya boyutu:** Max 10 MB/dosya
 
 **Yeterli mi?**
+
 - 25 GB = ~50,000 görsel (500KB ortalama)
 - Aylık ~5,000-10,000 kullanıcı için yeterli
 
 **Limit aşarsan:**
+
 - Cloudinary Plus Plan: $89/ay (500GB + 100GB bandwidth)
 
 ---

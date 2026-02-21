@@ -1,10 +1,12 @@
 # Nano Influencer - Proje TODO
 
 ## Veritabanı ve Schema
+
 - [x] Veritabanı şemasını güncelle (users, generatedImages, creditTransactions, systemSettings)
 - [x] Migration işlemlerini gerçekleştir (pnpm db:push)
 
 ## Backend API ve tRPC Prosedürleri
+
 - [x] Kullanıcı yönetimi prosedürleri (profil görüntüleme, güncelleme)
 - [x] Görüntü oluşturma prosedürleri (generate, list, delete)
 - [x] Kredi sistemi prosedürleri (bakiye sorgulama, işlem geçmişi)
@@ -13,6 +15,7 @@
 - [x] Telegram bot entegrasyonu (bildirimler)
 
 ## Frontend Sayfalar ve Bileşenler
+
 - [x] Ana sayfa (Home) - Landing page ve özellik tanıtımı
 - [x] Görüntü oluşturma sayfası (Generate) - AI görüntü oluşturma arayüzü
 - [x] Galeri sayfası (Gallery) - Oluşturulan görselleri görüntüleme
@@ -22,17 +25,20 @@
 - [x] Admin dashboard detaylı (AdminDashboard) - İstatistikler ve raporlar
 
 ## Entegrasyonlar
+
 - [x] Manus OAuth entegrasyonu (giriş/çıkış)
 - [x] Nano Banana API entegrasyonu (görüntü oluşturma)
 - [x] Telegram bot bildirimleri (yeni kullanıcı, görüntü oluşturma)
 - [x] S3 storage entegrasyonu (görüntü depolama)
 
 ## Test ve Deployment
+
 - [x] Vitest testleri yaz ve çalıştır
 - [x] Tüm özellikleri tarayıcıda test et
 - [x] Checkpoint oluştur
 
 ## Yeni Özellikler (Kullanıcı İstekleri)
+
 - [x] Aspect ratio seçeneklerini genişlet (2:3, 3:4, 4:3, 3:2 ekle)
 - [x] Görsel önizleme mockup/çerçeve sistemi oluştur
 - [x] Görsellere tıklandığında modal ile tam boyut görüntüleme
@@ -40,6 +46,7 @@
 - [x] Mobil ve masaüstü için responsive görsel boyutları düzenle
 
 ## Prompt Şablonları Sistemi (Hızlı Başlangıç)
+
 - [x] Prompt şablonları veri yapısı oluştur (shared/const.ts)
 - [x] 10-15 hazır şablon ekle (kategorize edilmiş)
 - [x] Şablon seçici bileşeni oluştur
@@ -48,6 +55,7 @@
 - [x] Şablon seçildiğinde otomatik aspect ratio ve resolution ayarla
 
 ## Kullanıcı Şablonları Sistemi
+
 - [x] Veritabanı şemasına userPromptTemplates tablosu ekle
 - [x] Şablon kaydetme backend API'si (create)
 - [x] Şablon listeleme backend API'si (getUserTemplates)
@@ -59,6 +67,7 @@
 - [x] Şablon silme özelliği ekle
 
 ## Ana Sayfa Tasarımı (Interactive & Playful)
+
 - [x] Hero section (animasyonlu gradient, büyük başlık, floating öğeler)
 - [x] Interactive prompt showcase (tıklanabilir prompt önerileri)
 - [x] Özellik kartları (hover animasyonları, magnetic efektler)
@@ -71,30 +80,36 @@
 - [x] Gradient animasyonları
 
 ## Gerçek Görsel Örnekleri Galerisi
+
 - [x] Görselleri proje dizinine kopyala
 - [x] Ana sayfaya görsel galerisi bölümü ekle
 - [x] Hover animasyonları ve zoom efektleri
 - [x] Responsive grid layout
 
 ## Bug Fixes
+
 - [x] PromptTemplateSelector duplicate key hatası (Tümü kategorisi)
 
 ## Bug Fixes (Yeni)
+
 - [x] Generate sayfasında "Referans görsel yükleniyor..." loading spinner sürekli dönüyor
 - [x] Görsel oluştuktan sonra loading state kapanmıyor
 
 ## Hata Mesajları İyileştirme
+
 - [x] Backend'de detaylı hata tipleri tanımla (kredi yetersiz, API hatası, timeout, geçersiz parametre)
 - [x] Frontend'de kullanıcı dostu hata mesajları göster
 - [x] Hata mesajlarında çözüm önerileri ekle
 - [x] Kredi yetersiz hatası için paketler sayfasına yönlendirme
 
 ## Admin Telegram Bildirim Sistemi
+
 - [x] Yeni kullanıcı kaydında admin'e Telegram bildirimi (isim, email, kayıt zamanı)
 - [x] Kredi harcamasında admin'e Telegram bildirimi (kullanıcı, harcanan kredi, kalan kredi, işlem detayı)
 - [x] Bildirim formatını düzenle ve bilgilendirici hale getir
 
 ## Mobil Uyumluluk Sorunları (Kritik)
+
 - [x] Ana sayfa mobil görünümde çöküyor
 - [x] Animasyonların mobilde performans sorunları
 - [x] Overflow ve scroll sorunları
@@ -103,6 +118,7 @@
 - [x] Tüm sayfaların mobil responsive testi
 
 ## Production Hata (Kritik)
+
 - [x] nanoinf.com sitesinde "birçok kez sorun oluştu" hatası
 - [x] locale=tr parametresi ile ilgili sorun
 - [x] Server loglarını incele
@@ -110,6 +126,7 @@
 - [x] Telegram bot singleton pattern uygulandı (409 Conflict hatası düzeltildi)
 
 ## Prompt Geçmişi Sistemi (Otomatik Kaydetme)
+
 - [x] Veritabanı şemasına promptHistory tablosu ekle
 - [x] Backend API: Prompt kaydetme (otomatik, başarılı generation sonrası)
 - [x] Backend API: Prompt geçmişi listeleme (kullanıcıya özel, tarih sıralı)
@@ -125,6 +142,7 @@
 - [x] Testler yazıldı ve başarıyla geçti (7 test)
 
 ## Şablon Seçici Modal Düzeltmesi (UI/UX)
+
 - [x] Mevcut tasarım sorunlarını tespit et
 - [x] Kategori filtreleme sistemini basitleştir
 - [x] Şablon kartlarını daha görünür yap
@@ -137,6 +155,7 @@
 - [x] Kategori butonlarını horizontal scroll yap
 
 ## Favoriler Sistemi
+
 - [x] Veritabanı şemasına favorites tablosu ekle
 - [x] Backend API: Favorilere ekleme (toggle)
 - [x] Backend API: Favori listesini getirme
@@ -150,6 +169,7 @@
 - [x] Testler yaz ve çalıştır (7 test, hepsi başarılı)
 
 ## Prompt İyileştirici (AI Powered)
+
 - [x] Backend API: LLM ile prompt zenginleştirme
 - [x] Kısa promptları detaylı hale getirme
 - [x] İngilizce prompt'lar için optimize etme
@@ -162,6 +182,7 @@
 - [x] Testler yaz ve çalıştır (5 test, hepsi başarılı)
 
 ## Ana Sayfa Yeniden Tasarım (Apple Liquid Glass)
+
 - [x] Mevcut Home.tsx'i analiz et
 - [x] Şablon seçici butonunu kaldır (sadece ana sayfadan)
 - [x] Apple-style liquid glass efektleri ekle
@@ -176,6 +197,7 @@
 - [x] Features section glassmorphism kartlar
 
 ## Ana Sayfa Showcase Bölümü
+
 - [x] Görselleri proje klasörüne kopyala (client/public/showcase/)
 - [x] Showcase bölümü ekle (Hero ve Features arasına)
 - [x] Bento grid layout (asimetrik, modern)
@@ -186,6 +208,7 @@
 - [x] 9 örnek görsel eklendi
 
 ## Scroll Pozisyonu Bug Düzeltmesi
+
 - [x] ScrollToTop component oluştur
 - [x] App.tsx'e entegre et
 - [x] Her route değişiminde scroll to top
@@ -193,6 +216,7 @@
 - [x] window.scrollTo(0, 0) ile en üste scroll
 
 ## Loading Skeleton Animasyonu
+
 - [x] ImageSkeleton component oluştur (shimmer animasyonu)
 - [x] index.css'e shimmer keyframe animasyonu ekle
 - [x] Gallery sayfasına skeleton ekle (isLoading durumunda)
@@ -202,6 +226,7 @@
 - [x] 8 skeleton card Gallery'de, 1 skeleton Generate'de
 
 ## Site Mobil Çökme Sorunu (Kritik)
+
 - [x] Dev server loglarını kontrol et - çalışıyor
 - [x] Browser console hatalarını incele - masaüstünde hata yok
 - [x] Mobil tespit sistemi eklendi (window.innerWidth < 768)
@@ -214,6 +239,7 @@
 - [x] Stagger delay mobilde azaltıldı (0.08 → 0.05)
 
 ## JSON Hatası Araştırması (beygovau@gmail.com)
+
 - [x] Kullanıcıyı veritabanında bul
 - [x] Son görsel oluşturma işlemlerini incele
 - [x] Görsel oluşturma kodunu kontrol et
@@ -225,6 +251,7 @@
 - [x] Daha anlaşılır hata mesajları eklendi
 
 ## AI Influencer Oluşturma Sayfası (Yeni Özellik)
+
 - [x] Veritabanı: aiCharacters tablosu oluştur (userId, name, characterImageUrl, description, createdAt)
 - [x] Backend: Karakter kaydetme API (create)
 - [x] Backend: Karakter listeleme API (list)
@@ -246,8 +273,8 @@
 - [x] Testler yaz ve çalıştır (11 test, hepsi başarılı)
 - [ ] Checkpoint oluştur
 
-
 ## Karakter Paylaşım Sistemi (Topluluk Karakterleri)
+
 - [x] Veritabanı: aiCharacters tablosuna isPublic alanı ekle
 - [x] Backend: Karakter paylaşım toggle API (togglePublic)
 - [x] Backend: Public karakterleri listeleme API (getPublicCharacters)
@@ -261,8 +288,8 @@
 - [x] Testler yaz ve çalıştır (15 test, hepsi başarılı)
 - [ ] Checkpoint oluştur
 
-
 ## Mobil Görünüm Düzeltmesi (AI Influencer Sayfası)
+
 - [x] Aspect ratio butonları mobilde iç içe geçiyor - düzelt (flex-wrap kullanıldı)
 - [x] Kalite butonları mobilde iç içe geçiyor - düzelt (flex-wrap kullanıldı)
 - [x] Kalite seçeneklerini sadeleştir: sadece 1K, 2K, 4K (açıklama kaldırıldı)
@@ -272,6 +299,7 @@
 ## Video Oluşturma Bölümü (Yeni Özellik)
 
 ### Modeller ve Fiyatlandırma (%50 kar dahil)
+
 - Veo 3.1 Fast: 50 kredi
 - Grok Imagine (6s): 17 kredi
 - Kling 2.6 (5s no audio): 45 kredi
@@ -284,6 +312,7 @@
 - Sora 2 High (15s): 510 kredi
 
 ### Görevler
+
 - [x] Veritabanı: videoGenerations tablosu oluştur
 - [x] Backend: Kie AI API entegrasyonu (kieAiApi.ts)
 - [x] Backend: Video oluşturma router (videoGeneration.ts)
@@ -304,6 +333,7 @@
 - [ ] Checkpoint oluştur
 
 ## Birleşik Galeri (Foto + Video)
+
 - [x] Galeri sayfasına "Görseller" ve "Videolar" tab'ları ekle
 - [x] Video listesini galeri sayfasına entegre et
 - [x] Video-gallery route'unu ve sayfasını kaldır
@@ -313,6 +343,7 @@
 ## Viral Video Mini Uygulamaları (Veo 3.1)
 
 ### Mini Uygulamalar
+
 - Hug Video (Sarılma videosu)
 - Kiss Video (Öpücük efekti)
 - Dance Video (Dans videosu)
@@ -323,6 +354,7 @@
 - Split Screen (Önce/sonra)
 
 ### Görevler
+
 - [x] shared/const.ts'e VIRAL_APP_TEMPLATES sabiti ekle
 - [x] Backend: Mini uygulama video oluşturma endpoint
 - [x] Frontend: /apps sayfası oluştur
@@ -335,15 +367,16 @@
 - [x] Testler yazıldı ve başarıyla geçti (7 test)
 - [ ] Checkpoint oluştur
 
-
 ## Görsel Upscale Özelliği (Topaz AI)
 
 ### Fiyatlandırma (Kie AI üzerinden, %50 kar payı ile)
+
 - 2x Upscale (≤2K): 15 kredi
 - 4x Upscale (4K): 30 kredi
 - 8x Upscale (8K): 60 kredi
 
 ### Görevler
+
 - [x] Backend: Topaz API entegrasyonu (kieAiApi.ts'e ekle)
 - [x] Backend: Upscale router oluştur (create task, query status)
 - [x] Backend: Upscale işlem geçmişi (upscaleHistory tablosu)
@@ -356,10 +389,10 @@
 - [x] Testler yazıldı ve başarıyla geçti (10 test)
 - [ ] Checkpoint oluştur
 
-
 ## Mobil Tasarım Yenileme (Higgsfield.ai Stili)
 
 ### Bottom Navigation Bar
+
 - [x] MobileBottomNav component oluştur
 - [x] 5 sekme: Ana Sayfa, Topluluk, Oluştur, Galeri, Profil
 - [x] Oluştur butonu: Lime yeşil, büyük, yıldız ikonu
@@ -367,6 +400,7 @@
 - [x] Aktif sekme vurgulama
 
 ### Ana Sayfa Mobil Tasarımı
+
 - [x] Horizontal scroll banner/slider (kampanyalar)
 - [x] "BUGÜN NE OLUŞTURACAKSIN?" başlık bölümü
 - [x] 2 sütunlu grid: Görsel Oluştur, Video Oluştur kartları
@@ -374,6 +408,7 @@
 - [x] "EN İYİ SEÇİMLER" bölümü - horizontal scroll
 
 ### Create Modal (Araçlar)
+
 - [x] Tam ekran modal component
 - [x] Tab filtreleri: Tümü, Yeni, Görseller, Videolar
 - [x] Hero kart (Nano Banana Pro)
@@ -381,14 +416,15 @@
 - [x] Badge'ler: CORE, NEW, HOT, PRO
 
 ### Genel Mobil İyileştirmeler
+
 - [x] Header'ı mobilde gizle (bottom nav kullanılacak)
 - [x] Lime yeşil vurgu rengi (#CCFF00)
 - [x] Koyu tema optimizasyonu
 - [x] Touch-friendly butonlar ve kartlar
 - [ ] Checkpoint oluştur
 
-
 ## Mobil Kapak Resimleri (Nano Banana Pro ile)
+
 - [x] AI Influencer kapak resmi oluştur
 - [x] Viral Apps kapak resmi oluştur
 - [x] Create Image kapak resmi oluştur
@@ -399,31 +435,31 @@
 - [x] MobileHome ve CreateModal'da resimleri güncelle
 - [ ] Checkpoint oluştur
 
-
 ## AI Influencer Görsel Oluşturma Hatası
+
 - [x] Görsel oluştur butonuna basınca karakter kaydetme sayfası açılıyor - düzelt
 - [x] Görsel oluşturma akışını doğru çalışır hale getir (karakter kaydedildikten sonra otomatik görsel oluştur)
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Opsiyonel Karakter Kaydetme
+
 - [x] Backend: Geçici görsel URL ile görsel oluşturma endpoint'i ekle (generateWithTemporaryImage)
 - [x] Frontend: SaveCharacterModal'a "Kaydetmeden Devam Et" butonu ekle
 - [x] Kaydetmeden devam edildiğinde direkt görsel oluştur
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Video Oluşturma Araçları Hataları
+
 - [x] Sora 2 image to video çalışmıyor - düzelt (image upload eklendi)
 - [x] Veo 3.1 image to video çalışmıyor - düzelt (image upload eklendi)
 - [x] Grok image to video çalışmıyor - düzelt (image upload eklendi)
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## AI Influencer Otomatik Prompt Üretme
+
 - [x] Backend: AI prompt üretme endpoint'i oluştur (generatePrompt)
 - [x] Prompt şablonu: Lokasyon, poz, kıyafet, ışık, kamera stili içeren detaylı prompt
 - [x] Frontend: Prompt kutusunun altına "AI ile Prompt Üret" butonu ekle
@@ -432,8 +468,8 @@
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Türkiye Lokasyonları Güncelleme
+
 - [x] Mevcut lokasyonları kaldır (Paris, Tokyo, Dubai vb.)
 - [x] 55 Türkiye lokasyonu eklendi:
   - İstanbul: Kadıköy, Üsküdar, Taksim, Beşiktaş, Galata, Sultanahmet, Ortaköy, Bebek, Sarıyer, Balat, Eminönü, Kapalıçarşı, Boğaz Köprüsü, Adalar
@@ -448,8 +484,8 @@
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Veo 3.1 API Güncelleme
+
 - [x] Yeni endpoint: /api/v1/veo/generate (zaten mevcut)
 - [x] Yeni parametreler eklendi: watermark, enableFallback
 - [x] generationType: REFERENCE_2_VIDEO (image-to-video için otomatik seçiliyor)
@@ -457,30 +493,30 @@
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Profile setState Hatası
+
 - [x] Profile.tsx'de render sırasında navigation çağrısı yapılıyor - düzelt
 - [x] Navigation çağrısını useEffect içine al
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Ana Sayfa Değişikliği
+
 - [x] Landing page kaldır
 - [x] Direkt uygulama arayüzü göster (araç kartları, hızlı erişim)
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Mobil Auth Kontrolü
+
 - [x] MobileBottomNav'da Profil butonuna auth kontrolü ekle (requiresAuth: true)
 - [x] MobileBottomNav'da Galeri butonuna auth kontrolü ekle (requiresAuth: true)
 - [x] Giriş yapılmamışsa login sayfasına yönlendir (getLoginUrl())
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Masaüstü Ana Sayfa Higgsfield Tasarımı
+
 - [x] Header: Logo, nav linkleri, lime yeşil "Create" butonu
 - [x] Kategori filtreleri: AI Influencer, Hug, Kiss, Dance, Age Transform vb.
 - [x] Galeri grid: Topluluk görselleri masonry layout
@@ -491,8 +527,8 @@
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Ana Sayfa Sadeleştirme
+
 - [x] Karmaşık galeri bölümlerini kaldır
 - [x] Kategori filtreleri (üstte)
 - [x] Lime yeşil "EXPLORE MORE AI FEATURES" bölümü (4 araç kartı)
@@ -500,8 +536,8 @@
 - [ ] Test et
 - [ ] Checkpoint oluştur
 
-
 ## Kredi Fiyatları Düzeltme
+
 - [x] Kling ve Sora 2 fiyatlarını kontrol et
 - [x] Kling 2.6 en pahalı model olacak şekilde düzelt
   - Kling 2.6 5s: 300 kredi (eskiden 45)
@@ -512,8 +548,8 @@
 - [x] Test edildi ve geçti
 - [ ] Checkpoint oluştur
 
-
 ## AI Influencer Sayfası İndirme ve Galeri Sorunu
+
 - [x] AI Influencer sayfasında oluşturulan görsellerde indirme butonu eksik - Mobil için her zaman görünür butonlar eklendi
 - [x] AI Influencer sayfasında oluşturulan görseller galeriye kaydedilmiyor - generatedImages tablosuna kaydetme eklendi
 - [x] Sorunu analiz et ve düzelt
@@ -521,14 +557,15 @@
 - [ ] Checkpoint oluştur
 
 ## Veo 3.1 API FIRST_AND_LAST_FRAMES_2_VIDEO Düzeltmesi
+
 - [x] Dokümantasyonu incele
 - [x] REFERENCE_2_VIDEO yerine FIRST_AND_LAST_FRAMES_2_VIDEO kullan (9:16 desteği için)
 - [x] kieAiApi.ts güncellendi
 - [x] Test edildi - 3 aspect ratio da başarılı (9:16, 16:9, Auto)
 - [ ] Checkpoint oluştur
 
-
 ## Veo 3.1 API Güncellemesi
+
 - [x] Mevcut API kodunu incele
 - [x] Doğru endpoint: POST /api/v1/veo/generate (eski endpoint doğruydu)
 - [x] Status endpoint: GET /api/v1/veo/record-info?taskId=TASK_ID
@@ -536,75 +573,76 @@
 - [x] Test et - API çalışıyor, Kie AI sunucularında geçici hata var
 - [x] Checkpoint oluştur
 
-
 ## Topluluk Karakterleri Ekleme
+
 - [x] 32 fotoğrafı S3'e yükle
 - [x] Veritabanına topluluk karakterleri olarak kaydet (isPublic: true)
 
 ## Viral App Test ve Yeni App'ler
+
 - [x] Mevcut viral app'leri test et - Çalışıyor
 - [x] Hataları düzelt - Hata yok
 - [x] Yeni viral app'ler oluştur - 8 yeni app eklendi (Gülümseme, Göz Kırpma, Baş Çevirme, Kahkaha, Öpücük Gönderme, El Sallama, Göz Teması)
 - [x] Checkpoint oluştur
 
-
 ## Kategori Butonları Aktif Etme
+
 - [x] Ana sayfadaki kategori butonlarına tıklandığında ilgili viral app sayfasına yönlendirme ekle
 - [x] Checkpoint oluştur
 
-
 ## SEO, Blog, Çoklu Dil ve Kredi Sistemi
+
 - [x] SEO optimizasyonu (meta etiketler, anahtar kelimeler, yapılandırılmış veri)
 - [x] Blog bölümü oluştur (6 örnek yazı ile)
 - [x] İngilizce versiyon için çoklu dil desteği (LanguageContext + LanguageSwitcher)
 - [x] Yeni kullanıcılara otomatik 20 kredi yüklemesi
 - [x] Checkpoint oluştur
 
-
 ## Veo 3.1 Video URL Sorunu
+
 - [x] Video status check ve URL kaydetme kodunu incele
 - [x] Sorunu tespit et ve düzelt - API response yapısı değişmişti (data.response.resultUrls array formatı)
 - [x] Mevcut 3 videonun URL'leri düzeltildi
 - [x] Test et ve checkpoint kaydet
 
-
 ## Video İndirme Butonu
+
 - [ ] Galeri sayfasındaki video kartlarını incele
 - [ ] İndirme butonu ekle
 - [x] Test et ve checkpoint kaydet
 
-
 ## Sora 2 ve Kling 2.6 Kredi Güncellemesi
+
 - [x] Sora 2: 10s=24 kredi, 15s=30 kredi
 - [x] Kling 2.6: 5s=85 kredi, 10s=150 kredi
 - [x] Checkpoint oluştur
 
-
 ## Görsel Oluşturma "Load failed" Hatası
+
 - [x] Hata kaynağını tespit et - Kie AI 422 hataları: Görsel boyutu 20MB'dan büyük veya medya dosyası erişilemez
 - [x] Frontend'de görsel boyutu kontrolü ekle (max 20MB)
 - [x] Daha iyi hata mesajları göster
 - [x] Test et ve checkpoint kaydet
 
-
 ## Yükleme İyileştirmeleri
+
 - [x] Yükleme ilerleme çubuğu ekle
 - [x] Desteklenen format bilgilerini göster (JPG, PNG, WebP, max 20MB)
 - [x] Test et ve checkpoint kaydet
 
-
 ## Diğer Sayfalara İlerleme Çubuğu Ekleme
+
 - [x] AI Influencer sayfasına ilerleme çubuğu ve format bilgisi ekle
 - [x] Upscale sayfasına ilerleme çubuğu ve format bilgisi ekle
 - [x] Test et ve checkpoint kaydet
 
-
 ## Sora 2 Pro Kredi Güncellemesi
+
 - [x] Sora 2 Pro: 10s=100 kredi, 15s=160 kredi
 - [x] Test et ve checkpoint kaydet
 
-
 ## Hata Bildirimi ve WhatsApp İletişim
+
 - [x] Profil sayfasına Hata Bildir formu ekle (hata türü, açıklama, ekran görüntüsü)
 - [x] WhatsApp butonu ekle (+905519287034)
 - [x] Hata bildirimlerini veritabanına kaydet (feedbacks tablosu)
@@ -612,6 +650,7 @@
 - [x] Test et
 
 ## Yeni Viral App'ler
+
 - [ ] Bebek Filtresi
 - [ ] Yaşlandırma
 - [ ] Cinsiyet Değişimi
@@ -623,6 +662,7 @@
 - [ ] Checkpoint oluştur
 
 ## Yeni Viral App'ler (8 Yeni Uygulama)
+
 - [x] Baby Filter (Bebek Filtresi) - Yüzü bebeğe dönüştür
 - [x] Aging Filter (Yaşlandırma) - 30-40 yıl sonraki görünüm
 - [x] Gender Swap (Cinsiyet Değişimi) - Kadın/erkek versiyonu
@@ -635,6 +675,7 @@
 - [x] shared/const.ts'e VIRAL_APP_TEMPLATES'e eklendi
 
 ## Kullanıcı Geri Bildirim Sistemi
+
 - [x] Profil sayfasına "Hata Bildir / Öneri Gönder" butonu eklendi
 - [x] Profil sayfasına WhatsApp iletişim butonu eklendi (+90551 928 7034)
 - [x] Feedback modal bileşeni oluşturuldu (tür, açıklama, ekran görüntüsü)
@@ -644,6 +685,7 @@
 - [x] Testler başarıyla geçti (87/87)
 
 ## Referans Programı (Arkadaş Davet Sistemi)
+
 - [x] Veritabanı: referrals tablosu oluştur (referrerId, referredId, referralCode, bonusGiven, createdAt)
 - [x] Veritabanı: users tablosuna referralCode alanı ekle
 - [x] Backend: Benzersiz referans kodu oluşturma API'si
@@ -657,11 +699,13 @@
 - [x] Testler yaz ve çalıştır (7 test başarılı)
 
 ## WhatsApp Şablon ve Kredi Paketleri Güncelleme
+
 - [x] WhatsApp şablon mesajındaki domain'i düzelt (nanoinfluencer.net → nanoinf.com)
 - [x] Kredi paketlerini güncelle (4 paket: 120, 300, 850, 1500 TL)
 - [x] Paket açıklamalarını farklılaştır (ucuzdan pahalıya daha detaylı açıklamalar)
 
 ## Ödeme Geçmişi (Profil Sayfası)
+
 - [x] Veritabanı: creditTransactions tablosunu incele
 - [x] Backend: Ödeme geçmişi API'si oluştur (getPaymentHistory)
 - [x] Frontend: Profil sayfasına ödeme geçmişi bölümü ekle
@@ -669,50 +713,51 @@
 - [x] Testler başarılı (94/94)
 
 ## Bug Fix: Nano Banana "Your image is unavailable" Hatası
+
 - [x] Nano Banana API entegrasyonunu incele - S3 URL'leri kie.ai API tarafından erişilemiyordu
 - [x] Referans görsel URL'sinin doğru şekilde gönderildiğini kontrol et
 - [x] kie.ai File Upload API entegre edildi - Görseller önce kie.ai'ye yükleniyor
 - [x] Hatayı düzelt ve test et (94/94 test başarılı)
 
-
 ## Bug Fix: Viral App Video "İşleniyor" Durumunda Kalıyor
+
 - [x] Viral apps video status polling mekanizmasını incele
 - [x] Video tamamlandığında UI'ın güncellenmesini sağla - Yeni API response formatı desteklendi
 - [x] Galeriye video kaydının düşmesini kontrol et - taskId artık doğru kaydediliyor
 - [x] Test et
 
-
 ## Masaüstü UI Optimizasyonu
+
 - [ ] AI Influencer sayfası - önizleme kutusu ve elementleri küçült
 - [ ] Görsel boyutlarını masaüstü için optimize et
 - [ ] Kompakt ve profesyonel düzen oluştur
 - [ ] Diğer sayfaları kontrol et
 
-
 ## Uygulamalar Sayfası Yeniden Tasarım
+
 - [x] Kategori filtreleme sistemini kaldır
 - [x] Tüm uygulamaları yan yana grid düzeninde göster
 - [x] Masaüstünde 6 sütunlu, mobilde 2 sütunlu responsive grid
 - [x] Kompakt ve şık kart tasarımı (rounded-2xl, lime badge, popüler etiketi)
 
-
 ## Lottie Loading Animasyonu
+
 - [x] Lottie dosyasını projeye ekle (client/public/animations/loading.json)
 - [x] lottie-react kütüphanesini kur
 - [x] LottieLoading komponenti oluştur
 - [x] Apps sayfasındaki video işleme durumuna ekle
 - [x] VideoGenerate sayfasındaki video işleme durumuna ekle
 
-
 ## Video Thumbnail (Poster) Özelliği
+
 - [x] Video elementlerine poster attribute'u ekle
 - [x] Kaynak görsel (inputImageUrl/referenceImageUrl) veya thumbnailUrl kullanılıyor
 - [x] Apps sayfasındaki video oynatıcı güncellendi (uploadedImage poster olarak)
 - [x] VideoGenerate sayfasındaki video oynatıcı güncellendi (imagePreview poster olarak)
 - [x] Gallery sayfasındaki video oynatıcılar güncellendi (referenceImageUrl/thumbnailUrl)
 
-
 ## Bug Fix: Kling Video Modeli Çalışmıyor
+
 - [x] Kling API entegrasyonunu incele
 - [x] Kling 2.6'yı kaldır, Kling 2.5 Turbo ekle
 - [x] kieAiApi.ts'de model değişikliği (kling/v2-5-turbo-text-to-video-pro)
@@ -720,38 +765,42 @@
 - [x] Frontend model seçenekleri güncellemesi (Gallery.tsx)
 - [x] Test et (106/106 başarılı)
 
-
 ## Kritik Hatalar ve Tasarım İyileştirmeleri
 
 ### 🔴 Kritik Hatalar
+
 - [ ] Routing hatası: Alt sayfalarda F5 yapınca anasayfaya atılıyor
 - [ ] Çalışmayan butonlar: JS hataları veya z-index sorunları
 - [ ] Dil desteği: İngilizce seçeneği çalışmıyor
 
 ### 🟡 Teknik Sorunlar
+
 - [ ] Kling 2.5 Turbo video status polling sorunu - video "işleniyor" durumunda kalıyor
 
 ### 🔵 Tasarım İyileştirmeleri
+
 - [ ] Renk paleti çatışması: Pembe elementleri kaldır/uyumlu hale getir
 - [ ] Karanlık mod çok sert - Light Mode ekle veya renkleri yumuşat
 - [ ] Logo boyutu çok küçük - büyüt
 - [ ] Profil sayfası düzeni: Tek sütun yerine çift sütun layout
 - [ ] Blog ve anasayfa tasarımını zenginleştir
 
-
 ## Kullanıcı Bildirimi - Kritik Sorunlar (17 Aralık 2024)
+
 - [ ] Routing Bug: F5 ile sayfa yenileme alt sayfalarda ana sayfaya yönlendiriyor
 - [ ] Kling 2.5 Turbo: Videolar "processing" durumunda kalıyor, galeride görünmüyor
 - [ ] Çalışmayan Butonlar: Bazı action butonları yanıt vermiyor
 - [x] Dil Desteği: İngilizce seçeneği mevcut ama çalışmıyor (hardcoded Türkçe) - Düzeltildi
 
 ## Tasarım İyileştirmeleri (Kullanıcı Geri Bildirimi)
+
 - [x] Lime yeşil (#CCFF00) renk teması korundu ve tüm tasarıma uygulandı
 - [ ] Profil sayfası layout: İçerik tek sütunda sıkışık, sağ taraf boş
 - [ ] Blog ve ana sayfa tasarımı: Daha zengin görsel içerik gerekli
 - [x] Logo boyutu: Daha büyük olmalı - h-8'den h-12'ye büyütüldü
 
 ## Kredi İadesi Sistemi (17 Aralık 2024)
+
 - [x] Başarısız görsel oluşturma işlemlerinde kredi iadesi - Düzeltildi
 - [x] Başarısız video oluşturma işlemlerinde kredi iadesi - Düzeltildi
 - [x] Başarısız upscale işlemlerinde kredi iadesi - Düzeltildi
@@ -759,44 +808,54 @@
 - [x] Testler yaz ve çalıştır - 118 test başarılı
 
 ## Mobil UI İyileştirmeleri (17 Aralık 2024)
+
 - [x] Mobil header'daki logo boyutunu büyüt - h-7'den h-10'a büyütüldü
 
 ## Telegram Bildirim Sistemi (17 Aralık 2024)
+
 - [x] Kredi harcama bildirimlerinin neden çalışmadığını tespit et - Video ve Upscale'de bildirim eksikti
 - [x] Bildirim sistemini düzelt ve güvenilir hale getir - Tüm işlemlere bildirim eklendi
 - [x] Telegram bot ile yapılabilecek ek özellikleri araştır - Yeni bildirim türleri ve komutlar eklendi
 
 ## Ana Sayfa ve Admin Panel Güncellemeleri (17 Aralık 2024)
+
 - [x] Ana sayfaya mini app grid kartları ekle - 10 viral app kartı eklendi
 - [x] Admin panele blog yönetimi bölümü ekle - /admin-blog sayfası eklendi
 - [x] Blog CRUD API endpoint'leri oluştur (ekleme, düzenleme, silme) - blogRouter eklendi
 - [x] Blog yönetim arayüzü tasarla - AdminBlog.tsx oluşturuldu
 
 ## Giriş Butonları Güncellemesi (17 Aralık 2024)
+
 - [x] Masaüstü "Giriş Yap" butonunu lime yeşil (#CCFF00) yap
 - [x] Masaüstü ve mobil giriş butonlarına tıklayınca kayıt sayfasına yönlendir
 - [x] Mobil "Ücretsiz Dene" butonuna tıklayınca kayıt sayfasına yönlendir
 
 ## Dil Ayarları Düzeltmesi (17 Aralık 2024)
+
 - [x] Varsayılan dili Türkçe olarak ayarla - browser dil kontrolü kaldırıldı
 - [x] Header ve ana sayfa tamamen Türkçe olacak - varsayılan "tr" olarak ayarlandı
 
 ## Hata Loglama ve Telegram İyileştirmeleri (17 Aralık 2024)
+
 - [x] Merkezi hata loglama sistemi oluştur - notifyError, notifyApiError, notifyGenerationFailure fonksiyonları eklendi
 - [x] Tüm hataları Telegram'a bildirim olarak gönder - generation, video, upscale, ai-character hataları bildirilecek
 - [x] Telegram add credit komutunu hızlandır - paralel işlemler ve hızlı yanıt eklendi
 
 ## Mobil Buton Güncelleme (17 Aralık 2024)
+
 - [x] Giriş yapmış kullanıcılar için "Ücretsiz Dene" butonunu "Kredi Yükle" olarak değiştir
 
 ## Timeout Süresini Artır (17 Aralık 2024)
+
 - [x] Nano Banana API polling timeout süresini artır - 150'den 300'e (5 dk -> 10 dk)
 
 ## Header Güncellemesi (18 Aralık 2024)
+
 - [x] Oluştur butonunu lime yeşil (#CCFF00) yap
 - [x] Logo boyutunu header'ı tam dolduracak şekilde büyüt (h-12 -> h-14, py-4 -> py-3)
 
 ## Multi-Angle Photo Generator Mini-App (18 Aralık 2024)
+
 - [ ] Veritabanı şeması: multiAngleJobs tablosu oluştur
 - [ ] Backend: Dynamic prompt engine oluştur
 - [ ] Backend: Generation endpoint'leri (create, status, download)
@@ -806,8 +865,8 @@
 - [x] Kredi sistemi entegrasyonu (9-angle: 40 kredi, 12-angle: 55 kredi)
 - [ ] ZIP download özelliği
 
-
 ## Multi-Angle Photo Generator (Çoklu Açı Fotoğraf Oluşturucu)
+
 - [x] Veritabanı: multiAngleJobs tablosu oluştur
 - [x] Veritabanı: multiAngleImages tablosu oluştur
 - [x] Backend: Açı setleri tanımla (standard_9, influencer_8, creator_12)
@@ -829,8 +888,8 @@
 - [x] Ana sayfaya mini app kartı ekle (Home.tsx ve MobileHome.tsx)
 - [x] Testler başarıyla geçti (118/118)
 
-
 ## Multi-Angle Polling Bug Fix (Kritik)
+
 - [x] Bug: processAngleImage arka planda çalışıyor ama pollTaskCompletion sonucu veritabanına kaydedilmiyor
 - [x] Sorun: Kie API'de görseller hazır ama veritabanında status hala "processing" kalıyor
 - [x] Çözüm: syncPendingTasks endpoint'i eklendi
@@ -839,61 +898,78 @@
 - [x] Detaylı logging eklendi
 
 ## Multi-Angle Kalite Ayarı
+
 - [x] Çıktı kalitesini 4K'dan 1K'ya düşür (maliyet ve süre optimizasyonu)
 
 ## Mobil Çoklu Açı Kapak Fotoğrafı
+
 - [x] MobileHome.tsx'deki Çoklu Açı kartının kapak fotoğrafı zaten doğru ayarlı
 - [x] CreateModal.tsx'e Çoklu Açı aracı eklendi (doğru kapak fotoğrafı ile)
 
 ## Çoklu Açı Bug Düzeltmeleri
+
 - [x] Bug: "Tümünü İndir" butonu sadece bir görsel indiriyor - düzeltildi (her görsel için ayrı indirme, 800ms aralık)
 - [x] Bug: Oluşturulan fotoğraflar galeriye kaydedilmiyor - saveGeneratedImage ile ana galeriye ekleniyor
 
 ## Sayfa Yenileme Bug
+
 - [x] Bug: Herhangi bir sayfayı yenilediğinde ana sayfaya yönlendiriyor - serveStatic fonksiyonu düzeltildi
 
 ## Galeri Hızlı İndirme
+
 - [x] Galeri fotoğraflarının üstüne hızlı indirme butonu eklendi (favori butonunun yanında)
 
 ## Çoklu Açı ZIP İndirme
+
 - [x] Tümünü İndir butonuna basınca tüm görselleri ZIP olarak indiriyor (JSZip + FileSaver)
 
 ## Mobil Bildirim Düğmesi
+
 - [x] Mobil arayüzde sağ üst köşeye bildirim düğmesi eklendi (kredi yükle butonunun soluna)
 
 ## Mobil Bildirim Pozisyon Düzeltmesi
+
 - [x] Bildirim butonunu kredi yükle butonunun sağına alındı (dropdown kayma sorunu düzeltildi)
 
 ## Mobil Bildirim Geliştirmeleri
+
 - [x] Mobil bildirim panelini tam ekran bottom sheet olarak yeniden tasarlandı (framer-motion animasyonları ile)
 - [x] Yeni bildirimler için ses desteği eklendi (Web Audio API ile)
 
 ## AI Karakter Bekleme Süresi ve Galeri Kaydı
+
 - [x] AI Karakter oluşturma bekleme süresi uzatıldı (300 -> 600 deneme, 10dk -> 20dk)
 - [x] AI Karakter görselleri zaten galeriye kaydediliyor (saveGeneratedImage ile)
 
 ## Telegram Bot Kredi Gösterme Bug
+
 - [x] Bug: /addcredit komutu kullanıcının kalan kredisini sıfır gösteriyor - düzeltildi (kredi eklendikten sonra güncel bakiye sorgulanıyor)
 
 ## Admin Panel Giriş Düğmesi
+
 - [x] Admin yetkisine sahip kullanıcıların profil sayfasında admin paneline giriş düğmesi eklendi (mor gradient buton)
 
 ## Bildirim Paneli Düzeltmesi
+
 - [x] Bildirim panelini tam sayfa yerine eski dropdown tarzına geri döndürüldü
 
 ## Kredi Fiyatı Güncelleme
+
 - [x] Kredi fiyatını 0.5 TL olarak güncellendi (paket fiyatları yeniden hesaplandı)
 - [x] Paket sayfasından birim kredi fiyatı bilgisi kaldırıldı
 
 ## Telegram'dan Web Bildirimi Gönderme
+
 - [x] Telegram bot'a /broadcast komutu eklendi (tüm kullanıcılara bildirim)
 - [x] Telegram bot'a /notify <email> <mesaj> komutu eklendi (tek kullanıcıya bildirim)
 - [x] Gönderilen bildirimler web sitesindeki bildirim panelinde görünüyor
 
 ## Bildirim Paneli Bug
+
 - [x] "Son 20 bildirim gösteriliyor" metni tıklanamaz hale getirildi (pointer-events-none)
 
 ## Blog Makaleleri (10 Adet)
+
 - [x] Makale 1: AI Görsel Oluşturma Rehberi
 - [x] Makale 2: E-ticarette Ürün Fotoğrafçılığı
 - [x] Makale 3: Sosyal Medya İçerik Stratejisi
@@ -908,13 +984,14 @@
 - [x] Makaleler veritabanına eklendi
 
 ## Masaüstü Ana Sayfa Yeniden Tasarım
+
 - [ ] Mini app'leri kapak fotoğraflarıyla grid layout olarak göster
 - [ ] Mini app'ler için kayar carousel/slider ekle
 - [ ] Alt bölüme topluluk AI karakter görselleri ekle
 - [ ] Parallax ve hover efektleri ekle
 
-
 ## Ana Sayfa Yeniden Tasarım (Mini Apps Grid + Carousel + Topluluk Galerisi)
+
 - [x] Mini app'leri kapak fotoğraflarıyla carousel/slider formatında göster
 - [x] AI Araçları carousel bölümü (otomatik geçiş, önceki/sonraki butonları)
 - [x] TÜM AI ARAÇLARI lime yeşil bölümü (6 araç kartı grid)
@@ -926,16 +1003,16 @@
 - [x] Users ikonu başlığa eklendi
 - [x] Placeholder kartları veri yoksa gösteriliyor
 
-
 ## Çoklu Açı Seçenekleri Düzenleme
+
 - [x] Açı setlerini yeniden düzenle (4, 6, 8 açı)
 - [x] Açı başına 20 kredi fiyatlandırma (80, 120, 160 kredi)
 - [x] Türkçe açı isimleri ekle
 - [x] Frontend'de Türkçe açı isimlerini göster
 - [x] Testleri güncelle
 
-
 ## Product Promo Video Generator Mini-App
+
 - [x] Veritabanı şeması: productPromoVideos tablosu oluştur
 - [x] Backend API: Video oluşturma prosédürü (create)
 - [x] Backend API: Video durumu sorgulama (getStatus)
@@ -951,21 +1028,21 @@
 - [x] Header'a navigasyon ekle (Ana sayfa MINI_APPS'e eklendi)
 - [x] Testler yaz (143/143 başarılı)
 
-
 ## Product Promo Kredi Güncellemesi
+
 - [x] Kredi fiyatlarını 3 katına çıkar (30→90, 45→135)
 
-
 ## Mobil Ana Sayfa - Product Promo Ekleme
+
 - [x] MobileHome bileşenindeki kayan slider'a Product Promo ekle
 - [x] Kapak fotoğrafı oluştur/ekle
 
-
 ## Mobil Product Promo Optimizasyonu
+
 - [x] Stil seçim kartlarını mobilde tek sütun yap
 
-
 ## AI UGC Ad Video Generator Mini-App
+
 - [ ] Veritabanı şeması: ugcAdVideos tablosu oluştur
 - [ ] Backend API: Video oluşturma prosedürü (create)
 - [ ] Backend API: Video durumu sorgulama (getStatus)
@@ -983,8 +1060,8 @@
 - [ ] Mobil ana sayfaya banner ekle
 - [ ] Testler yaz
 
-
 ## AI UGC Ad Video Generator Mini-App (Tamamlandı)
+
 - [x] Veritabanı şeması: ugcAdVideos tablosu oluşturuldu
 - [x] Backend API: Video oluşturma prosédürü (create)
 - [x] Backend API: Video durumu sorgulama (getStatus)
@@ -1005,10 +1082,10 @@
 - [x] Kapak fotoğrafı oluşturuldu
 - [x] Testler yazıldı (153/153 başarılı)
 
-
 ## Ultra Detaylı Admin Panel
 
 ### 1. Ana Dashboard
+
 - [ ] Gerçek zamanlı istatistikler (toplam kullanıcı, aktif kullanıcı, günlük/haftalık/aylık)
 - [ ] Gelir grafikleri (günlük, haftalık, aylık, yıllık)
 - [ ] En çok kullanılan özellikler grafiği
@@ -1017,6 +1094,7 @@
 - [ ] Hızlı eylem butonları
 
 ### 2. Kullanıcı Yönetimi
+
 - [ ] Kullanıcı listesi (arama, filtreleme, sıralama)
 - [ ] Kullanıcı detay sayfası (tüm bilgiler, aktivite geçmişi)
 - [ ] Kullanıcı düzenleme (isim, email, rol, durum)
@@ -1028,6 +1106,7 @@
 - [ ] Kullanıcı segmentasyonu (VIP, aktif, pasif, yeni)
 
 ### 3. SEO Ayarları
+
 - [ ] Genel SEO ayarları (site başlığı, açıklama, anahtar kelimeler)
 - [ ] Sayfa bazlı meta etiketleri
 - [ ] Open Graph ayarları (sosyal medya paylaşım görselleri)
@@ -1040,6 +1119,7 @@
 - [ ] Google Search Console entegrasyonu
 
 ### 4. Site Ayarları
+
 - [ ] Genel ayarlar (site adı, logo, favicon)
 - [ ] İletişim bilgileri (email, telefon, adres)
 - [ ] Sosyal medya linkleri
@@ -1052,6 +1132,7 @@
 - [ ] Bildirim ayarları (Telegram, email)
 
 ### 5. Kredi Paketleri Yönetimi
+
 - [ ] Paket listesi (CRUD)
 - [ ] Paket oluşturma (isim, kredi miktarı, fiyat, açıklama)
 - [ ] Paket düzenleme
@@ -1061,12 +1142,14 @@
 - [ ] Paket satış istatistikleri
 
 ### 6. Fiyatlandırma Yönetimi
+
 - [ ] Özellik bazlı fiyatlar (görsel oluşturma, video, upscale vb.)
 - [ ] Model bazlı fiyatlar (Sora, Veo, Kling vb.)
 - [ ] Toplu fiyat güncelleme
 - [ ] Fiyat geçmişi
 
 ### 7. İçerik Yönetimi
+
 - [ ] Blog yazıları yönetimi (mevcut)
 - [ ] Duyurular/haberler
 - [ ] SSS (Sıkça Sorulan Sorular)
@@ -1075,12 +1158,14 @@
 - [ ] Popup/banner yönetimi
 
 ### 8. Medya Yönetimi
+
 - [ ] Yüklenen görseller galerisi
 - [ ] S3 depolama istatistikleri
 - [ ] Dosya silme/düzenleme
 - [ ] Kapak görselleri yönetimi
 
 ### 9. Viral Uygulamalar Yönetimi
+
 - [ ] Uygulama listesi
 - [ ] Uygulama ekleme/düzenleme/silme
 - [ ] Uygulama sıralaması
@@ -1088,12 +1173,14 @@
 - [ ] Uygulama istatistikleri
 
 ### 10. AI Karakterler Yönetimi
+
 - [ ] Topluluk karakterleri moderasyonu
 - [ ] Karakter onaylama/reddetme
 - [ ] Uygunsuz içerik filtreleme
 - [ ] Öne çıkan karakterler seçimi
 
 ### 11. Raporlar ve Analizler
+
 - [ ] Kullanıcı büyüme raporu
 - [ ] Gelir raporu
 - [ ] Özellik kullanım raporu
@@ -1102,6 +1189,7 @@
 - [ ] Dışa aktarma (CSV, Excel)
 
 ### 12. Sistem Ayarları
+
 - [ ] API anahtarları yönetimi
 - [ ] Rate limiting ayarları
 - [ ] Cache ayarları
@@ -1110,6 +1198,7 @@
 - [ ] Güvenlik ayarları (2FA, IP whitelist)
 
 ### 13. Bildirim Merkezi
+
 - [ ] Telegram bot ayarları
 - [ ] Email bildirimleri ayarları
 - [ ] Push notification ayarları
@@ -1117,13 +1206,14 @@
 - [ ] Toplu bildirim gönderme
 
 ### 14. Geri Bildirimler
+
 - [ ] Kullanıcı geri bildirimleri listesi
 - [ ] Geri bildirim durumu (yeni, inceleniyor, çözüldü)
 - [ ] Geri bildirime yanıt verme
 - [ ] Geri bildirim istatistikleri
 
-
 ## Ultra Detaylı Admin Panel - TAMAMLANDI
+
 - [x] Veritabanı: siteSettings, creditPackages, discountCodes, featurePricing, announcements, faqs, viralAppsConfig, activityLogs, apiUsageStats, userSessions tabloları
 - [x] Backend: adminPanelRouter (40+ endpoint)
 - [x] Frontend: AdminPanel.tsx (13 modül)
@@ -1143,19 +1233,19 @@
 - [x] Route: /admin-panel
 - [x] Testler (153/153 başarılı)
 
-
 ## UGC Ad Video - Sora 2 Kaldırma
+
 - [x] Backend: ugcAd.ts'den Sora 2 modelini kaldır
 - [x] Frontend: UgcAd.tsx'den Sora 2 seçeneğini kaldır
 - [x] Sadece Veo 3.1 kullanılsın
 - [x] Test et ve checkpoint kaydet
 
-
 ## UGC Video Kredi Güncellemesi
+
 - [x] Veo 3.1 kredi fiyatını 45'ten 90'a güncelle
 
-
 ## Sora 2 Pro Tamamen Kaldırma
+
 - [x] kieAiApi.ts'den Sora 2 model tanımlarını kaldır
 - [x] videoGeneration.ts'den Sora 2 seçeneğini kaldır
 - [x] videoGeneration.test.ts'den Sora 2 testlerini kaldır
@@ -1166,15 +1256,15 @@
 - [x] VideoGenerate.tsx frontend'den Sora 2 kaldır
 - [x] Veritabanı güncellendi (151/151 test başarılı)
 
-
 ## Sora 2 Geri Ekleme (Pro Hariç) - TAMAMLANDI
+
 - [x] kieAiApi.ts'e normal Sora 2 modellerini geri ekle (Pro hariç)
 - [x] videoGeneration.ts'e Sora 2 seçeneğini geri ekle
 - [x] VideoGenerate.tsx frontend'e Sora 2 geri ekle
 - [x] Testleri güncelle (152/152 başarılı)
 
-
 ## Video Model ve Galeri Güncellemeleri
+
 - [x] Product Promo: Sadece Veo 3.1 Fast modeli kullan
 - [x] UGC Ad: Sadece Veo 3.1 Fast modeli kullan
 - [x] Product Promo: Arka plan işleme - galeri üzerinden devam (mevcut yapı zaten destekliyor)
@@ -1183,8 +1273,8 @@
 - [x] Galeri: Görsel silme seçeneği ekle
 - [x] Galeri: Video silme seçeneği ekle
 
-
 ## Masaüstü Ana Sayfa Yeniden Tasarım
+
 - [x] Hero bölümü - video banner ile
 - [x] AI Araçları grid bölümü
 - [x] Galeri grid bölümleri - masonry layout
@@ -1194,8 +1284,8 @@
 - [x] Alt CTA bölümü - lime yeşil
 - [x] Kullanıcı görselleri ve videoları eklendi
 
-
 ## Mobil Ana Sayfa Yeniden Tasarım (Masaüstü Paralel)
+
 - [x] Hero bölümü - banner slider
 - [x] AI Araçları grid - 3 sütun renkli kartlar
 - [x] AI ile Oluşturuldu galerisi - masonry layout (2 sütun)
@@ -1204,8 +1294,8 @@
 - [x] Topluluk galerisi - masonry layout (API'den çekiliyor)
 - [x] CTA bölümü - lime yeşil
 
-
 ## Görsel Oluşturma - AI Model Seçimi
+
 - [ ] Backend: Seedream 4.5 API entegrasyonu (kieAiApi.ts)
 - [ ] Backend: Generation router'a model seçimi parametresi ekle
 - [ ] Frontend: Model seçimi UI (Qwen vs Seedream 4.5)
@@ -1214,6 +1304,7 @@
 - [x] Görsel oluşturma sayfasına AI model seçimi eklendi (Qwen ve SeeDream 4.5)
 
 ## AI Skin Enhancement Engine Mini-App
+
 - [x] Mimari tasarım ve teknik dokümantasyon
 - [x] Backend API endpoint'leri (enhance, getStatus, getHistory)
 - [x] Enhancement pipeline (Natural Clean, Soft Glow, Studio Look, No-Makeup Real)
@@ -1226,126 +1317,135 @@
 - [x] Test ve checkpoint
 
 ## Mobil Resim Yükleme Sorunu
+
 - [x] MobileHome.tsx'deki resim yükleme sorununu tespit et
 - [x] AI İLE OLUŞTURULDU bölümündeki görselleri düzelt
 - [x] AI VİDEO GALERİSİ bölümündeki görselleri düzelt
 - [x] Test et ve checkpoint kaydet
 
 ## Lazy Loading ve Video Silme
+
 - [x] Lazy loading ekle - MobileHome.tsx
 - [x] Lazy loading ekle - Home.tsx
 - [x] Galeri video silme özelliği - işleniyor/başarısız videolar için
 - [x] Test ve checkpoint kaydet
 
 ## Admin Panel SEO Kontrol Ayarları
+
 - [x] Database schema - SEO ayarları tablosu
 - [x] Backend - SEO router ve CRUD işlemleri
 - [x] Frontend - Admin panel SEO sayfası (mobil uyumlu)
 - [x] Test ve checkpoint kaydet
 
 ## Admin Panel SEO Kontrol Ayarları
+
 - [x] Database schema - SEO ayarları tablosu
 - [x] Backend - SEO router ve CRUD işlemleri
 - [x] Frontend - Admin panel SEO sayfası (mobil uyumlu)
 - [x] Test ve checkpoint kaydet
 
 ## SEO Head Entegrasyonu ve Sitemap
+
 - [x] SEO meta taglerini dinamik olarak HTML heade ekle
 - [x] Sitemap.xml endpointi oluştur
 - [x] Test ve checkpoint kaydet
 
 ## Galeri ve Ürün Videosu İyileştirmeleri
+
 - [x] Galeri video silme butonunu düzelt
 - [x] Ürün videosu işlemlerini galeriye entegre et
 - [ ] Test ve checkpoint kaydet
 
 ## Mobil Admin SEO Ayarları
+
 - [ ] AdminPanel Ayarlar sekmesine SEO linki ekle
 
-
 ## Galeri Görsel Önizleme Sorunu
+
 - [x] Gallery.tsx görsel modal'ını düzelt - siyah ekran hatası
 
-
 ## UGC Video Galeri Entegrasyonu
+
 - [x] UGC video oluşturma işlemleri galeride İşleniyor olarak görünsün
 - [x] UGC videolar tamamlandığında galeride otomatik güncellensin
 - [x] UGC video silme fonksiyonu eklendi
 
-
 ## Video AI Prompt Oluşturucu
+
 - [x] Backend: AI viral video prompt üretici endpoint oluştur
 - [x] Frontend: Sora 2 bölümüne AI prompt butonu ekle
 - [x] Frontend: Veo 3 bölümüne AI prompt butonu ekle
 - [x] Test et ve checkpoint kaydet
 
-
 ## AI Prompt Butonu Mobil Düzeltme
+
 - [x] AI ile Viral Prompt Üret butonu mobilde görünsün
 
-
 ## Video Durum Güncelleme Sorunu
+
 - [x] Video durum kontrol sistemini incele ve düzelt
 - [x] Backend'de otomatik video durum güncelleme job'u ekle
 - [x] Kullanıcı sayfadan çıksa bile videolar otomatik güncellensin
 
-
 ## Video Oluşturma Sayfası Header Sorunu
+
 - [x] Video oluşturma sayfasına header ekle
 - [x] Masaüstü ve mobilde header görünsün
 
-
 ## Video Modal Prompt Kısaltma
+
 - [x] Video izleme modalında uzun promptu kısalt
 - [x] Daha fazlasını oku butonu ekle
 - [x] Mobil uyumlu hale getir
 
-
 ## Google OAuth Entegrasyonu
+
 - [ ] Google OAuth credentials al
 - [ ] Backend Google OAuth entegrasyonu
 - [ ] Frontend giriş sayfası güncelle
 - [ ] Manus OAuth'u kaldır
 
-
 ## Uygulamalar Sayfası Header
+
 - [x] Uygulamalar sayfasına header ekle
 
-
 ## Header Eksik Sayfalar Düzeltme
+
 - [x] MultiAngle.tsx - header ekle
 - [x] ProductPromo.tsx - header ekle
 - [x] SkinEnhancement.tsx - header ekle
 - [x] UgcAd.tsx - header ekle
 - [x] Upscale.tsx - header ekle
 
-
 ## Mobil UX Düzeltmeleri
+
 - [x] Mobil taşma sorunlarını tespit et
 - [x] CSS düzeltmelerini uygula
 
-
 ## Galeri Yönlendirme Sorunu
+
 - [x] Galeri sayfası yenilenince ana sayfaya yönlendirme sorununu düzelt
 
-
 ## Yüksek Öncelikli UX İyileştirmeleri
+
 - [x] Push Bildirimleri - video/görsel tamamlandığında kullanıcıya bildirim
 - [x] Favori Videolar - görsellerde olduğu gibi videoları da favorilere ekleme
 
-
 ## Tema Değiştirme
+
 - [x] Karanlık/Aydınlık tema geçiş butonu ekle
 - [x] Kullanıcı tercihini localStorage'da kaydet
 
-
 ## Görsel Oluştur - Nano Banana Pro Modeli
+
 - [x] Nano Banana Pro modelini görsel oluşturma sayfasına ekle
 
 ## Nano Banana Pro Kredi Fiyatları
+
 - [x] Nano Banana Pro kredi fiyatlarını 12, 18, 25 olarak güncelle
 
 ## Logo Oluşturucu Paneli
+
 - [x] Logo Oluşturucu sayfası oluştur
 - [x] Backend API endpoint'i ekle
 - [x] Marka adı ve slogan girişi
@@ -1358,13 +1458,16 @@
 - [x] Ana sayfaya ve navigasyona ekle
 
 ## Telegram Duyuru Kanalı Entegrasyonu
+
 - [x] Footer'a Telegram linki ekle
 - [x] Profil sayfasına Telegram linki ekle
 
 ## Yeni Kullanıcı Başlangıç Kredisi
+
 - [x] Yeni kullanıcıların başlangıç kredisini 25 olarak ayarla
 
 ## Hoş Geldin Popup
+
 - [x] Görselli hoş geldin popup bileşeni oluştur
 - [x] NanoInf logosunu popup'ta kullan
 - [x] 25 kredi hediyesini vurgula
@@ -1372,6 +1475,7 @@
 - [x] LocalStorage ile tekrar göstermeyi engelle
 
 ## Onboarding Turu
+
 - [x] Profesyonel onboarding tur bileşeni oluştur
 - [x] Adım adım platform tanıtımı
 - [x] Animasyonlu geçişler
@@ -1381,10 +1485,12 @@
 - [x] LocalStorage ile tamamlanma durumunu kaydet
 
 ## Mobil Onboarding ve Logo Yapıcı
+
 - [x] MobileHome'a onboarding sistemini entegre et
 - [x] Logo Yapıcı'yı mobil üst kayar grid'e ekle
 
 ## Prompt Ustası Mini-App
+
 - [x] Backend API endpoint'i oluştur (POST /api/prompt-compiler)
 - [x] LLM entegrasyonu ve sistem prompt'u
 - [x] Frontend sayfası oluştur (3 blok: Girdi, Ayarlar, Çıktı)
@@ -1399,12 +1505,14 @@
 - [x] Güvenlik kuralları (gerçek kişi, uygunsuz içerik engelleme)
 
 ## Görsel Optimizasyonu
+
 - [x] Prompt Ustası kapak görseli oluştur ve ekle
 - [x] Lazy loading ekle
 - [x] Placeholder/skeleton ekle
 - [x] Görsel boyutlarını optimize et
 
 ## Global Dinamik Yükleme Sistemi
+
 - [x] GenerationLoadingOverlay bileşeni oluştur
 - [x] Dinamik mesaj havuzu ve rotasyon sistemi
 - [x] Responsive tasarım (desktop, tablet, mobile)
@@ -1414,28 +1522,33 @@
 - [x] Edge case'leri handle et (hızlı/uzun generasyonlar)
 
 ## Galeri Görsel Optimizasyonu
+
 - [x] Galeri sayfasına OptimizedImage bileşenini ekle
 - [x] Skeleton/shimmer animasyonu ekle
 - [x] Lazy loading ile performans iyileştirmesi
 
 ## Prompt Ustası Kredi Sistemi
+
 - [x] Backend'e kredi kontrolü ekle
 - [x] Her kullanımda 1 kredi düş
 - [x] Frontend'de kredi gösterimi ekle
 - [x] Yetersiz kredi durumunu handle et
 
 ## Galeri Toplu Silme ve Onay Dialog
+
 - [x] Backend'e toplu silme endpoint'i ekle
 - [x] Frontend'e toplu seçim modu ekle
 - [x] Silme onay dialog'u ekle
 - [x] Tek silme için de onay dialog'u ekle
 
 ## Mobil Cilt İyileştirme Entegrasyonu
+
 - [x] Mobil AI Araçları bölümüne Cilt İyileştirme kartı ekle
 - [x] Mobil üst banner'a Cilt İyileştirme slide ekle
 - [x] Cilt İyileştirme kapak görseli oluştur
 
 ## Cilt İyileştirme Mobil Düzeltmeleri ve Fiyat Güncellemesi
+
 - [x] Mobil arayüz sorunlarını düzelt (scroll, layout)
 - [x] Header eksikliğini düzelt
 - [x] Fiyatları minimum 20 krediden başlayacak şekilde güncelle
@@ -1443,9 +1556,11 @@
 - [x] Comparison slider'u mobil için optimize et
 
 ## Veo 3.1 API Optimizasyonu
+
 - [x] Kullanıcı seçimi ne olursa olsun Kie AI'ya her zaman veo3_fast gönder
 
 ## İşleniyor Animasyonu Düzeltmesi
+
 - [x] Tam ekran animasyonu kutucuk içinde gösterecek şekilde düzelt
 - [x] Aynı animasyonları koru, sadece layout değiştir
 - [x] VideoGenerate.tsx - inline card kullan
@@ -1454,24 +1569,29 @@
 - [x] MultiAngle.tsx - inline card kullan
 
 ## Upscale İşleniyor Animasyonu ve Arka Plan İşleme
+
 - [x] Upscale ekranında tam ekran overlay yerine kutu içinde animasyon göster
 - [x] Arka planda işleme devam etsin (sayfadan çıkılabilsin)
 - [x] Galeride upscale işlemleri görünsün (Upscale tab'ı eklendi)
 
 ## Galeri Video Thumbnail ve Otomatik Yenileme
+
 - [x] Video thumbnail'ları göster (videodan alınma - #t=0.5 ile ilk kare)
 - [x] 30 saniyede bir otomatik yenileme ekle (tüm tab'lar için)
 - [x] Yeni işlemler anında galeride görünsün (invalidate eklendi)
 - [x] Tüm araçlar için (görsel, video, upscale) otomatik güncelleme
 
 ## Görsel Oluştur İşleniyor Animasyonu Düzeltmesi
+
 - [x] Generate.tsx'de işleniyor kutucuğunu düzelt - kutu içinde animasyonlu yap
 
 ## AI Influencer Galeri Entegrasyonu
+
 - [x] AI Influencer görsel üretiminde galeride "ışleniyor" durumu görünsün
 - [x] Galeri invalidate işlemi ekle (tüm generate fonksiyonlarına eklendi)
 
 ## FINAL QA - Kritik Düzeltmeler (BLOCKER)
+
 - [x] Çoklu tıklama önleme - tüm generate butonlarına disabled state ekle
 - [ ] Kredi yetersizliği standardizasyonu - tüm sayfalarda InsufficientCreditsDialog kullan
 - [ ] API timeout handling - özel mesaj ve retry butonu ekle
@@ -1481,6 +1601,7 @@
 - [ ] Prompt builder Türkçe karakter handling - LLM talimatı düzeltme
 
 ## FINAL QA - Yüksek Öncelik
+
 - [ ] Loading states tahmini süre bilgisi ekle
 - [ ] Galeri boş state CTA butonları ekle
 - [ ] Video thumbnail fallback poster image ekle
@@ -1491,6 +1612,7 @@
 - [ ] Loading messages Türkçeleştirme
 
 ## FINAL QA - Orta Öncelik
+
 - [ ] Mobil card padding artır
 - [ ] Font size hiyerarşi düzelt
 - [ ] Empty state kaliteli iconlar ekle

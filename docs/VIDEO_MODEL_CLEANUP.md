@@ -10,13 +10,15 @@
 ### 1. Wan Modelleri Birleştirildi ✅
 
 **ÖNCESİ:**
+
 - ❌ Wan 2.2 (ayrı model)
-- ❌ Wan 2.5 (ayrı model)  
+- ❌ Wan 2.5 (ayrı model)
 - ❌ Wan 2.6 I2V (ayrı model)
 - ❌ Wan 2.6 T2V (ayrı model)
 - ❌ Wan 2.6 V2V (ayrı model)
 
 **SONRASI:**
+
 - ✅ **Wan 2.6** (tek model)
   - Generation Mode: Text-to-Video / Image-to-Video / Video-to-Video
   - Seçenekler:
@@ -32,11 +34,13 @@
 ### 2. Sora 2 Modelleri Birleştirildi ✅
 
 **ÖNCESİ:**
+
 - ❌ Sora 2 (ayrı model, 5-15s)
 - ❌ Sora 2 Pro (ayrı model)
 - ❌ Sora 2 Pro Storyboard (ayrı model)
 
 **SONRASI:**
+
 - ✅ **Sora 2** (tek model)
   - Quality seçenekleri:
     - Standard 10s (150 kredi)
@@ -45,6 +49,7 @@
     - Pro 15s (630 kredi)
 
 **Düzeltmeler:**
+
 - ✅ 5 saniye seçeneği **kaldırıldı** (sadece 10s ve 15s)
 - ✅ 1:1 aspect ratio **kaldırıldı** (sadece 16:9 ve 9:16)
 - ✅ Aspect Ratios: `["16:9", "9:16"]`
@@ -54,6 +59,7 @@
 ### 3. Model Schema Güncellemesi
 
 **videoModelSchema:**
+
 ```typescript
 const videoModelSchema = z.enum([
   "veo3",
@@ -72,6 +78,7 @@ const videoModelSchema = z.enum([
 ```
 
 **Kaldırılanlar:**
+
 - ❌ `sora2-pro`
 - ❌ `sora2-pro-storyboard`
 - ❌ `wan-22`
@@ -133,34 +140,34 @@ QUALITY + DURATION
 ### Backend Model Mapping
 
 ```typescript
-getModelKey("sora2") // = "sora-2-pro" ✅
-getModelKey("wan-26") // = "wan-2.6" ✅
+getModelKey("sora2"); // = "sora-2-pro" ✅
+getModelKey("wan-26"); // = "wan-2.6" ✅
 
 // Credit Calculation
 calculateVideoCreditCost("sora-2-pro", {
   duration: "10",
-  quality: "standard"
-}) // = 150 ✅
+  quality: "standard",
+}); // = 150 ✅
 
 calculateVideoCreditCost("sora-2-pro", {
   duration: "15",
-  quality: "high"
-}) // = 630 ✅
+  quality: "high",
+}); // = 630 ✅
 
 calculateVideoCreditCost("wan-2.6", {
   duration: "15",
-  resolution: "1080p"
-}) // = 315 ✅
+  resolution: "1080p",
+}); // = 315 ✅
 ```
 
 ---
 
 ## 📁 Değiştirilen Dosyalar
 
-| Dosya | Değişiklik | Açıklama |
-|-------|-----------|----------|
-| `server/routers/videoGeneration.ts` | ~50 satır | Model schema + getPricing |
-| `VIDEO_MODEL_CLEANUP.md` | +120 satır | Dokümentasyon |
+| Dosya                               | Değişiklik | Açıklama                  |
+| ----------------------------------- | ---------- | ------------------------- |
+| `server/routers/videoGeneration.ts` | ~50 satır  | Model schema + getPricing |
+| `VIDEO_MODEL_CLEANUP.md`            | +120 satır | Dokümentasyon             |
 
 ---
 
@@ -172,7 +179,7 @@ calculateVideoCreditCost("wan-2.6", {
 ✅ **Sora 2: 5s duration kaldırıldı**  
 ✅ **Model listesi sadeleşti (17 → 11 model)**  
 ✅ **Quality seçenekleri model içinde gösteriliyor**  
-✅ **Resolution + Duration kombinasyonları mevcut**  
+✅ **Resolution + Duration kombinasyonları mevcut**
 
 ---
 
@@ -198,6 +205,7 @@ pnpm dev
 ## 💡 Kullanıcı Deneyimi
 
 ### Önce (Karmaşık)
+
 ```
 - Wan 2.2
 - Wan 2.5
@@ -210,6 +218,7 @@ pnpm dev
 ```
 
 ### Sonra (Basit)
+
 ```
 - Wan 2.6 → (6 seçenek içeride)
 - Sora 2 → (4 seçenek içeride)

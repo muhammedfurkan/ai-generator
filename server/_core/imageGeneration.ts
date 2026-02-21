@@ -37,9 +37,13 @@ export async function generateImage(
 ): Promise<GenerateImageResponse> {
   const referenceImageUrl = options.originalImages?.[0]?.url;
 
-  console.log(`[ImageGeneration] Starting generation with prompt: "${options.prompt.substring(0, 50)}..."`);
+  console.log(
+    `[ImageGeneration] Starting generation with prompt: "${options.prompt.substring(0, 50)}..."`
+  );
   if (referenceImageUrl) {
-    console.log(`[ImageGeneration] Using reference image: ${referenceImageUrl}`);
+    console.log(
+      `[ImageGeneration] Using reference image: ${referenceImageUrl}`
+    );
   }
 
   // Create task using Nano Banana API (previously known as Nano Banana Pro)
@@ -47,7 +51,7 @@ export async function generateImage(
   const taskResponse = await createGenerationTask({
     prompt: options.prompt,
     aspectRatio: "1:1", // Default to square if not specified
-    resolution: "2K",   // Good balance of quality and speed
+    resolution: "2K", // Good balance of quality and speed
     referenceImageUrl,
     model: "nano-banana-pro",
   });
@@ -57,7 +61,9 @@ export async function generateImage(
   }
 
   const taskId = taskResponse.taskId;
-  console.log(`[ImageGeneration] Task created with ID: ${taskId}, polling for completion...`);
+  console.log(
+    `[ImageGeneration] Task created with ID: ${taskId}, polling for completion...`
+  );
 
   // Poll for completion (this might take 10-20 seconds)
   const externalImageUrl = await pollTaskCompletion(taskId);
@@ -66,12 +72,16 @@ export async function generateImage(
     throw new Error("Image generation failed or timed out during polling");
   }
 
-  console.log(`[ImageGeneration] Generation successful, downloading from: ${externalImageUrl}`);
+  console.log(
+    `[ImageGeneration] Generation successful, downloading from: ${externalImageUrl}`
+  );
 
   // Download and save to our storage (S3/R2) to persist it and standardized URL
   const imageResponse = await fetch(externalImageUrl);
   if (!imageResponse.ok) {
-    throw new Error(`Failed to download generated image: ${imageResponse.statusText}`);
+    throw new Error(
+      `Failed to download generated image: ${imageResponse.statusText}`
+    );
   }
 
   const arrayBuffer = await imageResponse.arrayBuffer();
@@ -79,11 +89,7 @@ export async function generateImage(
 
   const fileName = `generated/${nanoid()}.png`;
   // Use image/png as default for generated images
-  const { url } = await storagePut(
-    fileName,
-    buffer,
-    "image/png"
-  );
+  const { url } = await storagePut(fileName, buffer, "image/png");
 
   console.log(`[ImageGeneration] Image saved to storage: ${url}`);
 

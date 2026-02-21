@@ -7,6 +7,7 @@
 **Kullanıcı Geri Bildirimi:** "15 saniyelik video yükledim, 120 kredi gösterdi ama 40 kredi kesildi"
 
 **Gerçek Durum:**
+
 - Motion Control API **her zaman 5 saniye üretmiyor**
 - API referans videonun uzunluğuna ve içeriğine göre **değişken süre** video üretiyor
 - Kredi **önceden kesiliyor** (tahminle)
@@ -17,11 +18,13 @@
 ### 1. Frontend: Şeffaf Bilgilendirme
 
 **Değişiklikler:**
+
 - "Maksimum Maliyet" olarak gösterim
 - Kullanıcıya açık uyarı mesajı
 - Motion Control'ün otomatik süre belirlediği açıklandı
 
 **UI Örneği:**
+
 ```
 ┌─────────────────────────────────────────┐
 │ Referans Video:      15 saniye          │
@@ -42,6 +45,7 @@
 **Yeni Özellik:** `checkAndRefundMotionControlCredits()`
 
 **Mantık:**
+
 ```typescript
 // Motion Control genelde 5-10 saniye arası video üretir
 // Eğer tahmin 10+ saniye ise, fazla kesilen kredi iade edilir
@@ -55,6 +59,7 @@
 ```
 
 **Uygulama:**
+
 - Video tamamlandığında otomatik kontrol
 - Fazla kesilen kredi otomatik iade
 - Kullanıcıya bildirim gönderiliyor
@@ -62,10 +67,11 @@
 ### 3. Bildirim Sistemi
 
 **Kredi İadesi Bildirimi:**
+
 ```
 Kredi İadesi ✅
 
-Motion Control videonuz için 64 kredi iade edildi. 
+Motion Control videonuz için 64 kredi iade edildi.
 API gerçek video süresine göre ücretlendirme yaptı.
 
 Tahmin: 15s → Gerçek: ~7s
@@ -97,6 +103,7 @@ Tahmin: 15s → Gerçek: ~7s
 ## 📊 Örnek Senaryolar
 
 ### Senaryo 1: 5 Saniyelik Video
+
 ```
 Yüklenen:      5 saniye
 Kesilen:       5 × 8 = 40 kredi
@@ -105,6 +112,7 @@ API Üretimi:   ~5 saniye
 ```
 
 ### Senaryo 2: 10 Saniyelik Video
+
 ```
 Yüklenen:      10 saniye
 Kesilen:       10 × 8 = 80 kredi
@@ -114,6 +122,7 @@ Gerçek Maliyet: 7 × 8 = 56 kredi
 ```
 
 ### Senaryo 3: 15 Saniyelik Video (Gerçek Durum)
+
 ```
 Yüklenen:      15 saniye
 Kesilen:       15 × 8 = 120 kredi
@@ -123,6 +132,7 @@ Gerçek Maliyet: 7 × 8 = 56 kredi
 ```
 
 ### Senaryo 4: 30 Saniyelik Video
+
 ```
 Yüklenen:      30 saniye
 Kesilen:       30 × 8 = 240 kredi
@@ -142,17 +152,19 @@ Gerçek Maliyet: 7 × 8 = 56 kredi
 ## 🔐 Teknik Detaylar
 
 ### Frontend (MotionControl.tsx)
+
 ```typescript
 // Maksimum kredi gösterimi
 const creditCost = baseRate * estimatedDuration;
 
 // Açık uyarı mesajı
-⚠️ Motion Control API video süresini otomatik belirler. 
-Gerçek ücret üretilen videonun uzunluğuna göre değişebilir. 
+⚠️ Motion Control API video süresini otomatik belirler.
+Gerçek ücret üretilen videonun uzunluğuna göre değişebilir.
 Kullanılmayan kredi otomatik iade edilir.
 ```
 
 ### Backend (videoStatusUpdater.ts)
+
 ```typescript
 async function checkAndRefundMotionControlCredits(
   videoId: number,
@@ -167,7 +179,7 @@ async function checkAndRefundMotionControlCredits(
     const assumedActualDuration = Math.min(estimatedDuration, 7);
     const actualCost = baseRate * assumedActualDuration;
     const refundAmount = estimatedCost - actualCost;
-    
+
     if (refundAmount > 0) {
       await db.refundCredits(userId, refundAmount, ...);
       await createNotification(...);
@@ -179,6 +191,7 @@ async function checkAndRefundMotionControlCredits(
 ```
 
 ### Database Schema
+
 ```typescript
 interface PendingVideo {
   id: number;
@@ -187,8 +200,8 @@ interface PendingVideo {
   userId: number;
   creditsCost: number;
   status: string;
-  duration?: number;  // ✨ Eklendi
-  quality?: string;   // ✨ Eklendi
+  duration?: number; // ✨ Eklendi
+  quality?: string; // ✨ Eklendi
 }
 ```
 

@@ -10,6 +10,7 @@
 2. Ya da Clerk Dashboard'da custom domain ayarını kaldırın ve varsayılan Clerk domain'ini kullanın.
 
 ## Hızlı Test:
+
 nslookup clerk.amonify.com
 
 Eğer DNS kaydı yoksa, geçici olarak development key kullanın.

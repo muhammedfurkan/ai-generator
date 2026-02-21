@@ -17,11 +17,13 @@ async function checkPackages() {
 
     if (allPackages.length === 0) {
       console.log("⚠️  No packages found in database!");
-      console.log("💡 You may need to add packages via admin panel or seed script\n");
+      console.log(
+        "💡 You may need to add packages via admin panel or seed script\n"
+      );
     } else {
       console.log("Packages:");
       console.table(
-        allPackages.map((pkg) => ({
+        allPackages.map(pkg => ({
           ID: pkg.id,
           Name: pkg.name,
           Credits: pkg.credits,
@@ -33,12 +35,16 @@ async function checkPackages() {
         }))
       );
 
-      const activePackages = allPackages.filter((p) => p.isActive);
+      const activePackages = allPackages.filter(p => p.isActive);
       console.log(`\n✅ Active packages: ${activePackages.length}`);
-      console.log(`❌ Inactive packages: ${allPackages.length - activePackages.length}`);
+      console.log(
+        `❌ Inactive packages: ${allPackages.length - activePackages.length}`
+      );
 
       if (activePackages.length === 0) {
-        console.log("\n⚠️  WARNING: No active packages! Users cannot purchase credits.");
+        console.log(
+          "\n⚠️  WARNING: No active packages! Users cannot purchase credits."
+        );
         console.log("💡 Activate at least one package in admin panel\n");
       }
     }

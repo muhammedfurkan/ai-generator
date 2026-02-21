@@ -1,5 +1,4 @@
-
-import 'dotenv/config';
+import "dotenv/config";
 import { getDb } from "../server/db";
 import { aiModelConfig } from "../drizzle/schema";
 
@@ -10,11 +9,13 @@ async function listAllModels() {
     process.exit(1);
   }
 
-  const models = await db.select({
-    key: aiModelConfig.modelKey,
-    name: aiModelConfig.modelName,
-    type: aiModelConfig.modelType
-  }).from(aiModelConfig);
+  const models = await db
+    .select({
+      key: aiModelConfig.modelKey,
+      name: aiModelConfig.modelName,
+      type: aiModelConfig.modelType,
+    })
+    .from(aiModelConfig);
 
   console.log("Existing models:");
   models.forEach(m => {

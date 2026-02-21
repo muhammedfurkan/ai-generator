@@ -1,14 +1,17 @@
 # Kie AI API Notes
 
 ## Base URL
+
 https://api.kie.ai
 
 ## Authentication
+
 Header: Authorization: Bearer YOUR_API_KEY
 
 ## Models
 
 ### Veo 3.1 (Google)
+
 - Endpoint: POST /api/v1/veo/generate
 - Models: veo3, veo3-fast
 - Parameters:
@@ -21,6 +24,7 @@ Header: Authorization: Bearer YOUR_API_KEY
 - 1080P: GET /api/v1/veo/get-1080p-video?taskId=xxx
 
 ### Sora 2 (OpenAI)
+
 - Endpoint: POST /api/v1/jobs/createTask
 - Models:
   - sora-2-image-to-video (Standard Image to Video)
@@ -35,6 +39,7 @@ Header: Authorization: Bearer YOUR_API_KEY
   - remove_watermark: boolean
 
 ### Kling 2.6 (Kuaishou)
+
 - Endpoint: POST /api/v1/jobs/createTask
 - Models:
   - kling-2.6/text-to-video (Text to Video)
@@ -49,6 +54,7 @@ Header: Authorization: Bearer YOUR_API_KEY
   - cfg_scale (optional)
 
 ### Grok Imagine (xAI)
+
 - Endpoint: POST /api/v1/jobs/createTask
 - Models:
   - grok-imagine/text-to-video (Text to Video)
@@ -60,6 +66,7 @@ Header: Authorization: Bearer YOUR_API_KEY
   - mode: "fun", "normal", "spicy"
 
 ## Common Response Format
+
 ```json
 {
   "code": 200,
@@ -71,9 +78,11 @@ Header: Authorization: Bearer YOUR_API_KEY
 ```
 
 ## Task Status Check (for non-Veo models)
+
 GET /api/v1/jobs/getTaskDetails?taskId=xxx
 
 ## Pricing (Our Cost → Selling Price with 50% markup)
+
 - Veo 3.1 Fast: $0.30 → 50 kredi
 - Grok Imagine (6s): $0.10 → 17 kredi (round to 15)
 - Kling 2.6 (5s no audio): $0.28 → 45 kredi

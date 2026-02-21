@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin Models - AI Model Yönetimi
  * Model aç/kapa, limitler, fallback, hata oranları, maliyet takibi

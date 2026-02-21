@@ -30,7 +30,11 @@ export function getSessionCookieOptions(
 
   // Use Lax for same-site requests, None for cross-site (requires HTTPS)
   // For localhost, use Lax (doesn't require HTTPS)
-  const sameSite: "lax" | "none" | "strict" = isLocalhost ? "lax" : (isSecure ? "none" : "lax");
+  const sameSite: "lax" | "none" | "strict" = isLocalhost
+    ? "lax"
+    : isSecure
+      ? "none"
+      : "lax";
 
   const options = {
     httpOnly: true,
@@ -43,7 +47,7 @@ export function getSessionCookieOptions(
     hostname,
     isSecure,
     isLocalhost,
-    options
+    options,
   });
 
   return options;

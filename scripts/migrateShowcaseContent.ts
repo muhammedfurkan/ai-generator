@@ -6,44 +6,92 @@ import { getDb } from "../server/db";
 import { showcaseImages, showcaseVideos } from "../drizzle/schema";
 
 const SHOWCASE_IMAGES = [
-  { imageUrl: "/gallery/showcase-1.jpg", aspectRatio: "square" as const, order: 1 },
-  { imageUrl: "/gallery/showcase-2.jpg", aspectRatio: "portrait" as const, order: 2 },
-  { imageUrl: "/gallery/showcase-3.jpg", aspectRatio: "square" as const, order: 3 },
-  { imageUrl: "/gallery/showcase-4.jpg", aspectRatio: "portrait" as const, order: 4 },
-  { imageUrl: "/gallery/sample-1.jpg", aspectRatio: "landscape" as const, order: 5 },
-  { imageUrl: "/gallery/sample-2.jpg", aspectRatio: "square" as const, order: 6 },
-  { imageUrl: "/gallery/sample-3.jpg", aspectRatio: "portrait" as const, order: 7 },
-  { imageUrl: "/gallery/sample-4.jpg", aspectRatio: "landscape" as const, order: 8 },
-  { imageUrl: "/gallery/sample-5.jpg", aspectRatio: "square" as const, order: 9 },
-  { imageUrl: "/gallery/sample-6.jpg", aspectRatio: "portrait" as const, order: 10 },
-  { imageUrl: "/gallery/sample-7.jpg", aspectRatio: "landscape" as const, order: 11 },
-  { imageUrl: "/gallery/sample-8.jpg", aspectRatio: "square" as const, order: 12 },
+  {
+    imageUrl: "/gallery/showcase-1.jpg",
+    aspectRatio: "square" as const,
+    order: 1,
+  },
+  {
+    imageUrl: "/gallery/showcase-2.jpg",
+    aspectRatio: "portrait" as const,
+    order: 2,
+  },
+  {
+    imageUrl: "/gallery/showcase-3.jpg",
+    aspectRatio: "square" as const,
+    order: 3,
+  },
+  {
+    imageUrl: "/gallery/showcase-4.jpg",
+    aspectRatio: "portrait" as const,
+    order: 4,
+  },
+  {
+    imageUrl: "/gallery/sample-1.jpg",
+    aspectRatio: "landscape" as const,
+    order: 5,
+  },
+  {
+    imageUrl: "/gallery/sample-2.jpg",
+    aspectRatio: "square" as const,
+    order: 6,
+  },
+  {
+    imageUrl: "/gallery/sample-3.jpg",
+    aspectRatio: "portrait" as const,
+    order: 7,
+  },
+  {
+    imageUrl: "/gallery/sample-4.jpg",
+    aspectRatio: "landscape" as const,
+    order: 8,
+  },
+  {
+    imageUrl: "/gallery/sample-5.jpg",
+    aspectRatio: "square" as const,
+    order: 9,
+  },
+  {
+    imageUrl: "/gallery/sample-6.jpg",
+    aspectRatio: "portrait" as const,
+    order: 10,
+  },
+  {
+    imageUrl: "/gallery/sample-7.jpg",
+    aspectRatio: "landscape" as const,
+    order: 11,
+  },
+  {
+    imageUrl: "/gallery/sample-8.jpg",
+    aspectRatio: "square" as const,
+    order: 12,
+  },
 ];
 
 const SHOWCASE_VIDEOS = [
-  { 
-    videoUrl: "/gallery/video-1.mp4", 
+  {
+    videoUrl: "/gallery/video-1.mp4",
     posterUrl: "/gallery/showcase-2.jpg",
     title: "AI Video #1",
-    order: 1 
+    order: 1,
   },
-  { 
-    videoUrl: "/gallery/video-2.mp4", 
+  {
+    videoUrl: "/gallery/video-2.mp4",
     posterUrl: "/gallery/showcase-3.jpg",
     title: "AI Video #2",
-    order: 2 
+    order: 2,
   },
-  { 
-    videoUrl: "/gallery/video-3.mp4", 
+  {
+    videoUrl: "/gallery/video-3.mp4",
     posterUrl: "/gallery/showcase-4.jpg",
     title: "AI Video #3",
-    order: 3 
+    order: 3,
   },
 ];
 
 async function migrateShowcaseContent() {
   const database = await getDb();
-  
+
   if (!database) {
     console.error("Database connection failed");
     process.exit(1);
@@ -53,8 +101,14 @@ async function migrateShowcaseContent() {
     console.log("Starting showcase content migration...");
 
     // Check if data already exists
-    const existingImages = await database.select().from(showcaseImages).limit(1);
-    const existingVideos = await database.select().from(showcaseVideos).limit(1);
+    const existingImages = await database
+      .select()
+      .from(showcaseImages)
+      .limit(1);
+    const existingVideos = await database
+      .select()
+      .from(showcaseVideos)
+      .limit(1);
 
     // Insert images
     if (existingImages.length === 0) {

@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
-import { createUserPromptTemplate, getUserPromptTemplates, deleteUserPromptTemplate } from "../db";
+import {
+  createUserPromptTemplate,
+  getUserPromptTemplates,
+  deleteUserPromptTemplate,
+} from "../db";
 
 export const userTemplatesRouter = router({
   create: protectedProcedure
@@ -11,7 +15,15 @@ export const userTemplatesRouter = router({
         description: z.string().optional(),
         prompt: z.string().min(1, "Prompt gereklidir"),
         category: z.string().optional(),
-        aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]),
+        aspectRatio: z.enum([
+          "1:1",
+          "16:9",
+          "9:16",
+          "4:3",
+          "3:4",
+          "3:2",
+          "2:3",
+        ]),
         resolution: z.enum(["1K", "2K", "4K"]),
       })
     )
@@ -67,7 +79,10 @@ export const userTemplatesRouter = router({
       const userId = ctx.user.id;
 
       try {
-        const deleted = await deleteUserPromptTemplate(input.templateId, userId);
+        const deleted = await deleteUserPromptTemplate(
+          input.templateId,
+          userId
+        );
 
         if (!deleted) {
           throw new TRPCError({

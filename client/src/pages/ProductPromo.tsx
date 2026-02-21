@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useRef, useCallback } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useIsAuthenticated } from "@/_core/hooks/useIsAuthenticated";

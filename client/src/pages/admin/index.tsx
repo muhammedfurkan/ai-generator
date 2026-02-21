@@ -2,7 +2,7 @@
  * Admin Panel - Ana Giriş
  * Tüm admin işlevlerini tek bir yerden yönetmek için kapsamlı panel
  */
-import { useState, Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useIsAuthenticated } from "@/_core/hooks/useIsAuthenticated";
 import { useLocation } from "wouter";
@@ -10,48 +10,46 @@ import { trpc } from "@/lib/trpc";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import {
-  LayoutDashboard,
-  Users,
-  Settings,
-  Package,
-  Tag,
-  DollarSign,
-  Megaphone,
-  HelpCircle,
-  Zap,
-  MessageSquare,
-  Image,
-  Video,
   Activity,
-  TrendingUp,
+  Ban,
+  BarChart3,
+  Bell,
+  Bot,
   ChevronLeft,
   ChevronRight,
-  Search,
-  Bell,
-  Moon,
-  Sun,
-  LogOut,
-  Menu,
-  X,
-  FileText,
-  Globe,
-  Server,
-  Mail,
-  Shield,
-  CreditCard,
-  BarChart3,
-  RefreshCw,
-  Home,
-  Bot,
-  Layout,
-  Ban,
-  Cpu,
-  Flag,
   Clock,
-  Lock,
+  Cpu,
+  CreditCard,
+  DollarSign,
+  FileText,
+  Flag,
+  Globe,
+  HelpCircle,
+  Home,
+  Image,
+  Layout,
+  LayoutDashboard,
   Loader2,
+  Lock,
+  LogOut,
+  Mail,
+  Megaphone,
+  Menu,
+  MessageSquare,
+  Package,
+  Palette,
+  RefreshCw,
+  Search,
+  Server,
+  Settings,
+  Shield,
+  Tag,
+  TrendingUp,
+  Users,
+  Video,
+  X,
+  Zap,
 } from "lucide-react";
 
 // Lazy load all admin sub-pages
@@ -86,6 +84,8 @@ const AdminPayments = lazy(() => import("./AdminPayments"));
 const AdminSecurity = lazy(() => import("./AdminSecurity"));
 const AdminAiInfluencer = lazy(() => import("./AdminAiInfluencer"));
 const AdminModalCards = lazy(() => import("./AdminModalCards"));
+const AdminBranding = lazy(() => import("./AdminBranding"));
+const AdminWebControl = lazy(() => import("./AdminWebControl"));
 
 // Loading fallback for admin pages
 function AdminPageLoader() {
@@ -96,13 +96,16 @@ function AdminPageLoader() {
   );
 }
 
-// Navigation items
 interface NavItem {
   id: string;
   label: string;
   icon: React.ElementType;
   path: string;
+  group: string;
+  description: string;
+  keywords?: string[];
   badge?: number;
+  component: React.ElementType;
 }
 
 interface NavGroup {
@@ -112,223 +115,358 @@ interface NavGroup {
 
 const BASE_PATH = "/admin";
 
-const NAV_GROUPS: NavGroup[] = [
+const NAV_GROUP_ORDER = [
+  "Yönetim",
+  "Site ve İçerik",
+  "AI ve Üretim",
+  "Finans",
+  "Entegrasyon",
+  "Güvenlik",
+];
+
+const NAV_ITEMS: NavItem[] = [
   {
-    title: "Genel",
-    items: [
-      {
-        id: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        path: `${BASE_PATH}`,
-      },
-      {
-        id: "users",
-        label: "Kullanıcılar",
-        icon: Users,
-        path: `${BASE_PATH}/users`,
-      },
-      {
-        id: "images",
-        label: "Görseller",
-        icon: Image,
-        path: `${BASE_PATH}/images`,
-      },
-      {
-        id: "videos",
-        label: "Videolar",
-        icon: Video,
-        path: `${BASE_PATH}/videos`,
-      },
-      {
-        id: "jobqueue",
-        label: "İş Kuyruğu",
-        icon: Clock,
-        path: `${BASE_PATH}/job-queue`,
-      },
-    ],
+    id: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    path: `${BASE_PATH}`,
+    group: "Yönetim",
+    description: "Sistem özeti ve hızlı aksiyonlar",
+    keywords: ["genel", "istatistik"],
+    component: AdminDashboard,
   },
   {
-    title: "Finans",
-    items: [
-      {
-        id: "credits",
-        label: "Kredi İşlemleri",
-        icon: CreditCard,
-        path: `${BASE_PATH}/credits`,
-      },
-      {
-        id: "payments",
-        label: "Ödemeler",
-        icon: DollarSign,
-        path: `${BASE_PATH}/payments`,
-      },
-      {
-        id: "packages",
-        label: "Paketler",
-        icon: Package,
-        path: `${BASE_PATH}/packages`,
-      },
-      {
-        id: "discounts",
-        label: "İndirim Kodları",
-        icon: Tag,
-        path: `${BASE_PATH}/discounts`,
-      },
-      {
-        id: "pricing",
-        label: "Fiyatlandırma",
-        icon: TrendingUp,
-        path: `${BASE_PATH}/pricing`,
-      },
-    ],
+    id: "users",
+    label: "Kullanıcılar",
+    icon: Users,
+    path: `${BASE_PATH}/users`,
+    group: "Yönetim",
+    description: "Hesapları görüntüle ve yönet",
+    keywords: ["uyeler", "hesap"],
+    component: AdminUsers,
   },
   {
-    title: "AI Yönetimi",
-    items: [
-      {
-        id: "aiInfluencer",
-        label: "AI Influencer",
-        icon: Image,
-        path: `${BASE_PATH}/ai-influencer`,
-      },
-      {
-        id: "models",
-        label: "AI Modeller",
-        icon: Cpu,
-        path: `${BASE_PATH}/models`,
-      },
-      {
-        id: "promptcontrol",
-        label: "Prompt Kontrol",
-        icon: Flag,
-        path: `${BASE_PATH}/prompt-control`,
-      },
-    ],
+    id: "reports",
+    label: "Raporlar",
+    icon: BarChart3,
+    path: `${BASE_PATH}/reports`,
+    group: "Yönetim",
+    description: "İş metrikleri ve analitik raporlar",
+    keywords: ["analiz", "grafik"],
+    component: AdminReports,
   },
   {
-    title: "İçerik",
-    items: [
-      {
-        id: "announcements",
-        label: "Duyurular",
-        icon: Megaphone,
-        path: `${BASE_PATH}/announcements`,
-      },
-      { id: "faq", label: "SSS", icon: HelpCircle, path: `${BASE_PATH}/faq` },
-      { id: "blog", label: "Blog", icon: FileText, path: `${BASE_PATH}/blog` },
-      // { id: "viralApps", label: "Viral Apps", icon: Zap, path: `${BASE_PATH}/viral-apps` },
-    ],
+    id: "logs",
+    label: "Aktivite Logları",
+    icon: Activity,
+    path: `${BASE_PATH}/logs`,
+    group: "Yönetim",
+    description: "Sistem ve işlem kayıtları",
+    keywords: ["log", "gecmis"],
+    component: AdminLogs,
   },
   {
-    title: "Moderasyon",
-    items: [
-      {
-        id: "characters",
-        label: "AI Karakterler",
-        icon: Image,
-        path: `${BASE_PATH}/characters`,
-      },
-      {
-        id: "feedback",
-        label: "Geri Bildirimler",
-        icon: MessageSquare,
-        path: `${BASE_PATH}/feedback`,
-      },
-    ],
+    id: "branding",
+    label: "Marka ve Kimlik",
+    icon: Palette,
+    path: `${BASE_PATH}/branding`,
+    group: "Site ve İçerik",
+    description: "Logo, favicon ve marka metinleri",
+    keywords: ["logo", "favicon", "brand"],
+    component: AdminBranding,
   },
   {
-    title: "Sistem",
-    items: [
-      {
-        id: "settings",
-        label: "Site Ayarları",
-        icon: Settings,
-        path: `${BASE_PATH}/settings`,
-      },
-      {
-        id: "seo",
-        label: "SEO Yönetimi",
-        icon: Globe,
-        path: `${BASE_PATH}/seo`,
-      },
-      {
-        id: "homepage",
-        label: "Ana Sayfa Düzeni",
-        icon: Layout,
-        path: `${BASE_PATH}/homepage`,
-      },
-      {
-        id: "features",
-        label: "Özellikler",
-        icon: Zap,
-        path: `${BASE_PATH}/features`,
-      },
-      {
-        id: "telegram",
-        label: "Telegram",
-        icon: Bot,
-        path: `${BASE_PATH}/telegram`,
-      },
-      {
-        id: "modalcards",
-        label: "Modal Kartları",
-        icon: Layout,
-        path: `${BASE_PATH}/modal-cards`,
-      },
-      {
-        id: "api",
-        label: "API Durumu",
-        icon: Server,
-        path: `${BASE_PATH}/api`,
-      },
-      {
-        id: "emails",
-        label: "E-posta",
-        icon: Mail,
-        path: `${BASE_PATH}/emails`,
-      },
-    ],
+    id: "webcontrol",
+    label: "Web Kontrol Merkezi",
+    icon: Settings,
+    path: `${BASE_PATH}/web-control`,
+    group: "Site ve İçerik",
+    description: "Hero, menüler ve footer yönetimi",
+    keywords: ["web", "ui", "home", "header", "footer"],
+    component: AdminWebControl,
   },
   {
-    title: "Güvenlik",
-    items: [
-      {
-        id: "security",
-        label: "Güvenlik Ayarları",
-        icon: Lock,
-        path: `${BASE_PATH}/security`,
-      },
-      {
-        id: "bans",
-        label: "Yasaklamalar",
-        icon: Ban,
-        path: `${BASE_PATH}/bans`,
-      },
-    ],
+    id: "homepage",
+    label: "Ana Sayfa Düzeni",
+    icon: Layout,
+    path: `${BASE_PATH}/homepage`,
+    group: "Site ve İçerik",
+    description: "Vitrin içeriklerini düzenle",
+    keywords: ["home", "landing"],
+    component: AdminHomepage,
   },
   {
-    title: "Analiz",
-    items: [
-      {
-        id: "reports",
-        label: "Raporlar",
-        icon: BarChart3,
-        path: `${BASE_PATH}/reports`,
-      },
-      {
-        id: "logs",
-        label: "Aktivite Logları",
-        icon: Activity,
-        path: `${BASE_PATH}/logs`,
-      },
-    ],
+    id: "announcements",
+    label: "Duyurular",
+    icon: Megaphone,
+    path: `${BASE_PATH}/announcements`,
+    group: "Site ve İçerik",
+    description: "Banner ve popup duyuru yönetimi",
+    keywords: ["banner", "popup"],
+    component: AdminAnnouncements,
+  },
+  {
+    id: "blog",
+    label: "Blog",
+    icon: FileText,
+    path: `${BASE_PATH}/blog`,
+    group: "Site ve İçerik",
+    description: "Blog içeriklerini yönet",
+    keywords: ["yazi", "makale"],
+    component: AdminBlogManager,
+  },
+  {
+    id: "faq",
+    label: "SSS",
+    icon: HelpCircle,
+    path: `${BASE_PATH}/faq`,
+    group: "Site ve İçerik",
+    description: "Sık sorulan sorular",
+    keywords: ["yardim"],
+    component: AdminFaq,
+  },
+  {
+    id: "seo",
+    label: "SEO Yönetimi",
+    icon: Globe,
+    path: `${BASE_PATH}/seo`,
+    group: "Site ve İçerik",
+    description: "Sayfa bazlı SEO ayarları",
+    keywords: ["meta", "index"],
+    component: AdminSeoManager,
+  },
+  {
+    id: "settings",
+    label: "Site Ayarları",
+    icon: Settings,
+    path: `${BASE_PATH}/settings`,
+    group: "Site ve İçerik",
+    description: "Tüm sistem ayarları",
+    keywords: ["config", "ayar"],
+    component: AdminSettings,
+  },
+  {
+    id: "features",
+    label: "Özellikler",
+    icon: Zap,
+    path: `${BASE_PATH}/features`,
+    group: "Site ve İçerik",
+    description: "Özellik görünürlüğü ve fiyatları",
+    keywords: ["feature", "pricing"],
+    component: AdminFeatures,
+  },
+  {
+    id: "modalcards",
+    label: "Modal Kartları",
+    icon: Layout,
+    path: `${BASE_PATH}/modal-cards`,
+    group: "Site ve İçerik",
+    description: "Kampanya/uyarı modal içerikleri",
+    keywords: ["modal"],
+    component: AdminModalCards,
+  },
+  {
+    id: "images",
+    label: "Görseller",
+    icon: Image,
+    path: `${BASE_PATH}/images`,
+    group: "AI ve Üretim",
+    description: "Üretilen görselleri yönet",
+    keywords: ["generation", "image"],
+    component: AdminImages,
+  },
+  {
+    id: "videos",
+    label: "Videolar",
+    icon: Video,
+    path: `${BASE_PATH}/videos`,
+    group: "AI ve Üretim",
+    description: "Üretilen videoları yönet",
+    keywords: ["video", "render"],
+    component: AdminVideos,
+  },
+  {
+    id: "jobqueue",
+    label: "İş Kuyruğu",
+    icon: Clock,
+    path: `${BASE_PATH}/job-queue`,
+    group: "AI ve Üretim",
+    description: "Bekleyen ve çalışan işler",
+    keywords: ["queue", "kuyruk"],
+    component: AdminJobQueue,
+  },
+  {
+    id: "models",
+    label: "AI Modeller",
+    icon: Cpu,
+    path: `${BASE_PATH}/models`,
+    group: "AI ve Üretim",
+    description: "Model aktiflik ve limit yönetimi",
+    keywords: ["model", "provider"],
+    component: AdminModels,
+  },
+  {
+    id: "promptcontrol",
+    label: "Prompt Kontrol",
+    icon: Flag,
+    path: `${BASE_PATH}/prompt-control`,
+    group: "AI ve Üretim",
+    description: "Prompt kuralları ve filtreler",
+    keywords: ["prompt", "moderation"],
+    component: AdminPromptControl,
+  },
+  {
+    id: "aiInfluencer",
+    label: "AI Influencer",
+    icon: Image,
+    path: `${BASE_PATH}/ai-influencer`,
+    group: "AI ve Üretim",
+    description: "AI influencer model/fiyat ayarları",
+    keywords: ["influencer"],
+    component: AdminAiInfluencer,
+  },
+  {
+    id: "characters",
+    label: "AI Karakterler",
+    icon: Image,
+    path: `${BASE_PATH}/characters`,
+    group: "AI ve Üretim",
+    description: "Karakter içerik moderasyonu",
+    keywords: ["character"],
+    component: AdminCharacters,
+  },
+  {
+    id: "feedback",
+    label: "Geri Bildirimler",
+    icon: MessageSquare,
+    path: `${BASE_PATH}/feedback`,
+    group: "AI ve Üretim",
+    description: "Kullanıcı geri bildirim yönetimi",
+    keywords: ["feedback", "yorum"],
+    component: AdminFeedback,
+  },
+  {
+    id: "viralapps",
+    label: "Viral Apps",
+    icon: Zap,
+    path: `${BASE_PATH}/viral-apps`,
+    group: "AI ve Üretim",
+    description: "Viral araç koleksiyonu yönetimi",
+    keywords: ["apps", "viral"],
+    component: AdminViralApps,
+  },
+  {
+    id: "payments",
+    label: "Ödemeler",
+    icon: DollarSign,
+    path: `${BASE_PATH}/payments`,
+    group: "Finans",
+    description: "Ödeme akışları ve işlem takibi",
+    keywords: ["payment", "checkout"],
+    component: AdminPayments,
+  },
+  {
+    id: "credits",
+    label: "Kredi İşlemleri",
+    icon: CreditCard,
+    path: `${BASE_PATH}/credits`,
+    group: "Finans",
+    description: "Kredi tanımlama ve geçmiş",
+    keywords: ["credit"],
+    component: AdminCredits,
+  },
+  {
+    id: "packages",
+    label: "Paketler",
+    icon: Package,
+    path: `${BASE_PATH}/packages`,
+    group: "Finans",
+    description: "Paket tanımları ve sıralama",
+    keywords: ["plan"],
+    component: AdminPackages,
+  },
+  {
+    id: "discounts",
+    label: "İndirim Kodları",
+    icon: Tag,
+    path: `${BASE_PATH}/discounts`,
+    group: "Finans",
+    description: "Kupon ve kampanya yönetimi",
+    keywords: ["kupon", "coupon"],
+    component: AdminDiscounts,
+  },
+  {
+    id: "pricing",
+    label: "Fiyatlandırma",
+    icon: TrendingUp,
+    path: `${BASE_PATH}/pricing`,
+    group: "Finans",
+    description: "Fiyat ve marj yapılandırması",
+    keywords: ["fiyat"],
+    component: AdminPricing,
+  },
+  {
+    id: "telegram",
+    label: "Telegram",
+    icon: Bot,
+    path: `${BASE_PATH}/telegram`,
+    group: "Entegrasyon",
+    description: "Telegram bot ve bildirim ayarları",
+    keywords: ["bot"],
+    component: AdminTelegram,
+  },
+  {
+    id: "emails",
+    label: "E-posta",
+    icon: Mail,
+    path: `${BASE_PATH}/emails`,
+    group: "Entegrasyon",
+    description: "E-posta şablon ve kanal ayarları",
+    keywords: ["smtp", "mail"],
+    component: AdminEmails,
+  },
+  {
+    id: "api",
+    label: "API Durumu",
+    icon: Server,
+    path: `${BASE_PATH}/api`,
+    group: "Entegrasyon",
+    description: "Servis sağlık ve endpoint kontrolleri",
+    keywords: ["status", "health"],
+    component: AdminApi,
+  },
+  {
+    id: "security",
+    label: "Güvenlik Ayarları",
+    icon: Lock,
+    path: `${BASE_PATH}/security`,
+    group: "Güvenlik",
+    description: "Yetki, erişim ve güvenlik politikaları",
+    keywords: ["auth", "permission"],
+    component: AdminSecurity,
+  },
+  {
+    id: "bans",
+    label: "Yasaklamalar",
+    icon: Ban,
+    path: `${BASE_PATH}/bans`,
+    group: "Güvenlik",
+    description: "Engelli kullanıcı ve e-posta listeleri",
+    keywords: ["ban", "blacklist"],
+    component: AdminBans,
   },
 ];
 
+const QUICK_ACCESS_IDS = [
+  "dashboard",
+  "webcontrol",
+  "branding",
+  "users",
+  "jobqueue",
+  "payments",
+];
+
 export default function AdminLayout() {
-  // ❗ CRITICAL: All hooks MUST be called before any conditional returns
-  // This prevents "Rendered more hooks" error during auth state changes
   const { user, logout } = useAuth();
   const { isAuthenticated, isLoading: isAuthLoading } = useIsAuthenticated();
   const [location, navigate] = useLocation();
@@ -336,18 +474,67 @@ export default function AdminLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Get dashboard stats for notifications
   const dashboardQuery = trpc.adminPanel.getDashboardOverview.useQuery(
     undefined,
     {
-      refetchInterval: 60000, // Her dakika güncelle
+      refetchInterval: 60000,
       enabled: isAuthenticated && user?.role === "admin",
     }
   );
 
-  // ✅ NOW we can do conditional returns - all hooks are already called above
+  const normalizedSearch = searchQuery.trim().toLocaleLowerCase("tr-TR");
 
-  // Show loading state while checking authentication
+  const activeNavItem = useMemo(() => {
+    if (location === BASE_PATH || location === `${BASE_PATH}/`) {
+      return NAV_ITEMS.find(item => item.id === "dashboard") ?? NAV_ITEMS[0];
+    }
+
+    return (
+      [...NAV_ITEMS]
+        .sort((a, b) => b.path.length - a.path.length)
+        .find(
+          item => item.path !== BASE_PATH && location.startsWith(item.path)
+        ) ?? NAV_ITEMS[0]
+    );
+  }, [location]);
+
+  const filteredItems = useMemo(() => {
+    if (!normalizedSearch) return NAV_ITEMS;
+
+    return NAV_ITEMS.filter(item => {
+      const haystack = [
+        item.label,
+        item.group,
+        item.description,
+        ...(item.keywords ?? []),
+      ]
+        .join(" ")
+        .toLocaleLowerCase("tr-TR");
+
+      return haystack.includes(normalizedSearch);
+    });
+  }, [normalizedSearch]);
+
+  const navGroups = useMemo<NavGroup[]>(() => {
+    return NAV_GROUP_ORDER.map(title => ({
+      title,
+      items: filteredItems.filter(item => item.group === title),
+    })).filter(group => group.items.length > 0);
+  }, [filteredItems]);
+
+  const quickAccessItems = useMemo(() => {
+    const lookup = new Map(filteredItems.map(item => [item.id, item]));
+    return QUICK_ACCESS_IDS.map(id => lookup.get(id)).filter(
+      (item): item is NavItem => Boolean(item)
+    );
+  }, [filteredItems]);
+
+  useEffect(() => {
+    if (!isAuthLoading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthLoading, isAuthenticated, navigate]);
+
   if (isAuthLoading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -359,13 +546,10 @@ export default function AdminLayout() {
     );
   }
 
-  // Redirect if not authenticated
   if (!isAuthenticated) {
-    navigate("/login");
     return null;
   }
 
-  // Show access denied for non-admin users
   if (user?.role !== "admin") {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
@@ -389,126 +573,18 @@ export default function AdminLayout() {
     );
   }
 
-  // Get current page title
-  const getCurrentPageTitle = () => {
-    for (const group of NAV_GROUPS) {
-      for (const item of group.items) {
-        if (
-          location === item.path ||
-          (item.path !== BASE_PATH && location.startsWith(item.path))
-        ) {
-          return item.label;
-        }
-      }
-    }
-    return "Dashboard";
+  const ActivePage = activeNavItem.component;
+
+  const handleNavigate = (item: NavItem) => {
+    navigate(item.path);
+    setMobileMenuOpen(false);
+    setSearchQuery("");
   };
 
-  // Render current page based on location
-  const renderCurrentPage = () => {
-    const path = location;
-
-    if (path === BASE_PATH || path === `${BASE_PATH}/`) {
-      return <AdminDashboard />;
-    }
-    if (path.startsWith(`${BASE_PATH}/users`)) {
-      return <AdminUsers />;
-    }
-    if (path.startsWith(`${BASE_PATH}/images`)) {
-      return <AdminImages />;
-    }
-    if (path.startsWith(`${BASE_PATH}/videos`)) {
-      return <AdminVideos />;
-    }
-    if (path.startsWith(`${BASE_PATH}/credits`)) {
-      return <AdminCredits />;
-    }
-    if (path.startsWith(`${BASE_PATH}/packages`)) {
-      return <AdminPackages />;
-    }
-    if (path.startsWith(`${BASE_PATH}/discounts`)) {
-      return <AdminDiscounts />;
-    }
-    if (path.startsWith(`${BASE_PATH}/pricing`)) {
-      return <AdminPricing />;
-    }
-    if (path.startsWith(`${BASE_PATH}/announcements`)) {
-      return <AdminAnnouncements />;
-    }
-    if (path.startsWith(`${BASE_PATH}/faq`)) {
-      return <AdminFaq />;
-    }
-    if (path.startsWith(`${BASE_PATH}/blog`)) {
-      return <AdminBlogManager />;
-    }
-    if (path.startsWith(`${BASE_PATH}/viral-apps`)) {
-      return <AdminViralApps />;
-    }
-    if (path.startsWith(`${BASE_PATH}/characters`)) {
-      return <AdminCharacters />;
-    }
-    if (path.startsWith(`${BASE_PATH}/feedback`)) {
-      return <AdminFeedback />;
-    }
-    if (path.startsWith(`${BASE_PATH}/settings`)) {
-      return <AdminSettings />;
-    }
-    if (path.startsWith(`${BASE_PATH}/seo`)) {
-      return <AdminSeoManager />;
-    }
-    if (path.startsWith(`${BASE_PATH}/api`)) {
-      return <AdminApi />;
-    }
-    if (path.startsWith(`${BASE_PATH}/emails`)) {
-      return <AdminEmails />;
-    }
-    if (path.startsWith(`${BASE_PATH}/reports`)) {
-      return <AdminReports />;
-    }
-    if (path.startsWith(`${BASE_PATH}/logs`)) {
-      return <AdminLogs />;
-    }
-    if (path.startsWith(`${BASE_PATH}/telegram`)) {
-      return <AdminTelegram />;
-    }
-    if (path.startsWith(`${BASE_PATH}/homepage`)) {
-      return <AdminHomepage />;
-    }
-    if (path.startsWith(`${BASE_PATH}/bans`)) {
-      return <AdminBans />;
-    }
-    if (path.startsWith(`${BASE_PATH}/features`)) {
-      return <AdminFeatures />;
-    }
-    if (path.startsWith(`${BASE_PATH}/models`)) {
-      return <AdminModels />;
-    }
-    if (path.startsWith(`${BASE_PATH}/prompt-control`)) {
-      return <AdminPromptControl />;
-    }
-    if (path.startsWith(`${BASE_PATH}/job-queue`)) {
-      return <AdminJobQueue />;
-    }
-    if (path.startsWith(`${BASE_PATH}/payments`)) {
-      return <AdminPayments />;
-    }
-    if (path.startsWith(`${BASE_PATH}/security`)) {
-      return <AdminSecurity />;
-    }
-    if (path.startsWith(`${BASE_PATH}/ai-influencer`)) {
-      return <AdminAiInfluencer />;
-    }
-    if (path.startsWith(`${BASE_PATH}/modal-cards`)) {
-      return <AdminModalCards />;
-    }
-
-    // Default to dashboard
-    return <AdminDashboard />;
-  };
+  const firstSearchResult = normalizedSearch ? filteredItems[0] : null;
 
   return (
     <div className="min-h-screen bg-zinc-950 text-[#F9FAFB] flex">
-      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -521,17 +597,15 @@ export default function AdminLayout() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <motion.aside
         className={`
           fixed lg:sticky top-0 left-0 h-screen z-50 lg:z-auto
-          ${sidebarOpen ? "w-64" : "w-20"}
+          ${sidebarOpen ? "w-72" : "w-20"}
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           bg-zinc-900/95 backdrop-blur-xl border-r border-white/10
           flex flex-col transition-all duration-300
         `}
       >
-        {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
           {sidebarOpen && (
             <motion.div
@@ -542,7 +616,12 @@ export default function AdminLayout() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F5FF] to-[#7C3AED] flex items-center justify-center">
                 <Shield className="w-5 h-5 text-black" />
               </div>
-              <span className="font-bold text-lg">Admin Panel</span>
+              <div>
+                <p className="font-bold text-sm leading-none">Admin Panel</p>
+                <p className="text-[11px] text-zinc-500 mt-1">
+                  Yönetim Merkezi
+                </p>
+              </div>
             </motion.div>
           )}
           <Button
@@ -567,9 +646,78 @@ export default function AdminLayout() {
           </Button>
         </div>
 
-        {/* Navigation */}
+        {sidebarOpen ? (
+          <div className="px-3 py-3 border-b border-white/10">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+              <Input
+                placeholder="Menüde ara..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === "Enter" && firstSearchResult) {
+                    handleNavigate(firstSearchResult);
+                  }
+                }}
+                className="w-full pl-9 bg-zinc-900 border-white/10 focus:border-[#00F5FF]/50"
+              />
+            </div>
+            {normalizedSearch && (
+              <p className="text-xs text-zinc-500 mt-2">
+                {filteredItems.length} sonuç bulundu
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="py-3 px-2 border-b border-white/10">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-full"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         <nav className="flex-1 overflow-y-auto py-4 px-2">
-          {NAV_GROUPS.map(group => (
+          {sidebarOpen && quickAccessItems.length > 0 && (
+            <div className="mb-4">
+              <p className="px-3 mb-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                Hızlı Erişim
+              </p>
+              <div className="space-y-1">
+                {quickAccessItems.map(item => {
+                  const Icon = item.icon;
+                  const isActive = item.id === activeNavItem.id;
+
+                  return (
+                    <button
+                      key={`quick-${item.id}`}
+                      onClick={() => handleNavigate(item)}
+                      className={`
+                        w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
+                        transition-all duration-200 group relative
+                        ${
+                          isActive
+                            ? "bg-[#00F5FF]/20 text-[#00F5FF]"
+                            : "text-zinc-300 hover:text-white hover:bg-white/5"
+                        }
+                      `}
+                    >
+                      <Icon
+                        className={`h-5 w-5 flex-shrink-0 ${isActive ? "text-[#00F5FF]" : ""}`}
+                      />
+                      <span className="text-sm font-medium">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {navGroups.map(group => (
             <div key={group.title} className="mb-4">
               {sidebarOpen && (
                 <p className="px-3 mb-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
@@ -579,17 +727,12 @@ export default function AdminLayout() {
               <div className="space-y-1">
                 {group.items.map(item => {
                   const Icon = item.icon;
-                  const isActive =
-                    location === item.path ||
-                    (item.path !== BASE_PATH && location.startsWith(item.path));
+                  const isActive = item.id === activeNavItem.id;
 
                   return (
                     <button
                       key={item.id}
-                      onClick={() => {
-                        navigate(item.path);
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={() => handleNavigate(item)}
                       className={`
                         w-full flex items-center gap-3 px-3 py-2.5 rounded-lg
                         transition-all duration-200 group relative
@@ -599,14 +742,20 @@ export default function AdminLayout() {
                             : "text-zinc-400 hover:text-[#F9FAFB] hover:bg-white/5"
                         }
                       `}
+                      title={!sidebarOpen ? item.label : undefined}
                     >
                       <Icon
                         className={`h-5 w-5 flex-shrink-0 ${isActive ? "text-[#00F5FF]" : ""}`}
                       />
                       {sidebarOpen && (
-                        <span className="text-sm font-medium">
-                          {item.label}
-                        </span>
+                        <div className="min-w-0 text-left">
+                          <p className="text-sm font-medium truncate">
+                            {item.label}
+                          </p>
+                          <p className="text-[11px] text-zinc-500 truncate">
+                            {item.description}
+                          </p>
+                        </div>
                       )}
                       {item.badge && item.badge > 0 && sidebarOpen && (
                         <span className="ml-auto px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-400 rounded-full">
@@ -625,9 +774,17 @@ export default function AdminLayout() {
               </div>
             </div>
           ))}
+
+          {filteredItems.length === 0 && (
+            <div className="px-3 py-4 rounded-lg bg-zinc-800/50 border border-white/10">
+              <p className="text-sm text-zinc-300">Menü sonucu bulunamadı</p>
+              <p className="text-xs text-zinc-500 mt-1">
+                Farklı bir kelime deneyin.
+              </p>
+            </div>
+          )}
         </nav>
 
-        {/* User Info */}
         <div className="p-4 border-t border-white/10">
           <div
             className={`flex items-center ${sidebarOpen ? "gap-3" : "justify-center"}`}
@@ -666,9 +823,7 @@ export default function AdminLayout() {
         </div>
       </motion.aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Header */}
         <header className="sticky top-0 z-30 h-16 bg-zinc-950/80 backdrop-blur-xl border-b border-white/10">
           <div className="h-full px-4 lg:px-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -681,26 +836,29 @@ export default function AdminLayout() {
                 <Menu className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold">{getCurrentPageTitle()}</h1>
+                <h1 className="text-xl font-bold">{activeNavItem.label}</h1>
                 <p className="text-xs text-zinc-500">
-                  Sistem yönetimi ve kontrol
+                  {activeNavItem.description}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Search */}
               <div className="hidden md:flex items-center relative">
                 <Search className="absolute left-3 h-4 w-4 text-zinc-500" />
                 <Input
-                  placeholder="Ara..."
+                  placeholder="Menüde ara ve Enter ile git..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-64 pl-9 bg-zinc-900 border-white/10 focus:border-[#00F5FF]/50"
+                  onKeyDown={e => {
+                    if (e.key === "Enter" && firstSearchResult) {
+                      handleNavigate(firstSearchResult);
+                    }
+                  }}
+                  className="w-72 pl-9 bg-zinc-900 border-white/10 focus:border-[#00F5FF]/50"
                 />
               </div>
 
-              {/* Notifications */}
               <Button variant="ghost" size="icon" className="relative">
                 <Bell className="h-5 w-5" />
                 {(dashboardQuery.data?.pendingFeedbacks || 0) > 0 && (
@@ -708,7 +866,6 @@ export default function AdminLayout() {
                 )}
               </Button>
 
-              {/* Refresh */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -722,10 +879,9 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
           <Suspense fallback={<AdminPageLoader />}>
-            {renderCurrentPage()}
+            <ActivePage />
           </Suspense>
         </main>
       </div>

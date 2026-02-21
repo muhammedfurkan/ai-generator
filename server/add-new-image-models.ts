@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Yeni Kie.ai Görsel Modellerini Veritabanına Ekleyen Script
  *

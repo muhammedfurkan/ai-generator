@@ -204,9 +204,9 @@ describe("AI Characters Router", () => {
       const ctx = createUserContext();
       const caller = appRouter.createCaller(ctx);
 
-      await expect(caller.aiCharacters.get({ characterId: 999 })).rejects.toThrow(
-        "Karakter bulunamadı"
-      );
+      await expect(
+        caller.aiCharacters.get({ characterId: 999 })
+      ).rejects.toThrow("Karakter bulunamadı");
     });
   });
 
@@ -264,9 +264,9 @@ describe("AI Characters Router", () => {
       const ctx = createUserContext();
       const caller = appRouter.createCaller(ctx);
 
-      await expect(caller.aiCharacters.delete({ characterId: 999 })).rejects.toThrow(
-        "Karakter bulunamadı veya silinemedi"
-      );
+      await expect(
+        caller.aiCharacters.delete({ characterId: 999 })
+      ).rejects.toThrow("Karakter bulunamadı veya silinemedi");
     });
   });
 
@@ -336,9 +336,9 @@ describe("AI Characters Router", () => {
       const ctx = createUserContext();
       const caller = appRouter.createCaller(ctx);
 
-      await expect(caller.aiCharacters.togglePublic({ characterId: 999 })).rejects.toThrow(
-        "Karakter bulunamadı"
-      );
+      await expect(
+        caller.aiCharacters.togglePublic({ characterId: 999 })
+      ).rejects.toThrow("Karakter bulunamadı");
     });
   });
 
@@ -390,7 +390,10 @@ describe("AI Characters Router", () => {
       const ctx = createUserContext();
       const caller = appRouter.createCaller(ctx);
 
-      const result = await caller.aiCharacters.getPublic({ limit: 50, offset: 0 });
+      const result = await caller.aiCharacters.getPublic({
+        limit: 50,
+        offset: 0,
+      });
 
       expect(result).toEqual({ characters: mockCharacters, total: 1 });
       expect(db.getPublicCharacters).toHaveBeenCalledWith(50, 0);

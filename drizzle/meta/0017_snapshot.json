@@ -93,12 +93,8 @@
           "name": "aiCharacterImages_characterId_aiCharacters_id_fk",
           "tableFrom": "aiCharacterImages",
           "tableTo": "aiCharacters",
-          "columnsFrom": [
-            "characterId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["characterId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -106,12 +102,8 @@
           "name": "aiCharacterImages_userId_users_id_fk",
           "tableFrom": "aiCharacterImages",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -119,9 +111,7 @@
       "compositePrimaryKeys": {
         "aiCharacterImages_id": {
           "name": "aiCharacterImages_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -219,12 +209,8 @@
           "name": "aiCharacters_userId_users_id_fk",
           "tableFrom": "aiCharacters",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -232,9 +218,7 @@
       "compositePrimaryKeys": {
         "aiCharacters_id": {
           "name": "aiCharacters_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -354,17 +338,13 @@
       "compositePrimaryKeys": {
         "blogPosts_id": {
           "name": "blogPosts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "blogPosts_slug_unique": {
           "name": "blogPosts_slug_unique",
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "checkConstraint": {}
@@ -436,12 +416,8 @@
           "name": "creditTransactions_userId_users_id_fk",
           "tableFrom": "creditTransactions",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -449,9 +425,7 @@
       "compositePrimaryKeys": {
         "creditTransactions_id": {
           "name": "creditTransactions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -496,12 +470,8 @@
           "name": "favorites_userId_users_id_fk",
           "tableFrom": "favorites",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -509,12 +479,8 @@
           "name": "favorites_imageId_generatedImages_id_fk",
           "tableFrom": "favorites",
           "tableTo": "generatedImages",
-          "columnsFrom": [
-            "imageId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["imageId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -522,9 +488,7 @@
       "compositePrimaryKeys": {
         "favorites_id": {
           "name": "favorites_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -621,12 +585,8 @@
           "name": "feedbacks_userId_users_id_fk",
           "tableFrom": "feedbacks",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -634,9 +594,7 @@
       "compositePrimaryKeys": {
         "feedbacks_id": {
           "name": "feedbacks_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -746,12 +704,8 @@
           "name": "generatedImages_userId_users_id_fk",
           "tableFrom": "generatedImages",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -759,9 +713,7 @@
       "compositePrimaryKeys": {
         "generatedImages_id": {
           "name": "generatedImages_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -856,12 +808,8 @@
           "name": "multiAngleImages_jobId_multiAngleJobs_id_fk",
           "tableFrom": "multiAngleImages",
           "tableTo": "multiAngleJobs",
-          "columnsFrom": [
-            "jobId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["jobId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -869,9 +817,7 @@
       "compositePrimaryKeys": {
         "multiAngleImages_id": {
           "name": "multiAngleImages_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -967,12 +913,8 @@
           "name": "multiAngleJobs_userId_users_id_fk",
           "tableFrom": "multiAngleJobs",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -980,9 +922,7 @@
       "compositePrimaryKeys": {
         "multiAngleJobs_id": {
           "name": "multiAngleJobs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1063,12 +1003,8 @@
           "name": "notifications_userId_users_id_fk",
           "tableFrom": "notifications",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1076,9 +1012,7 @@
       "compositePrimaryKeys": {
         "notifications_id": {
           "name": "notifications_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1209,12 +1143,8 @@
           "name": "productPromoVideos_userId_users_id_fk",
           "tableFrom": "productPromoVideos",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1222,9 +1152,7 @@
       "compositePrimaryKeys": {
         "productPromoVideos_id": {
           "name": "productPromoVideos_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1299,12 +1227,8 @@
           "name": "promptHistory_userId_users_id_fk",
           "tableFrom": "promptHistory",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1312,9 +1236,7 @@
       "compositePrimaryKeys": {
         "promptHistory_id": {
           "name": "promptHistory_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1398,12 +1320,8 @@
           "name": "referrals_referrerId_users_id_fk",
           "tableFrom": "referrals",
           "tableTo": "users",
-          "columnsFrom": [
-            "referrerId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["referrerId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1411,12 +1329,8 @@
           "name": "referrals_referredId_users_id_fk",
           "tableFrom": "referrals",
           "tableTo": "users",
-          "columnsFrom": [
-            "referredId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["referredId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1424,9 +1338,7 @@
       "compositePrimaryKeys": {
         "referrals_id": {
           "name": "referrals_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1478,17 +1390,13 @@
       "compositePrimaryKeys": {
         "systemSettings_id": {
           "name": "systemSettings_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "systemSettings_key_unique": {
           "name": "systemSettings_key_unique",
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         }
       },
       "checkConstraint": {}
@@ -1582,12 +1490,8 @@
           "name": "upscaleHistory_userId_users_id_fk",
           "tableFrom": "upscaleHistory",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1595,9 +1499,7 @@
       "compositePrimaryKeys": {
         "upscaleHistory_id": {
           "name": "upscaleHistory_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1686,12 +1588,8 @@
           "name": "userPromptTemplates_userId_users_id_fk",
           "tableFrom": "userPromptTemplates",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1699,9 +1597,7 @@
       "compositePrimaryKeys": {
         "userPromptTemplates_id": {
           "name": "userPromptTemplates_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1806,23 +1702,17 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         },
         "users_referralCode_unique": {
           "name": "users_referralCode_unique",
-          "columns": [
-            "referralCode"
-          ]
+          "columns": ["referralCode"]
         }
       },
       "checkConstraint": {}
@@ -1959,12 +1849,8 @@
           "name": "videoGenerations_userId_users_id_fk",
           "tableFrom": "videoGenerations",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1972,9 +1858,7 @@
       "compositePrimaryKeys": {
         "videoGenerations_id": {
           "name": "videoGenerations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},

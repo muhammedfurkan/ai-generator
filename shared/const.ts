@@ -1,8 +1,8 @@
 export const COOKIE_NAME = "app_session_id";
 export const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 export const AXIOS_TIMEOUT_MS = 30_000;
-export const UNAUTHED_ERR_MSG = 'Please login (10001)';
-export const NOT_ADMIN_ERR_MSG = 'You do not have required permission (10002)';
+export const UNAUTHED_ERR_MSG = "Please login (10001)";
+export const NOT_ADMIN_ERR_MSG = "You do not have required permission (10002)";
 
 // Image generation options
 export const ASPECT_RATIOS = [
@@ -31,7 +31,8 @@ export const PROMPT_TEMPLATES = [
     category: "Kişisel",
     title: "LinkedIn Profil Fotoğrafı",
     description: "Profesyonel iş profili için uygun fotoğraf",
-    prompt: "Professional corporate headshot, business attire, neutral background, studio lighting, confident expression, high quality portrait, sharp focus, professional photography",
+    prompt:
+      "Professional corporate headshot, business attire, neutral background, studio lighting, confident expression, high quality portrait, sharp focus, professional photography",
     aspectRatio: "1:1" as const,
     resolution: "2K" as const,
   },
@@ -40,7 +41,8 @@ export const PROMPT_TEMPLATES = [
     category: "Sosyal Medya",
     title: "Instagram Story Arka Plan",
     description: "Etkileyici story arka planı",
-    prompt: "Vibrant gradient background, modern aesthetic, Instagram story format, colorful abstract design, trendy visual, smooth gradients, eye-catching colors",
+    prompt:
+      "Vibrant gradient background, modern aesthetic, Instagram story format, colorful abstract design, trendy visual, smooth gradients, eye-catching colors",
     aspectRatio: "9:16" as const,
     resolution: "1K" as const,
   },
@@ -49,7 +51,8 @@ export const PROMPT_TEMPLATES = [
     category: "E-ticaret",
     title: "Ürün Tanıtım Görseli",
     description: "Ürün sergileme için profesyonel görsel",
-    prompt: "Product photography, clean white background, professional lighting, commercial quality, studio setup, high-end product display, minimalist composition",
+    prompt:
+      "Product photography, clean white background, professional lighting, commercial quality, studio setup, high-end product display, minimalist composition",
     aspectRatio: "1:1" as const,
     resolution: "2K" as const,
   },
@@ -58,7 +61,8 @@ export const PROMPT_TEMPLATES = [
     category: "Sosyal Medya",
     title: "YouTube Thumbnail",
     description: "Dikkat çekici video kapak görseli",
-    prompt: "Eye-catching YouTube thumbnail design, bold colors, dramatic lighting, engaging composition, high contrast, professional quality, attention-grabbing visual",
+    prompt:
+      "Eye-catching YouTube thumbnail design, bold colors, dramatic lighting, engaging composition, high contrast, professional quality, attention-grabbing visual",
     aspectRatio: "16:9" as const,
     resolution: "2K" as const,
   },
@@ -67,7 +71,8 @@ export const PROMPT_TEMPLATES = [
     category: "Web Tasarım",
     title: "Website Hero Banner",
     description: "Web sitesi ana sayfa görseli",
-    prompt: "Modern website hero section background, professional design, clean aesthetic, corporate style, high quality, web design, contemporary visual",
+    prompt:
+      "Modern website hero section background, professional design, clean aesthetic, corporate style, high quality, web design, contemporary visual",
     aspectRatio: "16:9" as const,
     resolution: "2K" as const,
   },
@@ -76,7 +81,8 @@ export const PROMPT_TEMPLATES = [
     category: "Sanat",
     title: "Dijital Portre Sanatı",
     description: "Sanatsal portre çizimi",
-    prompt: "Digital art portrait, artistic style, vibrant colors, creative illustration, detailed artwork, professional digital painting, expressive character design",
+    prompt:
+      "Digital art portrait, artistic style, vibrant colors, creative illustration, detailed artwork, professional digital painting, expressive character design",
     aspectRatio: "3:4" as const,
     resolution: "2K" as const,
   },
@@ -85,7 +91,8 @@ export const PROMPT_TEMPLATES = [
     category: "Sanat",
     title: "Manzara Fotoğrafı",
     description: "Doğa ve manzara görseli",
-    prompt: "Breathtaking landscape photography, natural scenery, golden hour lighting, stunning vista, professional nature photography, high quality, cinematic composition",
+    prompt:
+      "Breathtaking landscape photography, natural scenery, golden hour lighting, stunning vista, professional nature photography, high quality, cinematic composition",
     aspectRatio: "16:9" as const,
     resolution: "2K" as const,
   },
@@ -94,7 +101,8 @@ export const PROMPT_TEMPLATES = [
     category: "E-ticaret",
     title: "Yemek Fotoğrafçılığı",
     description: "Restoran ve menü görselleri",
-    prompt: "Professional food photography, appetizing presentation, natural lighting, restaurant quality, culinary art, delicious food styling, high-end gastronomy photo",
+    prompt:
+      "Professional food photography, appetizing presentation, natural lighting, restaurant quality, culinary art, delicious food styling, high-end gastronomy photo",
     aspectRatio: "4:3" as const,
     resolution: "2K" as const,
   },
@@ -103,7 +111,8 @@ export const PROMPT_TEMPLATES = [
     category: "Sanat",
     title: "Soyut Sanat",
     description: "Modern soyut kompozisyon",
-    prompt: "Abstract art composition, modern design, vibrant colors, geometric shapes, contemporary art style, creative visual, artistic expression, bold patterns",
+    prompt:
+      "Abstract art composition, modern design, vibrant colors, geometric shapes, contemporary art style, creative visual, artistic expression, bold patterns",
     aspectRatio: "1:1" as const,
     resolution: "2K" as const,
   },
@@ -112,7 +121,8 @@ export const PROMPT_TEMPLATES = [
     category: "İş/Kurumsal",
     title: "Sunum Arka Planı",
     description: "Profesyonel sunum görseli",
-    prompt: "Professional presentation background, corporate design, clean layout, business aesthetic, modern style, minimal distractions, professional quality",
+    prompt:
+      "Professional presentation background, corporate design, clean layout, business aesthetic, modern style, minimal distractions, professional quality",
     aspectRatio: "16:9" as const,
     resolution: "2K" as const,
   },
@@ -121,7 +131,8 @@ export const PROMPT_TEMPLATES = [
     category: "Moda",
     title: "Moda Editoryal",
     description: "Moda ve stil görseli",
-    prompt: "High fashion editorial photography, stylish composition, professional fashion shoot, elegant aesthetic, magazine quality, trendy fashion visual, sophisticated style",
+    prompt:
+      "High fashion editorial photography, stylish composition, professional fashion shoot, elegant aesthetic, magazine quality, trendy fashion visual, sophisticated style",
     aspectRatio: "2:3" as const,
     resolution: "2K" as const,
   },
@@ -130,7 +141,8 @@ export const PROMPT_TEMPLATES = [
     category: "Web Tasarım",
     title: "Minimalist Tasarım",
     description: "Sade ve modern görsel",
-    prompt: "Minimalist design aesthetic, clean composition, simple elegance, modern style, negative space, professional quality, contemporary visual, refined simplicity",
+    prompt:
+      "Minimalist design aesthetic, clean composition, simple elegance, modern style, negative space, professional quality, contemporary visual, refined simplicity",
     aspectRatio: "1:1" as const,
     resolution: "1K" as const,
   },
@@ -139,7 +151,8 @@ export const PROMPT_TEMPLATES = [
     category: "Pazarlama",
     title: "Etkinlik Posteri",
     description: "Etkinlik duyuru görseli",
-    prompt: "Event poster design, eye-catching layout, vibrant colors, professional typography space, engaging visual, promotional quality, attention-grabbing design",
+    prompt:
+      "Event poster design, eye-catching layout, vibrant colors, professional typography space, engaging visual, promotional quality, attention-grabbing design",
     aspectRatio: "3:4" as const,
     resolution: "2K" as const,
   },
@@ -148,7 +161,8 @@ export const PROMPT_TEMPLATES = [
     category: "İş/Kurumsal",
     title: "Marka Kimliği Görseli",
     description: "Kurumsal kimlik tasarımı",
-    prompt: "Brand identity visual, corporate branding, professional design, clean aesthetic, modern business style, cohesive visual identity, premium quality",
+    prompt:
+      "Brand identity visual, corporate branding, professional design, clean aesthetic, modern business style, cohesive visual identity, premium quality",
     aspectRatio: "1:1" as const,
     resolution: "2K" as const,
   },
@@ -157,7 +171,8 @@ export const PROMPT_TEMPLATES = [
     category: "Sosyal Medya",
     title: "Sosyal Medya Paylaşımı",
     description: "Genel sosyal medya görseli",
-    prompt: "Social media post design, engaging visual, modern aesthetic, trendy style, eye-catching composition, shareable content, professional quality",
+    prompt:
+      "Social media post design, engaging visual, modern aesthetic, trendy style, eye-catching composition, shareable content, professional quality",
     aspectRatio: "1:1" as const,
     resolution: "1K" as const,
   },
@@ -181,7 +196,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Sarılma Videosu",
     description: "İki kişinin sıcak bir şekilde sarıldığı duygusal video",
     icon: "Heart",
-    prompt: "Two people warmly hugging each other, emotional reunion moment, cinematic lighting, slow motion embrace, heartfelt connection, beautiful ambient lighting, professional video quality",
+    prompt:
+      "Two people warmly hugging each other, emotional reunion moment, cinematic lighting, slow motion embrace, heartfelt connection, beautiful ambient lighting, professional video quality",
     category: "Duygusal",
     credits: 50,
     popular: true,
@@ -191,7 +207,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Öpücük Videosu",
     description: "Romantik öpücük anı videosu",
     icon: "Heart",
-    prompt: "Romantic kiss moment between two people, soft lighting, cinematic slow motion, beautiful bokeh background, intimate and tender moment, professional cinematography",
+    prompt:
+      "Romantic kiss moment between two people, soft lighting, cinematic slow motion, beautiful bokeh background, intimate and tender moment, professional cinematography",
     category: "Romantik",
     credits: 50,
     popular: true,
@@ -201,7 +218,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Dans Videosu",
     description: "Fotoğraftaki kişi dans ediyor",
     icon: "Music",
-    prompt: "Person dancing energetically, dynamic movements, professional dance moves, vibrant lighting, music video style, smooth motion, exciting choreography, high energy performance",
+    prompt:
+      "Person dancing energetically, dynamic movements, professional dance moves, vibrant lighting, music video style, smooth motion, exciting choreography, high energy performance",
     category: "Eğlence",
     credits: 50,
     popular: true,
@@ -211,7 +229,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Konuşan Fotoğraf",
     description: "Fotoğraftaki kişi konuşuyor (lip sync)",
     icon: "MessageCircle",
-    prompt: "Person talking naturally, realistic lip movements, expressive face, natural conversation, professional lighting, smooth animation, lifelike movement",
+    prompt:
+      "Person talking naturally, realistic lip movements, expressive face, natural conversation, professional lighting, smooth animation, lifelike movement",
     category: "Eğlence",
     credits: 50,
     popular: false,
@@ -221,7 +240,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Yaş Dönüşümü",
     description: "Yaşlandırma veya gençleştirme efekti",
     icon: "Clock",
-    prompt: "Age transformation effect, person aging or getting younger, smooth transition, realistic aging process, cinematic quality, time-lapse style transformation",
+    prompt:
+      "Age transformation effect, person aging or getting younger, smooth transition, realistic aging process, cinematic quality, time-lapse style transformation",
     category: "Dönüşüm",
     credits: 50,
     popular: true,
@@ -231,7 +251,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Sanat Stili",
     description: "Farklı sanat stillerinde animasyon",
     icon: "Palette",
-    prompt: "Artistic style transformation, person transforming into different art styles, Van Gogh, watercolor, oil painting, anime style, smooth artistic transition, creative visual effect",
+    prompt:
+      "Artistic style transformation, person transforming into different art styles, Van Gogh, watercolor, oil painting, anime style, smooth artistic transition, creative visual effect",
     category: "Sanat",
     credits: 50,
     popular: false,
@@ -241,7 +262,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Dramatik Zoom",
     description: "Sinematik zoom in/out efekti",
     icon: "ZoomIn",
-    prompt: "Dramatic cinematic zoom effect, dolly zoom, vertigo effect, professional camera movement, intense visual impact, movie-like cinematography, smooth zoom transition",
+    prompt:
+      "Dramatic cinematic zoom effect, dolly zoom, vertigo effect, professional camera movement, intense visual impact, movie-like cinematography, smooth zoom transition",
     category: "Sinematik",
     credits: 50,
     popular: false,
@@ -251,7 +273,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Saç Uçuşması",
     description: "Rüzgarda uçuşan saçlar efekti",
     icon: "Wind",
-    prompt: "Hair blowing in the wind, dramatic wind effect, flowing hair movement, fashion photography style, professional lighting, slow motion hair movement, elegant and dynamic",
+    prompt:
+      "Hair blowing in the wind, dramatic wind effect, flowing hair movement, fashion photography style, professional lighting, slow motion hair movement, elegant and dynamic",
     category: "Moda",
     credits: 50,
     popular: true,
@@ -261,7 +284,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Gülümseme Videosu",
     description: "Fotoğraftaki kişi doğal bir şekilde gülümsüyor",
     icon: "Smile",
-    prompt: "Person naturally smiling, warm genuine smile, eyes lighting up with joy, subtle facial movement, professional portrait lighting, heartwarming expression, authentic happiness",
+    prompt:
+      "Person naturally smiling, warm genuine smile, eyes lighting up with joy, subtle facial movement, professional portrait lighting, heartwarming expression, authentic happiness",
     category: "Duygusal",
     credits: 50,
     popular: true,
@@ -271,7 +295,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Göz Kırpma",
     description: "Flirtöz göz kırpma animasyonu",
     icon: "Eye",
-    prompt: "Person winking playfully, flirty wink, charming expression, subtle head tilt, confident smile, professional lighting, smooth natural movement",
+    prompt:
+      "Person winking playfully, flirty wink, charming expression, subtle head tilt, confident smile, professional lighting, smooth natural movement",
     category: "Eğlence",
     credits: 50,
     popular: true,
@@ -281,7 +306,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Baş Çevirme",
     description: "Dramatik baş çevirme hareketi",
     icon: "RotateCw",
-    prompt: "Person turning head dramatically, cinematic head turn, hair flowing with movement, model-like pose transition, professional studio lighting, slow motion effect",
+    prompt:
+      "Person turning head dramatically, cinematic head turn, hair flowing with movement, model-like pose transition, professional studio lighting, slow motion effect",
     category: "Moda",
     credits: 50,
     popular: false,
@@ -291,7 +317,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Kahkaha Videosu",
     description: "Neşeli kahkaha animasyonu",
     icon: "Laugh",
-    prompt: "Person laughing joyfully, genuine laughter, eyes crinkling with happiness, natural body movement, contagious joy, warm lighting, authentic emotion",
+    prompt:
+      "Person laughing joyfully, genuine laughter, eyes crinkling with happiness, natural body movement, contagious joy, warm lighting, authentic emotion",
     category: "Eğlence",
     credits: 50,
     popular: true,
@@ -301,7 +328,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Öpücük Gönderme",
     description: "Havadan öpücük gönderme animasyonu",
     icon: "Heart",
-    prompt: "Person blowing a kiss, hand moving to lips then outward, romantic gesture, charming expression, soft lighting, elegant movement, flirty and sweet",
+    prompt:
+      "Person blowing a kiss, hand moving to lips then outward, romantic gesture, charming expression, soft lighting, elegant movement, flirty and sweet",
     category: "Romantik",
     credits: 50,
     popular: true,
@@ -311,7 +339,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "El Sallama",
     description: "Dostane el sallama animasyonu",
     icon: "Hand",
-    prompt: "Person waving hello, friendly wave gesture, warm smile, welcoming expression, natural arm movement, casual and friendly vibe, professional lighting",
+    prompt:
+      "Person waving hello, friendly wave gesture, warm smile, welcoming expression, natural arm movement, casual and friendly vibe, professional lighting",
     category: "Eğlence",
     credits: 50,
     popular: false,
@@ -321,7 +350,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Göz Teması",
     description: "Yoğun bakış animasyonu",
     icon: "Eye",
-    prompt: "Person making intense eye contact, piercing gaze, subtle eye movement, mysterious expression, dramatic lighting, captivating stare, cinematic quality",
+    prompt:
+      "Person making intense eye contact, piercing gaze, subtle eye movement, mysterious expression, dramatic lighting, captivating stare, cinematic quality",
     category: "Sinematik",
     credits: 50,
     popular: false,
@@ -331,7 +361,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Bebek Filtresi",
     description: "Yüzünüzü sevimli bir bebeğe dönüştürün",
     icon: "Baby",
-    prompt: "Transform face into adorable baby version, cute baby features, big innocent eyes, chubby cheeks, soft skin, baby-like expression, smooth transition, high quality baby face filter",
+    prompt:
+      "Transform face into adorable baby version, cute baby features, big innocent eyes, chubby cheeks, soft skin, baby-like expression, smooth transition, high quality baby face filter",
     category: "Dönüşüm",
     credits: 50,
     popular: true,
@@ -341,7 +372,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Yaşlandırma",
     description: "30-40 yıl sonraki görünümünüz",
     icon: "Clock",
-    prompt: "Age progression filter, realistic aging effect, wrinkles and gray hair, elderly version of face, natural aging process, detailed skin texture, wise expression, 30-40 years older",
+    prompt:
+      "Age progression filter, realistic aging effect, wrinkles and gray hair, elderly version of face, natural aging process, detailed skin texture, wise expression, 30-40 years older",
     category: "Dönüşüm",
     credits: 50,
     popular: true,
@@ -351,7 +383,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Cinsiyet Değişimi",
     description: "Kadın veya erkek versiyonunuz",
     icon: "Users",
-    prompt: "Gender swap transformation, realistic opposite gender version, natural facial features adaptation, smooth transition, high quality face morphing, believable gender change",
+    prompt:
+      "Gender swap transformation, realistic opposite gender version, natural facial features adaptation, smooth transition, high quality face morphing, believable gender change",
     category: "Dönüşüm",
     credits: 50,
     popular: true,
@@ -361,7 +394,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Anime Dönüşümü",
     description: "Anime karakterine dönüşün",
     icon: "Sparkles",
-    prompt: "Transform into anime character, Japanese anime art style, big expressive eyes, colorful hair, anime facial features, manga style illustration, vibrant colors, detailed anime portrait",
+    prompt:
+      "Transform into anime character, Japanese anime art style, big expressive eyes, colorful hair, anime facial features, manga style illustration, vibrant colors, detailed anime portrait",
     category: "Sanat",
     credits: 50,
     popular: true,
@@ -371,7 +405,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Çift Selfie",
     description: "İki fotoğrafı romantik videoda birleştirin",
     icon: "Heart",
-    prompt: "Romantic couple video, two people coming together, loving gaze, gentle touch, romantic atmosphere, soft lighting, intimate moment, cinematic love scene",
+    prompt:
+      "Romantic couple video, two people coming together, loving gaze, gentle touch, romantic atmosphere, soft lighting, intimate moment, cinematic love scene",
     category: "Romantik",
     credits: 60,
     popular: true,
@@ -381,7 +416,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Şarkı Söyleme",
     description: "Fotoğrafınız şarkı söylesin",
     icon: "Music",
-    prompt: "Person singing, lip sync animation, expressive mouth movements, emotional performance, musical expression, natural singing motion, concert-like lighting, passionate vocal performance",
+    prompt:
+      "Person singing, lip sync animation, expressive mouth movements, emotional performance, musical expression, natural singing motion, concert-like lighting, passionate vocal performance",
     category: "Eğlence",
     credits: 50,
     popular: true,
@@ -391,7 +427,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Ağlama Efekti",
     description: "Duygusal ağlama videosu",
     icon: "Droplet",
-    prompt: "Person crying emotionally, tears rolling down cheeks, sad expression, emotional breakdown, realistic crying animation, touching moment, dramatic lighting, heartfelt emotion",
+    prompt:
+      "Person crying emotionally, tears rolling down cheeks, sad expression, emotional breakdown, realistic crying animation, touching moment, dramatic lighting, heartfelt emotion",
     category: "Duygusal",
     credits: 50,
     popular: false,
@@ -401,7 +438,8 @@ export const VIRAL_APP_TEMPLATES = [
     title: "Gülme Krizi",
     description: "Kahkaha patlaması videosu",
     icon: "Laugh",
-    prompt: "Person having uncontrollable laughter, genuine laugh attack, tears of joy, contagious laughter, happy expression, natural laughing motion, joyful moment, infectious happiness",
+    prompt:
+      "Person having uncontrollable laughter, genuine laugh attack, tears of joy, contagious laughter, happy expression, natural laughing motion, joyful moment, infectious happiness",
     category: "Eğlence",
     credits: 50,
     popular: false,

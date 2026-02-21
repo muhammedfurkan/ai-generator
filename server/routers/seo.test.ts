@@ -39,21 +39,23 @@ describe("SEO Router", () => {
     it("should validate meta title length (max 70 chars)", () => {
       const validTitle = "NanoInf - AI Görsel ve Video Oluşturucu";
       const invalidTitle = "A".repeat(71);
-      
+
       expect(validTitle.length).toBeLessThanOrEqual(70);
       expect(invalidTitle.length).toBeGreaterThan(70);
     });
 
     it("should validate meta description length (max 160 chars)", () => {
-      const validDescription = "Profesyonel AI görseller, videolar ve karakterler oluşturun. Saniyeler içinde.";
+      const validDescription =
+        "Profesyonel AI görseller, videolar ve karakterler oluşturun. Saniyeler içinde.";
       const invalidDescription = "A".repeat(161);
-      
+
       expect(validDescription.length).toBeLessThanOrEqual(160);
       expect(invalidDescription.length).toBeGreaterThan(160);
     });
 
     it("should validate OG title length (max 95 chars)", () => {
-      const validOgTitle = "NanoInf - AI Görsel ve Video Oluşturucu | Ücretsiz AI Araçları";
+      const validOgTitle =
+        "NanoInf - AI Görsel ve Video Oluşturucu | Ücretsiz AI Araçları";
       expect(validOgTitle.length).toBeLessThanOrEqual(95);
     });
   });
@@ -66,7 +68,7 @@ Disallow: /api/
 Disallow: /admin/
 
 Sitemap: https://nanoinf.com/sitemap.xml`;
-      
+
       expect(robotsTxt).toContain("User-agent:");
       expect(robotsTxt).toContain("Sitemap:");
     });
@@ -81,7 +83,7 @@ Sitemap: https://nanoinf.com/sitemap.xml`;
     it("should validate Google Analytics ID format", () => {
       const validGaId = "G-ABC123XYZ";
       const validUaId = "UA-12345678-1";
-      
+
       expect(validGaId).toMatch(/^G-[A-Z0-9]+$/);
       expect(validUaId).toMatch(/^UA-\d+-\d+$/);
     });
@@ -102,9 +104,9 @@ Sitemap: https://nanoinf.com/sitemap.xml`;
       const socialLinks = JSON.stringify([
         { platform: "twitter", url: "https://twitter.com/nanoinf" },
         { platform: "instagram", url: "https://instagram.com/nanoinf" },
-        { platform: "youtube", url: "https://youtube.com/@nanoinf" }
+        { platform: "youtube", url: "https://youtube.com/@nanoinf" },
       ]);
-      
+
       const parsed = JSON.parse(socialLinks);
       expect(Array.isArray(parsed)).toBe(true);
       expect(parsed[0]).toHaveProperty("platform");
@@ -115,11 +117,20 @@ Sitemap: https://nanoinf.com/sitemap.xml`;
   describe("Default Pages", () => {
     it("should have all required default pages", () => {
       const defaultPages = [
-        "home", "generate", "gallery", "profile", "blog",
-        "video", "upscale", "ai-influencer", "packages",
-        "multi-angle", "product-promo", "skin-enhancement"
+        "home",
+        "generate",
+        "gallery",
+        "profile",
+        "blog",
+        "video",
+        "upscale",
+        "ai-influencer",
+        "packages",
+        "multi-angle",
+        "product-promo",
+        "skin-enhancement",
       ];
-      
+
       expect(defaultPages.length).toBe(12);
       defaultPages.forEach(page => {
         expect(page).toBeTruthy();
@@ -133,10 +144,10 @@ Sitemap: https://nanoinf.com/sitemap.xml`;
       const structuredData = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "NanoInf",
-        "url": "https://nanoinf.com"
+        name: "NanoInf",
+        url: "https://nanoinf.com",
       };
-      
+
       expect(structuredData["@context"]).toBe("https://schema.org");
       expect(structuredData["@type"]).toBeTruthy();
     });
@@ -145,19 +156,41 @@ Sitemap: https://nanoinf.com/sitemap.xml`;
   describe("SEO Stats", () => {
     it("should calculate correct stats", () => {
       const pages = [
-        { metaTitle: "Title 1", metaDescription: "Desc 1", ogTitle: "OG 1", ogImage: "img1.jpg", robotsIndex: true, isActive: true },
-        { metaTitle: "Title 2", metaDescription: "Desc 2", ogTitle: null, ogImage: null, robotsIndex: true, isActive: true },
-        { metaTitle: null, metaDescription: null, ogTitle: null, ogImage: null, robotsIndex: false, isActive: false },
+        {
+          metaTitle: "Title 1",
+          metaDescription: "Desc 1",
+          ogTitle: "OG 1",
+          ogImage: "img1.jpg",
+          robotsIndex: true,
+          isActive: true,
+        },
+        {
+          metaTitle: "Title 2",
+          metaDescription: "Desc 2",
+          ogTitle: null,
+          ogImage: null,
+          robotsIndex: true,
+          isActive: true,
+        },
+        {
+          metaTitle: null,
+          metaDescription: null,
+          ogTitle: null,
+          ogImage: null,
+          robotsIndex: false,
+          isActive: false,
+        },
       ];
-      
+
       const stats = {
         totalPages: pages.length,
         activePages: pages.filter(p => p.isActive).length,
-        pagesWithMeta: pages.filter(p => p.metaTitle && p.metaDescription).length,
+        pagesWithMeta: pages.filter(p => p.metaTitle && p.metaDescription)
+          .length,
         pagesWithOg: pages.filter(p => p.ogTitle && p.ogImage).length,
         pagesIndexed: pages.filter(p => p.robotsIndex).length,
       };
-      
+
       expect(stats.totalPages).toBe(3);
       expect(stats.activePages).toBe(2);
       expect(stats.pagesWithMeta).toBe(2);

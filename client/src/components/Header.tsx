@@ -9,13 +9,11 @@ import {
   User,
   LogOut,
   CreditCard,
-  Settings,
   ChevronDown,
   Sparkles,
   Zap,
   Image,
   Video,
-  Layers,
   BookOpen,
   Crown,
   Mic,
@@ -29,6 +27,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { getLoginUrl } from "@/const";
 import { Sun, Moon } from "lucide-react";
+import { useWebUiConfig } from "@/hooks/useWebUiConfig";
+import { orderByIds } from "@/lib/webUiConfig";
 
 export default function Header() {
   const { user, logout } = useAuth();
@@ -43,16 +43,14 @@ export default function Header() {
 
   const { t, language, setLanguage } = useLanguage();
   const { theme, toggleTheme, switchable } = useTheme();
+  const { getSetting, webUiConfig, featureFlags } = useWebUiConfig();
 
   const creditsQuery = trpc.generation.getCredits.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
-  // Fetch dynamic logo URL from site settings
-  const { data: publicSettings } = trpc.settings.getPublicSettings.useQuery();
-  const logoUrl =
-    publicSettings?.find(s => s.key === "site_logo_url")?.value ||
-    "/Logo-01.png";
+  const logoUrl = getSetting("site_logo_url", "/Logo-01.png");
+  const siteName = getSetting("site_name", "Lumiohan");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -90,25 +88,86 @@ export default function Header() {
     await logout();
   };
 
-  // Navigation items grouped logically
-  const mainNavItems = [
-    // { label: t("nav.apps"), path: "/apps", icon: Layers },
-    { label: t("nav.upscale"), path: "/upscale", icon: Zap },
-    { label: t("nav.videoCreate"), path: "/video-generate", icon: Video },
+  const mainNavPresets = [
     {
+      id: "upscale",
+      label: t("nav.upscale"),
+      path: "/upscale",
+      icon: Zap,
+      featureKey: "upscale_enabled",
+    },
+    {
+      id: "video-generate",
+      label: t("nav.videoCreate"),
+      path: "/video-generate",
+      icon: Video,
+      featureKey: "video_generation_enabled",
+    },
+    {
+      id: "motion-control",
       label: t("nav.motionControl"),
       path: "/motion-control",
       icon: Video,
       badge: t("nav.new"),
+      featureKey: "video_generation_enabled",
     },
-    { label: t("nav.aiCharacter"), path: "/ai-influencer", icon: Sparkles },
-    { label: t("nav.audioGenerate"), path: "/audio-generate", icon: Mic },
     {
+      id: "ai-influencer",
+      label: t("nav.aiCharacter"),
+      path: "/ai-influencer",
+      icon: Sparkles,
+      featureKey: "ai_influencer_enabled",
+    },
+    {
+      id: "audio-generate",
+      label: t("nav.audioGenerate"),
+      path: "/audio-generate",
+      icon: Mic,
+      featureKey: "audio_generation_enabled",
+    },
+    {
+      id: "music-generate",
       label: t("nav.musicGenerate"),
       path: "/music-generate",
       icon: Music,
+      featureKey: "music_generation_enabled",
+    },
+    {
+      id: "gallery",
+      label: t("nav.gallery"),
+      path: "/gallery",
+      icon: Image,
+      featureKey: "gallery_enabled",
+    },
+    {
+      id: "blog",
+      label: t("nav.blog"),
+      path: "/blog",
+      icon: BookOpen,
+      featureKey: "blog_enabled",
     },
   ];
+
+  const enabledMainNavPresets = mainNavPresets.filter(
+    item =>
+      !item.featureKey ||
+      featureFlags[item.featureKey as keyof typeof featureFlags]
+  );
+
+  const mainNavItems = orderByIds(
+    enabledMainNavPresets,
+    webUiConfig.navigation.headerMainNavOrder
+  );
+
+  const defaultCreatePath = featureFlags.image_generation_enabled
+    ? "/generate"
+    : featureFlags.video_generation_enabled
+      ? "/video-generate"
+      : featureFlags.ai_influencer_enabled
+        ? "/ai-influencer"
+        : featureFlags.upscale_enabled
+          ? "/upscale"
+          : "/packages";
 
   return (
     <motion.header
@@ -129,7 +188,7 @@ export default function Header() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <img src={logoUrl} alt="Logo" className="h-12 w-auto" />
+          <img src={logoUrl} alt={siteName} className="h-12 w-auto" />
         </motion.button>
 
         {/* Desktop Navigation */}
@@ -152,42 +211,14 @@ export default function Header() {
                   >
                     <span className="flex items-center gap-1.5">
                       {item.label}
-                      {(item as any).badge && (
+                      {item.badge && (
                         <span className="px-1.5 py-0.5 text-[10px] font-bold bg-neon-brand text-black rounded">
-                          {(item as any).badge}
+                          {item.badge}
                         </span>
                       )}
                     </span>
                   </Button>
                 ))}
-
-                {/* Gallery */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("/gallery")}
-                  className={`text-sm px-3 py-2 h-9 rounded-lg transition-all ${
-                    location === "/gallery"
-                      ? "bg-white/10 text-[#F9FAFB]"
-                      : "text-gray-300 hover:text-[#F9FAFB] hover:bg-white/5"
-                  }`}
-                >
-                  {t("nav.gallery")}
-                </Button>
-
-                {/* Blog */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate("/blog")}
-                  className={`text-sm px-3 py-2 h-9 rounded-lg transition-all ${
-                    location === "/blog"
-                      ? "bg-white/10 text-[#F9FAFB]"
-                      : "text-gray-300 hover:text-[#F9FAFB] hover:bg-white/5"
-                  }`}
-                >
-                  {t("nav.blog")}
-                </Button>
               </nav>
 
               {/* Divider */}
@@ -236,7 +267,7 @@ export default function Header() {
 
               {/* Create Button - CTA */}
               <Button
-                onClick={() => navigate("/generate")}
+                onClick={() => navigate(defaultCreatePath)}
                 className="bg-neon-brand hover:bg-neon-brand/90 text-black font-semibold rounded-full px-5 h-9 ml-1 shadow-lg shadow-neon-brand/20"
               >
                 <Sparkles className="h-4 w-4 mr-1.5" />
@@ -420,7 +451,7 @@ export default function Header() {
                   <div className="space-y-1 pt-2">
                     {mainNavItems.map(item => (
                       <Button
-                        key={item.path}
+                        key={item.id}
                         variant="ghost"
                         onClick={() => {
                           navigate(item.path);
@@ -432,36 +463,13 @@ export default function Header() {
                       >
                         <item.icon className="h-5 w-5 mr-3 text-gray-400" />
                         {item.label}
+                        {item.badge && (
+                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold bg-neon-brand text-black rounded">
+                            {item.badge}
+                          </span>
+                        )}
                       </Button>
                     ))}
-
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        navigate("/gallery");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`w-full justify-start py-3 h-auto ${
-                        location === "/gallery" ? "bg-white/10" : ""
-                      }`}
-                    >
-                      <Image className="h-5 w-5 mr-3 text-gray-400" />
-                      {t("nav.gallery")}
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        navigate("/blog");
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className={`w-full justify-start py-3 h-auto ${
-                        location === "/blog" ? "bg-white/10" : ""
-                      }`}
-                    >
-                      <BookOpen className="h-5 w-5 mr-3 text-gray-400" />
-                      {t("nav.blog")}
-                    </Button>
 
                     <Button
                       variant="ghost"

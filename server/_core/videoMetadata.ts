@@ -10,33 +10,47 @@ const execFileAsync = promisify(execFile);
  * @param videoUrl - URL of the video file
  * @returns Duration in seconds, or null if unable to determine
  */
-export async function getVideoDuration(videoUrl: string): Promise<number | null> {
+export async function getVideoDuration(
+  videoUrl: string
+): Promise<number | null> {
   try {
     // Use system ffprobe instead of static binary (which crashes on some linux envs)
     const ffprobePath = "ffprobe";
 
     // Use ffprobe to get video metadata
     const { stdout } = await execFileAsync(ffprobePath, [
-      "-v", "error",
-      "-show_entries", "format=duration",
-      "-of", "default=noprint_wrappers=1:nokey=1",
+      "-v",
+      "error",
+      "-show_entries",
+      "format=duration",
+      "-of",
+      "default=noprint_wrappers=1:nokey=1",
       videoUrl,
     ]);
 
     const duration = parseFloat(stdout.trim());
 
     if (isNaN(duration) || duration <= 0) {
-      console.warn(`[VideoMetadata] Invalid duration detected: ${stdout.trim()}`);
+      console.warn(
+        `[VideoMetadata] Invalid duration detected: ${stdout.trim()}`
+      );
       return null;
     }
 
-    console.log(`[VideoMetadata] Duration for ${videoUrl.substring(0, 50)}...: ${duration}s`);
+    console.log(
+      `[VideoMetadata] Duration for ${videoUrl.substring(0, 50)}...: ${duration}s`
+    );
     return duration;
   } catch (error: any) {
-    if (error.signal === 'SIGSEGV') {
-      console.error(`[VideoMetadata] ffprobe crashed (SIGSEGV). This is likely a binary compatibility issue in the current environment.`);
+    if (error.signal === "SIGSEGV") {
+      console.error(
+        `[VideoMetadata] ffprobe crashed (SIGSEGV). This is likely a binary compatibility issue in the current environment.`
+      );
     } else {
-      console.error(`[VideoMetadata] Error getting video duration for ${videoUrl}:`, error.message || error);
+      console.error(
+        `[VideoMetadata] Error getting video duration for ${videoUrl}:`,
+        error.message || error
+      );
     }
     return null;
   }
@@ -57,10 +71,14 @@ export async function getVideoMetadata(videoUrl: string): Promise<{
 
     // Get comprehensive video metadata
     const { stdout } = await execFileAsync(ffprobePath, [
-      "-v", "error",
-      "-select_streams", "v:0",
-      "-show_entries", "stream=width,height,duration:format=duration",
-      "-of", "json",
+      "-v",
+      "error",
+      "-select_streams",
+      "v:0",
+      "-show_entries",
+      "stream=width,height,duration:format=duration",
+      "-of",
+      "json",
       videoUrl,
     ]);
 
@@ -85,14 +103,22 @@ export async function getVideoMetadata(videoUrl: string): Promise<{
       height = parseInt(metadata.streams[0].height);
     }
 
-    console.log(`[VideoMetadata] Metadata for ${videoUrl.substring(0, 50)}...:`, { duration, width, height });
+    console.log(
+      `[VideoMetadata] Metadata for ${videoUrl.substring(0, 50)}...:`,
+      { duration, width, height }
+    );
 
     return { duration, width, height };
   } catch (error: any) {
-    if (error.signal === 'SIGSEGV') {
-      console.error(`[VideoMetadata] ffprobe crashed (SIGSEGV). This is likely a binary compatibility issue in the current environment.`);
+    if (error.signal === "SIGSEGV") {
+      console.error(
+        `[VideoMetadata] ffprobe crashed (SIGSEGV). This is likely a binary compatibility issue in the current environment.`
+      );
     } else {
-      console.error(`[VideoMetadata] Error getting video metadata for ${videoUrl}:`, error.message || error);
+      console.error(
+        `[VideoMetadata] Error getting video metadata for ${videoUrl}:`,
+        error.message || error
+      );
     }
     return null;
   }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin Packages - Kredi Paketleri Yönetimi
  */

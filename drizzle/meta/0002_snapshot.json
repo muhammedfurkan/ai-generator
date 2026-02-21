@@ -71,12 +71,8 @@
           "name": "creditTransactions_userId_users_id_fk",
           "tableFrom": "creditTransactions",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -84,9 +80,7 @@
       "compositePrimaryKeys": {
         "creditTransactions_id": {
           "name": "creditTransactions_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -174,12 +168,8 @@
           "name": "generatedImages_userId_users_id_fk",
           "tableFrom": "generatedImages",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -187,9 +177,7 @@
       "compositePrimaryKeys": {
         "generatedImages_id": {
           "name": "generatedImages_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -241,17 +229,13 @@
       "compositePrimaryKeys": {
         "systemSettings_id": {
           "name": "systemSettings_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "systemSettings_key_unique": {
           "name": "systemSettings_key_unique",
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         }
       },
       "checkConstraint": {}
@@ -339,12 +323,8 @@
           "name": "userPromptTemplates_userId_users_id_fk",
           "tableFrom": "userPromptTemplates",
           "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["userId"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -352,9 +332,7 @@
       "compositePrimaryKeys": {
         "userPromptTemplates_id": {
           "name": "userPromptTemplates_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -445,17 +423,13 @@
       "compositePrimaryKeys": {
         "users_id": {
           "name": "users_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "users_openId_unique": {
           "name": "users_openId_unique",
-          "columns": [
-            "openId"
-          ]
+          "columns": ["openId"]
         }
       },
       "checkConstraint": {}

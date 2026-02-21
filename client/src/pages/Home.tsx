@@ -20,11 +20,13 @@ import {
 } from "lucide-react";
 import { useLocation } from "wouter";
 import Header from "@/components/Header";
-import { Suspense, lazy, useRef, useState } from "react";
+import { Suspense, lazy, useMemo, useRef, useState } from "react";
 import MobileHome from "@/components/MobileHome";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trpc } from "@/lib/trpc";
 import { useHomeReveal } from "@/hooks/useHomeReveal";
+import { useWebUiConfig } from "@/hooks/useWebUiConfig";
+import { getOrderMap, orderByIds } from "@/lib/webUiConfig";
 
 const HeroThreeBackground = lazy(
   () => import("@/components/home/HeroThreeBackground")
@@ -36,10 +38,13 @@ export default function Home() {
   const { t, language } = useLanguage();
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
   const homeRef = useRef<HTMLDivElement>(null);
+  const { webUiConfig, getSetting, featureFlags } = useWebUiConfig();
 
   // Fetch showcase images and videos from API
-  const { data: showcaseImages = [] } = trpc.settings.getShowcaseImages.useQuery();
-  const { data: showcaseVideos = [] } = trpc.settings.getShowcaseVideos.useQuery();
+  const { data: showcaseImages = [] } =
+    trpc.settings.getShowcaseImages.useQuery();
+  const { data: showcaseVideos = [] } =
+    trpc.settings.getShowcaseVideos.useQuery();
 
   // AI Araçları kategorileri
   const AI_TOOLS = [
@@ -51,6 +56,7 @@ export default function Home() {
       href: "/generate",
       color: "from-[#7C3AED] to-[#FF2E97]",
       badge: t("home.badge.featured"),
+      featureKey: "image_generation_enabled",
     },
     {
       id: "video-gen",
@@ -60,6 +66,7 @@ export default function Home() {
       href: "/video-generate",
       color: "from-sky-500 to-[#FF2E97]",
       badge: t("home.badge.popular"),
+      featureKey: "video_generation_enabled",
     },
     {
       id: "motion-control",
@@ -69,6 +76,7 @@ export default function Home() {
       href: "/motion-control",
       color: "from-[#00F5FF] to-[#FF2E97]",
       badge: t("home.badge.new"),
+      featureKey: "video_generation_enabled",
     },
     {
       id: "ai-influencer",
@@ -78,6 +86,7 @@ export default function Home() {
       href: "/ai-influencer",
       color: "from-[#00F5FF] to-[#7C3AED]",
       badge: t("home.badge.new"),
+      featureKey: "ai_influencer_enabled",
     },
     {
       id: "upscale",
@@ -86,6 +95,7 @@ export default function Home() {
       icon: Zap,
       href: "/upscale",
       color: "from-slate-500 to-sky-500",
+      featureKey: "upscale_enabled",
     },
     {
       id: "multi-angle",
@@ -125,6 +135,57 @@ export default function Home() {
     },
   ];
 
+  const orderedTools = useMemo(
+    () =>
+      orderByIds(
+        AI_TOOLS.filter(
+          tool =>
+            !tool.featureKey ||
+            featureFlags[tool.featureKey as keyof typeof featureFlags]
+        ),
+        webUiConfig.home.desktopToolOrder
+      ),
+    [AI_TOOLS, featureFlags, webUiConfig.home.desktopToolOrder]
+  );
+  const sectionOrderMap = useMemo(
+    () => getOrderMap(webUiConfig.home.sectionOrder),
+    [webUiConfig.home.sectionOrder]
+  );
+  const sectionVisibility = webUiConfig.home.sectionVisibility;
+
+  const siteName = getSetting("site_name", "Lumiohan");
+  const footerLogo = getSetting("site_favicon_url", "/Logo-02.png");
+
+  const fallbackGeneratePath = featureFlags.image_generation_enabled
+    ? "/generate"
+    : featureFlags.video_generation_enabled
+      ? "/video-generate"
+      : featureFlags.ai_influencer_enabled
+        ? "/ai-influencer"
+        : featureFlags.upscale_enabled
+          ? "/upscale"
+          : "/packages";
+
+  const isPathEnabled = (path: string) => {
+    if (path.startsWith("/generate"))
+      return featureFlags.image_generation_enabled;
+    if (path.startsWith("/video-generate"))
+      return featureFlags.video_generation_enabled;
+    if (path.startsWith("/motion-control"))
+      return featureFlags.video_generation_enabled;
+    if (path.startsWith("/ai-influencer"))
+      return featureFlags.ai_influencer_enabled;
+    if (path.startsWith("/upscale")) return featureFlags.upscale_enabled;
+    if (path.startsWith("/gallery")) return featureFlags.gallery_enabled;
+    if (path.startsWith("/blog")) return featureFlags.blog_enabled;
+    if (path.startsWith("/community-characters"))
+      return featureFlags.community_enabled;
+    return true;
+  };
+
+  const resolvePath = (path: string) =>
+    isPathEnabled(path) ? path : fallbackGeneratePath;
+
   // Topluluk AI karakterlerini getir
   const { data: popularCharacters } = trpc.aiCharacters.getPopular.useQuery(
     { limit: 12 },
@@ -138,8 +199,9 @@ export default function Home() {
   );
 
   const handleToolClick = (href: string) => {
+    const targetPath = resolvePath(href);
     if (isAuthenticated) {
-      navigate(href);
+      navigate(targetPath);
     } else {
       window.location.href = getLoginUrl();
     }
@@ -182,57 +244,64 @@ export default function Home() {
                   >
                     <Sparkles className="h-4 w-4" />
                     <span className="text-sm font-semibold">
-                      {t("home.hero.badge")}
+                      {webUiConfig.hero.badge || t("home.hero.badge")}
                     </span>
                   </div>
                   <h1
                     data-reveal
                     className="max-w-2xl text-5xl font-black leading-tight text-[#F9FAFB] lg:text-6xl"
                   >
-                    {t("home.hero.title.prefix")}
+                    {webUiConfig.hero.titlePrefix ||
+                      t("home.hero.title.prefix")}
                     <span className="ai-headline-gradient">
                       {" "}
-                      {t("home.hero.title.suffix")}
+                      {webUiConfig.hero.titleSuffix ||
+                        t("home.hero.title.suffix")}
                     </span>
                   </h1>
                   <p
                     data-reveal
                     className="max-w-xl text-lg leading-relaxed text-slate-300"
                   >
-                    {t("home.heroSubtitle")}
+                    {webUiConfig.hero.subtitle || t("home.heroSubtitle")}
                   </p>
                   <div data-reveal className="flex flex-wrap gap-3">
                     <Button
                       size="lg"
                       className="h-12 rounded-full bg-neon-brand px-7 font-bold text-slate-950 hover:bg-neon-brand/90"
-                      onClick={() => handleToolClick("/generate")}
+                      onClick={() =>
+                        handleToolClick(
+                          webUiConfig.hero.primaryCtaPath || "/generate"
+                        )
+                      }
                     >
-                      {t("home.getStarted")}
+                      {webUiConfig.hero.primaryCtaLabel || t("home.getStarted")}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                     <Button
                       size="lg"
                       variant="outline"
                       className="h-12 rounded-full border-slate-300/30 bg-slate-900/30 px-7 text-slate-100 hover:bg-slate-800/40"
-                      onClick={() => handleToolClick("/video-generate")}
+                      onClick={() =>
+                        handleToolClick(
+                          webUiConfig.hero.secondaryCtaPath || "/video-generate"
+                        )
+                      }
                     >
-                      {t("home.createVideo")}
+                      {webUiConfig.hero.secondaryCtaLabel ||
+                        t("home.createVideo")}
                     </Button>
                   </div>
                   <div data-reveal className="flex flex-wrap gap-3 pt-2">
-                    {[
-                      { label: "20+", value: "AI Models" },
-                      { label: "4K", value: "Output Quality" },
-                      { label: "24/7", value: "Generation" },
-                    ].map(item => (
+                    {webUiConfig.hero.stats.map(item => (
                       <div
-                        key={item.value}
+                        key={`${item.label}-${item.value}`}
                         className="rounded-2xl border border-slate-600/40 bg-slate-900/45 px-4 py-3 backdrop-blur"
                       >
                         <p className="text-xl font-extrabold text-[#F9FAFB]">
-                          {item.label}
+                          {item.value}
                         </p>
-                        <p className="text-xs text-slate-300">{item.value}</p>
+                        <p className="text-xs text-slate-300">{item.label}</p>
                       </div>
                     ))}
                   </div>
@@ -273,327 +342,355 @@ export default function Home() {
             </div>
           </section>
 
-          {/* AI Tools Grid Section */}
-          <section className="ai-page-bg py-16">
-            <div className="container">
-              <div
-                data-reveal
-                className="mb-8 flex items-center justify-between gap-4"
+          <div className="flex flex-col">
+            {/* AI Tools Grid Section */}
+            {sectionVisibility["ai-tools"] && (
+              <section
+                className="ai-page-bg py-16"
+                style={{ order: sectionOrderMap.get("ai-tools") ?? 0 }}
               >
-                <div>
-                  <h2 className="text-3xl font-black text-[#F9FAFB]">
-                    {t("home.aiTools")}
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-400">
-                    Image, video ve prompt pipeline tek panelde.
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  className="ai-link"
-                  onClick={() => navigate("/apps")}
-                >
-                  {t("home.viewAll")}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-                {AI_TOOLS.map((tool, index) => (
-                  <motion.div
-                    key={tool.id}
-                    data-reveal
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.04, duration: 0.45 }}
-                    whileHover={{ y: -7, scale: 1.015 }}
-                    className="group cursor-pointer"
-                    onClick={() => handleToolClick(tool.href)}
-                  >
-                    <div className="relative h-48 overflow-hidden rounded-2xl border border-slate-200/10 bg-slate-900/45 p-4 backdrop-blur-sm transition-all duration-300 group-hover:border-sky-300/45">
-                      <div
-                        className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tool.color}`}
-                      />
-                      {tool.badge && (
-                        <span className="absolute right-3 top-3 rounded-full bg-neon-brand px-2 py-1 text-[10px] font-bold text-black">
-                          {tool.badge}
-                        </span>
-                      )}
-                      <tool.icon className="h-9 w-9 text-sky-300" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <h3 className="mb-1 text-sm font-bold text-[#F9FAFB]">
-                          {tool.title}
-                        </h3>
-                        <p className="line-clamp-2 text-xs text-slate-300">
-                          {tool.description}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* AI Models Section - Image & Video Models */}
-          {publicModels &&
-            (publicModels.imageModels.length > 0 ||
-              publicModels.videoModels.length > 0) && (
-              <section className="ai-section-muted py-16">
                 <div className="container">
-                  {/* Image Generation Models */}
-                  {publicModels.imageModels.length > 0 && (
-                    <div className="mb-12">
-                      <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-3xl font-black text-neon-brand">
-                          {t("home.imageGenModels")}
-                        </h2>
-                        <Button
-                          variant="ghost"
-                          className="text-[#F9FAFB] hover:text-neon-brand"
-                          onClick={() => navigate("/generate")}
-                        >
-                          {t("home.generateImage")}
-                          <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {publicModels.imageModels.map((model, index) => (
-                          <motion.div
-                            key={model.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            whileHover={{ scale: 1.02, y: -5 }}
-                            className="group cursor-pointer"
-                            onClick={() =>
-                              handleToolClick(
-                                `/generate?model=${model.modelKey}`
-                              )
-                            }
-                          >
-                            <div className="ai-model-surface-image relative h-64 rounded-2xl overflow-hidden border border-white/10">
-                              {model.coverImageDesktop && (
-                                <img
-                                  src={model.coverImageDesktop}
-                                  alt={model.modelName}
-                                  className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                                />
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-                              <div className="absolute bottom-0 left-0 right-0 p-6">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Sparkles className="w-5 h-5 text-neon-brand" />
-                                  <h3 className="text-xl font-bold text-[#F9FAFB]">
-                                    {model.modelName}
-                                  </h3>
-                                </div>
-                                <p className="text-sm text-gray-300 mb-2">
-                                  {model.provider}
-                                </p>
-                                {model.coverDescription && (
-                                  <p className="text-sm text-gray-400 line-clamp-2">
-                                    {model.coverDescription}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Video Generation Models */}
-                  {publicModels.videoModels.length > 0 && (
+                  <div
+                    data-reveal
+                    className="mb-8 flex items-center justify-between gap-4"
+                  >
                     <div>
-                      <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-3xl font-black text-neon-brand">
-                          {t("home.videoGenModels")}
-                        </h2>
-                        <Button
-                          variant="ghost"
-                          className="text-[#F9FAFB] hover:text-neon-brand"
-                          onClick={() => navigate("/video-generate")}
-                        >
-                          {t("home.generateVideo")}
-                          <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {publicModels.videoModels.map((model, index) => (
-                          <motion.div
-                            key={model.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            whileHover={{ scale: 1.02, y: -5 }}
-                            className="group cursor-pointer"
-                            onClick={() =>
-                              handleToolClick(
-                                `/video-generate?model=${model.modelKey}`
-                              )
-                            }
-                          >
-                            <div className="ai-model-surface-video relative h-64 rounded-2xl overflow-hidden border border-white/10">
-                              {model.coverImageDesktop && (
-                                <img
-                                  src={model.coverImageDesktop}
-                                  alt={model.modelName}
-                                  className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
-                                />
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-                              <div className="absolute bottom-0 left-0 right-0 p-6">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <Play className="w-5 h-5 text-neon-brand" />
-                                  <h3 className="text-xl font-bold text-[#F9FAFB]">
-                                    {model.modelName}
-                                  </h3>
-                                </div>
-                                <p className="text-sm text-gray-300 mb-2">
-                                  {model.provider}
-                                </p>
-                                {model.coverDescription && (
-                                  <p className="text-sm text-gray-400 line-clamp-2">
-                                    {model.coverDescription}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
+                      <h2 className="text-3xl font-black text-[#F9FAFB]">
+                        {t("home.aiTools")}
+                      </h2>
+                      <p className="mt-1 text-sm text-slate-400">
+                        Image, video ve prompt pipeline tek panelde.
+                      </p>
                     </div>
-                  )}
+                    <Button
+                      variant="ghost"
+                      className="ai-link"
+                      onClick={() => navigate("/apps")}
+                    >
+                      {t("home.viewAll")}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                    {orderedTools.map((tool, index) => (
+                      <motion.div
+                        key={tool.id}
+                        data-reveal
+                        initial={{ opacity: 0, y: 24 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.04, duration: 0.45 }}
+                        whileHover={{ y: -7, scale: 1.015 }}
+                        className="group cursor-pointer"
+                        onClick={() => handleToolClick(tool.href)}
+                      >
+                        <div className="relative h-48 overflow-hidden rounded-2xl border border-slate-200/10 bg-slate-900/45 p-4 backdrop-blur-sm transition-all duration-300 group-hover:border-sky-300/45">
+                          <div
+                            className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tool.color}`}
+                          />
+                          {tool.badge && (
+                            <span className="absolute right-3 top-3 rounded-full bg-neon-brand px-2 py-1 text-[10px] font-bold text-black">
+                              {tool.badge}
+                            </span>
+                          )}
+                          <tool.icon className="h-9 w-9 text-sky-300" />
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <h3 className="mb-1 text-sm font-bold text-[#F9FAFB]">
+                              {tool.title}
+                            </h3>
+                            <p className="line-clamp-2 text-xs text-slate-300">
+                              {tool.description}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
 
-          {/* Showcase Gallery - Masonry Grid */}
-          <section className="ai-section-soft py-16">
-            <div className="container">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black text-neon-brand">
-                  {t("home.createdWithAi")}
-                </h2>
-                <Button
-                  variant="ghost"
-                  className="text-[#F9FAFB] hover:text-neon-brand"
-                  onClick={() => navigate("/gallery")}
+            {/* AI Models Section - Image & Video Models */}
+            {sectionVisibility.models &&
+              publicModels &&
+              ((featureFlags.image_generation_enabled &&
+                publicModels.imageModels.length > 0) ||
+                (featureFlags.video_generation_enabled &&
+                  publicModels.videoModels.length > 0)) && (
+                <section
+                  className="ai-section-muted py-16"
+                  style={{ order: sectionOrderMap.get("models") ?? 1 }}
                 >
-                  {t("home.gallery")}
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </div>
+                  <div className="container">
+                    {/* Image Generation Models */}
+                    {featureFlags.image_generation_enabled &&
+                      publicModels.imageModels.length > 0 && (
+                        <div className="mb-12">
+                          <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-3xl font-black text-neon-brand">
+                              {t("home.imageGenModels")}
+                            </h2>
+                            <Button
+                              variant="ghost"
+                              className="text-[#F9FAFB] hover:text-neon-brand"
+                              onClick={() => navigate("/generate")}
+                            >
+                              {t("home.generateImage")}
+                              <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                          </div>
 
-              {/* Masonry Grid */}
-              <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
-                {showcaseImages.length > 0 ? (
-                  showcaseImages.map((img, index) => (
-                    <motion.div
-                      key={img.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      className="break-inside-avoid group cursor-pointer"
-                      onClick={() => handleToolClick("/generate")}
-                    >
-                      <div className="relative rounded-xl overflow-hidden bg-white/5">
-                        <img
-                          src={img.thumbnailUrl || img.imageUrl}
-                          alt={img.title || `AI Generated ${index + 1}`}
-                          className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                            <span className="text-[#F9FAFB] text-xs font-medium">
-                              {img.title || "AI Generated"}
-                            </span>
-                            <Wand2 className="w-4 h-4 text-neon-brand" />
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {publicModels.imageModels.map((model, index) => (
+                              <motion.div
+                                key={model.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                whileHover={{ scale: 1.02, y: -5 }}
+                                className="group cursor-pointer"
+                                onClick={() =>
+                                  handleToolClick(
+                                    `/generate?model=${model.modelKey}`
+                                  )
+                                }
+                              >
+                                <div className="ai-model-surface-image relative h-64 rounded-2xl overflow-hidden border border-white/10">
+                                  {model.coverImageDesktop && (
+                                    <img
+                                      src={model.coverImageDesktop}
+                                      alt={model.modelName}
+                                      className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                                    />
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Sparkles className="w-5 h-5 text-neon-brand" />
+                                      <h3 className="text-xl font-bold text-[#F9FAFB]">
+                                        {model.modelName}
+                                      </h3>
+                                    </div>
+                                    <p className="text-sm text-gray-300 mb-2">
+                                      {model.provider}
+                                    </p>
+                                    {model.coverDescription && (
+                                      <p className="text-sm text-gray-400 line-clamp-2">
+                                        {model.coverDescription}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))}
                           </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center text-zinc-500 py-12">
-                    {t("home.noImages")}
+                      )}
+
+                    {/* Video Generation Models */}
+                    {featureFlags.video_generation_enabled &&
+                      publicModels.videoModels.length > 0 && (
+                        <div>
+                          <div className="flex items-center justify-between mb-8">
+                            <h2 className="text-3xl font-black text-neon-brand">
+                              {t("home.videoGenModels")}
+                            </h2>
+                            <Button
+                              variant="ghost"
+                              className="text-[#F9FAFB] hover:text-neon-brand"
+                              onClick={() => navigate("/video-generate")}
+                            >
+                              {t("home.generateVideo")}
+                              <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {publicModels.videoModels.map((model, index) => (
+                              <motion.div
+                                key={model.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                whileHover={{ scale: 1.02, y: -5 }}
+                                className="group cursor-pointer"
+                                onClick={() =>
+                                  handleToolClick(
+                                    `/video-generate?model=${model.modelKey}`
+                                  )
+                                }
+                              >
+                                <div className="ai-model-surface-video relative h-64 rounded-2xl overflow-hidden border border-white/10">
+                                  {model.coverImageDesktop && (
+                                    <img
+                                      src={model.coverImageDesktop}
+                                      alt={model.modelName}
+                                      className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                                    />
+                                  )}
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Play className="w-5 h-5 text-neon-brand" />
+                                      <h3 className="text-xl font-bold text-[#F9FAFB]">
+                                        {model.modelName}
+                                      </h3>
+                                    </div>
+                                    <p className="text-sm text-gray-300 mb-2">
+                                      {model.provider}
+                                    </p>
+                                    {model.coverDescription && (
+                                      <p className="text-sm text-gray-400 line-clamp-2">
+                                        {model.coverDescription}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                   </div>
-                )}
-              </div>
-            </div>
-          </section>
+                </section>
+              )}
 
-          {/* Video Showcase Section */}
-          <section className="ai-section-soft py-16">
-            <div className="container">
-              <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-black text-neon-brand">
-                  {t("home.aiVideoGallery")}
-                </h2>
-                <Button
-                  variant="ghost"
-                  className="text-[#F9FAFB] hover:text-neon-brand"
-                  onClick={() => navigate("/video-generate")}
-                >
-                  {t("home.createVideo")}
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {showcaseVideos.length > 0 ? (
-                  showcaseVideos.map((video, index) => (
-                    <motion.div
-                      key={video.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group cursor-pointer"
-                      onClick={() =>
-                        setPlayingVideo(playingVideo === index ? null : index)
-                      }
+            {/* Showcase Gallery - Masonry Grid */}
+            {sectionVisibility.images && featureFlags.gallery_enabled && (
+              <section
+                className="ai-section-soft py-16"
+                style={{ order: sectionOrderMap.get("images") ?? 2 }}
+              >
+                <div className="container">
+                  <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-3xl font-black text-neon-brand">
+                      {t("home.createdWithAi")}
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      className="text-[#F9FAFB] hover:text-neon-brand"
+                      onClick={() => navigate("/gallery")}
                     >
-                      <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white/5">
-                        <video
-                          src={video.videoUrl}
-                          poster={video.posterUrl || undefined}
-                          className="w-full h-full object-cover"
-                          muted
-                          loop
-                          playsInline
-                          autoPlay={playingVideo === index}
-                        />
-                        {playingVideo !== index && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
-                            <div className="w-16 h-16 rounded-full bg-neon-brand flex items-center justify-center group-hover:scale-110 transition-transform">
-                              <Play className="w-8 h-8 text-black ml-1" />
+                      {t("home.gallery")}
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Masonry Grid */}
+                  <div className="columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+                    {showcaseImages.length > 0 ? (
+                      showcaseImages.map((img, index) => (
+                        <motion.div
+                          key={img.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="break-inside-avoid group cursor-pointer"
+                          onClick={() => handleToolClick("/generate")}
+                        >
+                          <div className="relative rounded-xl overflow-hidden bg-white/5">
+                            <img
+                              src={img.thumbnailUrl || img.imageUrl}
+                              alt={img.title || `AI Generated ${index + 1}`}
+                              className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                              loading="lazy"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                                <span className="text-[#F9FAFB] text-xs font-medium">
+                                  {img.title || "AI Generated"}
+                                </span>
+                                <Wand2 className="w-4 h-4 text-neon-brand" />
+                              </div>
                             </div>
                           </div>
-                        )}
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                          <span className="text-[#F9FAFB] text-sm font-medium">
-                            {video.title || `${t("home.aiVideoItem")} #${index + 1}`}
-                          </span>
-                        </div>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="col-span-full text-center text-zinc-500 py-12">
+                        {t("home.noImages")}
                       </div>
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className="col-span-full text-center text-zinc-500 py-12">
-                    {t("home.noVideos")}
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          </section>
+                </div>
+              </section>
+            )}
 
-          {/* Viral Apps Section */}
-          {/* <section className="py-16 bg-neon-brand">
+            {/* Video Showcase Section */}
+            {sectionVisibility.videos &&
+              featureFlags.video_generation_enabled && (
+                <section
+                  className="ai-section-soft py-16"
+                  style={{ order: sectionOrderMap.get("videos") ?? 3 }}
+                >
+                  <div className="container">
+                    <div className="flex items-center justify-between mb-8">
+                      <h2 className="text-3xl font-black text-neon-brand">
+                        {t("home.aiVideoGallery")}
+                      </h2>
+                      <Button
+                        variant="ghost"
+                        className="text-[#F9FAFB] hover:text-neon-brand"
+                        onClick={() => navigate("/video-generate")}
+                      >
+                        {t("home.createVideo")}
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {showcaseVideos.length > 0 ? (
+                        showcaseVideos.map((video, index) => (
+                          <motion.div
+                            key={video.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            className="group cursor-pointer"
+                            onClick={() =>
+                              setPlayingVideo(
+                                playingVideo === index ? null : index
+                              )
+                            }
+                          >
+                            <div className="relative aspect-[9/16] rounded-2xl overflow-hidden bg-white/5">
+                              <video
+                                src={video.videoUrl}
+                                poster={video.posterUrl || undefined}
+                                className="w-full h-full object-cover"
+                                muted
+                                loop
+                                playsInline
+                                autoPlay={playingVideo === index}
+                              />
+                              {playingVideo !== index && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/50 transition-colors">
+                                  <div className="w-16 h-16 rounded-full bg-neon-brand flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Play className="w-8 h-8 text-black ml-1" />
+                                  </div>
+                                </div>
+                              )}
+                              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                <span className="text-[#F9FAFB] text-sm font-medium">
+                                  {video.title ||
+                                    `${t("home.aiVideoItem")} #${index + 1}`}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <div className="col-span-full text-center text-zinc-500 py-12">
+                          {t("home.noVideos")}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </section>
+              )}
+
+            {/* Viral Apps Section */}
+            {/* <section className="py-16 bg-neon-brand">
           <div className="container">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-black text-black">
@@ -635,114 +732,125 @@ export default function Home() {
           </div>
         </section> */}
 
-          {/* Community Characters Section */}
-          <section className="ai-section-soft py-16">
-            <div className="container">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="text-3xl font-black text-neon-brand mb-2 flex items-center gap-3">
-                    <Users className="w-8 h-8" />
-                    {t("home.communityGallery")}
-                  </h2>
-                  <p className="text-gray-400">{t("home.communityDesc")}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  className="rounded-full border-neon-brand text-neon-brand hover:bg-neon-brand hover:text-black"
-                  onClick={() => navigate("/community-characters")}
-                >
-                  {t("home.viewAll")}
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </div>
-
-              <div className="columns-2 md:columns-4 lg:columns-6 gap-4 space-y-4">
-                {popularCharacters && popularCharacters.length > 0
-                  ? popularCharacters.map((character, index) => (
-                      <motion.div
-                        key={character.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.03 }}
-                        className="break-inside-avoid group cursor-pointer"
-                        onClick={() => navigate("/community-characters")}
-                      >
-                        <div className="relative rounded-xl overflow-hidden bg-white/5">
-                          <img
-                            src={character.characterImageUrl}
-                            alt={character.name}
-                            className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
-                            loading="lazy"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="absolute bottom-0 left-0 right-0 p-3">
-                              <p className="text-[#F9FAFB] font-semibold text-sm truncate">
-                                {character.name}
-                              </p>
-                              {character.userName && (
-                                <p className="text-gray-300 text-xs truncate">
-                                  @{character.userName}
-                                </p>
-                              )}
-                              {character.usageCount > 0 && (
-                                <div className="flex items-center gap-1 mt-1">
-                                  <Star className="w-3 h-3 text-neon-brand" />
-                                  <span className="text-neon-brand text-xs">
-                                    {character.usageCount}
-                                  </span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))
-                  : Array.from({ length: 12 }).map((_, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.03 }}
-                        className="break-inside-avoid group cursor-pointer"
-                        onClick={() => navigate("/ai-influencer")}
-                      >
-                        <div className="ai-model-surface-image relative rounded-xl overflow-hidden aspect-[3/4]">
-                          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                            <Sparkles className="w-8 h-8 text-white/20" />
-                            <span className="text-white/30 text-xs text-center px-2">
-                              {t("home.beTheFirst")}
-                            </span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Footer CTA */}
-          <section className="py-20 bg-neon-brand">
-            <div className="container text-center">
-              <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
-                {t("home.cta.title")}
-              </h2>
-              <p className="text-lg text-black/70 mb-8 max-w-2xl mx-auto">
-                {t("home.cta.desc")}
-              </p>
-              <Button
-                size="lg"
-                className="h-16 px-12 text-xl font-black rounded-full bg-[#0B0F19] text-neon-brand hover:bg-black/90"
-                onClick={() =>
-                  isAuthenticated
-                    ? navigate("/generate")
-                    : (window.location.href = getLoginUrl())
-                }
+            {/* Community Characters Section */}
+            {sectionVisibility.community && featureFlags.community_enabled && (
+              <section
+                className="ai-section-soft py-16"
+                style={{ order: sectionOrderMap.get("community") ?? 4 }}
               >
-                {t("home.cta.button")}
-                <ArrowRight className="ml-3 h-6 w-6" />
-              </Button>
-            </div>
-          </section>
+                <div className="container">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-3xl font-black text-neon-brand mb-2 flex items-center gap-3">
+                        <Users className="w-8 h-8" />
+                        {t("home.communityGallery")}
+                      </h2>
+                      <p className="text-gray-400">{t("home.communityDesc")}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="rounded-full border-neon-brand text-neon-brand hover:bg-neon-brand hover:text-black"
+                      onClick={() => navigate("/community-characters")}
+                    >
+                      {t("home.viewAll")}
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  <div className="columns-2 md:columns-4 lg:columns-6 gap-4 space-y-4">
+                    {popularCharacters && popularCharacters.length > 0
+                      ? popularCharacters.map((character, index) => (
+                          <motion.div
+                            key={character.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                            className="break-inside-avoid group cursor-pointer"
+                            onClick={() => navigate("/community-characters")}
+                          >
+                            <div className="relative rounded-xl overflow-hidden bg-white/5">
+                              <img
+                                src={character.characterImageUrl}
+                                alt={character.name}
+                                className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                                loading="lazy"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute bottom-0 left-0 right-0 p-3">
+                                  <p className="text-[#F9FAFB] font-semibold text-sm truncate">
+                                    {character.name}
+                                  </p>
+                                  {character.userName && (
+                                    <p className="text-gray-300 text-xs truncate">
+                                      @{character.userName}
+                                    </p>
+                                  )}
+                                  {character.usageCount > 0 && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <Star className="w-3 h-3 text-neon-brand" />
+                                      <span className="text-neon-brand text-xs">
+                                        {character.usageCount}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))
+                      : Array.from({ length: 12 }).map((_, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                            className="break-inside-avoid group cursor-pointer"
+                            onClick={() => navigate("/ai-influencer")}
+                          >
+                            <div className="ai-model-surface-image relative rounded-xl overflow-hidden aspect-[3/4]">
+                              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                                <Sparkles className="w-8 h-8 text-white/20" />
+                                <span className="text-white/30 text-xs text-center px-2">
+                                  {t("home.beTheFirst")}
+                                </span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Footer CTA */}
+            {sectionVisibility.cta && (
+              <section
+                className="py-20 bg-neon-brand"
+                style={{ order: sectionOrderMap.get("cta") ?? 5 }}
+              >
+                <div className="container text-center">
+                  <h2 className="text-4xl md:text-5xl font-black text-black mb-4">
+                    {t("home.cta.title")}
+                  </h2>
+                  <p className="text-lg text-black/70 mb-8 max-w-2xl mx-auto">
+                    {t("home.cta.desc")}
+                  </p>
+                  <Button
+                    size="lg"
+                    className="h-16 px-12 text-xl font-black rounded-full bg-[#0B0F19] text-neon-brand hover:bg-black/90"
+                    onClick={() =>
+                      isAuthenticated
+                        ? navigate("/generate")
+                        : (window.location.href = getLoginUrl())
+                    }
+                  >
+                    {t("home.cta.button")}
+                    <ArrowRight className="ml-3 h-6 w-6" />
+                  </Button>
+                </div>
+              </section>
+            )}
+          </div>
 
           {/* Footer */}
           <footer className="bg-[#0B0F19] border-t border-white/10 py-12">
@@ -752,19 +860,19 @@ export default function Home() {
                 <div className="md:col-span-2">
                   <div className="flex items-center gap-2 mb-4">
                     <img
-                      src="/Logo-02.png"
-                      alt="Lumiohan"
+                      src={footerLogo}
+                      alt={siteName}
                       className="h-8 w-auto"
                     />
-                    <span className="text-xl font-bold">Lumiohan</span>
+                    <span className="text-xl font-bold">{siteName}</span>
                   </div>
                   <p className="text-muted-foreground text-sm mb-4">
-                    {t("footer.description")}
+                    {webUiConfig.footer.description || t("footer.description")}
                   </p>
                   {/* Social Links */}
                   <div className="flex gap-3">
                     <a
-                      href="https://t.me/nanoinfluencer"
+                      href={webUiConfig.footer.telegramUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#00F5FF] transition-colors"
@@ -781,46 +889,16 @@ export default function Home() {
                     {t("footer.quickLinks")}
                   </h4>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>
-                      <a
-                        href="/generate"
-                        className="hover:text-neon-brand transition-colors"
-                      >
-                        {t("home.generateImage")}
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/video-generate"
-                        className="hover:text-neon-brand transition-colors"
-                      >
-                        {t("home.generateVideo")}
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/ai-influencer"
-                        className="hover:text-neon-brand transition-colors"
-                      >
-                        AI Influencer
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/gallery"
-                        className="hover:text-neon-brand transition-colors"
-                      >
-                        {t("home.gallery")}
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="/packages"
-                        className="hover:text-neon-brand transition-colors"
-                      >
-                        {t("nav.packages")}
-                      </a>
-                    </li>
+                    {webUiConfig.footer.quickLinks.map(link => (
+                      <li key={`${link.label}-${link.path}`}>
+                        <a
+                          href={link.path}
+                          className="hover:text-neon-brand transition-colors"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
                   </ul>
                 </div>
 
@@ -828,23 +906,33 @@ export default function Home() {
                 <div>
                   <h4 className="font-semibold mb-4">{t("footer.contact")}</h4>
                   <ul className="space-y-2 text-sm text-muted-foreground">
+                    {featureFlags.blog_enabled && (
+                      <li>
+                        <a
+                          href="/blog"
+                          className="hover:text-neon-brand transition-colors"
+                        >
+                          Blog
+                        </a>
+                      </li>
+                    )}
                     <li>
                       <a
-                        href="/blog"
-                        className="hover:text-neon-brand transition-colors"
-                      >
-                        Blog
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="https://t.me/nanoinfluencer"
+                        href={webUiConfig.footer.telegramUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-neon-brand transition-colors flex items-center gap-2"
                       >
                         <Send className="h-4 w-4" />
                         {t("footer.telegram")}
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`mailto:${webUiConfig.footer.supportEmail}`}
+                        className="hover:text-neon-brand transition-colors"
+                      >
+                        {webUiConfig.footer.supportEmail}
                       </a>
                     </li>
                   </ul>
@@ -854,7 +942,7 @@ export default function Home() {
               {/* Bottom Bar */}
               <div className="border-t border-white/10 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p className="text-sm text-muted-foreground">
-                  © {new Date().getFullYear()} Lumiohan. {t("footer.rights")}
+                  © {new Date().getFullYear()} {siteName}. {t("footer.rights")}
                 </p>
                 <div className="flex gap-4 text-sm text-muted-foreground">
                   <a

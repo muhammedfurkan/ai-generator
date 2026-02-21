@@ -9,7 +9,17 @@ const promptCompilerInput = z.object({
   input_tr: z.string().min(1).max(2000),
   mode: z.enum(["image", "t2v", "i2v", "universal"]).default("image"),
   aspect_ratio: z.enum(["1:1", "9:16", "16:9", "4:5"]).default("1:1"),
-  style: z.enum(["realistic", "cinematic", "anime", "3d", "illustration", "product", "ugc_ad"]).default("realistic"),
+  style: z
+    .enum([
+      "realistic",
+      "cinematic",
+      "anime",
+      "3d",
+      "illustration",
+      "product",
+      "ugc_ad",
+    ])
+    .default("realistic"),
   quality: z.enum(["draft", "high", "ultra"]).default("high"),
   no_identity: z.boolean().default(true),
   action: z.enum(["compile", "shorter", "detailed", "hook"]).default("compile"),
@@ -104,7 +114,7 @@ export const promptCompilerRouter = router({
     .input(promptCompilerInput)
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.user.id;
-      
+
       // Kredi kontrolü
       const user = await getUserById(userId);
       if (!user || user.credits < PROMPT_COMPILER_CREDIT_COST) {
@@ -113,7 +123,7 @@ export const promptCompilerRouter = router({
           message: "INSUFFICIENT_CREDITS",
         });
       }
-      
+
       // Kredi düş
       const deducted = await deductCredits(userId, PROMPT_COMPILER_CREDIT_COST);
       if (!deducted) {
@@ -177,8 +187,14 @@ Generate the master prompt following all guidelines.`;
               schema: {
                 type: "object",
                 properties: {
-                  master_prompt_en: { type: "string", description: "The main English prompt" },
-                  negative_prompt_en: { type: "string", description: "Negative prompt for unwanted elements" },
+                  master_prompt_en: {
+                    type: "string",
+                    description: "The main English prompt",
+                  },
+                  negative_prompt_en: {
+                    type: "string",
+                    description: "Negative prompt for unwanted elements",
+                  },
                   settings: {
                     type: "object",
                     properties: {
@@ -193,13 +209,30 @@ Generate the master prompt following all guidelines.`;
                       actions: { type: "string" },
                       constraints: { type: "array", items: { type: "string" } },
                     },
-                    required: ["mode", "aspect_ratio", "style", "quality", "camera", "lighting", "environment", "subject", "actions", "constraints"],
+                    required: [
+                      "mode",
+                      "aspect_ratio",
+                      "style",
+                      "quality",
+                      "camera",
+                      "lighting",
+                      "environment",
+                      "subject",
+                      "actions",
+                      "constraints",
+                    ],
                     additionalProperties: false,
                   },
                   tr_summary: { type: "array", items: { type: "string" } },
                   variants_en: { type: "array", items: { type: "string" } },
                 },
-                required: ["master_prompt_en", "negative_prompt_en", "settings", "tr_summary", "variants_en"],
+                required: [
+                  "master_prompt_en",
+                  "negative_prompt_en",
+                  "settings",
+                  "tr_summary",
+                  "variants_en",
+                ],
                 additionalProperties: false,
               },
             },
@@ -212,7 +245,8 @@ Generate the master prompt following all guidelines.`;
         }
 
         // Handle both string and array content types
-        const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+        const contentStr =
+          typeof content === "string" ? content : JSON.stringify(content);
         const parsed = JSON.parse(contentStr);
         return {
           success: true,
@@ -222,7 +256,8 @@ Generate the master prompt following all guidelines.`;
         console.error("Prompt compiler error:", error);
         return {
           success: false,
-          error: "Prompt oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.",
+          error:
+            "Prompt oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.",
         };
       }
     }),
@@ -233,7 +268,8 @@ Generate the master prompt following all guidelines.`;
       {
         id: "cappadocia",
         title: "Kapadokya Reels",
-        input_tr: "Kapadokya'da gün batımında, peri bacaları arasında yürüyen şık bir kadın, sinematik, sıcak tonlar, drone çekimi",
+        input_tr:
+          "Kapadokya'da gün batımında, peri bacaları arasında yürüyen şık bir kadın, sinematik, sıcak tonlar, drone çekimi",
         mode: "t2v" as const,
         aspect_ratio: "9:16" as const,
         style: "cinematic" as const,
@@ -242,7 +278,8 @@ Generate the master prompt following all guidelines.`;
       {
         id: "ugc",
         title: "Ürün UGC Reklam",
-        input_tr: "Genç bir kadın elinde kahve fincanı tutuyor, mutlu gülümsüyor, doğal ışık, ev ortamı, samimi ve gerçekçi",
+        input_tr:
+          "Genç bir kadın elinde kahve fincanı tutuyor, mutlu gülümsüyor, doğal ışık, ev ortamı, samimi ve gerçekçi",
         mode: "t2v" as const,
         aspect_ratio: "9:16" as const,
         style: "ugc_ad" as const,
@@ -251,7 +288,8 @@ Generate the master prompt following all guidelines.`;
       {
         id: "influencer",
         title: "AI Influencer Fotoğraf",
-        input_tr: "Profesyonel stüdyo çekimi, moda fotoğrafı, zarif poz, yumuşak stüdyo ışığı, minimalist arka plan",
+        input_tr:
+          "Profesyonel stüdyo çekimi, moda fotoğrafı, zarif poz, yumuşak stüdyo ışığı, minimalist arka plan",
         mode: "image" as const,
         aspect_ratio: "4:5" as const,
         style: "realistic" as const,

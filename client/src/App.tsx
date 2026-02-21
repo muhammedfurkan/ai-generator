@@ -11,8 +11,8 @@ import AnnouncementBanner from "./components/AnnouncementBanner";
 import { Loader2 } from "lucide-react";
 
 import MaintenancePage from "@/pages/MaintenancePage";
-import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { useWebUiConfig } from "@/hooks/useWebUiConfig";
 
 // Eager load - critical pages
 import Home from "@/pages/Home";
@@ -62,20 +62,40 @@ function PageLoader() {
 
 function Router() {
   const { user, loading: authLoading } = useAuth();
+  const { getSetting, featureFlags } = useWebUiConfig();
 
-  // Check maintenance mode
-  const maintenanceQuery = trpc.settings.getPublicSettings.useQuery(undefined, {
-    staleTime: 30000,
-    retry: false,
-  });
-
-  const settings = maintenanceQuery.data || [];
-  const isMaintenanceMode =
-    settings.find(s => s.key === "maintenance_mode_enabled")?.value === "true";
-  const maintenanceMessage = settings.find(
-    s => s.key === "maintenance_message"
-  )?.value;
+  const isMaintenanceMode = featureFlags.maintenance_mode_enabled;
+  const maintenanceMessage = getSetting("maintenance_message", "");
   const isAdmin = user?.role === "admin";
+
+  const RegisterRoute = featureFlags.registration_enabled
+    ? RegisterPage
+    : NotFound;
+  const GenerateRoute = featureFlags.image_generation_enabled
+    ? Generate
+    : NotFound;
+  const VideoGenerateRoute = featureFlags.video_generation_enabled
+    ? VideoGenerate
+    : NotFound;
+  const MotionControlRoute = featureFlags.video_generation_enabled
+    ? MotionControl
+    : NotFound;
+  const AiInfluencerRoute = featureFlags.ai_influencer_enabled
+    ? AiInfluencer
+    : NotFound;
+  const UpscaleRoute = featureFlags.upscale_enabled ? Upscale : NotFound;
+  const AudioGenerateRoute = featureFlags.audio_generation_enabled
+    ? AudioGenerate
+    : NotFound;
+  const MusicGenerateRoute = featureFlags.music_generation_enabled
+    ? MusicGenerate
+    : NotFound;
+  const GalleryRoute = featureFlags.gallery_enabled ? Gallery : NotFound;
+  const BlogRoute = featureFlags.blog_enabled ? Blog : NotFound;
+  const BlogDetailRoute = featureFlags.blog_enabled ? BlogDetail : NotFound;
+  const CommunityRoute = featureFlags.community_enabled
+    ? CommunityCharacters
+    : NotFound;
 
   // Show maintenance page for non-admin users when maintenance mode is enabled
   if (isMaintenanceMode && !isAdmin && !authLoading) {
@@ -94,24 +114,24 @@ function Router() {
     <Suspense fallback={<PageLoader />}>
       <Switch>
         <Route path={"/login"} component={LoginPage} />
-        <Route path={"/register"} component={RegisterPage} />
+        <Route path={"/register"} component={RegisterRoute} />
         <Route path={"/verify-email"} component={VerifyEmailPage} />
         <Route path={"/user-profile"} component={UserProfilePage} />
         <Route path={"/"} component={Home} />
-        <Route path={"/generate"} component={Generate} />
-        <Route path={"/gallery"} component={Gallery} />
+        <Route path={"/generate"} component={GenerateRoute} />
+        <Route path={"/gallery"} component={GalleryRoute} />
         <Route path={"/profile"} component={Profile} />
         <Route path={"/packages"} component={Packages} />
-        <Route path={"/ai-influencer"} component={AiInfluencer} />
-        <Route path={"/community-characters"} component={CommunityCharacters} />
-        <Route path={"/video-generate"} component={VideoGenerate} />
-        <Route path={"/motion-control"} component={MotionControl} />
+        <Route path={"/ai-influencer"} component={AiInfluencerRoute} />
+        <Route path={"/community-characters"} component={CommunityRoute} />
+        <Route path={"/video-generate"} component={VideoGenerateRoute} />
+        <Route path={"/motion-control"} component={MotionControlRoute} />
         <Route path={"/apps"} component={Apps} />
-        <Route path={"/audio-generate"} component={AudioGenerate} />
-        <Route path={"/music-generate"} component={MusicGenerate} />
-        <Route path={"/upscale"} component={Upscale} />
-        <Route path={"/blog"} component={Blog} />
-        <Route path={"/blog/:slug"} component={BlogDetail} />
+        <Route path={"/audio-generate"} component={AudioGenerateRoute} />
+        <Route path={"/music-generate"} component={MusicGenerateRoute} />
+        <Route path={"/upscale"} component={UpscaleRoute} />
+        <Route path={"/blog"} component={BlogRoute} />
+        <Route path={"/blog/:slug"} component={BlogDetailRoute} />
         <Route path={"/multi-angle"} component={MultiAngle} />
         <Route path={"/product-promo"} component={ProductPromo} />
         <Route path={"/ugc-ad"} component={UgcAd} />

@@ -11,9 +11,12 @@ import {
   getGeneratedImageById,
   updateGeneratedImageStatus,
   getPendingImages,
-  updateAiModelStats
+  updateAiModelStats,
 } from "../db";
-import { createGenerationTask, pollTaskCompletionWithError } from "../nanoBananaApi";
+import {
+  createGenerationTask,
+  pollTaskCompletionWithError,
+} from "../nanoBananaApi";
 import { translateApiError } from "../utils/errorTranslations";
 import {
   generateSeedreamImage,
@@ -42,11 +45,15 @@ import {
   generateIdeogramCharacterEdit,
   generateIdeogramCharacterRemix,
   getGenericImageStatus,
-  calculateImageModelCreditCost
+  calculateImageModelCreditCost,
 } from "../kieAiApi";
 import { storagePut } from "../storage";
 import { nanoid } from "nanoid";
-import { notifyCreditSpending, notifyGenerationFailure, sendGeneratedImageToTelegram } from "../telegramBot";
+import {
+  notifyCreditSpending,
+  notifyGenerationFailure,
+  sendGeneratedImageToTelegram,
+} from "../telegramBot";
 import { createNotification } from "./notification";
 
 // AI Model types
@@ -104,8 +111,8 @@ const DEFAULT_NANO_BANANA_PRO_CREDIT_COSTS: Record<string, number> = {
 };
 
 const DEFAULT_SEEDREAM_CREDIT_COSTS: Record<string, number> = {
-  "basic": 8,  // 2K output
-  "high": 15,  // 4K output
+  basic: 8, // 2K output
+  high: 15, // 4K output
 };
 
 // Veritabanından fiyatları çek - öncelik: siteSettings (AI Influencer Admin) > defaults
@@ -130,7 +137,8 @@ async function getAiInfluencerPricing(): Promise<{
     }
 
     // siteSettings tablosundan oku (AI Influencer admin sayfası)
-    const settingsRows = await db.select()
+    const settingsRows = await db
+      .select()
       .from(siteSettings)
       .where(like(siteSettings.key, "ai_influencer_%"));
 
@@ -162,7 +170,10 @@ async function getAiInfluencerPricing(): Promise<{
   }
 }
 
-async function getCreditsForResolution(resolution: string, aiModel: AIModel = "nano-banana-pro"): Promise<number> {
+async function getCreditsForResolution(
+  resolution: string,
+  aiModel: AIModel = "nano-banana-pro"
+): Promise<number> {
   const pricing = await getAiInfluencerPricing();
 
   if (aiModel === "seedream" || aiModel === "seedream-edit") {
@@ -229,7 +240,9 @@ async function processImageInBackground(
 ) {
   const startTime = Date.now();
   try {
-    console.log(`[Background] Processing image ${imageId}, task ${taskId}, model: ${aiModel}`);
+    console.log(
+      `[Background] Processing image ${imageId}, task ${taskId}, model: ${aiModel}`
+    );
 
     // Update status to processing
     await updateGeneratedImageStatus(imageId, "processing");
@@ -253,15 +266,31 @@ async function processImageInBackground(
         }
         await new Promise(resolve => setTimeout(resolve, 5000)); // 5 saniye bekle
       }
-    } else if ([
-      "flux-2-pro", "4o-image", "flux-kontext-pro", "google-imagen4",
-      "ideogram-v3", "ideogram-character", "qwen-image", "z-image",
-      "grok-imagine", "gpt-image-1.5", "qwen",
-      // New models
-      "flux-1.1-pro", "flux-1.1-pro-ultra", "recraft-v3", "recraft-20b",
-      "qwen-image-edit", "qwen-image-to-image", "nano-banana-edit",
-      "ideogram-character-edit", "ideogram-character-remix"
-    ].includes(aiModel)) {
+    } else if (
+      [
+        "flux-2-pro",
+        "4o-image",
+        "flux-kontext-pro",
+        "google-imagen4",
+        "ideogram-v3",
+        "ideogram-character",
+        "qwen-image",
+        "z-image",
+        "grok-imagine",
+        "gpt-image-1.5",
+        "qwen",
+        // New models
+        "flux-1.1-pro",
+        "flux-1.1-pro-ultra",
+        "recraft-v3",
+        "recraft-20b",
+        "qwen-image-edit",
+        "qwen-image-to-image",
+        "nano-banana-edit",
+        "ideogram-character-edit",
+        "ideogram-character-remix",
+      ].includes(aiModel)
+    ) {
       // New Kie.ai models polling
       const maxAttempts = 60;
       for (let i = 0; i < maxAttempts; i++) {
@@ -279,7 +308,10 @@ async function processImageInBackground(
           console.warn(`[Background] Polling error for ${taskId}:`, pollError);
           // Don't break loop immediately, retry
           if (i === maxAttempts - 1) {
-            errorDetails = pollError instanceof Error ? pollError.message : "Durum kontrol hatası";
+            errorDetails =
+              pollError instanceof Error
+                ? pollError.message
+                : "Durum kontrol hatası";
           }
         }
         await new Promise(resolve => setTimeout(resolve, 5000));
@@ -293,27 +325,40 @@ async function processImageInBackground(
 
     if (!imageUrl) {
       // Determine error message - use API error if available, otherwise timeout
-      const errorMessage = errorDetails || "TIMEOUT - Görsel üretimi zaman aşımına uğradı";
+      const errorMessage =
+        errorDetails || "TIMEOUT - Görsel üretimi zaman aşımına uğradı";
 
-      console.error(`[Background] No image URL for task ${taskId}. Error: ${errorMessage}`);
+      console.error(
+        `[Background] No image URL for task ${taskId}. Error: ${errorMessage}`
+      );
       await updateGeneratedImageStatus(imageId, "failed", {
-        errorMessage: errorMessage
+        errorMessage: errorMessage,
       });
-      await refundCredits(userId, creditsNeeded, `Görsel oluşturma başarısız - ${resolution}`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `Görsel oluşturma başarısız - ${resolution}`
+      );
 
       // Create user-friendly notification message
-      let notificationMessage = "Görsel üretimi başarısız oldu. Krediniz iade edildi.";
+      let notificationMessage =
+        "Görsel üretimi başarısız oldu. Krediniz iade edildi.";
       if (errorDetails) {
         if (errorDetails.includes("CONTENT_POLICY")) {
-          notificationMessage = "İçerik politikası ihlali nedeniyle görsel oluşturulamadı. Krediniz iade edildi.";
+          notificationMessage =
+            "İçerik politikası ihlali nedeniyle görsel oluşturulamadı. Krediniz iade edildi.";
         } else if (errorDetails.includes("NSFW")) {
-          notificationMessage = "NSFW (Uygunsuz İçerik) tespit edildi. Lütfen promptunuzu değiştirin. Krediniz iade edildi.";
+          notificationMessage =
+            "NSFW (Uygunsuz İçerik) tespit edildi. Lütfen promptunuzu değiştirin. Krediniz iade edildi.";
         } else if (errorDetails.includes("TIMEOUT")) {
-          notificationMessage = "Görsel üretimi zaman aşımına uğradı. Lütfen tekrar deneyin. Krediniz iade edildi.";
+          notificationMessage =
+            "Görsel üretimi zaman aşımına uğradı. Lütfen tekrar deneyin. Krediniz iade edildi.";
         } else if (errorDetails.includes("API_LIMIT")) {
-          notificationMessage = "API limiti aşıldı. Lütfen daha sonra tekrar deneyin. Krediniz iade edildi.";
+          notificationMessage =
+            "API limiti aşıldı. Lütfen daha sonra tekrar deneyin. Krediniz iade edildi.";
         } else if (errorDetails.includes("recordInfo is null")) {
-          notificationMessage = "Servis sağlayıcı hatası (Durum Bilgisi Alınamadı). Krediniz iade edildi.";
+          notificationMessage =
+            "Servis sağlayıcı hatası (Durum Bilgisi Alınamadı). Krediniz iade edildi.";
           // Clean up technical error for user display but keep in logs
           errorDetails = "Servis sağlayıcı hatası (API Yanıt Sorunu)";
         }
@@ -340,11 +385,17 @@ async function processImageInBackground(
     // Download image
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
-      console.error(`[Background] Failed to download image: ${imageResponse.status}`);
+      console.error(
+        `[Background] Failed to download image: ${imageResponse.status}`
+      );
       await updateGeneratedImageStatus(imageId, "failed", {
-        errorMessage: "Görsel indirilemedi"
+        errorMessage: "Görsel indirilemedi",
       });
-      await refundCredits(userId, creditsNeeded, `Görsel indirme başarısız - ${resolution}`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `Görsel indirme başarısız - ${resolution}`
+      );
 
       await createNotification({
         userId,
@@ -362,11 +413,15 @@ async function processImageInBackground(
     const imageBuffer = await imageResponse.arrayBuffer();
     const fileName = `generated-${nanoid()}.png`;
     const s3Key = `${userId}/images/${fileName}`;
-    const { url: s3Url } = await storagePut(s3Key, Buffer.from(imageBuffer), "image/png");
+    const { url: s3Url } = await storagePut(
+      s3Key,
+      Buffer.from(imageBuffer),
+      "image/png"
+    );
 
     // Update database with completed status
     await updateGeneratedImageStatus(imageId, "completed", {
-      generatedImageUrl: s3Url
+      generatedImageUrl: s3Url,
     });
 
     // Update stats
@@ -376,7 +431,8 @@ async function processImageInBackground(
     await createNotification({
       userId,
       title: "Görsel Hazır! 🎨",
-      message: "Görseliniz başarıyla oluşturuldu. Galeri'den görüntüleyebilirsiniz.",
+      message:
+        "Görseliniz başarıyla oluşturuldu. Galeri'den görüntüleyebilirsiniz.",
       type: "generation_complete",
       actionUrl: "/gallery",
     });
@@ -408,9 +464,13 @@ async function processImageInBackground(
   } catch (error) {
     console.error(`[Background] Error processing image ${imageId}:`, error);
     await updateGeneratedImageStatus(imageId, "failed", {
-      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata"
+      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
     });
-    await refundCredits(userId, creditsNeeded, `Görsel oluşturma başarısız - ${resolution}`);
+    await refundCredits(
+      userId,
+      creditsNeeded,
+      `Görsel oluşturma başarısız - ${resolution}`
+    );
 
     await createNotification({
       userId,
@@ -437,22 +497,53 @@ export const generationRouter = router({
     .input(
       z.object({
         prompt: z.string().min(1, "Prompt gereklidir"),
-        aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3", "21:9", "4:5", "5:4"]),
+        aspectRatio: z.enum([
+          "1:1",
+          "16:9",
+          "9:16",
+          "4:3",
+          "3:4",
+          "3:2",
+          "2:3",
+          "21:9",
+          "4:5",
+          "5:4",
+        ]),
         resolution: z.enum(["1K", "2K", "4K"]),
         referenceImageUrl: z.string().optional(), // Geriye uyumluluk için
         referenceImageUrls: z.array(z.string()).max(8).optional(), // Çoklu görsel desteği (max 8)
-        aiModel: z.enum([
-          "qwen", "seedream", "nano-banana-pro",
-          "flux-2-pro", "4o-image", "flux-kontext-pro", "google-imagen4",
-          "ideogram-v3", "ideogram-character", "qwen-image", "z-image",
-          "grok-imagine", "gpt-image-1.5", "seedream-edit",
-          // New models
-          "flux-1.1-pro", "flux-1.1-pro-ultra", "recraft-v3", "recraft-20b",
-          "qwen-image-edit", "qwen-image-to-image", "nano-banana-edit",
-          "ideogram-character-edit", "ideogram-character-remix",
-          // Aliases from DB model keys
-          "qwen/text-to-image", "qwen/image-edit", "qwen/image-to-image",
-        ]).default("nano-banana-pro"),
+        aiModel: z
+          .enum([
+            "qwen",
+            "seedream",
+            "nano-banana-pro",
+            "flux-2-pro",
+            "4o-image",
+            "flux-kontext-pro",
+            "google-imagen4",
+            "ideogram-v3",
+            "ideogram-character",
+            "qwen-image",
+            "z-image",
+            "grok-imagine",
+            "gpt-image-1.5",
+            "seedream-edit",
+            // New models
+            "flux-1.1-pro",
+            "flux-1.1-pro-ultra",
+            "recraft-v3",
+            "recraft-20b",
+            "qwen-image-edit",
+            "qwen-image-to-image",
+            "nano-banana-edit",
+            "ideogram-character-edit",
+            "ideogram-character-remix",
+            // Aliases from DB model keys
+            "qwen/text-to-image",
+            "qwen/image-edit",
+            "qwen/image-to-image",
+          ])
+          .default("nano-banana-pro"),
         isEditMode: z.boolean().optional(), // SeeDream ve QWEN Edit mode için
       })
     )
@@ -481,7 +572,11 @@ export const generationRouter = router({
       const hasReferenceImages = referenceImageCount > 0;
       const isEditMode = input.isEditMode || aiModel === "seedream-edit";
 
-      if ((aiModel === "seedream" || aiModel === "seedream-edit") && isEditMode && !hasReferenceImages) {
+      if (
+        (aiModel === "seedream" || aiModel === "seedream-edit") &&
+        isEditMode &&
+        !hasReferenceImages
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "SeeDream Edit modu için referans görsel gereklidir.",
@@ -492,7 +587,8 @@ export const generationRouter = router({
       if (aiModel === "seedream" && !isEditMode && hasReferenceImages) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "SeeDream 4.5 text-to-image modeli referans görsel desteklemiyor. Edit modu için 'Edit' seçeneğini aktif edin veya Nano Banana Pro / Qwen modelini kullanın.",
+          message:
+            "SeeDream 4.5 text-to-image modeli referans görsel desteklemiyor. Edit modu için 'Edit' seçeneğini aktif edin veya Nano Banana Pro / Qwen modelini kullanın.",
         });
       }
 
@@ -509,15 +605,22 @@ export const generationRouter = router({
       }
 
       // QWEN text-to-image mode doesn't support reference images
-      if ((aiModel === "qwen" || aiModel === "qwen-image") && hasReferenceImages) {
+      if (
+        (aiModel === "qwen" || aiModel === "qwen-image") &&
+        hasReferenceImages
+      ) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Qwen text-to-image modeli referans görsel desteklemiyor. Image edit için 'Qwen Image Edit' modelini seçin.",
+          message:
+            "Qwen text-to-image modeli referans görsel desteklemiyor. Image edit için 'Qwen Image Edit' modelini seçin.",
         });
       }
 
       // Get credits needed for this resolution and model
-      const creditsNeeded = await getCreditsForResolution(input.resolution, aiModel);
+      const creditsNeeded = await getCreditsForResolution(
+        input.resolution,
+        aiModel
+      );
 
       if (user.credits < creditsNeeded) {
         throw new TRPCError({
@@ -539,11 +642,16 @@ export const generationRouter = router({
         let taskId: string;
 
         if (aiModel === "seedream" || aiModel === "seedream-edit") {
-          console.log(`[Generation] Creating Seedream task (${isEditMode ? 'Edit' : 'Text-to-Image'}) with prompt:`, input.prompt);
+          console.log(
+            `[Generation] Creating Seedream task (${isEditMode ? "Edit" : "Text-to-Image"}) with prompt:`,
+            input.prompt
+          );
 
           if (isEditMode) {
             // Seedream Edit API (image-to-image)
-            const imageUrls = input.referenceImageUrls || (input.referenceImageUrl ? [input.referenceImageUrl] : []);
+            const imageUrls =
+              input.referenceImageUrls ||
+              (input.referenceImageUrl ? [input.referenceImageUrl] : []);
             const seedreamResponse = await generateSeedreamEditImage({
               prompt: input.prompt,
               imageUrls: imageUrls,
@@ -560,87 +668,182 @@ export const generationRouter = router({
             });
             taskId = seedreamResponse.taskId;
           }
-        } else if ([
-          "flux-2-pro", "4o-image", "flux-kontext-pro", "google-imagen4",
-          "ideogram-v3", "ideogram-character", "qwen-image", "z-image",
-          "grok-imagine", "gpt-image-1.5",
-          // New models
-          "flux-1.1-pro", "flux-1.1-pro-ultra", "recraft-v3", "recraft-20b",
-          "qwen-image-edit", "qwen-image-to-image", "nano-banana-edit",
-          "ideogram-character-edit", "ideogram-character-remix"
-        ].includes(aiModel)) {
-          console.log(`[Generation] Creating ${aiModel} task with prompt:`, input.prompt);
+        } else if (
+          [
+            "flux-2-pro",
+            "4o-image",
+            "flux-kontext-pro",
+            "google-imagen4",
+            "ideogram-v3",
+            "ideogram-character",
+            "qwen-image",
+            "z-image",
+            "grok-imagine",
+            "gpt-image-1.5",
+            // New models
+            "flux-1.1-pro",
+            "flux-1.1-pro-ultra",
+            "recraft-v3",
+            "recraft-20b",
+            "qwen-image-edit",
+            "qwen-image-to-image",
+            "nano-banana-edit",
+            "ideogram-character-edit",
+            "ideogram-character-remix",
+          ].includes(aiModel)
+        ) {
+          console.log(
+            `[Generation] Creating ${aiModel} task with prompt:`,
+            input.prompt
+          );
 
           let res: { taskId: string };
-          const imageUrls = input.referenceImageUrls || (input.referenceImageUrl ? [input.referenceImageUrl] : []);
+          const imageUrls =
+            input.referenceImageUrls ||
+            (input.referenceImageUrl ? [input.referenceImageUrl] : []);
 
           // Validate required input images for image-to-image models
           const imageToImageModels = [
-            "flux-2-pro", "qwen-image-edit", "qwen-image-to-image", "nano-banana-edit",
-            "ideogram-character-edit", "ideogram-character-remix"
+            "flux-2-pro",
+            "qwen-image-edit",
+            "qwen-image-to-image",
+            "nano-banana-edit",
+            "ideogram-character-edit",
+            "ideogram-character-remix",
           ];
-          if (imageToImageModels.includes(aiModel) && (!imageUrls || imageUrls.length === 0)) {
-            throw new Error(`${aiModel} modeli için en az bir referans görsel gereklidir. Lütfen bir görsel yükleyin.`);
+          if (
+            imageToImageModels.includes(aiModel) &&
+            (!imageUrls || imageUrls.length === 0)
+          ) {
+            throw new Error(
+              `${aiModel} modeli için en az bir referans görsel gereklidir. Lütfen bir görsel yükleyin.`
+            );
           }
 
           switch (aiModel) {
             case "flux-2-pro":
-              res = await generateFlux2ProImage({ prompt: input.prompt, imageUrl: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateFlux2ProImage({
+                prompt: input.prompt,
+                imageUrl: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "4o-image":
-              res = await generate4oImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generate4oImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "flux-kontext-pro":
-              res = await generateFluxKontextImage({ prompt: input.prompt, imageUrls, aspectRatio: input.aspectRatio as any });
+              res = await generateFluxKontextImage({
+                prompt: input.prompt,
+                imageUrls,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "google-imagen4":
-              res = await generateImagen4Image({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateImagen4Image({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "ideogram-v3":
-              res = await generateIdeogramV3Image({ prompt: input.prompt, imageUrl: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateIdeogramV3Image({
+                prompt: input.prompt,
+                imageUrl: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "ideogram-character":
-              res = await generateIdeogramCharacterImage({ prompt: input.prompt, characterImage: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateIdeogramCharacterImage({
+                prompt: input.prompt,
+                characterImage: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "qwen-image":
-              res = await generateQwenImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateQwenImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "z-image":
-              res = await generateZImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateZImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "grok-imagine":
-              res = await generateGrokImagineImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateGrokImagineImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "gpt-image-1.5":
-              res = await generateGPTImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateGPTImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             // New models
             case "flux-1.1-pro":
-              res = await generateFlux11ProImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateFlux11ProImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "flux-1.1-pro-ultra":
-              res = await generateFlux11UltraImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateFlux11UltraImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "recraft-v3":
-              res = await generateRecraftV3Image({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateRecraftV3Image({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "recraft-20b":
-              res = await generateRecraft20BImage({ prompt: input.prompt, aspectRatio: input.aspectRatio as any });
+              res = await generateRecraft20BImage({
+                prompt: input.prompt,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "qwen-image-edit":
-              res = await generateQwenImageEdit({ prompt: input.prompt, imageUrl: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateQwenImageEdit({
+                prompt: input.prompt,
+                imageUrl: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "qwen-image-to-image":
-              res = await generateQwenImageToImage({ prompt: input.prompt, imageUrl: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateQwenImageToImage({
+                prompt: input.prompt,
+                imageUrl: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "nano-banana-edit":
-              res = await generateNanoBananaEdit({ prompt: input.prompt, imageUrls, aspectRatio: input.aspectRatio as any });
+              res = await generateNanoBananaEdit({
+                prompt: input.prompt,
+                imageUrls,
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "ideogram-character-edit":
-              res = await generateIdeogramCharacterEdit({ prompt: input.prompt, characterImage: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateIdeogramCharacterEdit({
+                prompt: input.prompt,
+                characterImage: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             case "ideogram-character-remix":
-              res = await generateIdeogramCharacterRemix({ prompt: input.prompt, characterImage: imageUrls[0], aspectRatio: input.aspectRatio as any });
+              res = await generateIdeogramCharacterRemix({
+                prompt: input.prompt,
+                characterImage: imageUrls[0],
+                aspectRatio: input.aspectRatio as any,
+              });
               break;
             default:
               throw new Error("Unsupported model");
@@ -648,7 +851,10 @@ export const generationRouter = router({
           taskId = res.taskId;
         } else if (aiModel === "qwen") {
           // QWEN Text-to-Image API (Kie.ai üzerinden)
-          console.log(`[Generation] Creating QWEN Text-to-Image task with prompt:`, input.prompt);
+          console.log(
+            `[Generation] Creating QWEN Text-to-Image task with prompt:`,
+            input.prompt
+          );
           const qwenResponse = await generateQwenImage({
             prompt: input.prompt,
             aspectRatio: input.aspectRatio as any,
@@ -656,9 +862,14 @@ export const generationRouter = router({
           taskId = qwenResponse.taskId;
         } else {
           // Nano Banana Pro veya Qwen API (ikisi de aynı API'yi kullanıyor)
-          const modelName = aiModel === "nano-banana-pro" ? "Nano Banana Pro" : "Qwen";
-          const imageCount = input.referenceImageUrls?.length || (input.referenceImageUrl ? 1 : 0);
-          console.log(`[Generation] Creating ${modelName} task with ${imageCount} reference image(s)`);
+          const modelName =
+            aiModel === "nano-banana-pro" ? "Nano Banana Pro" : "Qwen";
+          const imageCount =
+            input.referenceImageUrls?.length ||
+            (input.referenceImageUrl ? 1 : 0);
+          console.log(
+            `[Generation] Creating ${modelName} task with ${imageCount} reference image(s)`
+          );
 
           const taskResponse = await createGenerationTask({
             prompt: input.prompt,
@@ -670,11 +881,20 @@ export const generationRouter = router({
           });
 
           if (!taskResponse.success) {
-            console.error("[Generation] Task creation failed:", taskResponse.error);
-            await refundCredits(userId, creditsNeeded, `Görsel oluşturma başarısız - ${input.resolution}`);
+            console.error(
+              "[Generation] Task creation failed:",
+              taskResponse.error
+            );
+            await refundCredits(
+              userId,
+              creditsNeeded,
+              `Görsel oluşturma başarısız - ${input.resolution}`
+            );
 
             // Hata mesajını Türkçe'ye çevir
-            const translatedError = translateApiError(taskResponse.error || 'API hatası oluştu');
+            const translatedError = translateApiError(
+              taskResponse.error || "API hatası oluştu"
+            );
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
               message: `API_ERROR|${translatedError}`,
@@ -697,7 +917,11 @@ export const generationRouter = router({
         });
 
         if (!imageId) {
-          await refundCredits(userId, creditsNeeded, `Veritabanı hatası - ${input.resolution}`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `Veritabanı hatası - ${input.resolution}`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Veritabanına kayıt yapılamadı",
@@ -724,7 +948,8 @@ export const generationRouter = router({
           imageId,
           taskId,
           status: "pending",
-          message: "Görsel oluşturma başlatıldı. Sayfadan ayrılabilirsiniz, tamamlandığında bildirim alacaksınız.",
+          message:
+            "Görsel oluşturma başlatıldı. Sayfadan ayrılabilirsiniz, tamamlandığında bildirim alacaksınız.",
           creditsRemaining: user.credits - creditsNeeded,
         };
       } catch (error) {
@@ -733,11 +958,16 @@ export const generationRouter = router({
         }
 
         console.error("[Generation] Unexpected error:", error);
-        await refundCredits(userId, creditsNeeded, `Görsel oluşturma başarısız - ${input.resolution}`);
+        await refundCredits(
+          userId,
+          creditsNeeded,
+          `Görsel oluşturma başarısız - ${input.resolution}`
+        );
 
         notifyGenerationFailure({
           generationType: "image",
-          errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
+          errorMessage:
+            error instanceof Error ? error.message : "Bilinmeyen hata",
           userId,
           userEmail: user?.email || undefined,
           prompt: input.prompt,
@@ -746,7 +976,10 @@ export const generationRouter = router({
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: error instanceof Error ? error.message : "Görsel üretimi sırasında hata oluştu",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Görsel üretimi sırasında hata oluştu",
         });
       }
     }),
@@ -792,37 +1025,34 @@ export const generationRouter = router({
     }),
 
   // Get pending images for polling
-  getPendingImages: protectedProcedure
-    .query(async ({ ctx }) => {
-      const images = await getPendingImages(ctx.user.id);
-      return images;
-    }),
+  getPendingImages: protectedProcedure.query(async ({ ctx }) => {
+    const images = await getPendingImages(ctx.user.id);
+    return images;
+  }),
 
   // Get credit costs for display
-  getCreditCosts: protectedProcedure
-    .query(async () => {
-      const pricing = await getAiInfluencerPricing();
-      const { IMAGE_MODEL_PRICING } = await import("../kieAiApi");
+  getCreditCosts: protectedProcedure.query(async () => {
+    const pricing = await getAiInfluencerPricing();
+    const { IMAGE_MODEL_PRICING } = await import("../kieAiApi");
 
-      return {
-        qwen: pricing.qwen,
-        seedream: pricing.seedream,
-        "nano-banana-pro": pricing.nanoBanana,
-        // All Kie.ai model pricing
-        allModels: IMAGE_MODEL_PRICING,
-      };
-    }),
+    return {
+      qwen: pricing.qwen,
+      seedream: pricing.seedream,
+      "nano-banana-pro": pricing.nanoBanana,
+      // All Kie.ai model pricing
+      allModels: IMAGE_MODEL_PRICING,
+    };
+  }),
 
   // Get user credits and credit costs (Nano Banana Pro fiyatları)
-  getCredits: protectedProcedure
-    .query(async ({ ctx }) => {
-      const user = await getUserById(ctx.user.id);
-      const pricing = await getAiInfluencerPricing();
-      return {
-        credits: user?.credits ?? 0,
-        creditCosts: pricing.nanoBanana, // Nano Banana fiyatlarını döndür
-      };
-    }),
+  getCredits: protectedProcedure.query(async ({ ctx }) => {
+    const user = await getUserById(ctx.user.id);
+    const pricing = await getAiInfluencerPricing();
+    return {
+      credits: user?.credits ?? 0,
+      creditCosts: pricing.nanoBanana, // Nano Banana fiyatlarını döndür
+    };
+  }),
 
   // Delete a generated image
   delete: protectedProcedure
@@ -849,7 +1079,9 @@ export const generationRouter = router({
         });
       }
 
-      await db.delete(generatedImages).where(eq(generatedImages.id, input.imageId));
+      await db
+        .delete(generatedImages)
+        .where(eq(generatedImages.id, input.imageId));
 
       return { success: true };
     }),
@@ -875,12 +1107,14 @@ export const generationRouter = router({
       }
 
       // Sadece kullanıcının kendi görsellerini sil
-      await db.delete(generatedImages).where(
-        and(
-          inArray(generatedImages.id, input.imageIds),
-          eq(generatedImages.userId, ctx.user.id)
-        )
-      );
+      await db
+        .delete(generatedImages)
+        .where(
+          and(
+            inArray(generatedImages.id, input.imageIds),
+            eq(generatedImages.userId, ctx.user.id)
+          )
+        );
 
       return { success: true, deletedCount: input.imageIds.length };
     }),

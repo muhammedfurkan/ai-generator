@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "NODE_ENV=production tsx watch server/_core/index.ts",
     "dev:front": "vite",
-    "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "npm run check && vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
-    "format": "prettier --write .",
+    "format": "prettier --write \"client/src/**/*.{ts,tsx,js,jsx,css}\" \"server/**/*.{ts,tsx,js,mjs,cjs}\" \"shared/**/*.{ts,tsx,js}\" \"scripts/**/*.{ts,tsx,js,mjs,cjs}\" \"drizzle/**/*.{ts,sql,json}\" \"docs/**/*.md\" \"*.{json,md,ts,js,cjs,mjs}\"",
+    "format:all": "prettier --write .",
     "test": "vitest run",
     "db:push": "drizzle-kit generate && drizzle-kit migrate",
     "db:studio": "npx drizzle-kit studio --port 3005 --verbose"

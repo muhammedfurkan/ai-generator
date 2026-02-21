@@ -147,8 +147,7 @@ initializeModalCards()
     console.log("✨ Script completed");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("💥 Script failed:", error);
     process.exit(1);
   });
-

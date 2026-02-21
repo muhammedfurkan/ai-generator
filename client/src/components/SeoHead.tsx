@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
+import { getSeoOverrideForSlug, parseWebUiConfig } from "@/lib/webUiConfig";
 
 interface SeoHeadProps {
   pageSlug?: string;
@@ -23,9 +24,19 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
 
   // Fetch public settings for dynamic favicon/logo
   const { data: publicSettings } = trpc.settings.getPublicSettings.useQuery();
+  const webUiConfig = useMemo(() => {
+    const rawConfig = publicSettings?.find(
+      s => s.key === "web_ui_config"
+    )?.value;
+    return parseWebUiConfig(rawConfig);
+  }, [publicSettings]);
+  const seoOverride = useMemo(
+    () => getSeoOverrideForSlug(webUiConfig, currentSlug),
+    [webUiConfig, currentSlug]
+  );
 
   useEffect(() => {
-    if (!pageSeo && !globalSeo) return;
+    if (!pageSeo && !globalSeo && !seoOverride) return;
 
     const setMetaTag = (
       name: string,
@@ -65,13 +76,18 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
 
     // Set document title
     const title =
-      pageSeo?.metaTitle || globalSeo?.defaultMetaTitle || "Lumiohan";
+      seoOverride?.metaTitle ||
+      pageSeo?.metaTitle ||
+      globalSeo?.defaultMetaTitle ||
+      "Lumiohan";
     document.title = title;
 
     // Basic meta tags
     setMetaTag(
       "description",
-      pageSeo?.metaDescription || globalSeo?.defaultMetaDescription
+      seoOverride?.metaDescription ||
+        pageSeo?.metaDescription ||
+        globalSeo?.defaultMetaDescription
     );
     setMetaTag(
       "keywords",
@@ -105,17 +121,22 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     setMetaTag("og:site_name", globalSeo?.siteName || "Lumiohan", true);
     setMetaTag(
       "og:title",
-      pageSeo?.ogTitle || pageSeo?.metaTitle || title,
+      seoOverride?.metaTitle || pageSeo?.ogTitle || pageSeo?.metaTitle || title,
       true
     );
     setMetaTag(
       "og:description",
-      pageSeo?.ogDescription ||
+      seoOverride?.metaDescription ||
+        pageSeo?.ogDescription ||
         pageSeo?.metaDescription ||
         globalSeo?.defaultMetaDescription,
       true
     );
-    setMetaTag("og:image", pageSeo?.ogImage || globalSeo?.defaultOgImage, true);
+    setMetaTag(
+      "og:image",
+      seoOverride?.ogImage || pageSeo?.ogImage || globalSeo?.defaultOgImage,
+      true
+    );
     setMetaTag("og:url", pageSeo?.canonicalUrl || window.location.href, true);
     setMetaTag(
       "og:locale",
@@ -129,19 +150,27 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
     setMetaTag("twitter:creator", globalSeo?.defaultTwitterCreator, true);
     setMetaTag(
       "twitter:title",
-      pageSeo?.twitterTitle || pageSeo?.ogTitle || pageSeo?.metaTitle || title,
+      seoOverride?.metaTitle ||
+        pageSeo?.twitterTitle ||
+        pageSeo?.ogTitle ||
+        pageSeo?.metaTitle ||
+        title,
       true
     );
     setMetaTag(
       "twitter:description",
-      pageSeo?.twitterDescription ||
+      seoOverride?.metaDescription ||
+        pageSeo?.twitterDescription ||
         pageSeo?.ogDescription ||
         pageSeo?.metaDescription,
       true
     );
     setMetaTag(
       "twitter:image",
-      pageSeo?.twitterImage || pageSeo?.ogImage || globalSeo?.defaultOgImage,
+      seoOverride?.ogImage ||
+        pageSeo?.twitterImage ||
+        pageSeo?.ogImage ||
+        globalSeo?.defaultOgImage,
       true
     );
 
@@ -171,7 +200,7 @@ export function SeoHead({ pageSlug }: SeoHeadProps) {
       // Optional: Remove dynamic tags on unmount
       // This is usually not needed as we update them on route change
     };
-  }, [pageSeo, globalSeo, publicSettings]);
+  }, [pageSeo, globalSeo, publicSettings, seoOverride]);
 
   return null; // This component doesn't render anything
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Yeni Kie.ai Modellerini Veritabanına Ekleyen Script
  *

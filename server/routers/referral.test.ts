@@ -38,7 +38,7 @@ describe("Referral Router", () => {
     it("should return valid: false for non-existent code", async () => {
       const { getDb } = await import("../db");
       const mockDb = await (getDb as any)();
-      
+
       // Mock empty result for non-existent code
       mockDb.select.mockReturnValue({
         from: vi.fn().mockReturnValue({
@@ -64,7 +64,7 @@ describe("Referral Router", () => {
     it("should generate 8-character uppercase codes", () => {
       // Test the code format
       const codePattern = /^[A-Z0-9]{8}$/;
-      
+
       // Generate a sample code using nanoid pattern
       const sampleCode = "ABCD1234";
       expect(sampleCode).toMatch(codePattern);
@@ -88,7 +88,7 @@ describe("Referral Router", () => {
       // This is a logic test - users cannot use their own referral code
       const userId = 1;
       const referrerId = 1;
-      
+
       expect(userId === referrerId).toBe(true);
       // In the actual implementation, this would throw an error
     });
@@ -96,7 +96,7 @@ describe("Referral Router", () => {
     it("should not allow multiple referrals for same user", () => {
       // Once a user has been referred, they cannot use another code
       const userHasReferrer = true;
-      
+
       expect(userHasReferrer).toBe(true);
       // In the actual implementation, this would throw an error
     });

@@ -43,23 +43,37 @@ async function checkAndRefundMotionControlCredits(
           type: "system",
           title: "Kredi İadesi ✅",
           message: `Motion Control videonuz için ${refundAmount} kredi iade edildi. Video gerçek süresi ${roundedActualDuration}s olarak tespit edildi.`,
-          data: { videoId, refundAmount, estimatedDuration, actualDuration: roundedActualDuration },
+          data: {
+            videoId,
+            refundAmount,
+            estimatedDuration,
+            actualDuration: roundedActualDuration,
+          },
         });
 
-        console.log(`[MotionControl] Refund: Video ${videoId} - Estimated: ${estimatedDuration}s (${estimatedCost} cr), Actual: ${roundedActualDuration}s (${actualCost} cr), Refunded: ${refundAmount} cr`);
+        console.log(
+          `[MotionControl] Refund: Video ${videoId} - Estimated: ${estimatedDuration}s (${estimatedCost} cr), Actual: ${roundedActualDuration}s (${actualCost} cr), Refunded: ${refundAmount} cr`
+        );
 
         return refundAmount;
       } else {
-        console.log(`[MotionControl] No refund needed for video ${videoId} - Estimated: ${estimatedDuration}s, Actual: ${roundedActualDuration}s`);
+        console.log(
+          `[MotionControl] No refund needed for video ${videoId} - Estimated: ${estimatedDuration}s, Actual: ${roundedActualDuration}s`
+        );
       }
     } else {
       // API'den süre bilgisi gelmemişse, log yaz ama işlem yapma
-      console.warn(`[MotionControl] No actual duration received from API for video ${videoId}. Cannot calculate refund accurately.`);
+      console.warn(
+        `[MotionControl] No actual duration received from API for video ${videoId}. Cannot calculate refund accurately.`
+      );
     }
 
     return 0;
   } catch (error) {
-    console.error(`[VideoStatusUpdater] Error in checkAndRefundMotionControlCredits:`, error);
+    console.error(
+      `[VideoStatusUpdater] Error in checkAndRefundMotionControlCredits:`,
+      error
+    );
     return 0;
   }
 }
@@ -115,7 +129,9 @@ async function updateVideoStatus(video: PendingVideo): Promise<void> {
     const modelType = video.model as UnifiedVideoModelType;
     const status = await getVideoStatus(video.taskId, modelType);
 
-    console.log(`[VideoStatusUpdater] Video ${video.id} (${video.model}): ${video.status} -> ${status.status}`);
+    console.log(
+      `[VideoStatusUpdater] Video ${video.id} (${video.model}): ${video.status} -> ${status.status}`
+    );
 
     if (status.status !== video.status) {
       await db.updateVideoGenerationStatus(video.id, status.status, {
@@ -125,34 +141,55 @@ async function updateVideoStatus(video: PendingVideo): Promise<void> {
 
       // Refund credits if video generation failed
       if (status.status === "failed" && video.creditsCost > 0) {
-        console.log(`[VideoStatusUpdater] Video ${video.id} failed, refunding ${video.creditsCost} credits to user ${video.userId}`);
-        await db.refundCredits(video.userId, video.creditsCost, `Video oluşturma başarısız - ${video.model}`);
+        console.log(
+          `[VideoStatusUpdater] Video ${video.id} failed, refunding ${video.creditsCost} credits to user ${video.userId}`
+        );
+        await db.refundCredits(
+          video.userId,
+          video.creditsCost,
+          `Video oluşturma başarısız - ${video.model}`
+        );
       }
 
       if (status.status === "completed") {
-        console.log(`[VideoStatusUpdater] Video ${video.id} completed! URL: ${status.videoUrl}`);
+        console.log(
+          `[VideoStatusUpdater] Video ${video.id} completed! URL: ${status.videoUrl}`
+        );
 
         // Motion Control için kredi iadesi kontrolü
-        if (video.model === "kling-motion" && status.videoUrl && video.duration && video.quality) {
+        if (
+          video.model === "kling-motion" &&
+          status.videoUrl &&
+          video.duration &&
+          video.quality
+        ) {
           try {
             let actualDuration = status.actualDuration;
 
             // Eğer API'den actualDuration gelmediyse, video URL'den tespit et
             if (!actualDuration && status.videoUrl) {
-              console.log(`[VideoStatusUpdater] Motion Control: API didn't provide duration, fetching from video URL...`);
+              console.log(
+                `[VideoStatusUpdater] Motion Control: API didn't provide duration, fetching from video URL...`
+              );
               const detectedDuration = await getVideoDuration(status.videoUrl);
               actualDuration = detectedDuration ?? undefined;
 
               if (actualDuration) {
-                console.log(`[VideoStatusUpdater] Motion Control: Duration detected from video: ${actualDuration}s`);
+                console.log(
+                  `[VideoStatusUpdater] Motion Control: Duration detected from video: ${actualDuration}s`
+                );
               } else {
-                console.warn(`[VideoStatusUpdater] Motion Control: Could not detect duration from video URL. Trying to infer from model name...`);
+                console.warn(
+                  `[VideoStatusUpdater] Motion Control: Could not detect duration from video URL. Trying to infer from model name...`
+                );
 
                 // Fallback: Model isminden süreyi tahmin etmeye çalış (örn: kling-2.6-motion-5s -> 5)
                 const durationMatch = video.model.match(/-(\d+)s$/);
                 if (durationMatch) {
                   actualDuration = parseInt(durationMatch[1]);
-                  console.log(`[VideoStatusUpdater] Motion Control: Inferred duration from model name: ${actualDuration}s`);
+                  console.log(
+                    `[VideoStatusUpdater] Motion Control: Inferred duration from model name: ${actualDuration}s`
+                  );
                 }
               }
             }
@@ -167,10 +204,15 @@ async function updateVideoStatus(video: PendingVideo): Promise<void> {
             );
 
             if (refundAmount > 0) {
-              console.log(`[VideoStatusUpdater] Motion Control: Refunded ${refundAmount} credits to user ${video.userId}`);
+              console.log(
+                `[VideoStatusUpdater] Motion Control: Refunded ${refundAmount} credits to user ${video.userId}`
+              );
             }
           } catch (error) {
-            console.error(`[VideoStatusUpdater] Error checking Motion Control credits:`, error);
+            console.error(
+              `[VideoStatusUpdater] Error checking Motion Control credits:`,
+              error
+            );
           }
         }
 
@@ -198,7 +240,10 @@ async function updateVideoStatus(video: PendingVideo): Promise<void> {
       }
     }
   } catch (error) {
-    console.error(`[VideoStatusUpdater] Error updating video ${video.id}:`, error);
+    console.error(
+      `[VideoStatusUpdater] Error updating video ${video.id}:`,
+      error
+    );
   }
 }
 
@@ -209,7 +254,9 @@ async function checkAllPendingVideos(): Promise<void> {
     return;
   }
 
-  console.log(`[VideoStatusUpdater] Checking ${pendingVideos.length} pending videos...`);
+  console.log(
+    `[VideoStatusUpdater] Checking ${pendingVideos.length} pending videos...`
+  );
 
   // Process videos in parallel (with limit)
   await Promise.all(pendingVideos.map(updateVideoStatus));
@@ -223,7 +270,9 @@ export function startVideoStatusUpdater(): void {
     return;
   }
 
-  console.log(`[VideoStatusUpdater] Starting background job (interval: ${CHECK_INTERVAL / 1000}s)`);
+  console.log(
+    `[VideoStatusUpdater] Starting background job (interval: ${CHECK_INTERVAL / 1000}s)`
+  );
 
   // Run immediately on start
   checkAllPendingVideos().catch(console.error);

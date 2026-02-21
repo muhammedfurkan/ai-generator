@@ -6,13 +6,17 @@ import CreateModal from "./CreateModal";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useWebUiConfig } from "@/hooks/useWebUiConfig";
+import { orderByIds } from "@/lib/webUiConfig";
 
 interface NavItem {
+  id: string;
   icon: React.ReactNode;
   label: string;
   path: string;
   isCreate?: boolean;
   requiresAuth?: boolean;
+  featureKey?: string;
 }
 
 export default function MobileBottomNav() {
@@ -20,6 +24,7 @@ export default function MobileBottomNav() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const { t } = useLanguage();
+  const { webUiConfig, featureFlags } = useWebUiConfig();
 
   // Listen for openCreateModal event from MobileHome
   useEffect(() => {
@@ -29,25 +34,36 @@ export default function MobileBottomNav() {
   }, []);
 
   const navItems: NavItem[] = [
-    { icon: <Home className="h-5 w-5" />, label: t("nav.home"), path: "/" },
     {
+      id: "home",
+      icon: <Home className="h-5 w-5" />,
+      label: t("nav.home"),
+      path: "/",
+    },
+    {
+      id: "community-characters",
       icon: <Users className="h-5 w-5" />,
       label: t("home.communityShort"),
       path: "/community-characters",
+      featureKey: "community_enabled",
     },
     {
+      id: "create",
       icon: <Sparkles className="h-6 w-6" />,
       label: t("nav.create"),
       path: "/create",
       isCreate: true,
     },
     {
+      id: "gallery",
       icon: <FolderOpen className="h-5 w-5" />,
       label: t("nav.gallery"),
       path: "/gallery",
       requiresAuth: true,
+      featureKey: "gallery_enabled",
     },
     {
+      id: "profile",
       icon: <User className="h-5 w-5" />,
       label: t("nav.profile"),
       path: "/profile",
@@ -55,9 +71,28 @@ export default function MobileBottomNav() {
     },
   ];
 
+  const orderedNavItems = orderByIds(
+    navItems.filter(
+      item =>
+        !item.featureKey ||
+        featureFlags[item.featureKey as keyof typeof featureFlags]
+    ),
+    webUiConfig.navigation.mobileBottomNavOrder
+  );
+
+  const hasCreateExperience =
+    featureFlags.image_generation_enabled ||
+    featureFlags.video_generation_enabled ||
+    featureFlags.ai_influencer_enabled ||
+    featureFlags.upscale_enabled;
+
   const handleNavClick = (item: NavItem) => {
     if (item.isCreate) {
-      setIsCreateModalOpen(true);
+      if (hasCreateExperience) {
+        setIsCreateModalOpen(true);
+      } else {
+        navigate("/packages");
+      }
     } else if (item.requiresAuth && !isAuthenticated) {
       // Redirect to login if not authenticated
       window.location.href = getLoginUrl();
@@ -76,7 +111,7 @@ export default function MobileBottomNav() {
       {/* Bottom Navigation Bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-black/95 backdrop-blur-xl border-t border-white/10 safe-area-pb">
         <div className="flex items-center justify-around h-16 px-2">
-          {navItems.map(item => (
+          {orderedNavItems.map(item => (
             <button
               key={item.path}
               onClick={() => handleNavClick(item)}

@@ -7,16 +7,19 @@ Stripe Adaptive Pricing entegrasyonu başarıyla tamamlandı. Artık kullanıcı
 ## 📦 Yapılan Değişiklikler
 
 ### Backend Changes
+
 1. ✅ **stripe.ts** - `getPublishableKey` endpoint eklendi
 2. ✅ **adaptive_pricing enabled** - Zaten mevcut, dokunulmadı
 3. ✅ **Metadata tracking** - originalCurrency ve originalAmount kaydediliyor
 
 ### Frontend Changes
+
 1. ✅ **Packages.tsx** - Adaptive pricing bilgi banner'ı eklendi
 2. ✅ **translations.ts** - Currency related çeviri keyleri eklendi
 3. ✅ **Dependencies** - @stripe/react-stripe-js ve @stripe/stripe-js kuruldu
 
 ### Documentation
+
 1. ✅ **ADAPTIVE_PRICING_TR.md** - Türkçe detaylı kullanım kılavuzu
 2. ✅ **ADAPTIVE_PRICING_CHECKLIST.md** - Implementation checklist
 3. ✅ **adaptivePricing.ts** - Constants ve documentation
@@ -47,6 +50,7 @@ Stripe Adaptive Pricing entegrasyonu başarıyla tamamlandı. Artık kullanıcı
 ## 🚀 Sonraki Adımlar
 
 ### 1. Stripe Dashboard Ayarları (MANUEL) ⚠️
+
 ```bash
 # Test Mode
 1. https://dashboard.stripe.com/test/settings/adaptive-pricing
@@ -58,7 +62,9 @@ Stripe Adaptive Pricing entegrasyonu başarıyla tamamlandı. Artık kullanıcı
 ```
 
 ### 2. Environment Variables Kontrolü
+
 `.env` dosyasında olmalı:
+
 ```bash
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_PUBLISHABLE_KEY=pk_live_...  # ⚠️ Yeni eklenen
@@ -67,6 +73,7 @@ LOCAL_BASE_URL=https://yourdomain.com
 ```
 
 ### 3. Test Etme
+
 ```bash
 # Development sunucusunu başlat
 pnpm dev
@@ -79,6 +86,7 @@ pnpm dev
 ```
 
 ### 4. VPN ile Farklı Ülkelerden Test
+
 ```bash
 # Türkiye VPN → TRY görmeli
 # USA VPN → USD görmeli
@@ -109,13 +117,16 @@ nano-influencer/
 ## 🔍 Önemli Detaylar
 
 ### Seçilmiş Yaklaşım
+
 **Simplified Adaptive Pricing** kullanıyoruz:
+
 - ❌ Currency Selector Element yok (kompleks)
 - ✅ Otomatik IP-based detection (basit)
 - ✅ Bilgilendirme banner (şeffaf)
 - ✅ Stripe handles everything (güvenilir)
 
 ### Neden Bu Yaklaşım?
+
 1. **Daha Basit UX**: Kullanıcı currency seçmek zorunda değil
 2. **Daha Az Kod**: Frontend'de karmaşık state management yok
 3. **Stripe-Managed**: Compliance, exchange rates, payment methods
@@ -130,6 +141,7 @@ nano-influencer/
 ## 🆘 Sorun Yaşarsanız
 
 1. **Backend logs kontrol edin:**
+
    ```bash
    pnpm dev
    # Console'da "[Stripe]" loglarına bakın
@@ -146,12 +158,14 @@ nano-influencer/
 ## ✨ Özet
 
 **Yapılanlar:**
+
 - ✅ Backend adaptive pricing zaten aktif
 - ✅ Frontend bilgi banner'ı eklendi
 - ✅ Çeviri keyleri eklendi
 - ✅ Dokümantasyon hazırlandı
 
 **Yapılması Gerekenler:**
+
 - ⚠️ Stripe Dashboard'da enable et (manuel)
 - ⚠️ .env'de STRIPE_PUBLISHABLE_KEY ekle
 - ⚠️ Test et (VPN ile)

@@ -6,7 +6,7 @@ import {
   refundCredits,
   getUserById,
   saveGeneratedImage,
-  updateGeneratedImageStatus
+  updateGeneratedImageStatus,
 } from "../db";
 import { createGenerationTask, pollTaskCompletion } from "../nanoBananaApi";
 import { storagePut } from "../storage";
@@ -47,9 +47,13 @@ async function processLogoInBackground(
     if (!imageUrl) {
       console.error(`[Logo Background] No image URL for task ${taskId}`);
       await updateGeneratedImageStatus(imageId, "failed", {
-        errorMessage: "Logo üretimi zaman aşımına uğradı"
+        errorMessage: "Logo üretimi zaman aşımına uğradı",
       });
-      await refundCredits(userId, creditsNeeded, `Logo oluşturma başarısız - ${resolution}`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `Logo oluşturma başarısız - ${resolution}`
+      );
 
       await createNotification({
         userId,
@@ -72,11 +76,17 @@ async function processLogoInBackground(
     // Download image
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
-      console.error(`[Logo Background] Failed to download image: ${imageResponse.status}`);
+      console.error(
+        `[Logo Background] Failed to download image: ${imageResponse.status}`
+      );
       await updateGeneratedImageStatus(imageId, "failed", {
-        errorMessage: "Logo indirilemedi"
+        errorMessage: "Logo indirilemedi",
       });
-      await refundCredits(userId, creditsNeeded, `Logo indirme başarısız - ${resolution}`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `Logo indirme başarısız - ${resolution}`
+      );
 
       await createNotification({
         userId,
@@ -92,11 +102,15 @@ async function processLogoInBackground(
     const safeBrandName = brandName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
     const fileName = `logo-${safeBrandName}-${nanoid()}.png`;
     const s3Key = `${userId}/logos/${fileName}`;
-    const { url: s3Url } = await storagePut(s3Key, Buffer.from(imageBuffer), "image/png");
+    const { url: s3Url } = await storagePut(
+      s3Key,
+      Buffer.from(imageBuffer),
+      "image/png"
+    );
 
     // Update database
     await updateGeneratedImageStatus(imageId, "completed", {
-      generatedImageUrl: s3Url
+      generatedImageUrl: s3Url,
     });
 
     // Notify user
@@ -125,9 +139,13 @@ async function processLogoInBackground(
   } catch (error) {
     console.error(`[Logo Background] Error processing logo ${imageId}:`, error);
     await updateGeneratedImageStatus(imageId, "failed", {
-      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata"
+      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
     });
-    await refundCredits(userId, creditsNeeded, `Logo oluşturma başarısız - ${resolution}`);
+    await refundCredits(
+      userId,
+      creditsNeeded,
+      `Logo oluşturma başarısız - ${resolution}`
+    );
 
     await createNotification({
       userId,
@@ -202,10 +220,14 @@ export const logoRouter = router({
 
         if (!taskResponse.success) {
           console.error("[Logo] Task creation failed:", taskResponse.error);
-          await refundCredits(userId, creditsNeeded, `Logo oluşturma başarısız - ${input.resolution}`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `Logo oluşturma başarısız - ${input.resolution}`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: `API_ERROR|Logo üretimi başlatılamadı. ${taskResponse.error || 'API hatası oluştu'}. Lütfen tekrar deneyin.`,
+            message: `API_ERROR|Logo üretimi başlatılamadı. ${taskResponse.error || "API hatası oluştu"}. Lütfen tekrar deneyin.`,
           });
         }
 
@@ -224,7 +246,11 @@ export const logoRouter = router({
         });
 
         if (!imageId) {
-          await refundCredits(userId, creditsNeeded, `Veritabanı hatası - ${input.resolution}`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `Veritabanı hatası - ${input.resolution}`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Veritabanına kayıt yapılamadı",
@@ -242,11 +268,16 @@ export const logoRouter = router({
           input.resolution,
           creditsNeeded,
           input.brandName
-        ).then((url) => {
-          if (url) {
-            console.log("[Logo] Background processing completed with URL:", url);
-          }
-        }).catch(console.error);
+        )
+          .then(url => {
+            if (url) {
+              console.log(
+                "[Logo] Background processing completed with URL:",
+                url
+              );
+            }
+          })
+          .catch(console.error);
 
         // Poll for completion (for immediate response)
         const imageUrl = await pollTaskCompletion(taskId, 120, 2000); // 4 dakika max
@@ -256,13 +287,19 @@ export const logoRouter = router({
           const imageResponse = await fetch(imageUrl);
           if (imageResponse.ok) {
             const imageBuffer = await imageResponse.arrayBuffer();
-            const safeBrandName = input.brandName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+            const safeBrandName = input.brandName
+              .replace(/[^a-zA-Z0-9]/g, "-")
+              .toLowerCase();
             const fileName = `logo-${safeBrandName}-${nanoid()}.png`;
             const s3Key = `${userId}/logos/${fileName}`;
-            const { url: s3Url } = await storagePut(s3Key, Buffer.from(imageBuffer), "image/png");
+            const { url: s3Url } = await storagePut(
+              s3Key,
+              Buffer.from(imageBuffer),
+              "image/png"
+            );
 
             await updateGeneratedImageStatus(imageId, "completed", {
-              generatedImageUrl: s3Url
+              generatedImageUrl: s3Url,
             });
 
             return {
@@ -292,8 +329,7 @@ export const logoRouter = router({
     }),
 
   // Get credit costs
-  getCreditCosts: protectedProcedure
-    .query(async () => {
-      return LOGO_CREDIT_COSTS;
-    }),
+  getCreditCosts: protectedProcedure.query(async () => {
+    return LOGO_CREDIT_COSTS;
+  }),
 });

@@ -5,7 +5,9 @@ vi.mock("../db", () => ({
   getDb: vi.fn(() => ({
     select: vi.fn(() => ({
       from: vi.fn(() => ({
-        where: vi.fn(() => [{ id: 1, credits: 100, name: "Test User", openId: "test123" }]),
+        where: vi.fn(() => [
+          { id: 1, credits: 100, name: "Test User", openId: "test123" },
+        ]),
         orderBy: vi.fn(() => ({
           limit: vi.fn(() => []),
         })),
@@ -52,7 +54,13 @@ describe("UGC Ad Video Generator", () => {
 
   describe("UGC Scenarios", () => {
     it("should have 5 UGC scenarios defined", () => {
-      const scenarios = ["testimonial", "unboxing", "problem_solution", "first_impression", "lifestyle"];
+      const scenarios = [
+        "testimonial",
+        "unboxing",
+        "problem_solution",
+        "first_impression",
+        "lifestyle",
+      ];
       expect(scenarios.length).toBe(5);
     });
 
@@ -64,7 +72,7 @@ describe("UGC Ad Video Generator", () => {
         first_impression: "İlk İzlenim",
         lifestyle: "Günlük Kullanım",
       };
-      
+
       expect(scenarioNames.testimonial).toBe("Kullanıcı Yorumu");
       expect(scenarioNames.unboxing).toBe("Kutu Açılışı");
       expect(scenarioNames.problem_solution).toBe("Problem → Çözüm");
@@ -93,7 +101,7 @@ describe("UGC Ad Video Generator", () => {
         calm: "Sakin",
         persuasive: "İkna Edici",
       };
-      
+
       expect(toneNames.casual).toBe("Rahat");
       expect(toneNames.excited).toBe("Heyecanlı");
       expect(toneNames.calm).toBe("Sakin");
@@ -126,7 +134,7 @@ describe("UGC Ad Video Generator", () => {
         "9:16 vertical",
         "authentic",
       ];
-      
+
       const mockPrompt = `Create a realistic UGC-style advertisement video.
 A young woman records themselves using a smartphone camera.
 The video must feel like a real TikTok/Instagram ad.

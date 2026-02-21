@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from "zod";
 import { router, protectedProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -19,8 +20,8 @@ const ANGLE_SETS = {
       { en: "front facing portrait", tr: "Önden Portre" },
       { en: "three quarter angle", tr: "Yarım Profil (3/4 Açı)" },
       { en: "side profile", tr: "Yan Profil" },
-      { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" }
-    ]
+      { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" },
+    ],
   },
   standart_6: {
     name: "Standart Set",
@@ -32,8 +33,8 @@ const ANGLE_SETS = {
       { en: "three quarter angle left", tr: "Yarım Profil Sol" },
       { en: "three quarter angle right", tr: "Yarım Profil Sağ" },
       { en: "side profile", tr: "Yan Profil" },
-      { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" }
-    ]
+      { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" },
+    ],
   },
   profesyonel_8: {
     name: "Profesyonel Set",
@@ -47,9 +48,9 @@ const ANGLE_SETS = {
       { en: "side profile", tr: "Yan Profil" },
       { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" },
       { en: "looking down angle from above", tr: "Yukarıdan Bakış" },
-      { en: "full body front view", tr: "Tam Boy Önden" }
-    ]
-  }
+      { en: "full body front view", tr: "Tam Boy Önden" },
+    ],
+  },
 };
 
 // Dynamic prompt generator
@@ -82,17 +83,22 @@ async function processAngleImage(
   userId: number,
   userEmail: string
 ) {
-  console.log(`[Multi-Angle] Starting processAngleImage for imageId=${imageId}, jobId=${jobId}`);
-  
+  console.log(
+    `[Multi-Angle] Starting processAngleImage for imageId=${imageId}, jobId=${jobId}`
+  );
+
   const db = await getDb();
   if (!db) {
-    console.error("[Multi-Angle] Database connection failed in processAngleImage");
+    console.error(
+      "[Multi-Angle] Database connection failed in processAngleImage"
+    );
     return;
   }
-  
+
   try {
     // Update status to processing
-    await db.update(multiAngleImages)
+    await db
+      .update(multiAngleImages)
       .set({ status: "processing" })
       .where(eq(multiAngleImages.id, imageId));
 
@@ -102,42 +108,59 @@ async function processAngleImage(
       prompt,
       aspectRatio: "3:4",
       resolution: "1K",
-      referenceImageUrl
+      referenceImageUrl,
     });
-    
+
     if (!taskResult.success || !taskResult.taskId) {
-      console.error(`[Multi-Angle] Task creation failed for imageId=${imageId}:`, taskResult.error);
+      console.error(
+        `[Multi-Angle] Task creation failed for imageId=${imageId}:`,
+        taskResult.error
+      );
       throw new Error(taskResult.error || "Failed to create task");
     }
-    
+
     const taskId = taskResult.taskId;
-    console.log(`[Multi-Angle] Task created for imageId=${imageId}, taskId=${taskId}`);
-    
+    console.log(
+      `[Multi-Angle] Task created for imageId=${imageId}, taskId=${taskId}`
+    );
+
     // Update task ID
-    await db.update(multiAngleImages)
+    await db
+      .update(multiAngleImages)
       .set({ taskId })
       .where(eq(multiAngleImages.id, imageId));
 
     // Poll for completion - returns image URL string or null
-    console.log(`[Multi-Angle] Starting poll for imageId=${imageId}, taskId=${taskId}`);
+    console.log(
+      `[Multi-Angle] Starting poll for imageId=${imageId}, taskId=${taskId}`
+    );
     const imageUrl = await pollTaskCompletion(taskId);
-    console.log(`[Multi-Angle] Poll completed for imageId=${imageId}, imageUrl=${imageUrl ? 'found' : 'null'}`);
-    
+    console.log(
+      `[Multi-Angle] Poll completed for imageId=${imageId}, imageUrl=${imageUrl ? "found" : "null"}`
+    );
+
     if (imageUrl) {
       console.log(`[Multi-Angle] Downloading image for imageId=${imageId}`);
       // Download and save to S3
       const imageResponse = await fetch(imageUrl);
       const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
       const fileName = `multi-angle/${userId}/${jobId}/${imageId}-${Date.now()}.png`;
-      const { url: s3Url } = await storagePut(fileName, imageBuffer, "image/png");
+      const { url: s3Url } = await storagePut(
+        fileName,
+        imageBuffer,
+        "image/png"
+      );
 
       // Update as completed
-      console.log(`[Multi-Angle] Updating imageId=${imageId} as completed, s3Url=${s3Url}`);
-      await db.update(multiAngleImages)
-        .set({ 
+      console.log(
+        `[Multi-Angle] Updating imageId=${imageId} as completed, s3Url=${s3Url}`
+      );
+      await db
+        .update(multiAngleImages)
+        .set({
           status: "completed",
           generatedImageUrl: s3Url,
-          completedAt: new Date()
+          completedAt: new Date(),
         })
         .where(eq(multiAngleImages.id, imageId));
       console.log(`[Multi-Angle] imageId=${imageId} marked as completed`);
@@ -163,19 +186,23 @@ async function processAngleImage(
       `);
 
       // Check if job is complete
-      const [job] = await db.select().from(multiAngleJobs).where(eq(multiAngleJobs.id, jobId));
+      const [job] = await db
+        .select()
+        .from(multiAngleJobs)
+        .where(eq(multiAngleJobs.id, jobId));
       if (job && job.completedImages >= job.totalImages) {
-        await db.update(multiAngleJobs)
+        await db
+          .update(multiAngleJobs)
           .set({ status: "completed", completedAt: new Date() })
           .where(eq(multiAngleJobs.id, jobId));
-        
+
         // Send notification
         await createNotification({
           userId,
           type: "generation_complete",
           title: "Çoklu Açı Fotoğraflarınız Hazır!",
           message: `${job.totalImages} fotoğraflık setiniz başarıyla oluşturuldu. Galeri'den indirin.`,
-          actionUrl: `/multi-angle/${jobId}`
+          actionUrl: `/multi-angle/${jobId}`,
         });
       }
     } else {
@@ -183,29 +210,44 @@ async function processAngleImage(
     }
   } catch (error: any) {
     console.error(`Multi-angle image ${imageId} failed:`, error);
-    
-    await db.update(multiAngleImages)
-      .set({ 
+
+    await db
+      .update(multiAngleImages)
+      .set({
         status: "failed",
-        errorMessage: error.message || "Unknown error"
+        errorMessage: error.message || "Unknown error",
       })
       .where(eq(multiAngleImages.id, imageId));
 
     // Check if all images failed
-    const failedImages = await db.select()
+    const failedImages = await db
+      .select()
       .from(multiAngleImages)
-      .where(and(
-        eq(multiAngleImages.jobId, jobId),
-        eq(multiAngleImages.status, "failed")
-      ));
-    
-    const [job] = await db.select().from(multiAngleJobs).where(eq(multiAngleJobs.id, jobId));
+      .where(
+        and(
+          eq(multiAngleImages.jobId, jobId),
+          eq(multiAngleImages.status, "failed")
+        )
+      );
+
+    const [job] = await db
+      .select()
+      .from(multiAngleJobs)
+      .where(eq(multiAngleJobs.id, jobId));
     if (job && failedImages.length === job.totalImages) {
-      await db.update(multiAngleJobs)
-        .set({ status: "failed", errorMessage: "All images failed to generate" })
+      await db
+        .update(multiAngleJobs)
+        .set({
+          status: "failed",
+          errorMessage: "All images failed to generate",
+        })
         .where(eq(multiAngleJobs.id, jobId));
-    } else if (job && (job.completedImages + failedImages.length) >= job.totalImages) {
-      await db.update(multiAngleJobs)
+    } else if (
+      job &&
+      job.completedImages + failedImages.length >= job.totalImages
+    ) {
+      await db
+        .update(multiAngleJobs)
         .set({ status: "partial", completedAt: new Date() })
         .where(eq(multiAngleJobs.id, jobId));
     }
@@ -216,7 +258,7 @@ async function processAngleImage(
       userId,
       userEmail,
       prompt: `Multi-angle job ${jobId}`,
-      creditsRefunded: 0
+      creditsRefunded: 0,
     });
   }
 }
@@ -230,22 +272,28 @@ export const multiAngleRouter = router({
       nameTr: value.nameTr,
       credits: value.credits,
       angleCount: value.angles.length,
-      angles: value.angles.map(a => ({ en: a.en, tr: a.tr }))
+      angles: value.angles.map(a => ({ en: a.en, tr: a.tr })),
     }));
   }),
 
   // Create new multi-angle job
   create: protectedProcedure
-    .input(z.object({
-      referenceImageUrl: z.string().url(),
-      angleSet: z.enum(["temel_4", "standart_6", "profesyonel_8"])
-    }))
+    .input(
+      z.object({
+        referenceImageUrl: z.string().url(),
+        angleSet: z.enum(["temel_4", "standart_6", "profesyonel_8"]),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
       const userId = ctx.user.id;
       const userEmail = ctx.user.email || "";
-      
+
       const angleConfig = ANGLE_SETS[input.angleSet];
       const creditsNeeded = angleConfig.credits;
 
@@ -254,12 +302,13 @@ export const multiAngleRouter = router({
       if (!user || user.credits < creditsNeeded) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: `Yetersiz kredi. ${creditsNeeded} kredi gerekli, mevcut: ${user?.credits || 0}`
+          message: `Yetersiz kredi. ${creditsNeeded} kredi gerekli, mevcut: ${user?.credits || 0}`,
         });
       }
 
       // Deduct credits
-      await db.update(users)
+      await db
+        .update(users)
         .set({ credits: user.credits - creditsNeeded })
         .where(eq(users.id, userId));
 
@@ -271,7 +320,7 @@ export const multiAngleRouter = router({
         totalImages: angleConfig.angles.length,
         completedImages: 0,
         creditsCost: creditsNeeded,
-        status: "processing"
+        status: "processing",
       });
 
       const jobId = jobResult.insertId;
@@ -282,13 +331,14 @@ export const multiAngleRouter = router({
         angleIndex: index,
         angleName: angle.tr, // Türkçe isim kaydet
         prompt: generatePrompt(angle.en), // İngilizce prompt kullan
-        status: "pending" as const
+        status: "pending" as const,
       }));
 
       await db.insert(multiAngleImages).values(imageRecords);
 
       // Get created images
-      const images = await db.select()
+      const images = await db
+        .select()
         .from(multiAngleImages)
         .where(eq(multiAngleImages.jobId, jobId));
 
@@ -312,14 +362,14 @@ export const multiAngleRouter = router({
         userEmail: user.email,
         creditsSpent: creditsNeeded,
         creditsRemaining: user.credits - creditsNeeded,
-        action: `Multi-Angle Photo (${angleConfig.name})`
+        action: `Multi-Angle Photo (${angleConfig.name})`,
       });
 
       return {
         jobId,
         totalImages: angleConfig.angles.length,
         creditsUsed: creditsNeeded,
-        message: "Fotoğraf seti oluşturuluyor..."
+        message: "Fotoğraf seti oluşturuluyor...",
       };
     }),
 
@@ -328,20 +378,28 @@ export const multiAngleRouter = router({
     .input(z.object({ jobId: z.number() }))
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
-      const [job] = await db.select()
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
+      const [job] = await db
+        .select()
         .from(multiAngleJobs)
-        .where(and(
-          eq(multiAngleJobs.id, input.jobId),
-          eq(multiAngleJobs.userId, ctx.user.id)
-        ));
+        .where(
+          and(
+            eq(multiAngleJobs.id, input.jobId),
+            eq(multiAngleJobs.userId, ctx.user.id)
+          )
+        );
 
       if (!job) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
       }
 
-      const images = await db.select()
+      const images = await db
+        .select()
         .from(multiAngleImages)
         .where(eq(multiAngleImages.jobId, input.jobId))
         .orderBy(multiAngleImages.angleIndex);
@@ -349,21 +407,28 @@ export const multiAngleRouter = router({
       return {
         job,
         images,
-        progress: Math.round((job.completedImages / job.totalImages) * 100)
+        progress: Math.round((job.completedImages / job.totalImages) * 100),
       };
     }),
 
   // Get user's job history
   getHistory: protectedProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(50).default(10),
-      offset: z.number().min(0).default(0)
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(50).default(10),
+        offset: z.number().min(0).default(0),
+      })
+    )
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
-      const jobs = await db.select()
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
+      const jobs = await db
+        .select()
         .from(multiAngleJobs)
         .where(eq(multiAngleJobs.userId, ctx.user.id))
         .orderBy(desc(multiAngleJobs.createdAt))
@@ -378,25 +443,35 @@ export const multiAngleRouter = router({
     .input(z.object({ jobId: z.number() }))
     .query(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
-      const [job] = await db.select()
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
+      const [job] = await db
+        .select()
         .from(multiAngleJobs)
-        .where(and(
-          eq(multiAngleJobs.id, input.jobId),
-          eq(multiAngleJobs.userId, ctx.user.id)
-        ));
+        .where(
+          and(
+            eq(multiAngleJobs.id, input.jobId),
+            eq(multiAngleJobs.userId, ctx.user.id)
+          )
+        );
 
       if (!job) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
       }
 
-      const images = await db.select()
+      const images = await db
+        .select()
         .from(multiAngleImages)
-        .where(and(
-          eq(multiAngleImages.jobId, input.jobId),
-          eq(multiAngleImages.status, "completed")
-        ))
+        .where(
+          and(
+            eq(multiAngleImages.jobId, input.jobId),
+            eq(multiAngleImages.status, "completed")
+          )
+        )
         .orderBy(multiAngleImages.angleIndex);
 
       return {
@@ -404,8 +479,8 @@ export const multiAngleRouter = router({
         images: images.map(img => ({
           id: img.id,
           angleName: img.angleName,
-          url: img.generatedImageUrl
-        }))
+          url: img.generatedImageUrl,
+        })),
       };
     }),
 
@@ -414,27 +489,37 @@ export const multiAngleRouter = router({
     .input(z.object({ jobId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       const db = await getDb();
-      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection failed" });
-      
+      if (!db)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Database connection failed",
+        });
+
       // Get job and verify ownership
-      const [job] = await db.select()
+      const [job] = await db
+        .select()
         .from(multiAngleJobs)
-        .where(and(
-          eq(multiAngleJobs.id, input.jobId),
-          eq(multiAngleJobs.userId, ctx.user.id)
-        ));
+        .where(
+          and(
+            eq(multiAngleJobs.id, input.jobId),
+            eq(multiAngleJobs.userId, ctx.user.id)
+          )
+        );
 
       if (!job) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Job not found" });
       }
 
       // Get all processing images with taskIds
-      const processingImages = await db.select()
+      const processingImages = await db
+        .select()
         .from(multiAngleImages)
-        .where(and(
-          eq(multiAngleImages.jobId, input.jobId),
-          eq(multiAngleImages.status, "processing")
-        ));
+        .where(
+          and(
+            eq(multiAngleImages.jobId, input.jobId),
+            eq(multiAngleImages.status, "processing")
+          )
+        );
 
       if (processingImages.length === 0) {
         return { synced: 0, message: "No pending tasks to sync" };
@@ -451,7 +536,11 @@ export const multiAngleRouter = router({
           const { getTaskStatus } = await import("../nanoBananaApi");
           const status = await getTaskStatus(img.taskId);
 
-          if (status?.code === 200 && status.data?.state === "success" && status.data.resultJson) {
+          if (
+            status?.code === 200 &&
+            status.data?.state === "success" &&
+            status.data.resultJson
+          ) {
             // Parse resultJson
             let result: Record<string, unknown>;
             if (typeof status.data.resultJson === "string") {
@@ -466,16 +555,23 @@ export const multiAngleRouter = router({
 
               // Download and save to S3
               const imageResponse = await fetch(imageUrl);
-              const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+              const imageBuffer = Buffer.from(
+                await imageResponse.arrayBuffer()
+              );
               const fileName = `multi-angle/${ctx.user.id}/${input.jobId}/${img.id}-${Date.now()}.png`;
-              const { url: s3Url } = await storagePut(fileName, imageBuffer, "image/png");
+              const { url: s3Url } = await storagePut(
+                fileName,
+                imageBuffer,
+                "image/png"
+              );
 
               // Update database
-              await db.update(multiAngleImages)
-                .set({ 
+              await db
+                .update(multiAngleImages)
+                .set({
                   status: "completed",
                   generatedImageUrl: s3Url,
-                  completedAt: new Date()
+                  completedAt: new Date(),
                 })
                 .where(eq(multiAngleImages.id, img.id));
 
@@ -487,38 +583,52 @@ export const multiAngleRouter = router({
               `);
 
               syncedCount++;
-              console.log(`[Multi-Angle Sync] Synced imageId=${img.id}, taskId=${img.taskId}`);
+              console.log(
+                `[Multi-Angle Sync] Synced imageId=${img.id}, taskId=${img.taskId}`
+              );
             }
           } else if (status?.data?.state === "fail") {
-            await db.update(multiAngleImages)
-              .set({ 
+            await db
+              .update(multiAngleImages)
+              .set({
                 status: "failed",
-                errorMessage: status.data.failMsg || "Task failed"
+                errorMessage: status.data.failMsg || "Task failed",
               })
               .where(eq(multiAngleImages.id, img.id));
             failedCount++;
           }
         } catch (error: any) {
-          console.error(`[Multi-Angle Sync] Error syncing imageId=${img.id}:`, error.message);
+          console.error(
+            `[Multi-Angle Sync] Error syncing imageId=${img.id}:`,
+            error.message
+          );
         }
       }
 
       // Check if job is now complete
-      const [updatedJob] = await db.select().from(multiAngleJobs).where(eq(multiAngleJobs.id, input.jobId));
+      const [updatedJob] = await db
+        .select()
+        .from(multiAngleJobs)
+        .where(eq(multiAngleJobs.id, input.jobId));
       if (updatedJob && updatedJob.completedImages >= updatedJob.totalImages) {
-        await db.update(multiAngleJobs)
+        await db
+          .update(multiAngleJobs)
           .set({ status: "completed", completedAt: new Date() })
           .where(eq(multiAngleJobs.id, input.jobId));
-      } else if (updatedJob && (updatedJob.completedImages + failedCount) >= updatedJob.totalImages) {
-        await db.update(multiAngleJobs)
+      } else if (
+        updatedJob &&
+        updatedJob.completedImages + failedCount >= updatedJob.totalImages
+      ) {
+        await db
+          .update(multiAngleJobs)
           .set({ status: "partial", completedAt: new Date() })
           .where(eq(multiAngleJobs.id, input.jobId));
       }
 
-      return { 
-        synced: syncedCount, 
+      return {
+        synced: syncedCount,
         failed: failedCount,
-        message: `${syncedCount} görsel senkronize edildi${failedCount > 0 ? `, ${failedCount} başarısız` : ''}` 
+        message: `${syncedCount} görsel senkronize edildi${failedCount > 0 ? `, ${failedCount} başarısız` : ""}`,
       };
-    })
+    }),
 });

@@ -1,13 +1,13 @@
-import { getDb } from '../server/db';
-import { aiModelConfig } from '../drizzle/schema';
-import { eq } from 'drizzle-orm';
+import { getDb } from "../server/db";
+import { aiModelConfig } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 async function updateNanoBananaPro() {
-  console.log('🔧 Updating Nano Banana Pro configuration...');
+  console.log("🔧 Updating Nano Banana Pro configuration...");
 
   const db = await getDb();
   if (!db) {
-    console.error('❌ Database not available');
+    console.error("❌ Database not available");
     process.exit(1);
   }
 
@@ -17,22 +17,22 @@ async function updateNanoBananaPro() {
     defaultAspectRatio: "16:9",
     defaultResolution: "2K",
     supportsReferenceImage: true,
-    maxReferenceImages: 8
+    maxReferenceImages: 8,
   };
 
   await db
     .update(aiModelConfig)
     .set({ configJson: JSON.stringify(config) })
-    .where(eq(aiModelConfig.modelKey, 'google/pro-image-to-image'));
+    .where(eq(aiModelConfig.modelKey, "google/pro-image-to-image"));
 
-  console.log('✅ Nano Banana Pro configuration updated successfully!');
-  console.log('   - Removed 4K support');
-  console.log('   - Supported resolutions: 1K, 2K');
+  console.log("✅ Nano Banana Pro configuration updated successfully!");
+  console.log("   - Removed 4K support");
+  console.log("   - Supported resolutions: 1K, 2K");
 
   process.exit(0);
 }
 
-updateNanoBananaPro().catch((error) => {
-  console.error('❌ Error updating configuration:', error);
+updateNanoBananaPro().catch(error => {
+  console.error("❌ Error updating configuration:", error);
   process.exit(1);
 });

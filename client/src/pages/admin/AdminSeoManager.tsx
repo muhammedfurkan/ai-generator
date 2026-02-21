@@ -1,8 +1,5 @@
-/**
- * Admin SEO Manager - SEO Yönetimi (Tam Entegrasyon)
- * Sayfa bazlı ve global SEO ayarları
- */
-import { useState, useEffect } from "react";
+// @ts-nocheck
+import { useEffect, useMemo, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -12,9 +9,9 @@ import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -25,865 +22,1411 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  Search,
-  Globe,
-  FileText,
-  Plus,
-  Edit,
-  Trash2,
-  Save,
-  RefreshCw,
-  BarChart3,
-  Eye,
-  Code,
-  CheckCircle,
   AlertCircle,
-  Settings,
+  BarChart3,
+  CheckCircle,
+  FileText,
+  Globe,
+  Plus,
+  RefreshCw,
+  Save,
+  Search,
+  Trash2,
 } from "lucide-react";
 
-export default function AdminSeoManager() {
-  const [activeTab, setActiveTab] = useState<
-    "pages" | "global" | "analytics" | "robots"
-  >("pages");
-  const [selectedPage, setSelectedPage] = useState<number | null>(null);
-  const [isAddingPage, setIsAddingPage] = useState(false);
+type SeoPage = {
+  id: number;
+  pageSlug: string;
+  pageName: string;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  metaKeywords: string | null;
+  canonicalUrl: string | null;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  ogImage: string | null;
+  ogType: string | null;
+  ogLocale: string | null;
+  twitterCard: string | null;
+  twitterTitle: string | null;
+  twitterDescription: string | null;
+  twitterImage: string | null;
+  twitterSite: string | null;
+  twitterCreator: string | null;
+  robotsIndex: boolean;
+  robotsFollow: boolean;
+  robotsNoArchive: boolean;
+  robotsNoSnippet: boolean;
+  structuredData: string | null;
+  priority: string | null;
+  changeFrequency: string | null;
+  isActive: boolean;
+};
 
+type GlobalSeoConfig = {
+  siteName: string | null;
+  siteTagline: string | null;
+  defaultLanguage: string | null;
+  defaultMetaTitle: string | null;
+  defaultMetaDescription: string | null;
+  defaultMetaKeywords: string | null;
+  defaultOgImage: string | null;
+  facebookAppId: string | null;
+  defaultTwitterSite: string | null;
+  defaultTwitterCreator: string | null;
+  googleVerification: string | null;
+  bingVerification: string | null;
+  yandexVerification: string | null;
+  pinterestVerification: string | null;
+  googleAnalyticsId: string | null;
+  googleTagManagerId: string | null;
+  facebookPixelId: string | null;
+  robotsTxtContent: string | null;
+  sitemapEnabled: boolean | null;
+  organizationName: string | null;
+  organizationLogo: string | null;
+  organizationUrl: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  socialLinks: string | null;
+};
+
+type StatusFilter = "all" | "complete" | "missing" | "inactive";
+
+type PageFormState = {
+  pageName: string;
+  pageSlug: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  canonicalUrl: string;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage: string;
+  ogType: "website" | "article" | "product" | "profile";
+  ogLocale: string;
+  twitterCard: "summary" | "summary_large_image" | "app" | "player";
+  twitterTitle: string;
+  twitterDescription: string;
+  twitterImage: string;
+  twitterSite: string;
+  twitterCreator: string;
+  robotsIndex: boolean;
+  robotsFollow: boolean;
+  robotsNoArchive: boolean;
+  robotsNoSnippet: boolean;
+  structuredData: string;
+  priority: string;
+  changeFrequency:
+    | "always"
+    | "hourly"
+    | "daily"
+    | "weekly"
+    | "monthly"
+    | "yearly"
+    | "never";
+  isActive: boolean;
+};
+
+type GlobalFormState = {
+  siteName: string;
+  siteTagline: string;
+  defaultLanguage: string;
+  defaultMetaTitle: string;
+  defaultMetaDescription: string;
+  defaultMetaKeywords: string;
+  defaultOgImage: string;
+  facebookAppId: string;
+  defaultTwitterSite: string;
+  defaultTwitterCreator: string;
+  googleVerification: string;
+  bingVerification: string;
+  yandexVerification: string;
+  pinterestVerification: string;
+  googleAnalyticsId: string;
+  googleTagManagerId: string;
+  facebookPixelId: string;
+  robotsTxtContent: string;
+  sitemapEnabled: boolean;
+  organizationName: string;
+  organizationLogo: string;
+  organizationUrl: string;
+  contactEmail: string;
+  contactPhone: string;
+  socialLinks: string;
+};
+
+const emptyPageForm: PageFormState = {
+  pageName: "",
+  pageSlug: "",
+  metaTitle: "",
+  metaDescription: "",
+  metaKeywords: "",
+  canonicalUrl: "",
+  ogTitle: "",
+  ogDescription: "",
+  ogImage: "",
+  ogType: "website",
+  ogLocale: "tr_TR",
+  twitterCard: "summary_large_image",
+  twitterTitle: "",
+  twitterDescription: "",
+  twitterImage: "",
+  twitterSite: "",
+  twitterCreator: "",
+  robotsIndex: true,
+  robotsFollow: true,
+  robotsNoArchive: false,
+  robotsNoSnippet: false,
+  structuredData: "",
+  priority: "0.8",
+  changeFrequency: "weekly",
+  isActive: true,
+};
+
+const toNullable = (value: string) => {
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+};
+
+const createPageFormFromPage = (page: SeoPage): PageFormState => ({
+  pageName: page.pageName ?? "",
+  pageSlug: page.pageSlug ?? "",
+  metaTitle: page.metaTitle ?? "",
+  metaDescription: page.metaDescription ?? "",
+  metaKeywords: page.metaKeywords ?? "",
+  canonicalUrl: page.canonicalUrl ?? "",
+  ogTitle: page.ogTitle ?? "",
+  ogDescription: page.ogDescription ?? "",
+  ogImage: page.ogImage ?? "",
+  ogType: (page.ogType as PageFormState["ogType"]) || "website",
+  ogLocale: page.ogLocale ?? "tr_TR",
+  twitterCard:
+    (page.twitterCard as PageFormState["twitterCard"]) || "summary_large_image",
+  twitterTitle: page.twitterTitle ?? "",
+  twitterDescription: page.twitterDescription ?? "",
+  twitterImage: page.twitterImage ?? "",
+  twitterSite: page.twitterSite ?? "",
+  twitterCreator: page.twitterCreator ?? "",
+  robotsIndex: Boolean(page.robotsIndex),
+  robotsFollow: Boolean(page.robotsFollow),
+  robotsNoArchive: Boolean(page.robotsNoArchive),
+  robotsNoSnippet: Boolean(page.robotsNoSnippet),
+  structuredData: page.structuredData ?? "",
+  priority: page.priority ?? "0.8",
+  changeFrequency:
+    (page.changeFrequency as PageFormState["changeFrequency"]) || "weekly",
+  isActive: Boolean(page.isActive),
+});
+
+const createGlobalFormFromConfig = (
+  config: GlobalSeoConfig | null | undefined
+): GlobalFormState => ({
+  siteName: config?.siteName ?? "Lumiohan",
+  siteTagline: config?.siteTagline ?? "",
+  defaultLanguage: config?.defaultLanguage ?? "tr",
+  defaultMetaTitle: config?.defaultMetaTitle ?? "",
+  defaultMetaDescription: config?.defaultMetaDescription ?? "",
+  defaultMetaKeywords: config?.defaultMetaKeywords ?? "",
+  defaultOgImage: config?.defaultOgImage ?? "",
+  facebookAppId: config?.facebookAppId ?? "",
+  defaultTwitterSite: config?.defaultTwitterSite ?? "",
+  defaultTwitterCreator: config?.defaultTwitterCreator ?? "",
+  googleVerification: config?.googleVerification ?? "",
+  bingVerification: config?.bingVerification ?? "",
+  yandexVerification: config?.yandexVerification ?? "",
+  pinterestVerification: config?.pinterestVerification ?? "",
+  googleAnalyticsId: config?.googleAnalyticsId ?? "",
+  googleTagManagerId: config?.googleTagManagerId ?? "",
+  facebookPixelId: config?.facebookPixelId ?? "",
+  robotsTxtContent: config?.robotsTxtContent ?? "",
+  sitemapEnabled: config?.sitemapEnabled ?? true,
+  organizationName: config?.organizationName ?? "",
+  organizationLogo: config?.organizationLogo ?? "",
+  organizationUrl: config?.organizationUrl ?? "",
+  contactEmail: config?.contactEmail ?? "",
+  contactPhone: config?.contactPhone ?? "",
+  socialLinks: config?.socialLinks ?? "",
+});
+
+export default function AdminSeoManager() {
   const utils = trpc.useUtils();
 
-  // Queries
   const pagesQuery = trpc.seo.getAllPages.useQuery();
-  const globalConfigQuery = trpc.seo.getGlobalConfig.useQuery();
   const statsQuery = trpc.seo.getStats.useQuery();
+  const globalConfigQuery = trpc.seo.getGlobalConfig.useQuery();
 
-  // Mutations
-  const initPagesMutation = trpc.seo.initializeDefaultPages.useMutation({
+  const initializePagesMutation = trpc.seo.initializeDefaultPages.useMutation({
     onSuccess: data => {
-      toast.success(data.message);
-      utils.seo.getAllPages.invalidate();
-      utils.seo.getStats.invalidate();
-    },
-    onError: error => toast.error(error.message),
-  });
-
-  const updatePageMutation = trpc.seo.updatePage.useMutation({
-    onSuccess: () => {
-      toast.success("Sayfa SEO ayarları güncellendi");
-      utils.seo.getAllPages.invalidate();
+      toast.success(data.message || "Varsayılan sayfalar oluşturuldu.");
+      void Promise.all([
+        utils.seo.getAllPages.invalidate(),
+        utils.seo.getStats.invalidate(),
+      ]);
     },
     onError: error => toast.error(error.message),
   });
 
   const createPageMutation = trpc.seo.createPage.useMutation({
     onSuccess: () => {
-      toast.success("Yeni sayfa eklendi");
-      utils.seo.getAllPages.invalidate();
-      utils.seo.getStats.invalidate();
-      setIsAddingPage(false);
+      toast.success("Sayfa eklendi.");
+      setIsAddDialogOpen(false);
+      void Promise.all([
+        utils.seo.getAllPages.invalidate(),
+        utils.seo.getStats.invalidate(),
+      ]);
+    },
+    onError: error => toast.error(error.message),
+  });
+
+  const updatePageMutation = trpc.seo.updatePage.useMutation({
+    onSuccess: () => {
+      toast.success("Sayfa SEO ayarları kaydedildi.");
+      void Promise.all([
+        utils.seo.getAllPages.invalidate(),
+        utils.seo.getStats.invalidate(),
+      ]);
     },
     onError: error => toast.error(error.message),
   });
 
   const deletePageMutation = trpc.seo.deletePage.useMutation({
     onSuccess: () => {
-      toast.success("Sayfa silindi");
-      utils.seo.getAllPages.invalidate();
-      utils.seo.getStats.invalidate();
-      setSelectedPage(null);
+      toast.success("Sayfa silindi.");
+      setSelectedPageId(null);
+      void Promise.all([
+        utils.seo.getAllPages.invalidate(),
+        utils.seo.getStats.invalidate(),
+      ]);
     },
     onError: error => toast.error(error.message),
   });
 
   const updateGlobalMutation = trpc.seo.updateGlobalConfig.useMutation({
     onSuccess: () => {
-      toast.success("Global SEO ayarları güncellendi");
-      utils.seo.getGlobalConfig.invalidate();
+      toast.success("Global SEO ayarları kaydedildi.");
+      void Promise.all([
+        utils.seo.getGlobalConfig.invalidate(),
+        utils.seo.getStats.invalidate(),
+      ]);
     },
     onError: error => toast.error(error.message),
   });
 
+  const pages = (pagesQuery.data ?? []) as SeoPage[];
   const stats = statsQuery.data;
-  const pages = pagesQuery.data || [];
-  const globalConfig = globalConfigQuery.data;
-  const selectedPageData = selectedPage
-    ? pages.find(p => p.id === selectedPage)
-    : null;
 
-  const tabs = [
-    { id: "pages", label: "Sayfa SEO", icon: FileText },
-    { id: "global", label: "Global Ayarlar", icon: Globe },
-    { id: "analytics", label: "Analytics", icon: BarChart3 },
-    { id: "robots", label: "Robots & Sitemap", icon: Code },
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">SEO Yönetimi</h2>
-          <p className="text-sm text-zinc-500">
-            Sayfa bazlı ve global SEO ayarları
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => initPagesMutation.mutate()}
-          disabled={initPagesMutation.isPending}
-        >
-          <RefreshCw
-            className={`h-4 w-4 mr-2 ${initPagesMutation.isPending ? "animate-spin" : ""}`}
-          />
-          Varsayılan Sayfaları Oluştur
-        </Button>
-      </div>
-
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#00F5FF]/20">
-                <FileText className="h-5 w-5 text-[#00F5FF]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalPages}</p>
-                <p className="text-xs text-zinc-500">Toplam Sayfa</p>
-              </div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/20">
-                <CheckCircle className="h-5 w-5 text-green-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-green-400">
-                  {stats.pagesWithMeta}
-                </p>
-                <p className="text-xs text-zinc-500">Meta Tam</p>
-              </div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#7C3AED]/20">
-                <Globe className="h-5 w-5 text-[#7C3AED]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#7C3AED]">
-                  {stats.pagesWithOg}
-                </p>
-                <p className="text-xs text-zinc-500">OG Tam</p>
-              </div>
-            </div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-zinc-900/50 rounded-xl border border-white/10 p-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#00F5FF]/20">
-                <Eye className="h-5 w-5 text-[#00F5FF]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-[#00F5FF]">
-                  {stats.pagesIndexed}
-                </p>
-                <p className="text-xs text-zinc-500">İndekslenen</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2">
-        {tabs.map(tab => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
-                activeTab === tab.id
-                  ? "bg-[#00F5FF]/20 text-[#00F5FF] border border-[#00F5FF]/30"
-                  : "bg-zinc-900 text-zinc-400 border border-white/10 hover:border-white/20"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Pages Tab */}
-      {activeTab === "pages" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Page List */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-zinc-900/50 rounded-2xl border border-white/10"
-          >
-            <div className="p-4 border-b border-white/10 flex justify-between items-center">
-              <h3 className="font-semibold">Sayfalar</h3>
-              <Button size="sm" onClick={() => setIsAddingPage(true)}>
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="max-h-[500px] overflow-y-auto divide-y divide-white/5">
-              {pages.map((page: any) => (
-                <button
-                  key={page.id}
-                  onClick={() => setSelectedPage(page.id)}
-                  className={`w-full p-4 text-left hover:bg-white/5 transition-colors ${
-                    selectedPage === page.id ? "bg-[#00F5FF]/10" : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-sm">{page.pageName}</p>
-                      <p className="text-xs text-zinc-500">/{page.pageSlug}</p>
-                    </div>
-                    {page.metaTitle && page.metaDescription ? (
-                      <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-green-500/20 text-green-400">
-                        <CheckCircle className="h-3 w-3" />
-                        OK
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">
-                        <AlertCircle className="h-3 w-3" />
-                        Eksik
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Page Editor */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="lg:col-span-2 bg-zinc-900/50 rounded-2xl border border-white/10"
-          >
-            {selectedPageData ? (
-              <PageEditor
-                page={selectedPageData}
-                onSave={data =>
-                  updatePageMutation.mutate({
-                    id: selectedPageData.id,
-                    ...data,
-                  })
-                }
-                onDelete={() =>
-                  deletePageMutation.mutate({ id: selectedPageData.id })
-                }
-                isPending={updatePageMutation.isPending}
-                isDeleting={deletePageMutation.isPending}
-              />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                <FileText className="h-12 w-12 text-zinc-600 mb-4" />
-                <p className="text-zinc-500">Düzenlemek için bir sayfa seçin</p>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      )}
-
-      {/* Global Tab */}
-      {activeTab === "global" && globalConfig && (
-        <GlobalConfigEditor
-          config={globalConfig}
-          onSave={(data: any) => updateGlobalMutation.mutate(data)}
-          isPending={updateGlobalMutation.isPending}
-        />
-      )}
-
-      {/* Analytics Tab */}
-      {activeTab === "analytics" && globalConfig && (
-        <AnalyticsEditor
-          config={globalConfig}
-          onSave={(data: any) => updateGlobalMutation.mutate(data)}
-          isPending={updateGlobalMutation.isPending}
-        />
-      )}
-
-      {/* Robots Tab */}
-      {activeTab === "robots" && globalConfig && (
-        <RobotsEditor
-          config={globalConfig}
-          onSave={(data: any) => updateGlobalMutation.mutate(data)}
-          isPending={updateGlobalMutation.isPending}
-        />
-      )}
-
-      {/* Add Page Dialog */}
-      <Dialog open={isAddingPage} onOpenChange={setIsAddingPage}>
-        <DialogContent className="bg-zinc-900 border-white/10">
-          <DialogHeader>
-            <DialogTitle>Yeni Sayfa Ekle</DialogTitle>
-          </DialogHeader>
-          <AddPageForm
-            onSubmit={data => createPageMutation.mutate(data)}
-            isPending={createPageMutation.isPending}
-          />
-        </DialogContent>
-      </Dialog>
-    </div>
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [selectedPageId, setSelectedPageId] = useState<number | null>(null);
+  const [pageForm, setPageForm] = useState<PageFormState>(emptyPageForm);
+  const [basePageForm, setBasePageForm] =
+    useState<PageFormState>(emptyPageForm);
+  const [globalForm, setGlobalForm] = useState<GlobalFormState>(
+    createGlobalFormFromConfig(null)
   );
-}
-
-// Page Editor Component
-function PageEditor({ page, onSave, onDelete, isPending, isDeleting }: any) {
-  const [formData, setFormData] = useState<any>({});
-
-  useEffect(() => {
-    setFormData({
-      metaTitle: page.metaTitle || "",
-      metaDescription: page.metaDescription || "",
-      metaKeywords: page.metaKeywords || "",
-      canonicalUrl: page.canonicalUrl || "",
-      ogTitle: page.ogTitle || "",
-      ogDescription: page.ogDescription || "",
-      ogImage: page.ogImage || "",
-      twitterTitle: page.twitterTitle || "",
-      twitterDescription: page.twitterDescription || "",
-      twitterImage: page.twitterImage || "",
-      robotsIndex: page.robotsIndex ?? true,
-      robotsFollow: page.robotsFollow ?? true,
-      structuredData: page.structuredData || "",
-      isActive: page.isActive ?? true,
-    });
-  }, [page]);
-
-  return (
-    <div>
-      <div className="p-4 border-b border-white/10 flex justify-between items-center">
-        <div>
-          <h3 className="font-semibold">{page.pageName}</h3>
-          <p className="text-xs text-zinc-500">/{page.pageSlug}</p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={onDelete}
-            disabled={isDeleting}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => onSave(formData)}
-            disabled={isPending}
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Kaydet
-          </Button>
-        </div>
-      </div>
-      <div className="p-4 space-y-6 max-h-[500px] overflow-y-auto">
-        {/* Basic Meta */}
-        <div className="space-y-4">
-          <h4 className="font-medium flex items-center gap-2">
-            <Search className="h-4 w-4" /> Temel Meta Etiketleri
-          </h4>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm text-zinc-400 mb-1 block">
-                Meta Title ({formData.metaTitle?.length || 0}/70)
-              </label>
-              <Input
-                value={formData.metaTitle}
-                onChange={e =>
-                  setFormData({ ...formData, metaTitle: e.target.value })
-                }
-                maxLength={70}
-                className="bg-zinc-800 border-white/10"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-zinc-400 mb-1 block">
-                Meta Description ({formData.metaDescription?.length || 0}/160)
-              </label>
-              <Textarea
-                value={formData.metaDescription}
-                onChange={e =>
-                  setFormData({ ...formData, metaDescription: e.target.value })
-                }
-                maxLength={160}
-                rows={2}
-                className="bg-zinc-800 border-white/10"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-zinc-400 mb-1 block">
-                Keywords
-              </label>
-              <Input
-                value={formData.metaKeywords}
-                onChange={e =>
-                  setFormData({ ...formData, metaKeywords: e.target.value })
-                }
-                className="bg-zinc-800 border-white/10"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-zinc-400 mb-1 block">
-                Canonical URL
-              </label>
-              <Input
-                value={formData.canonicalUrl}
-                onChange={e =>
-                  setFormData({ ...formData, canonicalUrl: e.target.value })
-                }
-                className="bg-zinc-800 border-white/10"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Open Graph */}
-        <div className="space-y-4">
-          <h4 className="font-medium flex items-center gap-2">
-            <Globe className="h-4 w-4" /> Open Graph
-          </h4>
-          <div className="space-y-3">
-            <Input
-              placeholder="OG Title"
-              value={formData.ogTitle}
-              onChange={e =>
-                setFormData({ ...formData, ogTitle: e.target.value })
-              }
-              className="bg-zinc-800 border-white/10"
-            />
-            <Textarea
-              placeholder="OG Description"
-              value={formData.ogDescription}
-              onChange={e =>
-                setFormData({ ...formData, ogDescription: e.target.value })
-              }
-              rows={2}
-              className="bg-zinc-800 border-white/10"
-            />
-            <Input
-              placeholder="OG Image URL"
-              value={formData.ogImage}
-              onChange={e =>
-                setFormData({ ...formData, ogImage: e.target.value })
-              }
-              className="bg-zinc-800 border-white/10"
-            />
-          </div>
-        </div>
-
-        {/* Robots */}
-        <div className="space-y-4">
-          <h4 className="font-medium flex items-center gap-2">
-            <Code className="h-4 w-4" /> Robots Ayarları
-          </h4>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg">
-              <span className="text-sm">İndeksle</span>
-              <Switch
-                checked={formData.robotsIndex}
-                onCheckedChange={checked =>
-                  setFormData({ ...formData, robotsIndex: checked })
-                }
-              />
-            </div>
-            <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg">
-              <span className="text-sm">Takip Et</span>
-              <Switch
-                checked={formData.robotsFollow}
-                onCheckedChange={checked =>
-                  setFormData({ ...formData, robotsFollow: checked })
-                }
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Active Status */}
-        <div className="flex items-center justify-between p-4 bg-zinc-800 rounded-lg">
-          <div>
-            <p className="font-medium">Sayfa Aktif</p>
-            <p className="text-xs text-zinc-500">
-              SEO ayarları uygulanacak mı?
-            </p>
-          </div>
-          <Switch
-            checked={formData.isActive}
-            onCheckedChange={checked =>
-              setFormData({ ...formData, isActive: checked })
-            }
-          />
-        </div>
-      </div>
-    </div>
+  const [baseGlobalForm, setBaseGlobalForm] = useState<GlobalFormState>(
+    createGlobalFormFromConfig(null)
   );
-}
-
-// Add Page Form
-function AddPageForm({
-  onSubmit,
-  isPending,
-}: {
-  onSubmit: (data: any) => void;
-  isPending: boolean;
-}) {
-  const [formData, setFormData] = useState({
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newPage, setNewPage] = useState({
     pageSlug: "",
     pageName: "",
     metaTitle: "",
     metaDescription: "",
   });
 
+  const selectedPage = useMemo(
+    () => pages.find(page => page.id === selectedPageId) ?? null,
+    [pages, selectedPageId]
+  );
+
+  useEffect(() => {
+    if (!selectedPage && pages.length > 0 && selectedPageId === null) {
+      setSelectedPageId(pages[0].id);
+    }
+  }, [pages, selectedPage, selectedPageId]);
+
+  useEffect(() => {
+    if (!selectedPage) return;
+    const form = createPageFormFromPage(selectedPage);
+    setPageForm(form);
+    setBasePageForm(form);
+  }, [selectedPage]);
+
+  useEffect(() => {
+    const form = createGlobalFormFromConfig(
+      (globalConfigQuery.data as GlobalSeoConfig | null) ?? null
+    );
+    setGlobalForm(form);
+    setBaseGlobalForm(form);
+  }, [globalConfigQuery.data]);
+
+  const filteredPages = useMemo(() => {
+    const normalizedSearch = searchQuery.trim().toLocaleLowerCase("tr-TR");
+
+    return pages.filter(page => {
+      const isComplete = Boolean(page.metaTitle && page.metaDescription);
+      const isInactive = !page.isActive;
+
+      if (statusFilter === "complete" && !isComplete) return false;
+      if (statusFilter === "missing" && isComplete) return false;
+      if (statusFilter === "inactive" && !isInactive) return false;
+
+      if (!normalizedSearch) return true;
+
+      const haystack =
+        `${page.pageName} ${page.pageSlug} ${page.metaTitle ?? ""}`.toLocaleLowerCase(
+          "tr-TR"
+        );
+
+      return haystack.includes(normalizedSearch);
+    });
+  }, [pages, searchQuery, statusFilter]);
+
+  const pageFormDirty = useMemo(
+    () => JSON.stringify(pageForm) !== JSON.stringify(basePageForm),
+    [pageForm, basePageForm]
+  );
+
+  const globalFormDirty = useMemo(
+    () => JSON.stringify(globalForm) !== JSON.stringify(baseGlobalForm),
+    [globalForm, baseGlobalForm]
+  );
+
+  const savePage = async () => {
+    if (!selectedPageId) return;
+
+    await updatePageMutation.mutateAsync({
+      id: selectedPageId,
+      pageName: pageForm.pageName,
+      pageSlug: pageForm.pageSlug,
+      metaTitle: toNullable(pageForm.metaTitle),
+      metaDescription: toNullable(pageForm.metaDescription),
+      metaKeywords: toNullable(pageForm.metaKeywords),
+      canonicalUrl: toNullable(pageForm.canonicalUrl),
+      ogTitle: toNullable(pageForm.ogTitle),
+      ogDescription: toNullable(pageForm.ogDescription),
+      ogImage: toNullable(pageForm.ogImage),
+      ogType: pageForm.ogType,
+      ogLocale: toNullable(pageForm.ogLocale),
+      twitterCard: pageForm.twitterCard,
+      twitterTitle: toNullable(pageForm.twitterTitle),
+      twitterDescription: toNullable(pageForm.twitterDescription),
+      twitterImage: toNullable(pageForm.twitterImage),
+      twitterSite: toNullable(pageForm.twitterSite),
+      twitterCreator: toNullable(pageForm.twitterCreator),
+      robotsIndex: pageForm.robotsIndex,
+      robotsFollow: pageForm.robotsFollow,
+      robotsNoArchive: pageForm.robotsNoArchive,
+      robotsNoSnippet: pageForm.robotsNoSnippet,
+      structuredData: toNullable(pageForm.structuredData),
+      priority: toNullable(pageForm.priority),
+      changeFrequency: pageForm.changeFrequency,
+      isActive: pageForm.isActive,
+    });
+    setBasePageForm(pageForm);
+  };
+
+  const saveGlobal = async () => {
+    await updateGlobalMutation.mutateAsync({
+      siteName: toNullable(globalForm.siteName) ?? "Lumiohan",
+      siteTagline: toNullable(globalForm.siteTagline),
+      defaultLanguage: toNullable(globalForm.defaultLanguage) ?? "tr",
+      defaultMetaTitle: toNullable(globalForm.defaultMetaTitle),
+      defaultMetaDescription: toNullable(globalForm.defaultMetaDescription),
+      defaultMetaKeywords: toNullable(globalForm.defaultMetaKeywords),
+      defaultOgImage: toNullable(globalForm.defaultOgImage),
+      facebookAppId: toNullable(globalForm.facebookAppId),
+      defaultTwitterSite: toNullable(globalForm.defaultTwitterSite),
+      defaultTwitterCreator: toNullable(globalForm.defaultTwitterCreator),
+      googleVerification: toNullable(globalForm.googleVerification),
+      bingVerification: toNullable(globalForm.bingVerification),
+      yandexVerification: toNullable(globalForm.yandexVerification),
+      pinterestVerification: toNullable(globalForm.pinterestVerification),
+      googleAnalyticsId: toNullable(globalForm.googleAnalyticsId),
+      googleTagManagerId: toNullable(globalForm.googleTagManagerId),
+      facebookPixelId: toNullable(globalForm.facebookPixelId),
+      robotsTxtContent: toNullable(globalForm.robotsTxtContent),
+      sitemapEnabled: globalForm.sitemapEnabled,
+      organizationName: toNullable(globalForm.organizationName),
+      organizationLogo: toNullable(globalForm.organizationLogo),
+      organizationUrl: toNullable(globalForm.organizationUrl),
+      contactEmail: toNullable(globalForm.contactEmail),
+      contactPhone: toNullable(globalForm.contactPhone),
+      socialLinks: toNullable(globalForm.socialLinks),
+    });
+    setBaseGlobalForm(globalForm);
+  };
+
+  const createPage = async () => {
+    if (!newPage.pageSlug.trim() || !newPage.pageName.trim()) {
+      toast.error("Sayfa slug ve adı zorunlu.");
+      return;
+    }
+
+    await createPageMutation.mutateAsync({
+      pageSlug: newPage.pageSlug.trim(),
+      pageName: newPage.pageName.trim(),
+      metaTitle: newPage.metaTitle.trim() || undefined,
+      metaDescription: newPage.metaDescription.trim() || undefined,
+    });
+
+    setNewPage({
+      pageSlug: "",
+      pageName: "",
+      metaTitle: "",
+      metaDescription: "",
+    });
+  };
+
+  const titlePreview =
+    pageForm.metaTitle || globalForm.defaultMetaTitle || "Lumiohan";
+  const descriptionPreview =
+    pageForm.metaDescription ||
+    globalForm.defaultMetaDescription ||
+    "Sayfa açıklaması";
+
   return (
-    <div className="space-y-4 mt-4">
-      <div>
-        <label className="text-sm text-zinc-400 mb-1 block">Sayfa Slug</label>
-        <Input
-          value={formData.pageSlug}
-          onChange={e => setFormData({ ...formData, pageSlug: e.target.value })}
-          placeholder="sayfa-adi"
-          className="bg-zinc-800 border-white/10"
-        />
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold flex items-center gap-2">
+            <Globe className="h-5 w-5 text-[#00F5FF]" />
+            SEO Yönetimi
+          </h2>
+          <p className="text-sm text-zinc-500">
+            Sayfa bazlı SEO, global meta ayarları ve arama motoru doğrulamaları
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="border-white/20"
+            onClick={() => initializePagesMutation.mutate()}
+            disabled={initializePagesMutation.isPending}
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${initializePagesMutation.isPending ? "animate-spin" : ""}`}
+            />
+            Varsayılan Sayfalar
+          </Button>
+          <Button
+            type="button"
+            onClick={() => setIsAddDialogOpen(true)}
+            className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            SEO Sayfası Ekle
+          </Button>
+        </div>
       </div>
-      <div>
-        <label className="text-sm text-zinc-400 mb-1 block">Sayfa Adı</label>
-        <Input
-          value={formData.pageName}
-          onChange={e => setFormData({ ...formData, pageName: e.target.value })}
-          placeholder="Sayfa Adı"
-          className="bg-zinc-800 border-white/10"
-        />
+
+      {stats && (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          <StatCard
+            icon={FileText}
+            label="Toplam"
+            value={stats.totalPages}
+            color="text-[#00F5FF]"
+          />
+          <StatCard
+            icon={CheckCircle}
+            label="Meta Tam"
+            value={stats.pagesWithMeta}
+            color="text-green-400"
+          />
+          <StatCard
+            icon={Globe}
+            label="OG Tam"
+            value={stats.pagesWithOg}
+            color="text-indigo-400"
+          />
+          <StatCard
+            icon={BarChart3}
+            label="Analytics"
+            value={stats.hasAnalytics ? "Açık" : "Kapalı"}
+            color={stats.hasAnalytics ? "text-green-400" : "text-zinc-400"}
+          />
+          <StatCard
+            icon={AlertCircle}
+            label="İndekslenen"
+            value={stats.pagesIndexed}
+            color="text-yellow-400"
+          />
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 xl:grid-cols-[360px_minmax(0,1fr)] gap-6">
+        <section className="rounded-2xl border border-white/10 bg-zinc-900/50">
+          <div className="p-4 border-b border-white/10 space-y-3">
+            <div className="relative">
+              <Search className="h-4 w-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Input
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="pl-9 bg-zinc-800 border-white/10"
+                placeholder="Sayfa ara..."
+              />
+            </div>
+
+            <Select
+              value={statusFilter}
+              onValueChange={value => setStatusFilter(value as StatusFilter)}
+            >
+              <SelectTrigger className="bg-zinc-800 border-white/10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tüm Sayfalar</SelectItem>
+                <SelectItem value="complete">Meta Tam</SelectItem>
+                <SelectItem value="missing">Meta Eksik</SelectItem>
+                <SelectItem value="inactive">Pasif</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="max-h-[720px] overflow-y-auto divide-y divide-white/5">
+            {filteredPages.length === 0 ? (
+              <div className="p-6 text-sm text-zinc-500">
+                Filtreye uygun sayfa yok.
+              </div>
+            ) : (
+              filteredPages.map(page => {
+                const complete = Boolean(
+                  page.metaTitle && page.metaDescription
+                );
+                return (
+                  <button
+                    key={page.id}
+                    onClick={() => setSelectedPageId(page.id)}
+                    className={`w-full p-4 text-left transition-colors hover:bg-white/5 ${
+                      selectedPageId === page.id ? "bg-[#00F5FF]/10" : ""
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-sm">{page.pageName}</p>
+                        <p className="text-xs text-zinc-500 font-mono">
+                          /{page.pageSlug}
+                        </p>
+                      </div>
+                      <div className="flex gap-1.5">
+                        <span
+                          className={`text-[11px] px-2 py-0.5 rounded-full ${
+                            page.isActive
+                              ? "bg-green-500/15 text-green-400"
+                              : "bg-zinc-700 text-zinc-300"
+                          }`}
+                        >
+                          {page.isActive ? "Aktif" : "Pasif"}
+                        </span>
+                        <span
+                          className={`text-[11px] px-2 py-0.5 rounded-full ${
+                            complete
+                              ? "bg-[#00F5FF]/20 text-[#00F5FF]"
+                              : "bg-yellow-500/20 text-yellow-400"
+                          }`}
+                        >
+                          {complete ? "Meta Tam" : "Eksik"}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </section>
+
+        <div className="space-y-6">
+          <section className="rounded-2xl border border-white/10 bg-zinc-900/50 p-5 space-y-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="font-semibold text-base">Sayfa SEO Editörü</h3>
+                <p className="text-xs text-zinc-500">
+                  Meta, OG, Twitter ve robots ayarları
+                </p>
+              </div>
+              <div className="flex gap-2">
+                {selectedPage && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-500/40 text-red-300 hover:bg-red-500/10"
+                    onClick={() =>
+                      deletePageMutation.mutate({ id: selectedPage.id })
+                    }
+                    disabled={deletePageMutation.isPending}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Sil
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/20"
+                  onClick={() => setPageForm(basePageForm)}
+                  disabled={!pageFormDirty}
+                >
+                  Geri Al
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={savePage}
+                  disabled={
+                    !selectedPage ||
+                    !pageFormDirty ||
+                    updatePageMutation.isPending
+                  }
+                  className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
+                >
+                  {updatePageMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-1" />
+                  )}
+                  Kaydet
+                </Button>
+              </div>
+            </div>
+
+            {!selectedPage ? (
+              <div className="h-52 grid place-items-center text-zinc-500">
+                Düzenlemek için soldan bir sayfa seçin.
+              </div>
+            ) : (
+              <>
+                <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-4">
+                  <p className="text-xs text-zinc-500 mb-1">Google Önizleme</p>
+                  <p className="text-[#4EA4F6] text-lg leading-tight line-clamp-1">
+                    {titlePreview}
+                  </p>
+                  <p className="text-[12px] text-green-500">
+                    {pageForm.canonicalUrl ||
+                      `https://lumiohan.com/${pageForm.pageSlug}`}
+                  </p>
+                  <p className="text-sm text-zinc-300 line-clamp-2 mt-1">
+                    {descriptionPreview}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Input
+                    value={pageForm.pageName}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        pageName: e.target.value,
+                      }))
+                    }
+                    placeholder="Sayfa adı"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Input
+                    value={pageForm.pageSlug}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        pageSlug: e.target.value,
+                      }))
+                    }
+                    placeholder="Slug"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs text-zinc-400">
+                    Meta Title ({pageForm.metaTitle.length}/70)
+                  </label>
+                  <Input
+                    maxLength={70}
+                    value={pageForm.metaTitle}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        metaTitle: e.target.value,
+                      }))
+                    }
+                    className="bg-zinc-800 border-white/10"
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-xs text-zinc-400">
+                    Meta Description ({pageForm.metaDescription.length}/160)
+                  </label>
+                  <Textarea
+                    maxLength={160}
+                    value={pageForm.metaDescription}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        metaDescription: e.target.value,
+                      }))
+                    }
+                    className="bg-zinc-800 border-white/10 min-h-[96px]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Input
+                    value={pageForm.metaKeywords}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        metaKeywords: e.target.value,
+                      }))
+                    }
+                    placeholder="Keywords (virgülle)"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Input
+                    value={pageForm.canonicalUrl}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        canonicalUrl: e.target.value,
+                      }))
+                    }
+                    placeholder="Canonical URL"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <Input
+                    value={pageForm.ogTitle}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        ogTitle: e.target.value,
+                      }))
+                    }
+                    placeholder="OG Title"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Input
+                    value={pageForm.ogImage}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        ogImage: e.target.value,
+                      }))
+                    }
+                    placeholder="OG Image URL"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Select
+                    value={pageForm.ogType}
+                    onValueChange={value =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        ogType: value as PageFormState["ogType"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="bg-zinc-800 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="website">website</SelectItem>
+                      <SelectItem value="article">article</SelectItem>
+                      <SelectItem value="product">product</SelectItem>
+                      <SelectItem value="profile">profile</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Textarea
+                  value={pageForm.ogDescription}
+                  onChange={e =>
+                    setPageForm(prev => ({
+                      ...prev,
+                      ogDescription: e.target.value,
+                    }))
+                  }
+                  placeholder="OG Description"
+                  className="bg-zinc-800 border-white/10 min-h-[90px]"
+                />
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <Input
+                    value={pageForm.twitterTitle}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        twitterTitle: e.target.value,
+                      }))
+                    }
+                    placeholder="Twitter Title"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Input
+                    value={pageForm.twitterImage}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        twitterImage: e.target.value,
+                      }))
+                    }
+                    placeholder="Twitter Image URL"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Select
+                    value={pageForm.twitterCard}
+                    onValueChange={value =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        twitterCard: value as PageFormState["twitterCard"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="bg-zinc-800 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="summary">summary</SelectItem>
+                      <SelectItem value="summary_large_image">
+                        summary_large_image
+                      </SelectItem>
+                      <SelectItem value="app">app</SelectItem>
+                      <SelectItem value="player">player</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Textarea
+                  value={pageForm.twitterDescription}
+                  onChange={e =>
+                    setPageForm(prev => ({
+                      ...prev,
+                      twitterDescription: e.target.value,
+                    }))
+                  }
+                  placeholder="Twitter Description"
+                  className="bg-zinc-800 border-white/10 min-h-[90px]"
+                />
+
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                  <ToggleBox
+                    label="Index"
+                    checked={pageForm.robotsIndex}
+                    onChange={checked =>
+                      setPageForm(prev => ({ ...prev, robotsIndex: checked }))
+                    }
+                  />
+                  <ToggleBox
+                    label="Follow"
+                    checked={pageForm.robotsFollow}
+                    onChange={checked =>
+                      setPageForm(prev => ({ ...prev, robotsFollow: checked }))
+                    }
+                  />
+                  <ToggleBox
+                    label="NoArchive"
+                    checked={pageForm.robotsNoArchive}
+                    onChange={checked =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        robotsNoArchive: checked,
+                      }))
+                    }
+                  />
+                  <ToggleBox
+                    label="NoSnippet"
+                    checked={pageForm.robotsNoSnippet}
+                    onChange={checked =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        robotsNoSnippet: checked,
+                      }))
+                    }
+                  />
+                  <ToggleBox
+                    label="Aktif"
+                    checked={pageForm.isActive}
+                    onChange={checked =>
+                      setPageForm(prev => ({ ...prev, isActive: checked }))
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <Input
+                    value={pageForm.priority}
+                    onChange={e =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        priority: e.target.value,
+                      }))
+                    }
+                    placeholder="Sitemap priority (0.0 - 1.0)"
+                    className="bg-zinc-800 border-white/10"
+                  />
+                  <Select
+                    value={pageForm.changeFrequency}
+                    onValueChange={value =>
+                      setPageForm(prev => ({
+                        ...prev,
+                        changeFrequency:
+                          value as PageFormState["changeFrequency"],
+                      }))
+                    }
+                  >
+                    <SelectTrigger className="bg-zinc-800 border-white/10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="always">always</SelectItem>
+                      <SelectItem value="hourly">hourly</SelectItem>
+                      <SelectItem value="daily">daily</SelectItem>
+                      <SelectItem value="weekly">weekly</SelectItem>
+                      <SelectItem value="monthly">monthly</SelectItem>
+                      <SelectItem value="yearly">yearly</SelectItem>
+                      <SelectItem value="never">never</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Textarea
+                  value={pageForm.structuredData}
+                  onChange={e =>
+                    setPageForm(prev => ({
+                      ...prev,
+                      structuredData: e.target.value,
+                    }))
+                  }
+                  placeholder="JSON-LD structured data"
+                  className="bg-zinc-800 border-white/10 min-h-[120px] font-mono text-xs"
+                />
+              </>
+            )}
+          </section>
+
+          <section className="rounded-2xl border border-white/10 bg-zinc-900/50 p-5 space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3 className="font-semibold">Global SEO ve Analytics</h3>
+                <p className="text-xs text-zinc-500">
+                  Site genelinde varsayılan meta, doğrulama ve script ayarları
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-white/20"
+                  onClick={() => setGlobalForm(baseGlobalForm)}
+                  disabled={!globalFormDirty}
+                >
+                  Geri Al
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={saveGlobal}
+                  disabled={!globalFormDirty || updateGlobalMutation.isPending}
+                  className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
+                >
+                  {updateGlobalMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-1" />
+                  )}
+                  Kaydet
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <Input
+                value={globalForm.siteName}
+                onChange={e =>
+                  setGlobalForm(prev => ({ ...prev, siteName: e.target.value }))
+                }
+                placeholder="Site adı"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.siteTagline}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    siteTagline: e.target.value,
+                  }))
+                }
+                placeholder="Site sloganı"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Select
+                value={globalForm.defaultLanguage}
+                onValueChange={value =>
+                  setGlobalForm(prev => ({ ...prev, defaultLanguage: value }))
+                }
+              >
+                <SelectTrigger className="bg-zinc-800 border-white/10">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="tr">tr</SelectItem>
+                  <SelectItem value="en">en</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Input
+              value={globalForm.defaultMetaTitle}
+              onChange={e =>
+                setGlobalForm(prev => ({
+                  ...prev,
+                  defaultMetaTitle: e.target.value,
+                }))
+              }
+              placeholder="Varsayılan Meta Title"
+              className="bg-zinc-800 border-white/10"
+            />
+            <Textarea
+              value={globalForm.defaultMetaDescription}
+              onChange={e =>
+                setGlobalForm(prev => ({
+                  ...prev,
+                  defaultMetaDescription: e.target.value,
+                }))
+              }
+              placeholder="Varsayılan Meta Description"
+              className="bg-zinc-800 border-white/10 min-h-[96px]"
+            />
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Input
+                value={globalForm.defaultOgImage}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    defaultOgImage: e.target.value,
+                  }))
+                }
+                placeholder="Varsayılan OG Image"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.defaultMetaKeywords}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    defaultMetaKeywords: e.target.value,
+                  }))
+                }
+                placeholder="Varsayılan Keywords"
+                className="bg-zinc-800 border-white/10"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <Input
+                value={globalForm.googleAnalyticsId}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    googleAnalyticsId: e.target.value,
+                  }))
+                }
+                placeholder="GA4 ID (G-XXXX)"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.googleTagManagerId}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    googleTagManagerId: e.target.value,
+                  }))
+                }
+                placeholder="GTM ID"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.facebookPixelId}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    facebookPixelId: e.target.value,
+                  }))
+                }
+                placeholder="Facebook Pixel ID"
+                className="bg-zinc-800 border-white/10"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Input
+                value={globalForm.googleVerification}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    googleVerification: e.target.value,
+                  }))
+                }
+                placeholder="Google verification"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.bingVerification}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    bingVerification: e.target.value,
+                  }))
+                }
+                placeholder="Bing verification"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.yandexVerification}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    yandexVerification: e.target.value,
+                  }))
+                }
+                placeholder="Yandex verification"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.pinterestVerification}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    pinterestVerification: e.target.value,
+                  }))
+                }
+                placeholder="Pinterest verification"
+                className="bg-zinc-800 border-white/10"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Input
+                value={globalForm.organizationName}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    organizationName: e.target.value,
+                  }))
+                }
+                placeholder="Organization Name"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.organizationUrl}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    organizationUrl: e.target.value,
+                  }))
+                }
+                placeholder="Organization URL"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.organizationLogo}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    organizationLogo: e.target.value,
+                  }))
+                }
+                placeholder="Organization Logo"
+                className="bg-zinc-800 border-white/10"
+              />
+              <Input
+                value={globalForm.contactEmail}
+                onChange={e =>
+                  setGlobalForm(prev => ({
+                    ...prev,
+                    contactEmail: e.target.value,
+                  }))
+                }
+                placeholder="Contact Email"
+                className="bg-zinc-800 border-white/10"
+              />
+            </div>
+
+            <Input
+              value={globalForm.contactPhone}
+              onChange={e =>
+                setGlobalForm(prev => ({
+                  ...prev,
+                  contactPhone: e.target.value,
+                }))
+              }
+              placeholder="Contact Phone"
+              className="bg-zinc-800 border-white/10"
+            />
+
+            <Textarea
+              value={globalForm.socialLinks}
+              onChange={e =>
+                setGlobalForm(prev => ({
+                  ...prev,
+                  socialLinks: e.target.value,
+                }))
+              }
+              placeholder='Social links JSON örn: {"x":"https://x.com/..."}'
+              className="bg-zinc-800 border-white/10 min-h-[96px] font-mono text-xs"
+            />
+
+            <Textarea
+              value={globalForm.robotsTxtContent}
+              onChange={e =>
+                setGlobalForm(prev => ({
+                  ...prev,
+                  robotsTxtContent: e.target.value,
+                }))
+              }
+              placeholder="robots.txt içeriği"
+              className="bg-zinc-800 border-white/10 min-h-[120px] font-mono text-xs"
+            />
+
+            <div className="rounded-xl border border-white/10 bg-zinc-950/40 p-3 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium">Sitemap Aktif</p>
+                <p className="text-xs text-zinc-500">
+                  Sitemap üretimi aktif/pasif
+                </p>
+              </div>
+              <Switch
+                checked={globalForm.sitemapEnabled}
+                onCheckedChange={checked =>
+                  setGlobalForm(prev => ({ ...prev, sitemapEnabled: checked }))
+                }
+              />
+            </div>
+          </section>
+        </div>
       </div>
-      <div>
-        <label className="text-sm text-zinc-400 mb-1 block">Meta Title</label>
-        <Input
-          value={formData.metaTitle}
-          onChange={e =>
-            setFormData({ ...formData, metaTitle: e.target.value })
-          }
-          placeholder="Sayfa Başlığı | Lumiohan"
-          className="bg-zinc-800 border-white/10"
-        />
-      </div>
-      <div>
-        <label className="text-sm text-zinc-400 mb-1 block">
-          Meta Description
-        </label>
-        <Textarea
-          value={formData.metaDescription}
-          onChange={e =>
-            setFormData({ ...formData, metaDescription: e.target.value })
-          }
-          placeholder="Sayfa açıklaması..."
-          rows={2}
-          className="bg-zinc-800 border-white/10"
-        />
-      </div>
-      <DialogFooter>
-        <Button
-          onClick={() => onSubmit(formData)}
-          disabled={isPending}
-          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
-        >
-          {isPending ? "Ekleniyor..." : "Ekle"}
-        </Button>
-      </DialogFooter>
+
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="bg-zinc-900 border-white/10">
+          <DialogHeader>
+            <DialogTitle>Yeni SEO Sayfası</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <Input
+              value={newPage.pageName}
+              onChange={e =>
+                setNewPage(prev => ({ ...prev, pageName: e.target.value }))
+              }
+              placeholder="Sayfa adı"
+              className="bg-zinc-800 border-white/10"
+            />
+            <Input
+              value={newPage.pageSlug}
+              onChange={e =>
+                setNewPage(prev => ({
+                  ...prev,
+                  pageSlug: e.target.value
+                    .toLowerCase()
+                    .trim()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^a-z0-9-_]/g, ""),
+                }))
+              }
+              placeholder="Slug (örn: faq-page)"
+              className="bg-zinc-800 border-white/10"
+            />
+            <Input
+              value={newPage.metaTitle}
+              onChange={e =>
+                setNewPage(prev => ({ ...prev, metaTitle: e.target.value }))
+              }
+              placeholder="Meta title"
+              className="bg-zinc-800 border-white/10"
+            />
+            <Textarea
+              value={newPage.metaDescription}
+              onChange={e =>
+                setNewPage(prev => ({
+                  ...prev,
+                  metaDescription: e.target.value,
+                }))
+              }
+              placeholder="Meta description"
+              className="bg-zinc-800 border-white/10 min-h-[96px]"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              className="border-white/20"
+              onClick={() => setIsAddDialogOpen(false)}
+            >
+              İptal
+            </Button>
+            <Button
+              type="button"
+              onClick={createPage}
+              disabled={createPageMutation.isPending}
+              className="bg-[#00F5FF] text-black hover:bg-[#00D9E5]"
+            >
+              {createPageMutation.isPending ? "Ekleniyor..." : "Ekle"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-// Global Config Editor
-function GlobalConfigEditor({ config, onSave, isPending }: any) {
-  const [formData, setFormData] = useState({
-    siteName: config?.siteName || "Lumiohan",
-    siteTagline: config?.siteTagline || "",
-    defaultLanguage: config?.defaultLanguage || "tr",
-    defaultMetaTitle: config?.defaultMetaTitle || "",
-    defaultMetaDescription: config?.defaultMetaDescription || "",
-    defaultMetaKeywords: config?.defaultMetaKeywords || "",
-    defaultOgImage: config?.defaultOgImage || "",
-    organizationName: config?.organizationName || "",
-    organizationLogo: config?.organizationLogo || "",
-    organizationUrl: config?.organizationUrl || "",
-    contactEmail: config?.contactEmail || "",
-  });
-
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  color: string;
+}) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
+      className="rounded-xl border border-white/10 bg-zinc-900/50 p-3"
     >
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="font-semibold text-lg">Global SEO Ayarları</h3>
-        <Button
-          onClick={() => onSave(formData)}
-          disabled={isPending}
-          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Kaydet
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-4">
-          <h4 className="font-medium">Site Bilgileri</h4>
-          <Input
-            placeholder="Site Adı"
-            value={formData.siteName}
-            onChange={e =>
-              setFormData({ ...formData, siteName: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-          <Input
-            placeholder="Site Sloganı"
-            value={formData.siteTagline}
-            onChange={e =>
-              setFormData({ ...formData, siteTagline: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-          <Select
-            value={formData.defaultLanguage}
-            onValueChange={v =>
-              setFormData({ ...formData, defaultLanguage: v })
-            }
-          >
-            <SelectTrigger className="bg-zinc-800 border-white/10">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="tr">Türkçe</SelectItem>
-              <SelectItem value="en">English</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex items-center gap-2">
+        <div className="p-2 rounded-lg bg-zinc-800">
+          <Icon className={`h-4 w-4 ${color}`} />
         </div>
-        <div className="space-y-4">
-          <h4 className="font-medium">Varsayılan Meta</h4>
-          <Input
-            placeholder="Varsayılan Title"
-            value={formData.defaultMetaTitle}
-            onChange={e =>
-              setFormData({ ...formData, defaultMetaTitle: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-          <Textarea
-            placeholder="Varsayılan Description"
-            value={formData.defaultMetaDescription}
-            onChange={e =>
-              setFormData({
-                ...formData,
-                defaultMetaDescription: e.target.value,
-              })
-            }
-            rows={2}
-            className="bg-zinc-800 border-white/10"
-          />
-          <Input
-            placeholder="Varsayılan OG Image"
-            value={formData.defaultOgImage}
-            onChange={e =>
-              setFormData({ ...formData, defaultOgImage: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-        </div>
-        <div className="space-y-4 md:col-span-2">
-          <h4 className="font-medium">Organizasyon Bilgileri</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              placeholder="Organizasyon Adı"
-              value={formData.organizationName}
-              onChange={e =>
-                setFormData({ ...formData, organizationName: e.target.value })
-              }
-              className="bg-zinc-800 border-white/10"
-            />
-            <Input
-              placeholder="Organizasyon URL"
-              value={formData.organizationUrl}
-              onChange={e =>
-                setFormData({ ...formData, organizationUrl: e.target.value })
-              }
-              className="bg-zinc-800 border-white/10"
-            />
-            <Input
-              placeholder="Logo URL"
-              value={formData.organizationLogo}
-              onChange={e =>
-                setFormData({ ...formData, organizationLogo: e.target.value })
-              }
-              className="bg-zinc-800 border-white/10"
-            />
-            <Input
-              placeholder="İletişim Email"
-              value={formData.contactEmail}
-              onChange={e =>
-                setFormData({ ...formData, contactEmail: e.target.value })
-              }
-              className="bg-zinc-800 border-white/10"
-            />
-          </div>
+        <div>
+          <p className={`text-base font-semibold ${color}`}>{value}</p>
+          <p className="text-[11px] text-zinc-500">{label}</p>
         </div>
       </div>
     </motion.div>
   );
 }
 
-// Analytics Editor
-function AnalyticsEditor({ config, onSave, isPending }: any) {
-  const [formData, setFormData] = useState({
-    googleAnalyticsId: config?.googleAnalyticsId || "",
-    googleTagManagerId: config?.googleTagManagerId || "",
-    facebookPixelId: config?.facebookPixelId || "",
-  });
-
+function ToggleBox({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
-    >
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="font-semibold text-lg">Analytics Entegrasyonları</h3>
-        <Button
-          onClick={() => onSave(formData)}
-          disabled={isPending}
-          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Kaydet
-        </Button>
-      </div>
-      <div className="space-y-4 max-w-md">
-        <div>
-          <label className="text-sm text-zinc-400 mb-2 block">
-            Google Analytics ID
-          </label>
-          <Input
-            placeholder="G-XXXXXXXXXX"
-            value={formData.googleAnalyticsId}
-            onChange={e =>
-              setFormData({ ...formData, googleAnalyticsId: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-zinc-400 mb-2 block">
-            Google Tag Manager ID
-          </label>
-          <Input
-            placeholder="GTM-XXXXXXX"
-            value={formData.googleTagManagerId}
-            onChange={e =>
-              setFormData({ ...formData, googleTagManagerId: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-zinc-400 mb-2 block">
-            Facebook Pixel ID
-          </label>
-          <Input
-            placeholder="XXXXXXXXXXXXXXXX"
-            value={formData.facebookPixelId}
-            onChange={e =>
-              setFormData({ ...formData, facebookPixelId: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// Robots Editor
-function RobotsEditor({ config, onSave, isPending }: any) {
-  const [formData, setFormData] = useState({
-    robotsTxt:
-      config?.robotsTxt ||
-      `User-agent: *
-Allow: /
-
-Sitemap: https://Lumiohan.com/sitemap.xml`,
-    sitemapUrl: config?.sitemapUrl || "https://Lumiohan.com/sitemap.xml",
-  });
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-zinc-900/50 rounded-2xl border border-white/10 p-6"
-    >
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="font-semibold text-lg">Robots.txt & Sitemap</h3>
-        <Button
-          onClick={() => onSave(formData)}
-          disabled={isPending}
-          className="bg-[#00F5FF] hover:bg-[#00F5FF] text-black"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          Kaydet
-        </Button>
-      </div>
-      <div className="space-y-4">
-        <div>
-          <label className="text-sm text-zinc-400 mb-2 block">
-            Sitemap URL
-          </label>
-          <Input
-            value={formData.sitemapUrl}
-            onChange={e =>
-              setFormData({ ...formData, sitemapUrl: e.target.value })
-            }
-            className="bg-zinc-800 border-white/10"
-          />
-        </div>
-        <div>
-          <label className="text-sm text-zinc-400 mb-2 block">
-            Robots.txt İçeriği
-          </label>
-          <Textarea
-            value={formData.robotsTxt}
-            onChange={e =>
-              setFormData({ ...formData, robotsTxt: e.target.value })
-            }
-            rows={10}
-            className="bg-zinc-800 border-white/10 font-mono text-sm"
-          />
-        </div>
-      </div>
-    </motion.div>
+    <div className="rounded-lg border border-white/10 bg-zinc-800/50 px-3 py-2 flex items-center justify-between">
+      <span className="text-xs text-zinc-300">{label}</span>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
   );
 }

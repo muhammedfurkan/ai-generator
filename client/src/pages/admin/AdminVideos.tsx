@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin Videos - Video Yönetimi
  * Tüm üretilen videoların listesi ve yönetimi

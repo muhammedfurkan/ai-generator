@@ -28,14 +28,14 @@ Bu rehber, NanoInf projesini Manus platformundan kendi sunucunuza taşımanız i
 
 NanoInf, aşağıdaki teknolojilerle geliştirilmiş modern bir full-stack web uygulamasıdır:
 
-| Bileşen | Teknoloji |
-|---------|-----------|
-| Frontend | React 19 + Vite + Tailwind CSS 4 |
-| Backend | Express.js + tRPC |
-| Veritabanı | MySQL / TiDB |
-| Dosya Depolama | AWS S3 veya uyumlu servis |
-| Kimlik Doğrulama | Manus OAuth (değiştirilmeli) |
-| AI Servisleri | Kie AI, Nano Banana Pro, Seedream |
+| Bileşen          | Teknoloji                         |
+| ---------------- | --------------------------------- |
+| Frontend         | React 19 + Vite + Tailwind CSS 4  |
+| Backend          | Express.js + tRPC                 |
+| Veritabanı       | MySQL / TiDB                      |
+| Dosya Depolama   | AWS S3 veya uyumlu servis         |
+| Kimlik Doğrulama | Manus OAuth (değiştirilmeli)      |
+| AI Servisleri    | Kie AI, Nano Banana Pro, Seedream |
 
 ### Proje Yapısı
 
@@ -61,22 +61,22 @@ nano-influencer/
 
 ### Sunucu Gereksinimleri
 
-| Gereksinim | Minimum | Önerilen |
-|------------|---------|----------|
-| CPU | 2 vCPU | 4 vCPU |
-| RAM | 4 GB | 8 GB |
-| Disk | 40 GB SSD | 100 GB SSD |
+| Gereksinim      | Minimum          | Önerilen         |
+| --------------- | ---------------- | ---------------- |
+| CPU             | 2 vCPU           | 4 vCPU           |
+| RAM             | 4 GB             | 8 GB             |
+| Disk            | 40 GB SSD        | 100 GB SSD       |
 | İşletim Sistemi | Ubuntu 22.04 LTS | Ubuntu 22.04 LTS |
 
 ### Yazılım Gereksinimleri
 
-| Yazılım | Versiyon |
-|---------|----------|
+| Yazılım | Versiyon        |
+| ------- | --------------- |
 | Node.js | 22.x veya üzeri |
-| pnpm | 10.x |
-| MySQL | 8.0+ veya TiDB |
-| Nginx | 1.18+ |
-| PM2 | 5.x |
+| pnpm    | 10.x            |
+| MySQL   | 8.0+ veya TiDB  |
+| Nginx   | 1.18+           |
+| PM2     | 5.x             |
 
 ---
 
@@ -168,27 +168,27 @@ Proje, dosya depolama için AWS S3 veya S3-uyumlu servisler kullanmaktadır.
 
 ### Seçenek B: Alternatif S3-Uyumlu Servisler
 
-| Servis | Açıklama |
-|--------|----------|
-| Cloudflare R2 | Ücretsiz egress, S3 uyumlu |
-| MinIO | Self-hosted, açık kaynak |
-| DigitalOcean Spaces | Uygun fiyatlı |
-| Backblaze B2 | Ekonomik seçenek |
+| Servis              | Açıklama                   |
+| ------------------- | -------------------------- |
+| Cloudflare R2       | Ücretsiz egress, S3 uyumlu |
+| MinIO               | Self-hosted, açık kaynak   |
+| DigitalOcean Spaces | Uygun fiyatlı              |
+| Backblaze B2        | Ekonomik seçenek           |
 
 ### S3 Bucket Politikası (Public Read için)
 
 ```json
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "PublicReadGetObject",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::BUCKET_ADI/*"
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::BUCKET_ADI/*"
+    }
+  ]
 }
 ```
 
@@ -238,20 +238,19 @@ TELEGRAM_ADMIN_CHAT_ID="admin_chat_id"
 
 ### Kritik Environment Değişkenleri Tablosu
 
-| Değişken | Açıklama | Zorunlu |
-|----------|----------|---------|
-| DATABASE_URL | MySQL bağlantı string'i | Evet |
-| JWT_SECRET | Session imzalama anahtarı | Evet |
-| S3_BUCKET | S3 bucket adı | Evet |
-| S3_ACCESS_KEY | S3 erişim anahtarı | Evet |
-| S3_SECRET_KEY | S3 gizli anahtar | Evet |
-| SMTP_HOST | SMTP sunucu adresi | Evet |
-| SMTP_PORT | SMTP port (genellikle 465) | Evet |
-| SMTP_USER | SMTP kullanıcı adı (email) | Evet |
-| SMTP_PASS | SMTP şifresi | Evet |
-| KIE_AI_API_KEY | Video üretimi için | Evet |
-| GOOGLE_AUTH_ENABLED | Google ile giriş aktif mi (true/false) | Hayır |
-
+| Değişken            | Açıklama                               | Zorunlu |
+| ------------------- | -------------------------------------- | ------- |
+| DATABASE_URL        | MySQL bağlantı string'i                | Evet    |
+| JWT_SECRET          | Session imzalama anahtarı              | Evet    |
+| S3_BUCKET           | S3 bucket adı                          | Evet    |
+| S3_ACCESS_KEY       | S3 erişim anahtarı                     | Evet    |
+| S3_SECRET_KEY       | S3 gizli anahtar                       | Evet    |
+| SMTP_HOST           | SMTP sunucu adresi                     | Evet    |
+| SMTP_PORT           | SMTP port (genellikle 465)             | Evet    |
+| SMTP_USER           | SMTP kullanıcı adı (email)             | Evet    |
+| SMTP_PASS           | SMTP şifresi                           | Evet    |
+| KIE_AI_API_KEY      | Video üretimi için                     | Evet    |
+| GOOGLE_AUTH_ENABLED | Google ile giriş aktif mi (true/false) | Hayır   |
 
 ---
 
@@ -291,6 +290,7 @@ pnpm build
 ```
 
 Bu komut:
+
 - Frontend'i `dist/` klasörüne derler
 - Backend'i `dist/index.js` olarak bundle'lar
 
@@ -413,22 +413,24 @@ Proje kök dizininde `ecosystem.config.cjs` dosyası oluşturun:
 
 ```javascript
 module.exports = {
-  apps: [{
-    name: 'nanoinf',
-    script: 'dist/index.js',
-    cwd: '/var/www/nanoinf',
-    instances: 'max',
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
+  apps: [
+    {
+      name: "nanoinf",
+      script: "dist/index.js",
+      cwd: "/var/www/nanoinf",
+      instances: "max",
+      exec_mode: "cluster",
+      env: {
+        NODE_ENV: "production",
+        PORT: 3000,
+      },
+      env_file: ".env",
+      max_memory_restart: "1G",
+      error_file: "/var/log/nanoinf/error.log",
+      out_file: "/var/log/nanoinf/out.log",
+      log_date_format: "YYYY-MM-DD HH:mm:ss Z",
     },
-    env_file: '.env',
-    max_memory_restart: '1G',
-    error_file: '/var/log/nanoinf/error.log',
-    out_file: '/var/log/nanoinf/out.log',
-    log_date_format: 'YYYY-MM-DD HH:mm:ss Z'
-  }]
+  ],
 };
 ```
 
@@ -452,13 +454,13 @@ pm2 save
 
 ### 10.4 PM2 Komutları
 
-| Komut | Açıklama |
-|-------|----------|
-| `pm2 status` | Uygulama durumunu göster |
-| `pm2 logs nanoinf` | Logları görüntüle |
+| Komut                 | Açıklama                  |
+| --------------------- | ------------------------- |
+| `pm2 status`          | Uygulama durumunu göster  |
+| `pm2 logs nanoinf`    | Logları görüntüle         |
 | `pm2 restart nanoinf` | Uygulamayı yeniden başlat |
-| `pm2 stop nanoinf` | Uygulamayı durdur |
-| `pm2 monit` | Canlı izleme |
+| `pm2 stop nanoinf`    | Uygulamayı durdur         |
+| `pm2 monit`           | Canlı izleme              |
 
 ---
 
@@ -467,6 +469,7 @@ pm2 save
 ### Yaygın Sorunlar ve Çözümleri
 
 **Sorun: Veritabanı bağlantı hatası**
+
 ```bash
 # MySQL servisini kontrol edin
 sudo systemctl status mysql
@@ -476,6 +479,7 @@ mysql -u nanoinf_user -p -h localhost nanoinf
 ```
 
 **Sorun: Port 3000 kullanımda**
+
 ```bash
 # Portu kullanan süreci bulun
 sudo lsof -i :3000
@@ -485,11 +489,13 @@ sudo kill -9 PID
 ```
 
 **Sorun: S3 yükleme hatası**
+
 - Access Key ve Secret Key'in doğruluğunu kontrol edin
 - Bucket politikasının doğru yapılandırıldığından emin olun
 - Region'ın doğru olduğunu doğrulayın
 
 **Sorun: SSL sertifikası yenilenmiyor**
+
 ```bash
 # Certbot timer'ını kontrol edin
 sudo systemctl status certbot.timer
@@ -526,6 +532,7 @@ pm2 restart nanoinf
 Bu rehberi takip ederek NanoInf projesini kendi sunucunuza başarıyla taşıyabilirsiniz. Herhangi bir sorunla karşılaşırsanız, yukarıdaki sorun giderme bölümüne başvurun.
 
 **Önemli Notlar:**
+
 - Tüm API anahtarlarını güvenli bir şekilde saklayın
 - Düzenli yedekleme yapın (veritabanı ve S3)
 - Güvenlik güncellemelerini takip edin
@@ -533,4 +540,4 @@ Bu rehberi takip ederek NanoInf projesini kendi sunucunuza başarıyla taşıyab
 
 ---
 
-*Bu doküman Manus AI tarafından hazırlanmıştır.*
+_Bu doküman Manus AI tarafından hazırlanmıştır._

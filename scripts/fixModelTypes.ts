@@ -1,6 +1,5 @@
-
 // Load environment variables from .env
-import 'dotenv/config';
+import "dotenv/config";
 
 import { getDb } from "../server/db";
 import { aiModelConfig } from "../drizzle/schema";
@@ -10,7 +9,7 @@ const MODELS_TO_UPDATE_TO_VIDEO = [
   "wan-26",
   "seedance-15-pro",
   "seedance-pro",
-  "hailuo"
+  "hailuo",
 ];
 
 async function updateModelTypes() {
@@ -23,11 +22,14 @@ async function updateModelTypes() {
   }
 
   try {
-    const result = await db.update(aiModelConfig)
+    const result = await db
+      .update(aiModelConfig)
       .set({ modelType: "video" })
       .where(inArray(aiModelConfig.modelKey, MODELS_TO_UPDATE_TO_VIDEO));
 
-    console.log(`✨ Updated model types to 'video' for: ${MODELS_TO_UPDATE_TO_VIDEO.join(", ")}`);
+    console.log(
+      `✨ Updated model types to 'video' for: ${MODELS_TO_UPDATE_TO_VIDEO.join(", ")}`
+    );
     console.log(`Changed rows: ${result[0].affectedRows}`);
   } catch (error) {
     console.error("❌ Error updating model types:", error);

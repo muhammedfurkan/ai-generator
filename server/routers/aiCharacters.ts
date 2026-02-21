@@ -22,7 +22,10 @@ import {
   saveGeneratedImage,
   updateGeneratedImageStatus,
 } from "../db";
-import { createGenerationTask, pollTaskCompletionWithError } from "../nanoBananaApi";
+import {
+  createGenerationTask,
+  pollTaskCompletionWithError,
+} from "../nanoBananaApi";
 import { storagePut } from "../storage";
 import { nanoid } from "nanoid";
 import { notifyCreditSpending, notifyGenerationFailure } from "../telegramBot";
@@ -56,7 +59,9 @@ async function processAiCharacterImageInBackground(
   creditsNeeded: number
 ) {
   try {
-    console.log(`[AI Character Background] Processing image ${galleryImageId}, task ${taskId}`);
+    console.log(
+      `[AI Character Background] Processing image ${galleryImageId}, task ${taskId}`
+    );
 
     // Update status to processing
     await updateGeneratedImageStatus(galleryImageId, "processing");
@@ -67,21 +72,34 @@ async function processAiCharacterImageInBackground(
     const errorDetails = pollResult.error;
 
     if (!imageUrl) {
-      const errorMessage = errorDetails || "TIMEOUT - Görsel üretimi zaman aşımına uğradı";
+      const errorMessage =
+        errorDetails || "TIMEOUT - Görsel üretimi zaman aşımına uğradı";
 
-      console.error(`[AI Character Background] No image URL for task ${taskId}. Error: ${errorMessage}`);
+      console.error(
+        `[AI Character Background] No image URL for task ${taskId}. Error: ${errorMessage}`
+      );
       await updateGeneratedImageStatus(galleryImageId, "failed", {
-        errorMessage: errorMessage
+        errorMessage: errorMessage,
       });
-      await refundCredits(userId, creditsNeeded, `AI Karakter görsel oluşturma başarısız`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `AI Karakter görsel oluşturma başarısız`
+      );
 
       // Create user-friendly notification message
-      let notificationMessage = "Görsel üretimi başarısız oldu. Krediniz iade edildi.";
+      let notificationMessage =
+        "Görsel üretimi başarısız oldu. Krediniz iade edildi.";
       if (errorDetails) {
-        if (errorDetails.includes("CONTENT_POLICY") || errorDetails.includes("NSFW")) {
-          notificationMessage = "İçerik politikası ihlali tespit edildi. Lütfen promptunuzu değiştirin. Krediniz iade edildi.";
+        if (
+          errorDetails.includes("CONTENT_POLICY") ||
+          errorDetails.includes("NSFW")
+        ) {
+          notificationMessage =
+            "İçerik politikası ihlali tespit edildi. Lütfen promptunuzu değiştirin. Krediniz iade edildi.";
         } else if (errorDetails.includes("TIMEOUT")) {
-          notificationMessage = "Görsel üretimi zaman aşımına uğradı. Lütfen tekrar deneyin. Krediniz iade edildi.";
+          notificationMessage =
+            "Görsel üretimi zaman aşımına uğradı. Lütfen tekrar deneyin. Krediniz iade edildi.";
         }
       }
 
@@ -106,11 +124,17 @@ async function processAiCharacterImageInBackground(
     // Download image
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
-      console.error(`[AI Character Background] Failed to download image: ${imageResponse.status}`);
+      console.error(
+        `[AI Character Background] Failed to download image: ${imageResponse.status}`
+      );
       await updateGeneratedImageStatus(galleryImageId, "failed", {
-        errorMessage: "Görsel indirilemedi"
+        errorMessage: "Görsel indirilemedi",
       });
-      await refundCredits(userId, creditsNeeded, `AI Karakter görsel indirme başarısız`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `AI Karakter görsel indirme başarısız`
+      );
 
       await createNotification({
         userId,
@@ -125,11 +149,15 @@ async function processAiCharacterImageInBackground(
     const imageBuffer = await imageResponse.arrayBuffer();
     const fileName = `ai-character-${nanoid()}.png`;
     const s3Key = `${userId}/ai-characters/${characterId}/${fileName}`;
-    const { url: s3Url } = await storagePut(s3Key, Buffer.from(imageBuffer), "image/png");
+    const { url: s3Url } = await storagePut(
+      s3Key,
+      Buffer.from(imageBuffer),
+      "image/png"
+    );
 
     // Update database with completed status
     await updateGeneratedImageStatus(galleryImageId, "completed", {
-      generatedImageUrl: s3Url
+      generatedImageUrl: s3Url,
     });
 
     // Also save to aiCharacterImages table
@@ -147,8 +175,12 @@ async function processAiCharacterImageInBackground(
       });
       console.log("[AI Character Background] Image saved to aiCharacterImages");
     } catch (characterImageError) {
-      console.warn("[AI Character Background] Failed to save to aiCharacterImages (non-critical):",
-        characterImageError instanceof Error ? characterImageError.message : String(characterImageError));
+      console.warn(
+        "[AI Character Background] Failed to save to aiCharacterImages (non-critical):",
+        characterImageError instanceof Error
+          ? characterImageError.message
+          : String(characterImageError)
+      );
     }
 
     // Increment character usage
@@ -175,13 +207,22 @@ async function processAiCharacterImageInBackground(
       action: `AI Karakter görsel oluşturma (${characterName}, ${resolution}, ${aspectRatio})`,
     }).catch(console.error);
 
-    console.log(`[AI Character Background] Image ${galleryImageId} completed successfully`);
+    console.log(
+      `[AI Character Background] Image ${galleryImageId} completed successfully`
+    );
   } catch (error) {
-    console.error(`[AI Character Background] Error processing image ${galleryImageId}:`, error);
+    console.error(
+      `[AI Character Background] Error processing image ${galleryImageId}:`,
+      error
+    );
     await updateGeneratedImageStatus(galleryImageId, "failed", {
-      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata"
+      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
     });
-    await refundCredits(userId, creditsNeeded, `AI Karakter görsel oluşturma başarısız`);
+    await refundCredits(
+      userId,
+      creditsNeeded,
+      `AI Karakter görsel oluşturma başarısız`
+    );
 
     await createNotification({
       userId,
@@ -214,7 +255,9 @@ async function processTemporaryAiCharacterImageInBackground(
   creditsNeeded: number
 ) {
   try {
-    console.log(`[AI Character Temp Background] Processing image ${galleryImageId}, task ${taskId}`);
+    console.log(
+      `[AI Character Temp Background] Processing image ${galleryImageId}, task ${taskId}`
+    );
 
     // Update status to processing
     await updateGeneratedImageStatus(galleryImageId, "processing");
@@ -225,21 +268,34 @@ async function processTemporaryAiCharacterImageInBackground(
     const errorDetails = pollResult.error;
 
     if (!imageUrl) {
-      const errorMessage = errorDetails || "TIMEOUT - Görsel üretimi zaman aşımına uğradı";
+      const errorMessage =
+        errorDetails || "TIMEOUT - Görsel üretimi zaman aşımına uğradı";
 
-      console.error(`[AI Character Temp Background] No image URL for task ${taskId}. Error: ${errorMessage}`);
+      console.error(
+        `[AI Character Temp Background] No image URL for task ${taskId}. Error: ${errorMessage}`
+      );
       await updateGeneratedImageStatus(galleryImageId, "failed", {
-        errorMessage: errorMessage
+        errorMessage: errorMessage,
       });
-      await refundCredits(userId, creditsNeeded, `AI Karakter geçici görsel oluşturma başarısız`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `AI Karakter geçici görsel oluşturma başarısız`
+      );
 
       // Create user-friendly notification message
-      let notificationMessage = "Görsel üretimi başarısız oldu. Krediniz iade edildi.";
+      let notificationMessage =
+        "Görsel üretimi başarısız oldu. Krediniz iade edildi.";
       if (errorDetails) {
-        if (errorDetails.includes("CONTENT_POLICY") || errorDetails.includes("NSFW")) {
-          notificationMessage = "İçerik politikası ihlali tespit edildi. Lütfen promptunuzu değiştirin. Krediniz iade edildi.";
+        if (
+          errorDetails.includes("CONTENT_POLICY") ||
+          errorDetails.includes("NSFW")
+        ) {
+          notificationMessage =
+            "İçerik politikası ihlali tespit edildi. Lütfen promptunuzu değiştirin. Krediniz iade edildi.";
         } else if (errorDetails.includes("TIMEOUT")) {
-          notificationMessage = "Görsel üretimi zaman aşımına uğradı. Lütfen tekrar deneyin. Krediniz iade edildi.";
+          notificationMessage =
+            "Görsel üretimi zaman aşımına uğradı. Lütfen tekrar deneyin. Krediniz iade edildi.";
         }
       }
 
@@ -264,11 +320,17 @@ async function processTemporaryAiCharacterImageInBackground(
     // Download image
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
-      console.error(`[AI Character Temp Background] Failed to download image: ${imageResponse.status}`);
+      console.error(
+        `[AI Character Temp Background] Failed to download image: ${imageResponse.status}`
+      );
       await updateGeneratedImageStatus(galleryImageId, "failed", {
-        errorMessage: "Görsel indirilemedi"
+        errorMessage: "Görsel indirilemedi",
       });
-      await refundCredits(userId, creditsNeeded, `AI Karakter geçici görsel indirme başarısız`);
+      await refundCredits(
+        userId,
+        creditsNeeded,
+        `AI Karakter geçici görsel indirme başarısız`
+      );
 
       await createNotification({
         userId,
@@ -283,18 +345,23 @@ async function processTemporaryAiCharacterImageInBackground(
     const imageBuffer = await imageResponse.arrayBuffer();
     const fileName = `ai-character-temp-${nanoid()}.png`;
     const s3Key = `${userId}/ai-characters/temporary/${fileName}`;
-    const { url: s3Url } = await storagePut(s3Key, Buffer.from(imageBuffer), "image/png");
+    const { url: s3Url } = await storagePut(
+      s3Key,
+      Buffer.from(imageBuffer),
+      "image/png"
+    );
 
     // Update database with completed status
     await updateGeneratedImageStatus(galleryImageId, "completed", {
-      generatedImageUrl: s3Url
+      generatedImageUrl: s3Url,
     });
 
     // Notify user
     await createNotification({
       userId,
       title: "Görsel Hazır! 🎨",
-      message: "Görseliniz başarıyla oluşturuldu. Galeri'den görüntüleyebilirsiniz.",
+      message:
+        "Görseliniz başarıyla oluşturuldu. Galeri'den görüntüleyebilirsiniz.",
       type: "generation_complete",
       actionUrl: "/gallery",
     });
@@ -311,13 +378,22 @@ async function processTemporaryAiCharacterImageInBackground(
       action: `AI Karakter geçici görsel oluşturma (${resolution}, ${aspectRatio})`,
     }).catch(console.error);
 
-    console.log(`[AI Character Temp Background] Image ${galleryImageId} completed successfully`);
+    console.log(
+      `[AI Character Temp Background] Image ${galleryImageId} completed successfully`
+    );
   } catch (error) {
-    console.error(`[AI Character Temp Background] Error processing image ${galleryImageId}:`, error);
+    console.error(
+      `[AI Character Temp Background] Error processing image ${galleryImageId}:`,
+      error
+    );
     await updateGeneratedImageStatus(galleryImageId, "failed", {
-      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata"
+      errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
     });
-    await refundCredits(userId, creditsNeeded, `AI Karakter geçici görsel oluşturma başarısız`);
+    await refundCredits(
+      userId,
+      creditsNeeded,
+      `AI Karakter geçici görsel oluşturma başarısız`
+    );
 
     await createNotification({
       userId,
@@ -342,7 +418,9 @@ export const aiCharactersRouter = router({
     .input(
       z.object({
         name: z.string().min(1, "Karakter adı gereklidir").max(100),
-        characterImageUrl: z.string().url("Geçerli bir görsel URL'si gereklidir"),
+        characterImageUrl: z
+          .string()
+          .url("Geçerli bir görsel URL'si gereklidir"),
         description: z.string().max(500).optional(),
         gender: z.enum(["male", "female", "other"]).optional(),
         style: z.string().max(50).optional(),
@@ -378,7 +456,10 @@ export const aiCharactersRouter = router({
   get: protectedProcedure
     .input(z.object({ characterId: z.number() }))
     .query(async ({ ctx, input }) => {
-      const character = await getAiCharacterById(input.characterId, ctx.user.id);
+      const character = await getAiCharacterById(
+        input.characterId,
+        ctx.user.id
+      );
       if (!character) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -402,7 +483,11 @@ export const aiCharactersRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { characterId, ...updateData } = input;
-      const success = await updateAiCharacter(characterId, ctx.user.id, updateData);
+      const success = await updateAiCharacter(
+        characterId,
+        ctx.user.id,
+        updateData
+      );
 
       if (!success) {
         throw new TRPCError({
@@ -439,7 +524,11 @@ export const aiCharactersRouter = router({
       })
     )
     .query(async ({ ctx, input }) => {
-      const images = await getAiCharacterImages(input.characterId, ctx.user.id, input.limit);
+      const images = await getAiCharacterImages(
+        input.characterId,
+        ctx.user.id,
+        input.limit
+      );
       return images;
     }),
 
@@ -458,7 +547,15 @@ export const aiCharactersRouter = router({
         characterId: z.number(),
         prompt: z.string().min(1, "Prompt gereklidir"),
         referenceImageUrl: z.string().url().optional(), // Reference pose image
-        aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]),
+        aspectRatio: z.enum([
+          "1:1",
+          "16:9",
+          "9:16",
+          "4:3",
+          "3:4",
+          "3:2",
+          "2:3",
+        ]),
         resolution: z.enum(["1K", "2K", "4K"]),
       })
     )
@@ -506,7 +603,10 @@ export const aiCharactersRouter = router({
         const fullPrompt = `${input.prompt}. Keep the same person/character appearance from the reference image.`;
 
         console.log("[AI Character] Creating task with prompt:", fullPrompt);
-        console.log("[AI Character] Character image:", character.characterImageUrl);
+        console.log(
+          "[AI Character] Character image:",
+          character.characterImageUrl
+        );
         console.log("[AI Character] Reference pose:", input.referenceImageUrl);
 
         // Create generation task with character image as reference
@@ -518,10 +618,14 @@ export const aiCharactersRouter = router({
         });
 
         if (!taskResponse.success) {
-          await refundCredits(userId, creditsNeeded, `AI Karakter görsel oluşturma başarısız - API hatası`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `AI Karakter görsel oluşturma başarısız - API hatası`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: `API_ERROR|Görsel üretimi başlatılamadı. ${taskResponse.error || 'API hatası oluştu'}`,
+            message: `API_ERROR|Görsel üretimi başlatılamadı. ${taskResponse.error || "API hatası oluştu"}`,
           });
         }
 
@@ -539,14 +643,21 @@ export const aiCharactersRouter = router({
         });
 
         if (!galleryImageId) {
-          await refundCredits(userId, creditsNeeded, `Veritabanı hatası - ${input.resolution}`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `Veritabanı hatası - ${input.resolution}`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Veritabanına kayıt yapılamadı",
           });
         }
 
-        console.log("[AI Character] Image saved to gallery with pending status, id:", galleryImageId);
+        console.log(
+          "[AI Character] Image saved to gallery with pending status, id:",
+          galleryImageId
+        );
 
         // Start background processing (don't await)
         processAiCharacterImageInBackground(
@@ -571,7 +682,8 @@ export const aiCharactersRouter = router({
           imageId: galleryImageId,
           taskId: taskResponse.taskId,
           status: "pending",
-          message: "Görsel oluşturma başlatıldı. Sayfadan ayrılabilirsiniz, tamamlandığında bildirim alacaksınız.",
+          message:
+            "Görsel oluşturma başlatıldı. Sayfadan ayrılabilirsiniz, tamamlandığında bildirim alacaksınız.",
           creditsRemaining: user.credits - creditsNeeded,
         };
       } catch (error) {
@@ -580,11 +692,16 @@ export const aiCharactersRouter = router({
         }
 
         console.error("[AI Character] Unexpected error:", error);
-        await refundCredits(userId, creditsNeeded, `AI Karakter görsel oluşturma başarısız`);
+        await refundCredits(
+          userId,
+          creditsNeeded,
+          `AI Karakter görsel oluşturma başarısız`
+        );
 
         notifyGenerationFailure({
           generationType: "ai-character",
-          errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
+          errorMessage:
+            error instanceof Error ? error.message : "Bilinmeyen hata",
           userId,
           userEmail: user?.email || undefined,
           prompt: input.prompt,
@@ -602,7 +719,10 @@ export const aiCharactersRouter = router({
   togglePublic: protectedProcedure
     .input(z.object({ characterId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const result = await toggleCharacterPublic(input.characterId, ctx.user.id);
+      const result = await toggleCharacterPublic(
+        input.characterId,
+        ctx.user.id
+      );
 
       if (!result) {
         throw new TRPCError({
@@ -640,10 +760,20 @@ export const aiCharactersRouter = router({
   generateWithTemporaryImage: protectedProcedure
     .input(
       z.object({
-        characterImageUrl: z.string().url("Geçerli bir görsel URL'si gereklidir"),
+        characterImageUrl: z
+          .string()
+          .url("Geçerli bir görsel URL'si gereklidir"),
         prompt: z.string().min(1, "Prompt gereklidir"),
         referenceImageUrl: z.string().url().optional(),
-        aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4", "3:2", "2:3"]),
+        aspectRatio: z.enum([
+          "1:1",
+          "16:9",
+          "9:16",
+          "4:3",
+          "3:4",
+          "3:2",
+          "2:3",
+        ]),
         resolution: z.enum(["1K", "2K", "4K"]),
       })
     )
@@ -680,8 +810,14 @@ export const aiCharactersRouter = router({
       try {
         const fullPrompt = `${input.prompt}. Keep the same person/character appearance from the reference image.`;
 
-        console.log("[AI Character Temp] Creating task with prompt:", fullPrompt);
-        console.log("[AI Character Temp] Character image:", input.characterImageUrl);
+        console.log(
+          "[AI Character Temp] Creating task with prompt:",
+          fullPrompt
+        );
+        console.log(
+          "[AI Character Temp] Character image:",
+          input.characterImageUrl
+        );
 
         // Create generation task with temporary character image
         const taskResponse = await createGenerationTask({
@@ -692,10 +828,14 @@ export const aiCharactersRouter = router({
         });
 
         if (!taskResponse.success) {
-          await refundCredits(userId, creditsNeeded, `AI Karakter geçici görsel oluşturma başarısız - API hatası`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `AI Karakter geçici görsel oluşturma başarısız - API hatası`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: `API_ERROR|Görsel üretimi başlatılamadı. ${taskResponse.error || 'API hatası oluştu'}`,
+            message: `API_ERROR|Görsel üretimi başlatılamadı. ${taskResponse.error || "API hatası oluştu"}`,
           });
         }
 
@@ -713,14 +853,21 @@ export const aiCharactersRouter = router({
         });
 
         if (!galleryImageId) {
-          await refundCredits(userId, creditsNeeded, `Veritabanı hatası - ${input.resolution}`);
+          await refundCredits(
+            userId,
+            creditsNeeded,
+            `Veritabanı hatası - ${input.resolution}`
+          );
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Veritabanına kayıt yapılamadı",
           });
         }
 
-        console.log("[AI Character Temp] Image saved to gallery with pending status, id:", galleryImageId);
+        console.log(
+          "[AI Character Temp] Image saved to gallery with pending status, id:",
+          galleryImageId
+        );
 
         // Start background processing (don't await)
         processTemporaryAiCharacterImageInBackground(
@@ -742,7 +889,8 @@ export const aiCharactersRouter = router({
           imageId: galleryImageId,
           taskId: taskResponse.taskId,
           status: "pending",
-          message: "Görsel oluşturma başlatıldı. Sayfadan ayrılabilirsiniz, tamamlandığında bildirim alacaksınız.",
+          message:
+            "Görsel oluşturma başlatıldı. Sayfadan ayrılabilirsiniz, tamamlandığında bildirim alacaksınız.",
           creditsRemaining: user.credits - creditsNeeded,
         };
       } catch (error) {
@@ -751,11 +899,16 @@ export const aiCharactersRouter = router({
         }
 
         console.error("[AI Character Temp] Unexpected error:", error);
-        await refundCredits(userId, creditsNeeded, `AI Karakter geçici görsel oluşturma başarısız`);
+        await refundCredits(
+          userId,
+          creditsNeeded,
+          `AI Karakter geçici görsel oluşturma başarısız`
+        );
 
         notifyGenerationFailure({
           generationType: "ai-character",
-          errorMessage: error instanceof Error ? error.message : "Bilinmeyen hata",
+          errorMessage:
+            error instanceof Error ? error.message : "Bilinmeyen hata",
           userId,
           userEmail: user?.email || undefined,
           prompt: input.prompt,
@@ -784,93 +937,364 @@ export const aiCharactersRouter = router({
       // Lokasyonlar - Türkiye'nin en güzel mekanları (50+ lokasyon)
       const locations = [
         // İSTANBUL
-        { name: "Kadıköy, İstanbul", landmarks: "Kadıköy İskelesi, Moda Sahili, Çarşı sokakları", environment: "tarihi binalar, sokak sanatçıları, canlı pazar atmosferi" },
-        { name: "Üsküdar, İstanbul", landmarks: "Kız Kulesi manzarası, Üsküdar Meydanı, Mihrimah Sultan Camii", environment: "Boğaz manzarası, tarihi camiler, vapurlar" },
-        { name: "Taksim, İstanbul", landmarks: "Cumhuriyet Anıtı, İstiklal Caddesi girişi, nostaljik tramvay", environment: "kalabalık meydan, alışveriş caddesi, kafeler" },
-        { name: "Beşiktaş, İstanbul", landmarks: "Beşiktaş İskelesi, Çarşı, Barbaros Heykeli", environment: "deniz kenarı, balıkçılar, canlı sokak hayatı" },
-        { name: "Galata Kulesi, İstanbul", landmarks: "tarihi Galata Kulesi, Galata Köprüsü manzarası", environment: "arı taşlı sokaklar, antik binalar, turistler" },
-        { name: "Sultanahmet, İstanbul", landmarks: "Ayasofya, Sultanahmet Camii, Hipodrom", environment: "tarihi yarımada, turistik alan, antik kalıntılar" },
-        { name: "Ortaköy, İstanbul", landmarks: "Ortaköy Camii, Boğaz Köprüsü manzarası", environment: "sahil kenarı, kumpir tezgahları, gece hayatı" },
-        { name: "Bebek, İstanbul", landmarks: "Bebek Sahili, Boğaz manzarası, yalılar", environment: "lüks kafeler, sahil yürüyüş yolu, yatlar" },
-        { name: "Sarıyer, İstanbul", landmarks: "Rumeli Hisarı, Sarıyer İskelesi", environment: "balıkçı köyü atmosferi, yeşil tepeler" },
-        { name: "Balat, İstanbul", landmarks: "renkli evler, tarihi sokaklar, Fener Rum Patrikhanesi", environment: "nostaljik atmosfer, antik dükkanlar, sanat galerileri" },
-        { name: "Eminonü, İstanbul", landmarks: "Mısır Çarşısı, Yeni Cami, balık ekmek tekneleri", environment: "kalabalık pazar, deniz kokusu, tarihi çarşı" },
-        { name: "Kapalıçarşı, İstanbul", landmarks: "tarihi kapalı çarşı, kubbeli geçitler", environment: "altın dükkanları, halı satıcıları, antikacılar" },
-        { name: "Boğaz Köprüsü, İstanbul", landmarks: "15 Temmuz Şehitler Köprüsü, Boğaz manzarası", environment: "deniz kıyısı, şehir silueti, gemi trafiği" },
-        { name: "Adalar, İstanbul", landmarks: "Büyükada, fayton, Viktoryen köşkler", environment: "arabasiz ada, çam ormanları, deniz manzarası" },
+        {
+          name: "Kadıköy, İstanbul",
+          landmarks: "Kadıköy İskelesi, Moda Sahili, Çarşı sokakları",
+          environment:
+            "tarihi binalar, sokak sanatçıları, canlı pazar atmosferi",
+        },
+        {
+          name: "Üsküdar, İstanbul",
+          landmarks:
+            "Kız Kulesi manzarası, Üsküdar Meydanı, Mihrimah Sultan Camii",
+          environment: "Boğaz manzarası, tarihi camiler, vapurlar",
+        },
+        {
+          name: "Taksim, İstanbul",
+          landmarks:
+            "Cumhuriyet Anıtı, İstiklal Caddesi girişi, nostaljik tramvay",
+          environment: "kalabalık meydan, alışveriş caddesi, kafeler",
+        },
+        {
+          name: "Beşiktaş, İstanbul",
+          landmarks: "Beşiktaş İskelesi, Çarşı, Barbaros Heykeli",
+          environment: "deniz kenarı, balıkçılar, canlı sokak hayatı",
+        },
+        {
+          name: "Galata Kulesi, İstanbul",
+          landmarks: "tarihi Galata Kulesi, Galata Köprüsü manzarası",
+          environment: "arı taşlı sokaklar, antik binalar, turistler",
+        },
+        {
+          name: "Sultanahmet, İstanbul",
+          landmarks: "Ayasofya, Sultanahmet Camii, Hipodrom",
+          environment: "tarihi yarımada, turistik alan, antik kalıntılar",
+        },
+        {
+          name: "Ortaköy, İstanbul",
+          landmarks: "Ortaköy Camii, Boğaz Köprüsü manzarası",
+          environment: "sahil kenarı, kumpir tezgahları, gece hayatı",
+        },
+        {
+          name: "Bebek, İstanbul",
+          landmarks: "Bebek Sahili, Boğaz manzarası, yalılar",
+          environment: "lüks kafeler, sahil yürüyüş yolu, yatlar",
+        },
+        {
+          name: "Sarıyer, İstanbul",
+          landmarks: "Rumeli Hisarı, Sarıyer İskelesi",
+          environment: "balıkçı köyü atmosferi, yeşil tepeler",
+        },
+        {
+          name: "Balat, İstanbul",
+          landmarks: "renkli evler, tarihi sokaklar, Fener Rum Patrikhanesi",
+          environment: "nostaljik atmosfer, antik dükkanlar, sanat galerileri",
+        },
+        {
+          name: "Eminonü, İstanbul",
+          landmarks: "Mısır Çarşısı, Yeni Cami, balık ekmek tekneleri",
+          environment: "kalabalık pazar, deniz kokusu, tarihi çarşı",
+        },
+        {
+          name: "Kapalıçarşı, İstanbul",
+          landmarks: "tarihi kapalı çarşı, kubbeli geçitler",
+          environment: "altın dükkanları, halı satıcıları, antikacılar",
+        },
+        {
+          name: "Boğaz Köprüsü, İstanbul",
+          landmarks: "15 Temmuz Şehitler Köprüsü, Boğaz manzarası",
+          environment: "deniz kıyısı, şehir silueti, gemi trafiği",
+        },
+        {
+          name: "Adalar, İstanbul",
+          landmarks: "Büyükada, fayton, Viktoryen köşkler",
+          environment: "arabasiz ada, çam ormanları, deniz manzarası",
+        },
 
         // EGE BÖLGESİ
-        { name: "İzmir Kordon, İzmir", landmarks: "Kordon Boyu, Saat Kulesi, Konak Meydanı", environment: "deniz kenarı yürüyüş yolu, palmiyeler, kafeler" },
-        { name: "Alsancak, İzmir", landmarks: "Kıbrıs Şehitleri Caddesi, tarihi binalar", environment: "canlı gece hayatı, barlar sokağı, butik dükkanlar" },
-        { name: "Efes Antik Kenti, İzmir", landmarks: "Celsus Kütüphanesi, antik tiyatro", environment: "Roma kalıntıları, mermer sütunlar, tarihi yollar" },
-        { name: "Alaçatı, İzmir", landmarks: "taş evler, yel değirmenleri, dar sokaklar", environment: "begonvil çiçekleri, butik oteller, rüzgar sörfü" },
-        { name: "Çeşme, İzmir", landmarks: "Çeşme Kalesi, marina, plajlar", environment: "turkuaz deniz, beyaz kumsal, yatlar" },
-        { name: "Bodrum, Muğla", landmarks: "Bodrum Kalesi, marina, beyaz evler", environment: "Ege mimarisi, gece hayatı, lüks yatlar" },
-        { name: "Marmaris, Muğla", landmarks: "Marmaris Kalesi, uzun sahil, marina", environment: "turkuaz koylar, ormanlık tepeler, tekne turları" },
-        { name: "Fethiye, Muğla", landmarks: "Ölüdeniz, kaya mezarları, Fethiye Limanı", environment: "mavi lagn, paragül, yeşil dağlar" },
-        { name: "Ölüdeniz, Muğla", landmarks: "Mavi Lagün, Babadağ, kumsal", environment: "turkuaz su, beyaz kumsal, yamaparaşüt" },
-        { name: "Pamukkale, Denizli", landmarks: "beyaz travertenler, antik Hierapolis", environment: "termal havuzlar, doğal oluşumlar, antik kalıntılar" },
-        { name: "Kuşadası, Aydın", landmarks: "Güvercin Adası, kruvaziyer limanı", environment: "sahil kasabası, alışveriş sokakları, plajlar" },
+        {
+          name: "İzmir Kordon, İzmir",
+          landmarks: "Kordon Boyu, Saat Kulesi, Konak Meydanı",
+          environment: "deniz kenarı yürüyüş yolu, palmiyeler, kafeler",
+        },
+        {
+          name: "Alsancak, İzmir",
+          landmarks: "Kıbrıs Şehitleri Caddesi, tarihi binalar",
+          environment: "canlı gece hayatı, barlar sokağı, butik dükkanlar",
+        },
+        {
+          name: "Efes Antik Kenti, İzmir",
+          landmarks: "Celsus Kütüphanesi, antik tiyatro",
+          environment: "Roma kalıntıları, mermer sütunlar, tarihi yollar",
+        },
+        {
+          name: "Alaçatı, İzmir",
+          landmarks: "taş evler, yel değirmenleri, dar sokaklar",
+          environment: "begonvil çiçekleri, butik oteller, rüzgar sörfü",
+        },
+        {
+          name: "Çeşme, İzmir",
+          landmarks: "Çeşme Kalesi, marina, plajlar",
+          environment: "turkuaz deniz, beyaz kumsal, yatlar",
+        },
+        {
+          name: "Bodrum, Muğla",
+          landmarks: "Bodrum Kalesi, marina, beyaz evler",
+          environment: "Ege mimarisi, gece hayatı, lüks yatlar",
+        },
+        {
+          name: "Marmaris, Muğla",
+          landmarks: "Marmaris Kalesi, uzun sahil, marina",
+          environment: "turkuaz koylar, ormanlık tepeler, tekne turları",
+        },
+        {
+          name: "Fethiye, Muğla",
+          landmarks: "Ölüdeniz, kaya mezarları, Fethiye Limanı",
+          environment: "mavi lagn, paragül, yeşil dağlar",
+        },
+        {
+          name: "Ölüdeniz, Muğla",
+          landmarks: "Mavi Lagün, Babadağ, kumsal",
+          environment: "turkuaz su, beyaz kumsal, yamaparaşüt",
+        },
+        {
+          name: "Pamukkale, Denizli",
+          landmarks: "beyaz travertenler, antik Hierapolis",
+          environment: "termal havuzlar, doğal oluşumlar, antik kalıntılar",
+        },
+        {
+          name: "Kuşadası, Aydın",
+          landmarks: "Güvercin Adası, kruvaziyer limanı",
+          environment: "sahil kasabası, alışveriş sokakları, plajlar",
+        },
 
         // AKDENİZ BÖLGESİ
-        { name: "Antalya Kalıçi, Antalya", landmarks: "tarihi Kaleiçi, Hadrian Kapısı, marina", environment: "Osmanlı evleri, dar sokaklar, antik surlar" },
-        { name: "Konyaaltı Plajı, Antalya", landmarks: "uzun sahil, Toros Dağları manzarası", environment: "çakıl plaj, mavi bayrak, sahil parkları" },
-        { name: "Alanya, Antalya", landmarks: "Alanya Kalesi, Kızıl Kule, Kleopatra Plajı", environment: "tarihi kale, turkuaz deniz, muz bahçeleri" },
-        { name: "Side, Antalya", landmarks: "Apollon Tapınağı, antik tiyatro", environment: "Roma kalıntıları, kumsal, gün batımı" },
-        { name: "Kaş, Antalya", landmarks: "renkli sokaklar, antik tiyatro, Meis Adası manzarası", environment: "bohem atmosfer, dalış noktaları, butik oteller" },
-        { name: "Mersin Sahili, Mersin", landmarks: "Mersin Marina, sahil yürüyüş yolu", environment: "palmiyeli bulvar, modern şehir, Akdeniz" },
-        { name: "Tarsus, Mersin", landmarks: "Kleopatra Kapısı, Şelalesi, tarihi çarşı", environment: "antik şehir, tarihi dokular, yerel pazar" },
+        {
+          name: "Antalya Kalıçi, Antalya",
+          landmarks: "tarihi Kaleiçi, Hadrian Kapısı, marina",
+          environment: "Osmanlı evleri, dar sokaklar, antik surlar",
+        },
+        {
+          name: "Konyaaltı Plajı, Antalya",
+          landmarks: "uzun sahil, Toros Dağları manzarası",
+          environment: "çakıl plaj, mavi bayrak, sahil parkları",
+        },
+        {
+          name: "Alanya, Antalya",
+          landmarks: "Alanya Kalesi, Kızıl Kule, Kleopatra Plajı",
+          environment: "tarihi kale, turkuaz deniz, muz bahçeleri",
+        },
+        {
+          name: "Side, Antalya",
+          landmarks: "Apollon Tapınağı, antik tiyatro",
+          environment: "Roma kalıntıları, kumsal, gün batımı",
+        },
+        {
+          name: "Kaş, Antalya",
+          landmarks: "renkli sokaklar, antik tiyatro, Meis Adası manzarası",
+          environment: "bohem atmosfer, dalış noktaları, butik oteller",
+        },
+        {
+          name: "Mersin Sahili, Mersin",
+          landmarks: "Mersin Marina, sahil yürüyüş yolu",
+          environment: "palmiyeli bulvar, modern şehir, Akdeniz",
+        },
+        {
+          name: "Tarsus, Mersin",
+          landmarks: "Kleopatra Kapısı, Şelalesi, tarihi çarşı",
+          environment: "antik şehir, tarihi dokular, yerel pazar",
+        },
 
         // İÇ ANADOLU
-        { name: "Kapadokya, Nevşehir", landmarks: "peri bacaları, sıcak hava balonları, kaya oteller", environment: "volkanik oluşumlar, gün doğumu, mağara evler" },
-        { name: "Göreme, Nevşehir", landmarks: "Açık Hava Müzesi, peri bacaları", environment: "kaya kiliseleri, vadiler, balon festivali" },
-        { name: "Uchisar Kalesi, Nevşehir", landmarks: "doğal kaya kalesi, panoramik manzara", environment: "Kapadokya vadileri, gün batımı, taş evler" },
-        { name: "Ankara Kalesi, Ankara", landmarks: "tarihi kale, Anıtkabir manzarası", environment: "eski şehir, geleneksel evler, panoramik görünüm" },
-        { name: "Anıtkabir, Ankara", landmarks: "Atatürk'un mozolesi, Zafer Meydanı", environment: "anıtsal yapı, aslan heykelleri, tören alanı" },
-        { name: "Konya Mevlana Müzesi, Konya", landmarks: "Mevlana Türbesi, yeşil kubbe", environment: "manevi atmosfer, Selçuklu mimarisi, gül bahçeleri" },
-        { name: "Tuz Gölü, Aksaray", landmarks: "beyaz tuz düzlüğü, ayna etkisi", environment: "sonsuz beyazlık, gün batımı, doğal güzellik" },
+        {
+          name: "Kapadokya, Nevşehir",
+          landmarks: "peri bacaları, sıcak hava balonları, kaya oteller",
+          environment: "volkanik oluşumlar, gün doğumu, mağara evler",
+        },
+        {
+          name: "Göreme, Nevşehir",
+          landmarks: "Açık Hava Müzesi, peri bacaları",
+          environment: "kaya kiliseleri, vadiler, balon festivali",
+        },
+        {
+          name: "Uchisar Kalesi, Nevşehir",
+          landmarks: "doğal kaya kalesi, panoramik manzara",
+          environment: "Kapadokya vadileri, gün batımı, taş evler",
+        },
+        {
+          name: "Ankara Kalesi, Ankara",
+          landmarks: "tarihi kale, Anıtkabir manzarası",
+          environment: "eski şehir, geleneksel evler, panoramik görünüm",
+        },
+        {
+          name: "Anıtkabir, Ankara",
+          landmarks: "Atatürk'un mozolesi, Zafer Meydanı",
+          environment: "anıtsal yapı, aslan heykelleri, tören alanı",
+        },
+        {
+          name: "Konya Mevlana Müzesi, Konya",
+          landmarks: "Mevlana Türbesi, yeşil kubbe",
+          environment: "manevi atmosfer, Selçuklu mimarisi, gül bahçeleri",
+        },
+        {
+          name: "Tuz Gölü, Aksaray",
+          landmarks: "beyaz tuz düzlüğü, ayna etkisi",
+          environment: "sonsuz beyazlık, gün batımı, doğal güzellik",
+        },
 
         // MARMARA BÖLGESİ
-        { name: "Bursa Ulu Cami, Bursa", landmarks: "Ulu Cami, Koza Han, Yeşil Türbe", environment: "Osmanlı başkenti, tarihi çarşı, ipek ticareti" },
-        { name: "Uludağ, Bursa", landmarks: "kayak pistleri, teleferik, dağ manzarası", environment: "kış sporları, ormanlar, dağ otelleri" },
-        { name: "Cumalıkızık, Bursa", landmarks: "Osmanlı köyü, renkli evler, dar sokaklar", environment: "tarihi köy, el sanatları, gözlemeciler" },
-        { name: "Edirne Selimiye Camii, Edirne", landmarks: "Selimiye Camii, Mimar Sinan eseri", environment: "Osmanlı mimarisi, şadirvan, tarihi çarşı" },
+        {
+          name: "Bursa Ulu Cami, Bursa",
+          landmarks: "Ulu Cami, Koza Han, Yeşil Türbe",
+          environment: "Osmanlı başkenti, tarihi çarşı, ipek ticareti",
+        },
+        {
+          name: "Uludağ, Bursa",
+          landmarks: "kayak pistleri, teleferik, dağ manzarası",
+          environment: "kış sporları, ormanlar, dağ otelleri",
+        },
+        {
+          name: "Cumalıkızık, Bursa",
+          landmarks: "Osmanlı köyü, renkli evler, dar sokaklar",
+          environment: "tarihi köy, el sanatları, gözlemeciler",
+        },
+        {
+          name: "Edirne Selimiye Camii, Edirne",
+          landmarks: "Selimiye Camii, Mimar Sinan eseri",
+          environment: "Osmanlı mimarisi, şadirvan, tarihi çarşı",
+        },
 
         // KARADENİZ BÖLGESİ
-        { name: "Trabzon Uzungöl, Trabzon", landmarks: "göl manzarası, dağ evleri, çam ormanları", environment: "sis, yeşillik, ahşap evler, doğa" },
-        { name: "Sümela Manastırı, Trabzon", landmarks: "kayalara oyulmuş manastır", environment: "dik yamaç, orman, mistik atmosfer" },
-        { name: "Ayder Yaylası, Rize", landmarks: "yayla evleri, şelale, termal kaplıcalar", environment: "yeşil çayırları, bulutlar, geleneksel evler" },
-        { name: "Rize Çay Bahçeleri, Rize", landmarks: "yeşil çay tarlaları, yamaç evler", environment: "teraslanmış tepeler, sis, çay toplama" },
-        { name: "Safranbolu, Karabük", landmarks: "Osmanlı evleri, Cinci Han, tarihi çarşı", environment: "ahşap konak, arı taşlı sokak, safran" },
-        { name: "Amasra, Bartın", landmarks: "Amasra Kalesi, küçük liman, adalar", environment: "Karadeniz kıyısı, balıkçı kasabası, tarihi surlar" },
-        { name: "Sinop Kalesi, Sinop", landmarks: "tarihi kale, deniz feneri, liman", environment: "yarımada, Karadeniz, balıkçı tekneleri" },
+        {
+          name: "Trabzon Uzungöl, Trabzon",
+          landmarks: "göl manzarası, dağ evleri, çam ormanları",
+          environment: "sis, yeşillik, ahşap evler, doğa",
+        },
+        {
+          name: "Sümela Manastırı, Trabzon",
+          landmarks: "kayalara oyulmuş manastır",
+          environment: "dik yamaç, orman, mistik atmosfer",
+        },
+        {
+          name: "Ayder Yaylası, Rize",
+          landmarks: "yayla evleri, şelale, termal kaplıcalar",
+          environment: "yeşil çayırları, bulutlar, geleneksel evler",
+        },
+        {
+          name: "Rize Çay Bahçeleri, Rize",
+          landmarks: "yeşil çay tarlaları, yamaç evler",
+          environment: "teraslanmış tepeler, sis, çay toplama",
+        },
+        {
+          name: "Safranbolu, Karabük",
+          landmarks: "Osmanlı evleri, Cinci Han, tarihi çarşı",
+          environment: "ahşap konak, arı taşlı sokak, safran",
+        },
+        {
+          name: "Amasra, Bartın",
+          landmarks: "Amasra Kalesi, küçük liman, adalar",
+          environment: "Karadeniz kıyısı, balıkçı kasabası, tarihi surlar",
+        },
+        {
+          name: "Sinop Kalesi, Sinop",
+          landmarks: "tarihi kale, deniz feneri, liman",
+          environment: "yarımada, Karadeniz, balıkçı tekneleri",
+        },
 
         // GÜNEYDOĞU ANADOLU
-        { name: "Mardin Eski Şehir, Mardin", landmarks: "taş evler, minareler, Mezopotamya manzarası", environment: "sarı taş mimari, dar sokaklar, kiliseler" },
-        { name: "Midyat, Mardin", landmarks: "telkari atölyeleri, Süryani kiliseleri", environment: "taş işçiliği, geleneksel zanaat, tarihi dokular" },
-        { name: "Diyarbakır Surları, Diyarbakır", landmarks: "tarihi surlar, Ulu Cami, Hevsel Bahçeleri", environment: "bazalt taşı, antik duvarlar, Dicle Nehri" },
-        { name: "Şanlıurfa Balıklıgöl, Şanlıurfa", landmarks: "kutsal havuz, Halılürrahman Camii", environment: "tarihi alan, balıklar, manevi atmosfer" },
-        { name: "Göbeklitepe, Şanlıurfa", landmarks: "dünyanın en eski tapınağı, T şekilli dikilitalar", environment: "arkeolojik alan, gizemli yapılar, tarih öncesi" },
-        { name: "Gaziantep Kalesi, Gaziantep", landmarks: "tarihi kale, bakırcılar çarşısı", environment: "gastronomi şehri, geleneksel çarşı, baklava" },
+        {
+          name: "Mardin Eski Şehir, Mardin",
+          landmarks: "taş evler, minareler, Mezopotamya manzarası",
+          environment: "sarı taş mimari, dar sokaklar, kiliseler",
+        },
+        {
+          name: "Midyat, Mardin",
+          landmarks: "telkari atölyeleri, Süryani kiliseleri",
+          environment: "taş işçiliği, geleneksel zanaat, tarihi dokular",
+        },
+        {
+          name: "Diyarbakır Surları, Diyarbakır",
+          landmarks: "tarihi surlar, Ulu Cami, Hevsel Bahçeleri",
+          environment: "bazalt taşı, antik duvarlar, Dicle Nehri",
+        },
+        {
+          name: "Şanlıurfa Balıklıgöl, Şanlıurfa",
+          landmarks: "kutsal havuz, Halılürrahman Camii",
+          environment: "tarihi alan, balıklar, manevi atmosfer",
+        },
+        {
+          name: "Göbeklitepe, Şanlıurfa",
+          landmarks: "dünyanın en eski tapınağı, T şekilli dikilitalar",
+          environment: "arkeolojik alan, gizemli yapılar, tarih öncesi",
+        },
+        {
+          name: "Gaziantep Kalesi, Gaziantep",
+          landmarks: "tarihi kale, bakırcılar çarşısı",
+          environment: "gastronomi şehri, geleneksel çarşı, baklava",
+        },
 
         // DOĞU ANADOLU
-        { name: "Van Kalesi, Van", landmarks: "Urartu kalesi, Van Gölü manzarası", environment: "tarihi kale, mavi göl, dağlar" },
-        { name: "Akdamar Adası, Van", landmarks: "Akdamar Kilisesi, Van Gölü", environment: "ada, Ermeni mimarisi, turkuaz su" },
-        { name: "Ishak Paşa Sarayı, Ağrı", landmarks: "Osmanlı sarayı, Ağrı Dağı manzarası", environment: "tarihi saray, karlı dağ, Doğu Anadolu" },
-        { name: "Ani Harabeleri, Kars", landmarks: "antik şehir kalıntıları, kiliseler", environment: "sınır bölgesi, tarihi kalıntılar, boş şehir" },
-        { name: "Erzurum Kalesi, Erzurum", landmarks: "tarihi kale, Çifte Minareli Medrese", environment: "kış şehri, Selçuklu eserleri, dağlar" },
+        {
+          name: "Van Kalesi, Van",
+          landmarks: "Urartu kalesi, Van Gölü manzarası",
+          environment: "tarihi kale, mavi göl, dağlar",
+        },
+        {
+          name: "Akdamar Adası, Van",
+          landmarks: "Akdamar Kilisesi, Van Gölü",
+          environment: "ada, Ermeni mimarisi, turkuaz su",
+        },
+        {
+          name: "Ishak Paşa Sarayı, Ağrı",
+          landmarks: "Osmanlı sarayı, Ağrı Dağı manzarası",
+          environment: "tarihi saray, karlı dağ, Doğu Anadolu",
+        },
+        {
+          name: "Ani Harabeleri, Kars",
+          landmarks: "antik şehir kalıntıları, kiliseler",
+          environment: "sınır bölgesi, tarihi kalıntılar, boş şehir",
+        },
+        {
+          name: "Erzurum Kalesi, Erzurum",
+          landmarks: "tarihi kale, Çifte Minareli Medrese",
+          environment: "kış şehri, Selçuklu eserleri, dağlar",
+        },
       ];
 
       // Pozlar
       const poses = [
-        { pose: "standing relaxed near a landmark", body: "one hip slightly shifted to the side, one leg casually bent, shoulders relaxed, natural confident posture" },
-        { pose: "walking confidently down the street", body: "mid-stride position, arms swinging naturally, head held high, dynamic movement" },
-        { pose: "sitting casually on steps or bench", body: "legs crossed or extended, leaning slightly back, relaxed arm placement, casual elegance" },
-        { pose: "leaning against a wall or railing", body: "one shoulder against surface, arms crossed or one hand in pocket, relaxed stance" },
-        { pose: "looking over shoulder at camera", body: "body turned away, head turned back, mysterious and engaging expression" },
-        { pose: "hands in pockets, casual stance", body: "weight on one leg, relaxed shoulders, approachable demeanor" },
-        { pose: "adjusting hair or accessories", body: "one hand near face or hair, natural candid moment, soft expression" },
-        { pose: "holding coffee cup or phone", body: "natural grip, slight smile, lifestyle moment" },
+        {
+          pose: "standing relaxed near a landmark",
+          body: "one hip slightly shifted to the side, one leg casually bent, shoulders relaxed, natural confident posture",
+        },
+        {
+          pose: "walking confidently down the street",
+          body: "mid-stride position, arms swinging naturally, head held high, dynamic movement",
+        },
+        {
+          pose: "sitting casually on steps or bench",
+          body: "legs crossed or extended, leaning slightly back, relaxed arm placement, casual elegance",
+        },
+        {
+          pose: "leaning against a wall or railing",
+          body: "one shoulder against surface, arms crossed or one hand in pocket, relaxed stance",
+        },
+        {
+          pose: "looking over shoulder at camera",
+          body: "body turned away, head turned back, mysterious and engaging expression",
+        },
+        {
+          pose: "hands in pockets, casual stance",
+          body: "weight on one leg, relaxed shoulders, approachable demeanor",
+        },
+        {
+          pose: "adjusting hair or accessories",
+          body: "one hand near face or hair, natural candid moment, soft expression",
+        },
+        {
+          pose: "holding coffee cup or phone",
+          body: "natural grip, slight smile, lifestyle moment",
+        },
       ];
 
       // Kıyafetler
@@ -902,13 +1326,17 @@ export const aiCharactersRouter = router({
       };
 
       // Rastgele seçim
-      const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+      const randomLocation =
+        locations[Math.floor(Math.random() * locations.length)];
       const randomPose = poses[Math.floor(Math.random() * poses.length)];
       const genderKey = gender || "other";
       const outfitList = outfits[genderKey];
-      const randomOutfit = outfitList[Math.floor(Math.random() * outfitList.length)];
+      const randomOutfit =
+        outfitList[Math.floor(Math.random() * outfitList.length)];
 
-      const characterRef = characterName ? `[${characterName}]` : "[Your Character]";
+      const characterRef = characterName
+        ? `[${characterName}]`
+        : "[Your Character]";
 
       const prompt = `Recreate ${characterRef} ${randomPose.pose} in ${randomLocation.name}, with ${randomLocation.landmarks}, preserving natural urban realism.
 

@@ -8,20 +8,24 @@
 ## 🎯 Kullanıcı İstekleri
 
 ### 1. Duration: 5-10 Saniye ✅
+
 - ✅ **5 Saniye** - 55 kredi (sessiz), 110 kredi (sesli)
 - ✅ **10 Saniye** - 110 kredi (sessiz), 220 kredi (sesli)
 
 ### 2. Ses Seçeneği: Toggle ✅
+
 - ✅ **Audio Toggle** ayrı gösteriliyor
 - ✅ Ses açıldığında kredi **2x** artıyor
 - Kullanıcı görecek: "Enable Audio (+2x credits)"
 
 ### 3. Generation Mode: Sadece Text to Video ✅
+
 - ✅ **Text to Video** - Metin ile video
 - ❌ **Image to Video** - Kapatıldı
 - Sadece boyut (aspect ratio) seçimi yapılıyor
 
 ### 4. Aspect Ratio: 3 Seçenek ✅
+
 - ✅ **1:1** (Kare)
 - ✅ **9:16** (Dikey)
 - ✅ **16:9** (Yatay)
@@ -35,6 +39,7 @@
 #### getPricing - Kling 2.6 Güncellendi
 
 **ÖNCESİ:**
+
 ```typescript
 kling: {
   description: "Kuaishou'nun yerleşik sesli video modeli",
@@ -50,6 +55,7 @@ kling: {
 ```
 
 **SONRASI:**
+
 ```typescript
 kling: {
   description: "Kuaishou'nun native audio destekli video modeli",
@@ -109,7 +115,7 @@ kling: {
 
 2. Generation Mode:
    ● Text to Video (otomatik seçili)
-   
+
 3. Duration Seç:
    ┌──────────────┬──────────────┐
    │ 5 Saniye     │ 10 Saniye    │
@@ -122,7 +128,7 @@ kling: {
 
 5. Audio Toggle:
    ☐ Enable Audio
-   
+
 6. Tahmini Maliyet:
    - Sessiz: 55 kr (5s) / 110 kr (10s)
    - Sesli: 110 kr (5s) / 220 kr (10s)
@@ -135,6 +141,7 @@ kling: {
 ### Audio Pricing Logic
 
 **Backend (`calculateVideoCreditCost`):**
+
 ```typescript
 // Kling 2.6 pricing
 if (model.startsWith("kling-2.6")) {
@@ -153,10 +160,12 @@ if (model.startsWith("kling-2.6")) {
 ### Aspect Ratio Sıralaması
 
 **Değişiklik:**
+
 - ÖNCESİ: `["16:9", "9:16", "1:1"]`
 - SONRASI: `["1:1", "9:16", "16:9"]`
 
 **UI'de:**
+
 ```
 ┌───────┬──────────┬──────────┐
 │ 1:1   │ 9:16     │ 16:9     │
@@ -173,7 +182,7 @@ if (model.startsWith("kling-2.6")) {
 ✅ **Sadece Text to Video** (I2V kapalı)  
 ✅ **3 Aspect Ratio** (1:1, 9:16, 16:9)  
 ✅ **Doğru fiyatlandırma** (55-220 kredi)  
-✅ **Audio +2x** hesaplaması çalışıyor  
+✅ **Audio +2x** hesaplaması çalışıyor
 
 ---
 
@@ -209,36 +218,36 @@ if (model.startsWith("kling-2.6")) {
 // Kling 2.6 5s (sessiz)
 calculateVideoCreditCost("kling-2.6/text-to-video", {
   duration: "5",
-  sound: false
-}) // = 55 ✅
+  sound: false,
+}); // = 55 ✅
 
 // Kling 2.6 5s (sesli)
 calculateVideoCreditCost("kling-2.6/text-to-video", {
   duration: "5",
-  sound: true
-}) // = 110 ✅ (2x)
+  sound: true,
+}); // = 110 ✅ (2x)
 
 // Kling 2.6 10s (sessiz)
 calculateVideoCreditCost("kling-2.6/text-to-video", {
   duration: "10",
-  sound: false
-}) // = 110 ✅
+  sound: false,
+}); // = 110 ✅
 
 // Kling 2.6 10s (sesli)
 calculateVideoCreditCost("kling-2.6/text-to-video", {
   duration: "10",
-  sound: true
-}) // = 220 ✅ (2x)
+  sound: true,
+}); // = 220 ✅ (2x)
 ```
 
 ---
 
 ## 📁 Değiştirilen Dosyalar
 
-| Dosya | Değişiklik | Açıklama |
-|-------|-----------|----------|
-| `server/routers/videoGeneration.ts` | ~10 satır | Kling 2.6 config update |
-| `KLING_2_6_UPDATE.md` | +200 satır | Dokümentasyon |
+| Dosya                               | Değişiklik | Açıklama                |
+| ----------------------------------- | ---------- | ----------------------- |
+| `server/routers/videoGeneration.ts` | ~10 satır  | Kling 2.6 config update |
+| `KLING_2_6_UPDATE.md`               | +200 satır | Dokümentasyon           |
 
 ---
 
@@ -265,6 +274,7 @@ pm2 reload 0
 ## 💡 Kullanım Örnekleri
 
 ### Sessiz Video (Standard)
+
 ```
 Model: Kling 2.6
 Mode: Text to Video
@@ -275,6 +285,7 @@ Cost: 55 kredi
 ```
 
 ### Sesli Video (Audio Enabled)
+
 ```
 Model: Kling 2.6
 Mode: Text to Video
@@ -285,6 +296,7 @@ Cost: 220 kredi (110 x 2)
 ```
 
 ### Kare Format Video
+
 ```
 Model: Kling 2.6
 Mode: Text to Video
@@ -299,12 +311,14 @@ Cost: 55 kredi
 ## 📋 Özet
 
 ### Önceki Durum
+
 - ❌ 4 seçenek (5s, 5s-audio, 10s, 10s-audio)
 - ❌ Audio option'larda gösteriliyordu
 - ❌ Image to Video destekliyordu
 - ❌ Aspect ratio sıralaması farklıydı
 
 ### Güncel Durum
+
 - ✅ 2 duration seçeneği (5s, 10s)
 - ✅ Audio ayrı toggle olarak
 - ✅ Sadece Text to Video
@@ -315,6 +329,7 @@ Cost: 55 kredi
 ---
 
 **Sonuç:**
+
 - Duration: Basit, 2 seçenek
 - Audio: Toggle ile açıp kapatılabiliyor
 - Mode: Sadece Text to Video (kullanıcı karışıklığı önlendi)

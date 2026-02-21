@@ -22,7 +22,9 @@ vi.mock("../nanoBananaApi", () => ({
     success: true,
     taskId: "test-task-id-123",
   }),
-  pollTaskCompletion: vi.fn().mockResolvedValue("https://example.com/image.png"),
+  pollTaskCompletion: vi
+    .fn()
+    .mockResolvedValue("https://example.com/image.png"),
 }));
 
 vi.mock("../telegramBot", () => ({
@@ -31,7 +33,9 @@ vi.mock("../telegramBot", () => ({
 }));
 
 vi.mock("../storage", () => ({
-  storagePut: vi.fn().mockResolvedValue({ url: "https://s3.example.com/image.png" }),
+  storagePut: vi
+    .fn()
+    .mockResolvedValue({ url: "https://s3.example.com/image.png" }),
 }));
 
 vi.mock("./notification", () => ({
@@ -54,9 +58,9 @@ describe("Multi-Angle Photo Generator", () => {
             { en: "front facing portrait", tr: "Önden Portre" },
             { en: "three quarter angle", tr: "Yarım Profil (3/4 Açı)" },
             { en: "side profile", tr: "Yan Profil" },
-            { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" }
-          ]
-        }
+            { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" },
+          ],
+        },
       };
 
       expect(ANGLE_SETS.temel_4.angles.length).toBe(4);
@@ -75,9 +79,9 @@ describe("Multi-Angle Photo Generator", () => {
             { en: "three quarter angle left", tr: "Yarım Profil Sol" },
             { en: "three quarter angle right", tr: "Yarım Profil Sağ" },
             { en: "side profile", tr: "Yan Profil" },
-            { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" }
-          ]
-        }
+            { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" },
+          ],
+        },
       };
 
       expect(ANGLE_SETS.standart_6.angles.length).toBe(6);
@@ -98,9 +102,9 @@ describe("Multi-Angle Photo Generator", () => {
             { en: "side profile", tr: "Yan Profil" },
             { en: "over the shoulder looking back", tr: "Omuz Üstünden Bakış" },
             { en: "looking down angle from above", tr: "Yukarıdan Bakış" },
-            { en: "full body front view", tr: "Tam Boy Önden" }
-          ]
-        }
+            { en: "full body front view", tr: "Tam Boy Önden" },
+          ],
+        },
       };
 
       expect(ANGLE_SETS.profesyonel_8.angles.length).toBe(8);
@@ -173,7 +177,7 @@ Do not beautify or stylize.`;
   describe("API Integration", () => {
     it("should use Nano Banana Pro API for image generation", async () => {
       const { createGenerationTask } = await import("../nanoBananaApi");
-      
+
       const result = await createGenerationTask({
         prompt: "test prompt",
         aspectRatio: "3:4",
@@ -187,9 +191,9 @@ Do not beautify or stylize.`;
 
     it("should poll for task completion", async () => {
       const { pollTaskCompletion } = await import("../nanoBananaApi");
-      
+
       const imageUrl = await pollTaskCompletion("test-task-id-123");
-      
+
       expect(imageUrl).toBe("https://example.com/image.png");
     });
   });
@@ -197,10 +201,14 @@ Do not beautify or stylize.`;
   describe("Storage Integration", () => {
     it("should save generated images to S3", async () => {
       const { storagePut } = await import("../storage");
-      
+
       const buffer = Buffer.from("test image data");
-      const result = await storagePut("multi-angle/1/1/1-123.png", buffer, "image/png");
-      
+      const result = await storagePut(
+        "multi-angle/1/1/1-123.png",
+        buffer,
+        "image/png"
+      );
+
       expect(result.url).toBe("https://s3.example.com/image.png");
     });
   });
@@ -208,7 +216,7 @@ Do not beautify or stylize.`;
   describe("Notification Integration", () => {
     it("should send notification on completion", async () => {
       const { createNotification } = await import("./notification");
-      
+
       await createNotification({
         userId: 1,
         type: "generation_complete",
@@ -222,7 +230,7 @@ Do not beautify or stylize.`;
 
     it("should notify credit spending via Telegram", async () => {
       const { notifyCreditSpending } = await import("../telegramBot");
-      
+
       await notifyCreditSpending({
         userName: "Test User",
         userEmail: "test@example.com",

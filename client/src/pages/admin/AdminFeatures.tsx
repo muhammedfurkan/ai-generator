@@ -144,6 +144,62 @@ const DEFAULT_FEATURES: FeatureConfig[] = [
     category: "generation",
   },
   {
+    key: "ai_influencer_enabled",
+    label: "AI Influencer",
+    description: "AI influencer araçlarının web'de görünmesini sağlar",
+    icon: Users,
+    enabled: true,
+    category: "generation",
+  },
+  {
+    key: "upscale_enabled",
+    label: "Upscale",
+    description: "Upscale aracını web menü ve sayfalarda aktif eder",
+    icon: Zap,
+    enabled: true,
+    category: "generation",
+  },
+  {
+    key: "audio_generation_enabled",
+    label: "Audio Generate",
+    description: "Audio üretim ekranını web menüsünde aktif eder",
+    icon: Bell,
+    enabled: true,
+    category: "generation",
+  },
+  {
+    key: "music_generation_enabled",
+    label: "Music Generate",
+    description: "Music üretim ekranını web menüsünde aktif eder",
+    icon: Bell,
+    enabled: true,
+    category: "generation",
+  },
+  {
+    key: "gallery_enabled",
+    label: "Galeri",
+    description: "Galeri menüsü ve sayfasını kullanıcıya gösterir",
+    icon: Image,
+    enabled: true,
+    category: "generation",
+  },
+  {
+    key: "blog_enabled",
+    label: "Blog",
+    description: "Blog menüsü ve blog sayfalarını kullanıcıya açar",
+    icon: Mail,
+    enabled: true,
+    category: "generation",
+  },
+  {
+    key: "community_enabled",
+    label: "Topluluk",
+    description: "Topluluk karakter ekranı ve ilgili home bloklarını açar",
+    icon: Users,
+    enabled: true,
+    category: "generation",
+  },
+  {
     key: "free_credits_on_signup",
     label: "Kayıtta Ücretsiz Kredi",
     description: "Yeni kullanıcılara ücretsiz başlangıç kredisi ver",
@@ -301,7 +357,7 @@ export default function AdminFeatures() {
             label: feature.label,
             description: feature.description,
             inputType: "boolean",
-            isPublic: false,
+            isPublic: true,
           });
         }
 
@@ -323,7 +379,7 @@ export default function AdminFeatures() {
                 category: "general",
                 label: extra.label,
                 inputType: extra.type === "number" ? "number" : "text",
-                isPublic: false,
+                isPublic: true,
               });
             }
           }
@@ -332,7 +388,10 @@ export default function AdminFeatures() {
 
       toast.success("Tüm özellikler kaydedildi");
       setHasChanges(false);
-      utils.adminPanel.getSiteSettings.invalidate();
+      await Promise.all([
+        utils.adminPanel.getSiteSettings.invalidate(),
+        utils.settings.getPublicSettings.invalidate(),
+      ]);
     } catch (error) {
       toast.error("Kaydetme hatası oluştu");
     } finally {

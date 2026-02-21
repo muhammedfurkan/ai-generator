@@ -23,6 +23,8 @@ import {
   AlertTriangle,
   Zap,
   BarChart3,
+  Palette,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -441,6 +443,20 @@ export default function AdminDashboard() {
               icon={MessageSquare}
               onClick={() => navigate("/admin/announcements")}
               color="bg-[#7C3AED]/20 text-[#7C3AED]"
+            />
+            <QuickAction
+              label="Marka & Kimlik"
+              description="Logo ve favicon ayarlarını güncelle"
+              icon={Palette}
+              onClick={() => navigate("/admin/branding")}
+              color="bg-cyan-500/20 text-cyan-400"
+            />
+            <QuickAction
+              label="Web Kontrol Merkezi"
+              description="Hero, menü ve footer yönetimi"
+              icon={Settings}
+              onClick={() => navigate("/admin/web-control")}
+              color="bg-violet-500/20 text-violet-400"
             />
             <QuickAction
               label="Kredi Ekle"

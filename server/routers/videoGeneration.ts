@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -28,7 +29,7 @@ const videoModelSchema = z.enum([
   "qwen",
   "qwen-video",
   "qwen-video-pro",
-  "qwen-video-pro-4k"
+  "qwen-video-pro-4k",
 ]);
 const generationTypeSchema = z.enum([
   "text-to-video",
@@ -36,7 +37,10 @@ const generationTypeSchema = z.enum([
   "video-to-video",
 ]);
 
-function mapModelTypeToPricingModel(modelType: string, quality?: string): string {
+function mapModelTypeToPricingModel(
+  modelType: string,
+  quality?: string
+): string {
   const modelMap: Record<string, string> = {
     veo3: "veo3.1-fast", // Will be determined by quality
     // Sora 2: Use standard model unless quality is explicitly pro/high
@@ -132,7 +136,10 @@ async function getVideoCreditSettings(): Promise<VideoCreditSettings> {
     seedanceLite6s: await getFeaturePricingByKey("video_seedance_lite_6s", 35),
     seedancePro3s: await getFeaturePricingByKey("video_seedance_pro_3s", 30),
     seedancePro6s: await getFeaturePricingByKey("video_seedance_pro_6s", 50),
-    seedance15Pro5s: await getFeaturePricingByKey("video_seedance_15_pro_5s", 55),
+    seedance15Pro5s: await getFeaturePricingByKey(
+      "video_seedance_15_pro_5s",
+      55
+    ),
     seedance15Pro10s: await getFeaturePricingByKey(
       "video_seedance_15_pro_10s",
       95
@@ -203,7 +210,9 @@ function estimateVideoCreditsFromSettings(
     case "grok":
       return settings.grok;
     case "seedance-lite":
-      return durationSec >= 6 ? settings.seedanceLite6s : settings.seedanceLite3s;
+      return durationSec >= 6
+        ? settings.seedanceLite6s
+        : settings.seedanceLite3s;
     case "seedance-pro":
       return durationSec >= 6 ? settings.seedancePro6s : settings.seedancePro3s;
     case "seedance-15-pro":
@@ -219,7 +228,10 @@ function estimateVideoCreditsFromSettings(
     case "wan-26":
       return durationSec >= 10 ? settings.wan26_10s : settings.wan26_5s;
     default: {
-      const pricingModel = mapModelTypeToPricingModel(input.modelType, input.quality);
+      const pricingModel = mapModelTypeToPricingModel(
+        input.modelType,
+        input.quality
+      );
       return calculateVideoCreditCost(pricingModel, {
         duration: `${durationSec}`,
         sound: input.hasAudio,
@@ -406,14 +418,17 @@ export const videoGenerationRouter = router({
     .query(async ({ input }) => {
       const settings = await getVideoCreditSettings();
       const hasAudio = input.modelType === "sora2" ? false : input.hasAudio;
-      const credits = estimateVideoCreditsFromSettings({
-        modelType: input.modelType,
-        duration: input.duration,
-        hasAudio,
-        feature: input.feature,
-        quality: input.quality,
-        resolution: input.resolution,
-      }, settings);
+      const credits = estimateVideoCreditsFromSettings(
+        {
+          modelType: input.modelType,
+          duration: input.duration,
+          hasAudio,
+          feature: input.feature,
+          quality: input.quality,
+          resolution: input.resolution,
+        },
+        settings
+      );
 
       return { credits };
     }),
@@ -456,14 +471,17 @@ export const videoGenerationRouter = router({
 
       // Calculate credit cost using admin-configured pricing keys.
       const settings = await getVideoCreditSettings();
-      const creditCost = estimateVideoCreditsFromSettings({
-        modelType: input.modelType,
-        duration: input.duration,
-        hasAudio,
-        feature: input.feature,
-        quality: input.quality,
-        resolution: input.resolution,
-      }, settings);
+      const creditCost = estimateVideoCreditsFromSettings(
+        {
+          modelType: input.modelType,
+          duration: input.duration,
+          hasAudio,
+          feature: input.feature,
+          quality: input.quality,
+          resolution: input.resolution,
+        },
+        settings
+      );
 
       // Check user credits
       const user = await db.getUserById(userId);

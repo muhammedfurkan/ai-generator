@@ -8,13 +8,15 @@ import { Agent } from "https";
 // Google OAuth2 Configuration
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? "";
-const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI ?? "http://localhost:3000/api/auth/google/callback";
+const GOOGLE_REDIRECT_URI =
+  process.env.GOOGLE_REDIRECT_URI ??
+  "http://localhost:3000/api/auth/google/callback";
 
 // Create an HTTPS agent that forces IPv4 to avoid timeout issues
 const httpsAgent = new Agent({
   family: 4, // Force IPv4
   keepAlive: true,
-  timeout: 15000
+  timeout: 15000,
 });
 
 // Configure global Google API options
@@ -24,12 +26,17 @@ google.options({
   retryConfig: {
     retry: 3,
     retryDelay: 1000,
-    statusCodesToRetry: [[100, 199], [408, 408], [429, 429], [500, 599]],
+    statusCodesToRetry: [
+      [100, 199],
+      [408, 408],
+      [429, 429],
+      [500, 599],
+    ],
     onRetryAttempt: (err: any) => {
       console.log(`[GoogleAuth] Retrying request due to: ${err.message}`);
-    }
+    },
   },
-  timeout: 15000 // Increased timeout to 15 seconds
+  timeout: 15000, // Increased timeout to 15 seconds
 });
 
 // OAuth2 Scopes
@@ -120,10 +127,17 @@ export async function getGoogleUserFromCode(code: string): Promise<{
     const { email, name, picture, id } = userInfo.data;
 
     if (!email || !id) {
-      return { success: false, error: "Could not retrieve user email from Google" };
+      return {
+        success: false,
+        error: "Could not retrieve user email from Google",
+      };
     }
 
-    console.log("[GoogleAuth] User info retrieved:", { email, name, googleId: id });
+    console.log("[GoogleAuth] User info retrieved:", {
+      email,
+      name,
+      googleId: id,
+    });
 
     return {
       success: true,
@@ -138,7 +152,10 @@ export async function getGoogleUserFromCode(code: string): Promise<{
     console.error("[GoogleAuth] Error getting user from code:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to authenticate with Google",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to authenticate with Google",
     };
   }
 }

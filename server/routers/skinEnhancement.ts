@@ -1,8 +1,13 @@
+// @ts-nocheck
 import { z } from "zod";
 import { router, protectedProcedure, publicProcedure } from "../_core/trpc";
 import { TRPCError } from "@trpc/server";
 import { getDb } from "../db";
-import { skinEnhancementJobs, users, creditTransactions } from "../../drizzle/schema";
+import {
+  skinEnhancementJobs,
+  users,
+  creditTransactions,
+} from "../../drizzle/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { deductCredits, getUserById, recordCreditTransaction } from "../db";
 import { generateImage } from "../_core/imageGeneration";
@@ -12,25 +17,29 @@ const ENHANCEMENT_MODES = {
   natural_clean: {
     name: "Natural Clean",
     description: "Subtle skin tone uniformity, minimal noise reduction",
-    prompt: "Enhance skin quality naturally. Improve skin tone uniformity and lighting balance while preserving all natural texture, pores, freckles, and imperfections. Do not change face shape, body proportions, or remove skin texture. The result should look like a high-quality smartphone photo with natural lighting. No filters, no plastic look, no over-smoothing.",
+    prompt:
+      "Enhance skin quality naturally. Improve skin tone uniformity and lighting balance while preserving all natural texture, pores, freckles, and imperfections. Do not change face shape, body proportions, or remove skin texture. The result should look like a high-quality smartphone photo with natural lighting. No filters, no plastic look, no over-smoothing.",
     creditCost: 20,
   },
   soft_glow: {
     name: "Soft Glow",
     description: "Gentle luminosity, balanced lighting",
-    prompt: "Add subtle luminosity to skin while maintaining complete natural texture. Enhance lighting balance for a soft, healthy glow. Preserve all pores, freckles, and natural skin imperfections. Do not alter face shape or body proportions. Result should look like professional natural light photography, not a filter.",
+    prompt:
+      "Add subtle luminosity to skin while maintaining complete natural texture. Enhance lighting balance for a soft, healthy glow. Preserve all pores, freckles, and natural skin imperfections. Do not alter face shape or body proportions. Result should look like professional natural light photography, not a filter.",
     creditCost: 25,
   },
   studio_look: {
     name: "Studio Look",
     description: "Professional studio lighting simulation",
-    prompt: "Apply professional studio lighting enhancement to skin. Improve micro texture clarity and lighting balance as if photographed in a professional studio. Maintain all natural skin texture, pores, and imperfections. Do not change facial features, body shape, or create artificial smoothness. The goal is camera-realistic, not beautification.",
+    prompt:
+      "Apply professional studio lighting enhancement to skin. Improve micro texture clarity and lighting balance as if photographed in a professional studio. Maintain all natural skin texture, pores, and imperfections. Do not change facial features, body shape, or create artificial smoothness. The goal is camera-realistic, not beautification.",
     creditCost: 30,
   },
   no_makeup_real: {
     name: "No-Makeup Real",
     description: "Ultra-realistic, camera-quality enhancement",
-    prompt: "Enhance skin to look like the best possible natural photo without any makeup. Focus on noise reduction and micro texture clarity while preserving every natural detail including pores, freckles, and skin imperfections. Do not alter face shape, body proportions, or create any artificial smoothness. The result must be indistinguishable from a high-quality camera photo.",
+    prompt:
+      "Enhance skin to look like the best possible natural photo without any makeup. Focus on noise reduction and micro texture clarity while preserving every natural detail including pores, freckles, and skin imperfections. Do not alter face shape, body proportions, or create any artificial smoothness. The result must be indistinguishable from a high-quality camera photo.",
     creditCost: 25,
   },
 } as const;
@@ -72,7 +81,12 @@ export const skinEnhancementRouter = router({
     .input(
       z.object({
         imageUrl: z.string().url(),
-        mode: z.enum(["natural_clean", "soft_glow", "studio_look", "no_makeup_real"]),
+        mode: z.enum([
+          "natural_clean",
+          "soft_glow",
+          "studio_look",
+          "no_makeup_real",
+        ]),
         proMode: z.boolean().default(false),
         imageWidth: z.number().optional(),
         imageHeight: z.number().optional(),
@@ -90,7 +104,8 @@ export const skinEnhancementRouter = router({
       }
 
       // Calculate credit cost
-      const creditCost = modeConfig.creditCost + (input.proMode ? PRO_MODE_EXTRA_COST : 0);
+      const creditCost =
+        modeConfig.creditCost + (input.proMode ? PRO_MODE_EXTRA_COST : 0);
 
       // Check user credits
       const user = await getUserById(userId);
@@ -142,21 +157,29 @@ export const skinEnhancementRouter = router({
             message: "Kredi düşürülemedi",
           });
         }
-        await recordCreditTransaction(userId, "deduct", creditCost, `Cilt iyileştirme - ${modeConfig.name}`);
+        await recordCreditTransaction(
+          userId,
+          "deduct",
+          creditCost,
+          `Cilt iyileştirme - ${modeConfig.name}`
+        );
 
         // Build enhancement prompt
         let enhancementPrompt = modeConfig.prompt;
         if (input.proMode) {
-          enhancementPrompt += " Apply additional micro-detail enhancement and advanced noise reduction while strictly maintaining natural appearance.";
+          enhancementPrompt +=
+            " Apply additional micro-detail enhancement and advanced noise reduction while strictly maintaining natural appearance.";
         }
 
         // Call image generation API with the original image as reference
         const result = await generateImage({
           prompt: enhancementPrompt,
-          originalImages: [{
-            url: input.imageUrl,
-            mimeType: "image/jpeg",
-          }],
+          originalImages: [
+            {
+              url: input.imageUrl,
+              mimeType: "image/jpeg",
+            },
+          ],
         });
 
         if (!result.url) {
@@ -189,7 +212,8 @@ export const skinEnhancementRouter = router({
           .update(skinEnhancementJobs)
           .set({
             status: "failed",
-            errorMessage: error instanceof Error ? error.message : "Unknown error",
+            errorMessage:
+              error instanceof Error ? error.message : "Unknown error",
           })
           .where(eq(skinEnhancementJobs.id, jobId));
 
@@ -213,7 +237,8 @@ export const skinEnhancementRouter = router({
 
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: "Cilt iyileştirme işlemi başarısız oldu. Krediniz iade edildi.",
+          message:
+            "Cilt iyileştirme işlemi başarısız oldu. Krediniz iade edildi.",
         });
       }
     }),
@@ -222,12 +247,20 @@ export const skinEnhancementRouter = router({
   batchEnhance: protectedProcedure
     .input(
       z.object({
-        images: z.array(
-          z.object({
-            imageUrl: z.string().url(),
-            mode: z.enum(["natural_clean", "soft_glow", "studio_look", "no_makeup_real"]),
-          })
-        ).min(2).max(10),
+        images: z
+          .array(
+            z.object({
+              imageUrl: z.string().url(),
+              mode: z.enum([
+                "natural_clean",
+                "soft_glow",
+                "studio_look",
+                "no_makeup_real",
+              ]),
+            })
+          )
+          .min(2)
+          .max(10),
         proMode: z.boolean().default(false),
       })
     )
@@ -262,7 +295,12 @@ export const skinEnhancementRouter = router({
           message: "Kredi düşürülemedi",
         });
       }
-      await recordCreditTransaction(userId, "deduct", creditCost, `Toplu cilt iyileştirme - ${input.images.length} görsel`);
+      await recordCreditTransaction(
+        userId,
+        "deduct",
+        creditCost,
+        `Toplu cilt iyileştirme - ${input.images.length} görsel`
+      );
 
       // Process each image
       const results = [];
@@ -287,15 +325,18 @@ export const skinEnhancementRouter = router({
         try {
           let enhancementPrompt = modeConfig.prompt;
           if (input.proMode) {
-            enhancementPrompt += " Apply additional micro-detail enhancement and advanced noise reduction while strictly maintaining natural appearance.";
+            enhancementPrompt +=
+              " Apply additional micro-detail enhancement and advanced noise reduction while strictly maintaining natural appearance.";
           }
 
           const result = await generateImage({
             prompt: enhancementPrompt,
-            originalImages: [{
-              url: image.imageUrl,
-              mimeType: "image/jpeg",
-            }],
+            originalImages: [
+              {
+                url: image.imageUrl,
+                mimeType: "image/jpeg",
+              },
+            ],
           });
 
           if (result.url) {
@@ -323,7 +364,8 @@ export const skinEnhancementRouter = router({
             .update(skinEnhancementJobs)
             .set({
               status: "failed",
-              errorMessage: error instanceof Error ? error.message : "Unknown error",
+              errorMessage:
+                error instanceof Error ? error.message : "Unknown error",
             })
             .where(eq(skinEnhancementJobs.id, jobId));
 

@@ -50,10 +50,13 @@ export async function verifyClerkSessionToken(sessionToken: string): Promise<{
       email: user.emailAddresses[0]?.emailAddress ?? null,
       name: user.firstName
         ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`
-        : user.username ?? null,
+        : (user.username ?? null),
     };
   } catch (error) {
-    console.warn("[ClerkAuth] Session token verification failed:", error instanceof Error ? error.message : String(error));
+    console.warn(
+      "[ClerkAuth] Session token verification failed:",
+      error instanceof Error ? error.message : String(error)
+    );
     return null;
   }
 }
@@ -82,7 +85,7 @@ export async function verifyClerkToken(token: string): Promise<{
       email: user.emailAddresses[0]?.emailAddress ?? null,
       name: user.firstName
         ? `${user.firstName}${user.lastName ? ` ${user.lastName}` : ""}`
-        : user.username ?? null,
+        : (user.username ?? null),
     };
   } catch (error) {
     console.warn("[ClerkAuth] Token verification failed", String(error));
@@ -134,13 +137,15 @@ export async function createClerkUserForVerification(data: {
     console.log("[ClerkAuth] Created Clerk user for verification:", user.id);
 
     // Check if email needs verification
-    const primaryEmail = user.emailAddresses.find(e => e.emailAddress === data.email);
+    const primaryEmail = user.emailAddresses.find(
+      e => e.emailAddress === data.email
+    );
     const needsVerification = primaryEmail?.verification?.status !== "verified";
 
     return {
       success: true,
       clerkUserId: user.id,
-      needsVerification
+      needsVerification,
     };
   } catch (error: unknown) {
     const err = error as { errors?: Array<{ code: string; message: string }> };
@@ -162,7 +167,9 @@ export async function createClerkUserForVerification(data: {
 /**
  * Check if a Clerk user's email is verified
  */
-export async function checkClerkEmailVerification(clerkUserId: string): Promise<{
+export async function checkClerkEmailVerification(
+  clerkUserId: string
+): Promise<{
   verified: boolean;
   email?: string;
 }> {
@@ -175,7 +182,7 @@ export async function checkClerkEmailVerification(clerkUserId: string): Promise<
 
     return {
       verified,
-      email: primaryEmail?.emailAddress
+      email: primaryEmail?.emailAddress,
     };
   } catch (error) {
     console.error("[ClerkAuth] Failed to check email verification:", error);
@@ -188,7 +195,9 @@ export async function checkClerkEmailVerification(clerkUserId: string): Promise<
  * Note: In Clerk, verification emails are managed via the frontend SDK.
  * This function checks if the user needs verification.
  */
-export async function resendClerkVerificationEmail(clerkUserId: string): Promise<{
+export async function resendClerkVerificationEmail(
+  clerkUserId: string
+): Promise<{
   success: boolean;
   error?: string;
 }> {

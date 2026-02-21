@@ -53,7 +53,7 @@ export async function verifySessionToken(token: string): Promise<{
   try {
     const secret = new TextEncoder().encode(ENV.cookieSecret);
     const { payload } = await jwtVerify(token, secret);
-    
+
     if (
       typeof payload.userId !== "number" ||
       typeof payload.name !== "string" ||
@@ -61,7 +61,7 @@ export async function verifySessionToken(token: string): Promise<{
     ) {
       return null;
     }
-    
+
     return {
       userId: payload.userId as number,
       name: payload.name as string,

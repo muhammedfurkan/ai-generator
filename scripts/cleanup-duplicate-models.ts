@@ -1,6 +1,6 @@
 /**
  * Cleanup Duplicate Video Models
- * 
+ *
  * This script hides duplicate video models from the database
  * and keeps only the unified models (wan-26, sora2, kling, etc.)
  */
@@ -66,10 +66,7 @@ async function cleanupDuplicateModels() {
 
     // 4. Hide duplicate Kling models
     console.log("4️⃣ Hiding duplicate Kling models...");
-    const klingDuplicates = [
-      "kling/text-to-video",
-      "kling/image-to-video",
-    ];
+    const klingDuplicates = ["kling/text-to-video", "kling/image-to-video"];
 
     await db
       .update(aiModelConfig)
@@ -116,7 +113,7 @@ cleanupDuplicateModels()
     console.log("\n🎉 All done!");
     process.exit(0);
   })
-  .catch((error) => {
+  .catch(error => {
     console.error("\n💥 Failed:", error);
     process.exit(1);
   });

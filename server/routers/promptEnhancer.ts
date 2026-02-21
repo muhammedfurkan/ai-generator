@@ -48,7 +48,8 @@ Output: "Breathtaking tropical beach sunset, vibrant orange and pink sky, gentle
         });
 
         const content = response.choices[0]?.message?.content;
-        const enhancedPrompt = typeof content === 'string' ? content.trim() : null;
+        const enhancedPrompt =
+          typeof content === "string" ? content.trim() : null;
 
         if (!enhancedPrompt) {
           throw new Error("Failed to enhance prompt");

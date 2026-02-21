@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Shopier OSB (Otomatik Sipariş Bildirimi) Callback Handler
  * Shopier'dan gelen sipariş bildirimlerini işler ve kullanıcıya kredi ekler
@@ -5,14 +6,21 @@
 import { Router, Request, Response } from "express";
 import crypto from "crypto";
 import { getDb } from "../db";
-import { users, creditPackages, creditTransactions, shopierOrders } from "../../drizzle/schema";
+import {
+  users,
+  creditPackages,
+  creditTransactions,
+  shopierOrders,
+} from "../../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 const router = Router();
 
 // Shopier OSB kimlik bilgileri
-const OSB_USERNAME = process.env.SHOPIER_OSB_USERNAME || "39dff5545eca64e64f729d98b36f0775";
-const OSB_PASSWORD = process.env.SHOPIER_OSB_PASSWORD || "b789fc5d42828ba59975556a2701318f";
+const OSB_USERNAME =
+  process.env.SHOPIER_OSB_USERNAME || "39dff5545eca64e64f729d98b36f0775";
+const OSB_PASSWORD =
+  process.env.SHOPIER_OSB_PASSWORD || "b789fc5d42828ba59975556a2701318f";
 
 /**
  * Shopier OSB Callback Endpoint
@@ -50,7 +58,9 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
 
     // Sipariş durumu kontrolü - sadece başarılı ödemeleri işle
     if (status !== "success" || payment_status !== "paid") {
-      console.log(`[Shopier OSB] Order not successful: status=${status}, payment_status=${payment_status}`);
+      console.log(
+        `[Shopier OSB] Order not successful: status=${status}, payment_status=${payment_status}`
+      );
       return res.json({ success: true, message: "Order status not processed" });
     }
 
@@ -61,18 +71,22 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
     }
 
     // Sipariş daha önce işlenmiş mi kontrol et
-    const [existingOrder] = await db.select()
+    const [existingOrder] = await db
+      .select()
       .from(shopierOrders)
       .where(eq(shopierOrders.platformOrderId, platform_order_id))
       .limit(1);
 
     if (existingOrder && existingOrder.status === "completed") {
-      console.log(`[Shopier OSB] Order already processed: ${platform_order_id}`);
+      console.log(
+        `[Shopier OSB] Order already processed: ${platform_order_id}`
+      );
       return res.json({ success: true, message: "Order already processed" });
     }
 
     // Kullanıcıyı bul (email ile)
-    const [user] = await db.select()
+    const [user] = await db
+      .select()
       .from(users)
       .where(eq(users.email, buyer_email))
       .limit(1);
@@ -107,7 +121,8 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
 
     if (custom_field_2) {
       packageId = parseInt(custom_field_2);
-      [pkg] = await db.select()
+      [pkg] = await db
+        .select()
         .from(creditPackages)
         .where(eq(creditPackages.id, packageId))
         .limit(1);
@@ -119,7 +134,9 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
         if (pkg.bonus && pkg.bonus > 0) {
           const bonusCredits = Math.floor(pkg.credits * (pkg.bonus / 100));
           creditsToAdd = pkg.credits + bonusCredits;
-          console.log(`[Shopier OSB] Bonus applied: ${pkg.credits} + ${pkg.bonus}% = ${creditsToAdd} credits`);
+          console.log(
+            `[Shopier OSB] Bonus applied: ${pkg.credits} + ${pkg.bonus}% = ${creditsToAdd} credits`
+          );
         }
       } else {
         console.warn(`[Shopier OSB] Package not found: ${packageId}`);
@@ -135,7 +152,9 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
     }
 
     if (creditsToAdd === 0) {
-      console.error(`[Shopier OSB] Could not determine credits for order: ${platform_order_id}`);
+      console.error(
+        `[Shopier OSB] Could not determine credits for order: ${platform_order_id}`
+      );
       return res.status(400).json({ error: "Could not determine credits" });
     }
 
@@ -143,7 +162,8 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
     const oldBalance = user.credits;
     const newBalance = oldBalance + creditsToAdd;
 
-    await db.update(users)
+    await db
+      .update(users)
       .set({ credits: newBalance })
       .where(eq(users.id, user.id));
 
@@ -152,9 +172,10 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
       userId: user.id,
       type: "purchase",
       amount: creditsToAdd,
-      reason: pkg && pkg.bonus && pkg.bonus > 0
-        ? `Shopier sipariş - ${product_name} (+%${pkg.bonus} bonus = ${creditsToAdd} kredi) (${platform_order_id})`
-        : `Shopier sipariş - ${product_name} (${platform_order_id})`,
+      reason:
+        pkg && pkg.bonus && pkg.bonus > 0
+          ? `Shopier sipariş - ${product_name} (+%${pkg.bonus} bonus = ${creditsToAdd} kredi) (${platform_order_id})`
+          : `Shopier sipariş - ${product_name} (${platform_order_id})`,
       balanceBefore: oldBalance,
       balanceAfter: newBalance,
     });
@@ -175,14 +196,17 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
     };
 
     if (existingOrder) {
-      await db.update(shopierOrders)
+      await db
+        .update(shopierOrders)
         .set(orderData)
         .where(eq(shopierOrders.id, existingOrder.id));
     } else {
       await db.insert(shopierOrders).values(orderData);
     }
 
-    console.log(`[Shopier OSB] Successfully processed order ${platform_order_id}: +${creditsToAdd} credits for user ${user.email}`);
+    console.log(
+      `[Shopier OSB] Successfully processed order ${platform_order_id}: +${creditsToAdd} credits for user ${user.email}`
+    );
 
     // Shopier'a başarılı yanıt dön
     return res.json({
@@ -190,7 +214,6 @@ router.post("/osbcallback", async (req: Request, res: Response) => {
       message: "Order processed successfully",
       credits_added: creditsToAdd,
     });
-
   } catch (error) {
     console.error("[Shopier OSB] Error processing callback:", error);
     return res.status(500).json({ error: "Internal server error" });

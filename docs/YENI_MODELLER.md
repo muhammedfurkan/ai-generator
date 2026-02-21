@@ -5,7 +5,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
 ## 📊 Özet
 
 - **Image Modeller**: 28
-- **Upscale Modeller**: 3  
+- **Upscale Modeller**: 3
 - **Video Modeller**: 38
 - **TOPLAM**: 69 model
 
@@ -14,6 +14,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
 ## 📸 IMAGE MODELLER (28)
 
 ### See Dream Modelleri
+
 1. **bytedance/seedream** - Seedream 3.0
    - Text to image generation by Seedream 3.0
 
@@ -30,10 +31,12 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
    - Image editing by Seedream 4.5
 
 ### Z-Image
+
 6. **z-image** - Z-Image
    - Image generation by Z-Image
 
 ### Google Imagen Modelleri
+
 7. **google/imagen4-fast** - Imagen 4 Fast
    - Fast image generation by Google Imagen 4
 
@@ -53,6 +56,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Pro Image to Image generation
 
 ### Flux 2 Modelleri
+
 13. **flux-2/pro-image-to-image** - Flux-2 Pro I2I
     - Image to Image by Flux-2 Pro
 
@@ -66,6 +70,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Image generation by Flux-2 Flex
 
 ### Grok Imagine Modelleri
+
 17. **grok-imagine/text-to-image** - Grok Imagine
     - High-quality photorealistic image generation by Grok
 
@@ -73,6 +78,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Image to Image by Grok Imagine
 
 ### GPT Image Modelleri
+
 19. **gpt-image/1.5-text-to-image** - GPT Image 1.5
     - Generate images using GPT Image 1.5
 
@@ -80,10 +86,12 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Image to Image using GPT Image 1.5
 
 ### Recraft Modelleri
+
 21. **recraft/remove-background** - Recraft BG Remove
     - Remove background by Recraft
 
 ### Ideogram Modelleri
+
 22. **ideogram/v3-reframe** - Ideogram V3 Reframe
     - Image reframing by Ideogram
 
@@ -97,6 +105,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Character generation by Ideogram
 
 ### Qwen Modelleri
+
 26. **qwen/text-to-image** - Qwen Text to Image
     - High-quality photorealistic image generation by Qwen
 
@@ -124,6 +133,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
 ## 🎥 VIDEO MODELLER (38)
 
 ### Grok Imagine Video
+
 1. **grok-imagine/text-to-video** - Grok Text to Video
    - High-quality video generation from text by Grok (Max: 6s)
 
@@ -131,6 +141,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
    - Transform images into videos by Grok (Max: 6s)
 
 ### Kling Modelleri
+
 3. **kling/text-to-video** - Kling 2.6 Text to Video
    - Generate videos from text with Kling 2.6 (Max: 10s)
 
@@ -159,6 +170,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Advanced motion control for video generation (Max: 10s)
 
 ### Bytedance (Seedance) Modelleri
+
 12. **bytedance/seedance-1.5-pro** - Seedance 1.5 Pro
     - Generate high-quality videos with Seedance 1.5 Pro (Max: 10s)
 
@@ -178,6 +190,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Text to Video by Bytedance V1 Lite (Max: 5s)
 
 ### Hailuo Modelleri
+
 18. **hailuo/2-3-image-to-video-pro** - Hailuo 2.3 I2V Pro
     - Pro Image to Video by Hailuo 2.3 (Max: 10s)
 
@@ -197,6 +210,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Standard Image to Video by Hailuo 02 (Max: 5s)
 
 ### Sora2 Modelleri
+
 24. **sora2/sora-2-image-to-video** - Sora 2 I2V
     - Image to Video by Sora 2 (Max: 10s)
 
@@ -219,6 +233,7 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
     - Character animation by Sora 2 (Max: 10s)
 
 ### Wan Modelleri
+
 31. **wan/2-6-image-to-video** - Wan 2.6 I2V
     - Image to Video by Wan 2.6 (Max: 10s)
 
@@ -248,14 +263,17 @@ Bu dosya, Kie.ai'dan eklenmesi gereken tüm yeni modelleri içerir.
 ## 🛠️ Kullanım Yönergeleri
 
 ### Yöntem 1: Admin Panel (Önerilen)
+
 1. Admin panele giriş yapın (http://localhost:5173/admin)
 2. "AI Models" bölümüne gidin
 3. Yukarıdaki listeyi kullanarak her modeli manuel olarak ekleyin
 
 ### Yöntem 2: SQL Scripti
-Database'e doğrudan SQL execute edilerek eklenebilir, ancak bu yöntem şu anda schema uyumsuzlukları nedeniyle çalışmamaktadır. 
+
+Database'e doğrudan SQL execute edilerek eklenebilir, ancak bu yöntem şu anda schema uyumsuzlukları nedeniyle çalışmamaktadır.
 
 ### Yöntem 3: TypeScript Seed Script
+
 `scripts/seed-models.ts` dosyası kullanılabilir, ancak schema import sorunu nedeniyle şu anda çalışmamaktadır. Bu sorun çözüldükten sonra:
 
 ```bash
