@@ -508,9 +508,6 @@ export default function VideoGenerate() {
                       <div className="font-semibold text-sm leading-tight">
                         {selectedModelData?.modelName || t("video.selectModel")}
                       </div>
-                      <div className="text-[11px] text-white/30">
-                        {selectedModelData?.provider || ""}
-                      </div>
                     </div>
                   </div>
                   <ChevronDown
@@ -669,9 +666,6 @@ export default function VideoGenerate() {
                                       )}
                                     >
                                       {model.modelName}
-                                    </div>
-                                    <div className="text-[11px] text-white/35 mt-0.5">
-                                      {model.provider}
                                     </div>
                                   </div>
 
