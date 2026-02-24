@@ -4379,4 +4379,185 @@ export const adminPanelRouter = router({
 
       return { success: true };
     }),
+
+  // ============ KIE.AI PRICING API ============
+
+  fetchKieAiPricing: adminProcedure
+    .input(
+      z
+        .object({
+          interfaceType: z.string().optional(),
+          modelDescription: z.string().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      const allRecords: any[] = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      const headers: Record<string, string> = {
+        accept: "application/json, text/plain, */*",
+        authorization: "335db144-9458-448b-81fe-f2c410f6078b",
+        "content-type": "application/json",
+        origin: "https://kie.ai",
+        referer: "https://kie.ai/",
+        "user-agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+      };
+
+      while (currentPage <= totalPages) {
+        const response = await fetch(
+          "https://api.kie.ai/client/v1/model-pricing/page",
+          {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              pageNum: currentPage,
+              pageSize: 100,
+              modelDescription: input?.modelDescription || "",
+              interfaceType: input?.interfaceType || "",
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Kie.ai API hatası: ${response.status}`,
+          });
+        }
+
+        const data = await response.json();
+
+        if (data.code !== 200) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Kie.ai API hatası: ${data.msg}`,
+          });
+        }
+
+        allRecords.push(...(data.data?.records || []));
+        totalPages = data.data?.pages || 1;
+        currentPage++;
+      }
+
+      return {
+        records: allRecords,
+        total: allRecords.length,
+        interfaceTypes: [
+          ...new Set(allRecords.map((r: any) => r.interfaceType)),
+        ],
+        providers: [...new Set(allRecords.map((r: any) => r.provider))],
+      };
+    }),
+
+  bulkUpdateFeaturePricing: adminProcedure
+    .input(
+      z.object({
+        updates: z.array(
+          z.object({
+            id: z.number(),
+            credits: z.number().min(0),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await requireAdminDb();
+      let updated = 0;
+
+      for (const update of input.updates) {
+        await db
+          .update(featurePricing)
+          .set({ credits: update.credits })
+          .where(eq(featurePricing.id, update.id));
+        updated++;
+      }
+
+      await logActivity(
+        ctx.user.id,
+        "pricing.bulkUpdate",
+        "featurePricing",
+        undefined,
+        undefined,
+        { updatedCount: updated, updates: input.updates }
+      );
+
+      return { success: true, updated };
+    }),
+
+  importKieAiModels: adminProcedure
+    .input(
+      z.object({
+        models: z.array(
+          z.object({
+            modelDescription: z.string(),
+            interfaceType: z.string(),
+            provider: z.string(),
+            creditPrice: z.string(),
+            creditUnit: z.string(),
+            usdPrice: z.string(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const db = await requireAdminDb();
+      let inserted = 0;
+      let skipped = 0;
+
+      for (const model of input.models) {
+        // Generate a feature key from model description
+        const featureKey = model.modelDescription
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "_")
+          .replace(/^_+|_+$/g, "")
+          .substring(0, 100);
+
+        // Map interfaceType to category
+        const categoryMap: Record<string, string> = {
+          video: "video",
+          image: "image",
+          music: "music",
+          chat: "image", // fallback
+        };
+        const category = categoryMap[model.interfaceType] || "image";
+
+        // Check if already exists
+        const existing = await db
+          .select()
+          .from(featurePricing)
+          .where(eq(featurePricing.featureKey, featureKey))
+          .limit(1);
+
+        if (existing.length > 0) {
+          skipped++;
+          continue;
+        }
+
+        const credits = Math.ceil(parseFloat(model.creditPrice) || 1);
+
+        await db.insert(featurePricing).values({
+          featureKey,
+          featureName: model.modelDescription,
+          category: category as any,
+          credits,
+          description: `${model.provider} - ${model.creditUnit} | API: $${model.usdPrice} USD | Kie Credits: ${model.creditPrice}`,
+          isActive: true,
+        });
+        inserted++;
+      }
+
+      await logActivity(
+        ctx.user.id,
+        "pricing.importKieAi",
+        "featurePricing",
+        undefined,
+        undefined,
+        { inserted, skipped }
+      );
+
+      return { success: true, inserted, skipped };
+    }),
 });

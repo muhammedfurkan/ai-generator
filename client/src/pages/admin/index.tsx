@@ -86,6 +86,7 @@ const AdminAiInfluencer = lazy(() => import("./AdminAiInfluencer"));
 const AdminModalCards = lazy(() => import("./AdminModalCards"));
 const AdminBranding = lazy(() => import("./AdminBranding"));
 const AdminWebControl = lazy(() => import("./AdminWebControl"));
+const AdminKiePricing = lazy(() => import("./AdminKiePricing"));
 
 // Loading fallback for admin pages
 function AdminPageLoader() {
@@ -404,6 +405,16 @@ const NAV_ITEMS: NavItem[] = [
     description: "Fiyat ve marj yapılandırması",
     keywords: ["fiyat"],
     component: AdminPricing,
+  },
+  {
+    id: "kie-pricing",
+    label: "Kie.ai Maliyetler",
+    icon: DollarSign,
+    path: `${BASE_PATH}/kie-pricing`,
+    group: "Finans",
+    description: "Kie.ai API maliyet ve toplu fiyat yönetimi",
+    keywords: ["kie", "maliyet", "api", "cost", "markup"],
+    component: AdminKiePricing,
   },
   {
     id: "telegram",

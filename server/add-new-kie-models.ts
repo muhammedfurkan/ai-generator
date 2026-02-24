@@ -8,7 +8,8 @@
  * 3. Veya Admin Panel'den `/admin/models` sayfasına gidip manuel olarak ekleyin
  */
 
-import { getDb } from "./_core/db.js";
+import "dotenv/config";
+import { getDb } from "./db.js";
 import { aiModelConfig } from "../drizzle/schema.js";
 import { eq } from "drizzle-orm";
 
@@ -69,6 +70,21 @@ const NEW_KIE_MODELS = [
     priority: 3,
     description: "Kuaishou Kling 2.5 - Geliştirilmiş kalite ve tutarlılık.",
     costPerRequest: "0.25",
+  },
+  {
+    modelKey: "kling-30",
+    modelName: "Kling 3.0",
+    modelType: "video" as const,
+    provider: "Kie AI (Kuaishou)",
+    isActive: true,
+    isMaintenanceMode: false,
+    maxVideoDurationSeconds: 15,
+    freeUserDailyLimit: 3,
+    premiumUserDailyLimit: 30,
+    priority: 1,
+    description:
+      "Kuaishou Kling 3.0 - Std/Pro mod, multi-shot, element referansları ve gelişmiş ses desteği. 3-15 saniye, 16:9/9:16/1:1.",
+    costPerRequest: "0.50",
   },
   {
     modelKey: "seedance/1.0-lite",

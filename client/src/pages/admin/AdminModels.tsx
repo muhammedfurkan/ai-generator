@@ -3,7 +3,7 @@
  * Admin Models - AI Model Yönetimi
  * Model aç/kapa, limitler, fallback, hata oranları, maliyet takibi
  */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,8 @@ import {
   Shield,
   Mic,
   Music,
+  Search,
+  ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -99,9 +101,67 @@ export default function AdminModels() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<ModelForm>(defaultForm);
+  const [kieSearchQuery, setKieSearchQuery] = useState("");
+  const [kieTypeFilter, setKieTypeFilter] = useState("all");
 
   const modelsQuery = trpc.adminPanel.getAiModels.useQuery();
   const utils = trpc.useUtils();
+
+  // Kie.ai models - fetch when dialog opens in create mode
+  const kieQuery = trpc.adminPanel.fetchKieAiPricing.useQuery(undefined, {
+    enabled: dialogOpen && !isEditing,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const kieModels = useMemo(() => {
+    const records = kieQuery.data?.records || [];
+    let filtered = records;
+
+    if (kieTypeFilter !== "all") {
+      filtered = filtered.filter((r: any) => r.interfaceType === kieTypeFilter);
+    }
+
+    if (kieSearchQuery.trim()) {
+      const q = kieSearchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (r: any) =>
+          r.modelDescription.toLowerCase().includes(q) ||
+          r.provider.toLowerCase().includes(q)
+      );
+    }
+
+    return filtered;
+  }, [kieQuery.data, kieTypeFilter, kieSearchQuery]);
+
+  const selectKieModel = (kieModel: any) => {
+    const typeMap: Record<string, string> = {
+      video: "video",
+      image: "image",
+      music: "music",
+      chat: "image",
+    };
+    const modelType = typeMap[kieModel.interfaceType] || "image";
+
+    const modelKey = kieModel.modelDescription
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .substring(0, 100);
+
+    setForm({
+      ...form,
+      modelKey,
+      modelName: kieModel.modelDescription,
+      modelType: modelType as any,
+      provider: kieModel.provider.toLowerCase().replace(/\s+/g, "_"),
+      costPerRequest: kieModel.usdPrice || "0",
+      description: `${kieModel.provider} - ${kieModel.creditUnit} | Kie Kredi: ${kieModel.creditPrice} | USD: $${kieModel.usdPrice}`,
+    });
+    setKieSearchQuery("");
+    toast.success(
+      "Model bilgileri dolduruldu, gerekli alanlari duzenleyebilirsiniz"
+    );
+  };
 
   const createMutation = trpc.adminPanel.createAiModel.useMutation({
     onSuccess: () => {
@@ -144,6 +204,8 @@ export default function AdminModels() {
     setIsEditing(false);
     setEditingId(null);
     setForm(defaultForm);
+    setKieSearchQuery("");
+    setKieTypeFilter("all");
   };
 
   const openEdit = (model: any) => {
@@ -635,6 +697,107 @@ export default function AdminModels() {
               {isEditing ? "Model Düzenle" : "Yeni Model Ekle"}
             </DialogTitle>
           </DialogHeader>
+
+          {/* Kie.ai Model Picker - only for new models */}
+          {!isEditing && (
+            <div className="bg-zinc-800/50 rounded-xl border border-white/10 p-4 mt-2">
+              <div className="flex items-center gap-2 mb-3">
+                <ExternalLink className="h-4 w-4 text-[#00F5FF]" />
+                <h4 className="text-sm font-medium">Kie.ai'den Model Sec</h4>
+                <span className="text-xs text-zinc-500 ml-auto">
+                  {kieQuery.isLoading
+                    ? "Yukleniyor..."
+                    : `${kieQuery.data?.records?.length || 0} model`}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2 mb-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+                  <Input
+                    placeholder="Model veya provider ara..."
+                    value={kieSearchQuery}
+                    onChange={e => setKieSearchQuery(e.target.value)}
+                    className="pl-8 h-8 text-sm bg-zinc-900 border-white/10"
+                  />
+                </div>
+                <div className="flex gap-1">
+                  {[
+                    { value: "all", label: "Tumu" },
+                    { value: "video", label: "Video" },
+                    { value: "image", label: "Gorsel" },
+                    { value: "music", label: "Muzik" },
+                  ].map(t => (
+                    <button
+                      key={t.value}
+                      onClick={() => setKieTypeFilter(t.value)}
+                      className={`px-2 py-1 rounded text-xs transition-all ${
+                        kieTypeFilter === t.value
+                          ? "bg-[#00F5FF] text-black font-medium"
+                          : "text-zinc-500 hover:text-white bg-zinc-900"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {kieQuery.isLoading ? (
+                <div className="flex items-center justify-center py-4">
+                  <RefreshCw className="h-4 w-4 animate-spin text-[#00F5FF] mr-2" />
+                  <span className="text-xs text-zinc-400">
+                    Kie.ai modelleri yukleniyor...
+                  </span>
+                </div>
+              ) : (
+                <div className="max-h-[200px] overflow-y-auto space-y-1">
+                  {kieModels.slice(0, 50).map((model: any, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => selectKieModel(model)}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#00F5FF]/10 transition-colors text-left group"
+                    >
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${
+                          model.interfaceType === "video"
+                            ? "bg-[#FF2E97]/20 text-[#FF2E97] border-[#FF2E97]/30"
+                            : model.interfaceType === "image"
+                              ? "bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30"
+                              : model.interfaceType === "music"
+                                ? "bg-pink-500/20 text-pink-400 border-pink-500/30"
+                                : "bg-zinc-500/20 text-zinc-400 border-zinc-500/30"
+                        }`}
+                      >
+                        {model.interfaceType}
+                      </span>
+                      <span className="text-sm text-zinc-300 truncate flex-1 group-hover:text-white">
+                        {model.modelDescription}
+                      </span>
+                      <span className="text-xs text-zinc-500">
+                        {model.provider}
+                      </span>
+                      <span className="text-xs font-medium text-[#00F5FF]">
+                        ${model.usdPrice}
+                      </span>
+                      <Plus className="h-3 w-3 text-zinc-600 group-hover:text-[#00F5FF] shrink-0" />
+                    </button>
+                  ))}
+                  {kieModels.length === 0 && !kieQuery.isLoading && (
+                    <p className="text-xs text-zinc-500 text-center py-3">
+                      {kieSearchQuery ? "Sonuc bulunamadi" : "Model bulunamadi"}
+                    </p>
+                  )}
+                  {kieModels.length > 50 && (
+                    <p className="text-xs text-zinc-500 text-center py-1">
+                      +{kieModels.length - 50} model daha (aramayı daraltın)
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="grid gap-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>

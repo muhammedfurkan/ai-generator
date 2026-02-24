@@ -16,8 +16,7 @@ const videoModelSchema = z.enum([
   "veo3",
   "sora2", // Unified Sora 2 (normal + pro via quality)
   "kling",
-  "kling-21",
-  "kling-25",
+  "kling-30",
   "grok",
   "kling-motion",
   "seedance-lite",
@@ -25,16 +24,12 @@ const videoModelSchema = z.enum([
   "seedance-15-pro",
   "hailuo",
   "wan-26", // Unified Wan 2.6 (I2V, T2V, V2V via generationType)
-  "seedream",
-  "qwen",
-  "qwen-video",
-  "qwen-video-pro",
-  "qwen-video-pro-4k",
 ]);
 const generationTypeSchema = z.enum([
   "text-to-video",
   "image-to-video",
   "video-to-video",
+  "reference-to-video",
 ]);
 
 function mapModelTypeToPricingModel(
@@ -46,8 +41,7 @@ function mapModelTypeToPricingModel(
     // Sora 2: Use standard model unless quality is explicitly pro/high
     sora2: quality === "pro" || quality === "high" ? "sora-2-pro" : "sora-2",
     kling: "kling-2.6/text-to-video",
-    "kling-21": "kling-2.1/text-to-video",
-    "kling-25": "kling-2.5/text-to-video",
+    "kling-30": "kling-3.0",
     "kling-motion": "kling-2.6-motion",
     grok: "grok-imagine/text-to-video",
     "seedance-lite": "seedance/1.0-lite",
@@ -80,6 +74,14 @@ type VideoCreditSettings = {
   kling21_10s: number;
   kling25_5s: number;
   kling25_10s: number;
+  kling30Std5s: number;
+  kling30Std5sAudio: number;
+  kling30Std10s: number;
+  kling30Std10sAudio: number;
+  kling30Pro5s: number;
+  kling30Pro5sAudio: number;
+  kling30Pro10s: number;
+  kling30Pro10sAudio: number;
   seedanceLite3s: number;
   seedanceLite6s: number;
   seedancePro3s: number;
@@ -132,6 +134,26 @@ async function getVideoCreditSettings(): Promise<VideoCreditSettings> {
     kling21_10s: await getFeaturePricingByKey("video_kling21_10s", 60),
     kling25_5s: await getFeaturePricingByKey("video_kling25_5s", 40),
     kling25_10s: await getFeaturePricingByKey("video_kling25_10s", 70),
+    kling30Std5s: await getFeaturePricingByKey("video_kling30_std_5s", 65),
+    kling30Std5sAudio: await getFeaturePricingByKey(
+      "video_kling30_std_5s_audio",
+      130
+    ),
+    kling30Std10s: await getFeaturePricingByKey("video_kling30_std_10s", 130),
+    kling30Std10sAudio: await getFeaturePricingByKey(
+      "video_kling30_std_10s_audio",
+      260
+    ),
+    kling30Pro5s: await getFeaturePricingByKey("video_kling30_pro_5s", 85),
+    kling30Pro5sAudio: await getFeaturePricingByKey(
+      "video_kling30_pro_5s_audio",
+      170
+    ),
+    kling30Pro10s: await getFeaturePricingByKey("video_kling30_pro_10s", 170),
+    kling30Pro10sAudio: await getFeaturePricingByKey(
+      "video_kling30_pro_10s_audio",
+      340
+    ),
     seedanceLite3s: await getFeaturePricingByKey("video_seedance_lite_3s", 20),
     seedanceLite6s: await getFeaturePricingByKey("video_seedance_lite_6s", 35),
     seedancePro3s: await getFeaturePricingByKey("video_seedance_pro_3s", 30),
@@ -203,10 +225,20 @@ function estimateVideoCreditsFromSettings(
         return hasAudio ? settings.kling10sAudio : settings.kling10s;
       }
       return hasAudio ? settings.kling5sAudio : settings.kling5s;
-    case "kling-21":
-      return durationSec >= 10 ? settings.kling21_10s : settings.kling21_5s;
-    case "kling-25":
-      return durationSec >= 10 ? settings.kling25_10s : settings.kling25_5s;
+    case "kling-30": {
+      const isKling30Pro =
+        quality === "pro" || quality === "high" || quality === "quality";
+      if (durationSec >= 10) {
+        if (isKling30Pro)
+          return hasAudio
+            ? settings.kling30Pro10sAudio
+            : settings.kling30Pro10s;
+        return hasAudio ? settings.kling30Std10sAudio : settings.kling30Std10s;
+      }
+      if (isKling30Pro)
+        return hasAudio ? settings.kling30Pro5sAudio : settings.kling30Pro5s;
+      return hasAudio ? settings.kling30Std5sAudio : settings.kling30Std5s;
+    }
     case "grok":
       return settings.grok;
     case "seedance-lite":
@@ -286,6 +318,44 @@ export const videoGenerationRouter = router({
             value: "10s",
             credits: pricing.kling10s,
             duration: "10s",
+          },
+        ],
+        aspectRatios: ["1:1", "9:16", "16:9"],
+        supportsImageToVideo: true,
+        hasAudioSupport: true,
+      },
+      "kling-30": {
+        name: "Kling 3.0",
+        description:
+          "Kuaishou en gelişmiş modeli - std/pro mod, multi-shot ve element desteği",
+        options: [
+          {
+            label: "Std 5 Saniye",
+            value: "std-5s",
+            credits: pricing.kling30Std5s,
+            duration: "5s",
+            quality: "standard",
+          },
+          {
+            label: "Pro 5 Saniye",
+            value: "pro-5s",
+            credits: pricing.kling30Pro5s,
+            duration: "5s",
+            quality: "pro",
+          },
+          {
+            label: "Std 10 Saniye",
+            value: "std-10s",
+            credits: pricing.kling30Std10s,
+            duration: "10s",
+            quality: "standard",
+          },
+          {
+            label: "Pro 10 Saniye",
+            value: "pro-10s",
+            credits: pricing.kling30Pro10s,
+            duration: "10s",
+            quality: "pro",
           },
         ],
         aspectRatios: ["1:1", "9:16", "16:9"],
@@ -463,6 +533,37 @@ export const videoGenerationRouter = router({
         feature: z
           .enum(["default", "characters", "watermark-remover", "storyboard"])
           .optional(), // ✨ Sora 2 features
+        // Kling 3.0 Multi-shot support
+        multiShots: z.boolean().optional(),
+        multiPrompt: z
+          .array(
+            z.object({
+              prompt: z.string().min(1).max(500),
+              duration: z.number().int().min(1).max(12),
+            })
+          )
+          .max(10)
+          .optional(),
+        // Kling 3.0 Element references
+        klingElements: z
+          .array(
+            z.object({
+              name: z.string().min(1).max(50),
+              description: z.string().min(1).max(200),
+              element_input_urls: z
+                .array(z.string().url())
+                .min(2)
+                .max(4)
+                .optional(),
+              element_input_video_urls: z
+                .array(z.string().url())
+                .min(1)
+                .max(1)
+                .optional(),
+            })
+          )
+          .max(5)
+          .optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -504,6 +605,17 @@ export const videoGenerationRouter = router({
         });
       }
 
+      // Validate reference-to-video has images (1-3 images for Veo 3.1 REFERENCE_2_VIDEO)
+      if (
+        input.generationType === "reference-to-video" &&
+        (!input.imageUrls || input.imageUrls.length === 0)
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Reference-to-video için en az bir referans görseli gerekli (max 3).",
+        });
+      }
+
       if (input.generationType === "video-to-video" && !input.videoUrl) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -527,14 +639,17 @@ export const videoGenerationRouter = router({
           generationType: input.generationType,
           prompt: input.prompt,
           imageUrl: input.imageUrl,
+          imageUrls: input.imageUrls,
           videoUrl: input.videoUrl,
           aspectRatio: input.aspectRatio,
           duration: input.duration,
           sound: hasAudio,
           quality: input.quality,
-          resolution: input.resolution, // ✨ NEW: Pass resolution
           characterOrientation: input.characterOrientation,
-          feature: input.feature, // ✨ NEW: Pass Sora 2 feature
+          feature: input.feature, // ✨ Sora 2 feature
+          multiShots: input.multiShots,
+          multiPrompt: input.multiPrompt,
+          klingElements: input.klingElements,
         });
 
         // Parse duration from string format (e.g., "5s", "10s", "auto") to number

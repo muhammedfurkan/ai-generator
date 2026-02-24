@@ -30,6 +30,7 @@ export type VideoModel =
   | "kling-2.6/image-to-video"
   | "kling-2.6/video-to-video"
   | "kling-2.6/motion-control"
+  | "kling-3.0/video"
   | "kling/text-to-video"
   | "kling/image-to-video"
   | "kling/ai-avatar-standard"
@@ -119,6 +120,16 @@ export const VIDEO_MODEL_PRICING: Record<string, number> = {
   // Kling 2.6 Motion Control (per second pricing)
   "kling-2.6-motion-720p-per-sec": 6,
   "kling-2.6-motion-1080p-per-sec": 9,
+
+  // Kling 3.0 - Mode (std/pro), Duration and Audio based
+  "kling-3.0-std-5s": 65,
+  "kling-3.0-std-5s-audio": 130,
+  "kling-3.0-std-10s": 130,
+  "kling-3.0-std-10s-audio": 260,
+  "kling-3.0-pro-5s": 85,
+  "kling-3.0-pro-5s-audio": 170,
+  "kling-3.0-pro-10s": 170,
+  "kling-3.0-pro-10s-audio": 340,
 
   // Seedance 1.0 (ByteDance)
   "seedance/1.0-lite-3s": 20,
@@ -235,6 +246,17 @@ export function calculateVideoCreditCost(
     const durationKey = duration === "10" ? "10s" : "5s";
     const key = `${model}-${durationKey}`;
     return VIDEO_MODEL_PRICING[key] || 40;
+  }
+
+  // Kling 3.0 - Mode (std/pro), Duration and audio based
+  if (model.startsWith("kling-3.0")) {
+    const mode =
+      quality === "pro" || quality === "high" || quality === "quality"
+        ? "pro"
+        : "std";
+    const dur = parseInt(duration) >= 10 ? "10s" : "5s";
+    const audio = sound ? "-audio" : "";
+    return VIDEO_MODEL_PRICING[`kling-3.0-${mode}-${dur}${audio}`] || 65;
   }
 
   // Kling 2.6 - Duration and audio based
@@ -543,6 +565,20 @@ async function getRunwayStatus(taskId: string): Promise<RunwayStatusResponse> {
 
 // ============ GENERIC VIDEO API (Sora, Kling, Grok) ============
 
+// Kling 3.0 Element Reference types
+export interface KlingElement {
+  name: string; // Element name (used in prompt with @ prefix, e.g. @element_dog)
+  description: string; // Element description
+  element_input_urls?: string[]; // Image URLs (2-4 URLs, JPG/PNG, min 300x300, max 10MB each)
+  element_input_video_urls?: string[]; // Video URL (1 URL, MP4/MOV, max 50MB)
+}
+
+// Kling 3.0 Multi-shot prompt types
+export interface KlingMultiPrompt {
+  prompt: string; // Prompt text for this shot (max 500 chars)
+  duration: number; // Duration of this shot in seconds (1-12)
+}
+
 export interface GenericVideoParams {
   model: VideoModel;
   prompt: string;
@@ -557,6 +593,10 @@ export interface GenericVideoParams {
   characterOrientation?: "image" | "video";
   quality?: string;
   callBackUrl?: string;
+  // Kling 3.0 specific
+  multiShots?: boolean;
+  multiPrompt?: KlingMultiPrompt[];
+  klingElements?: KlingElement[];
 }
 
 export async function generateGenericVideo(
@@ -576,6 +616,9 @@ export async function generateGenericVideo(
     characterOrientation,
     quality,
     callBackUrl,
+    multiShots,
+    multiPrompt,
+    klingElements,
   } = params;
 
   const input: Record<string, unknown> = {
@@ -644,8 +687,8 @@ export async function generateGenericVideo(
     if (isWanModel) {
       input.resolution = "1080p";
     } else if (isSeedanceModel) {
-      // Seedance docs are strict around supported resolutions; keep it at 720p.
-      input.resolution = "720p";
+      // Seedance docs: supports 480p/720p/1080p
+      input.resolution = "1080p";
     }
     if (isHailuoModel) {
       input.resolution = "1080P";
@@ -661,6 +704,8 @@ export async function generateGenericVideo(
   }
 
   // Kling 2.6 specific parameters
+  // Docs T2V: prompt, sound, aspect_ratio (1:1/16:9/9:16), duration (5/10)
+  // Docs I2V: prompt, image_urls, sound, duration (5/10) — NO aspect_ratio
   if (model.startsWith("kling-2.6")) {
     // Motion Control modeli için özel parametreler
     if (model === "kling-2.6/motion-control") {
@@ -670,23 +715,68 @@ export async function generateGenericVideo(
       if (mode) {
         input.mode = mode; // "720p" or "1080p"
       }
-      // Motion control için aspect_ratio, negative_prompt, cfg_scale YOK
     } else {
       // Normal text-to-video ve image-to-video için parametreler
       input.duration = duration || "5";
-      // input.sound = sound !== undefined ? sound : false; // Handled by new audio mapping
-      input.aspect_ratio = aspectRatio || "16:9";
-      input.negative_prompt = "blur, distort, and low quality";
-      input.cfg_scale = 0.5;
+      // Only T2V supports aspect_ratio; I2V does not
+      if (!imageUrl) {
+        input.aspect_ratio = aspectRatio || "16:9";
+      }
+    }
+  }
+
+  // Kling 3.0 specific parameters
+  if (model.startsWith("kling-3.0")) {
+    input.duration = duration || "5";
+    input.aspect_ratio = aspectRatio || "16:9";
+    input.mode = mode || "pro"; // "std" (standard resolution) or "pro" (higher resolution)
+
+    if (multiShots && multiPrompt && multiPrompt.length > 0) {
+      // Multi-shot mode: uses multi_prompt array instead of main prompt
+      input.multi_shots = true;
+      input.multi_prompt = multiPrompt.map(shot => ({
+        prompt: shot.prompt,
+        duration: shot.duration,
+      }));
+    } else {
+      input.multi_shots = false;
+    }
+
+    // Element references: attach character/object references via kling_elements
+    if (klingElements && klingElements.length > 0) {
+      input.kling_elements = klingElements.map(el => {
+        const elem: Record<string, unknown> = {
+          name: el.name,
+          description: el.description,
+        };
+        if (el.element_input_urls && el.element_input_urls.length > 0) {
+          elem.element_input_urls = el.element_input_urls;
+        }
+        if (
+          el.element_input_video_urls &&
+          el.element_input_video_urls.length > 0
+        ) {
+          elem.element_input_video_urls = el.element_input_video_urls;
+        }
+        return elem;
+      });
     }
   }
 
   // Grok specific parameters
-  // Note: Grok image-to-video does NOT support aspect_ratio parameter
-  // Only supports: image_urls, prompt, mode (fun/normal/spicy)
+  // Docs: T2V supports aspect_ratio (2:3, 3:2, 1:1, 16:9, 9:16), mode (fun/normal/spicy), duration (6/10), resolution (480p/720p)
+  // Docs: I2V supports image_urls, prompt, mode (fun/normal/spicy), duration (6/10), resolution (480p/720p). NO aspect_ratio for I2V.
   if (model.startsWith("grok-imagine")) {
     input.mode = mode || "normal";
-    // Note: Spicy mode is not supported when using external images
+    input.duration = duration || "6";
+    input.resolution =
+      quality === "high" || quality === "pro" || quality === "quality"
+        ? "720p"
+        : "480p";
+    // Only T2V supports aspect_ratio
+    if (!imageUrl && aspectRatio) {
+      input.aspect_ratio = aspectRatio;
+    }
   }
 
   // Sora 2 specific parameters
@@ -712,28 +802,17 @@ export async function generateGenericVideo(
     }
   }
 
-  // Wan models (Alibaba AI) - supports duration, aspect_ratio
+  // Wan models (Alibaba AI) - supports duration and resolution only
+  // Docs: NO aspect_ratio parameter for Wan 2.6 T2V/I2V/V2V
   if (isWanModel) {
     input.duration = duration || "5";
-    if (aspectRatio) {
-      input.aspect_ratio = aspectRatio;
-    }
-    // Wan 2.6 supports audio
-    // if (model === "wan-2.6") { // Handled by new audio mapping
-    //   input.sound = sound !== undefined ? sound : false;
-    // Wan 2.6 might typically expect `size` instead of `aspect_ratio` in some implementations,
-    // but Kie usually standardizes on aspect_ratio.
-    // If image is provided, ensure we don't send conflicting text-to-video params if any.
-    // }
   }
 
-  // Hailuo 2.3 (MiniMax) - fixed 6s duration, supports aspect_ratio
+  // Hailuo (MiniMax) - supports duration (6/10) and resolution (768P/1080P)
+  // Docs: NO aspect_ratio parameter. Duration defaults to 6.
+  // Note: 10s duration is NOT supported for 1080P resolution.
   if (isHailuoModel) {
-    // Hailuo always generates 6s videos, duration is fixed
-    if (aspectRatio) {
-      // Hailuo might infer AR from resolution, but sending AR doesn't hurt if API wrapper supports it
-      input.aspect_ratio = aspectRatio;
-    }
+    input.duration = duration || "6";
   }
 
   // Seedance (ByteDance) - supports duration, aspect_ratio
@@ -795,6 +874,7 @@ export interface UnifiedVideoParams {
     | "kling"
     | "grok"
     | "kling-motion"
+    | "kling-30"
     | "wan-22"
     | "wan-25"
     | "wan-26"
@@ -804,7 +884,7 @@ export interface UnifiedVideoParams {
     | "seedance-15-pro"
     | "runway"
     | "runway-pro";
-  generationType: "text-to-video" | "image-to-video" | "video-to-video";
+  generationType: "text-to-video" | "image-to-video" | "video-to-video" | "reference-to-video";
   prompt: string;
   imageUrl?: string; // Geriye uyumluluk
   imageUrls?: string[]; // Çoklu görsel desteği (Veo 3.1: 1-3, Nano Banana Pro: 1-8)
@@ -824,6 +904,10 @@ export interface UnifiedVideoParams {
   characterOrientation?: "image" | "video";
   feature?: "default" | "characters" | "watermark-remover" | "storyboard"; // ✨ Sora 2 special features
   callBackUrl?: string;
+  // Kling 3.0 multi-shot & element references
+  multiShots?: boolean;
+  multiPrompt?: KlingMultiPrompt[];
+  klingElements?: KlingElement[];
 }
 
 export type UnifiedVideoModelType = UnifiedVideoParams["modelType"];
@@ -844,6 +928,9 @@ export async function generateVideo(
     quality,
     characterOrientation,
     callBackUrl,
+    multiShots,
+    multiPrompt,
+    klingElements,
   } = params;
 
   let response: KieAiResponse;
@@ -872,19 +959,20 @@ export async function generateVideo(
         ? combinedImageUrls.slice(0, 3)
         : undefined;
 
-      // Birden fazla görsel varsa multi-image generation type kullan
+      // Generation type belirleme
       let veoGenerationType:
         | "TEXT_2_VIDEO"
         | "FIRST_AND_LAST_FRAMES_2_VIDEO"
         | "REFERENCE_2_VIDEO" = "TEXT_2_VIDEO";
-      if (veoImageUrls && veoImageUrls.length > 0) {
-        // 2-3 görsel varsa REFERENCE_2_VIDEO kullan (docs: sadece 16:9 ve veo3_fast)
-        // 1 görsel varsa FIRST_AND_LAST_FRAMES_2_VIDEO (tüm aspect ratio destekler)
-        if (veoImageUrls.length >= 2 && veoAspectRatio === "16:9") {
-          veoGenerationType = "REFERENCE_2_VIDEO";
-        } else {
-          veoGenerationType = "FIRST_AND_LAST_FRAMES_2_VIDEO";
-        }
+
+      if (generationType === "reference-to-video") {
+        // Kullanıcı açıkça reference-to-video seçti → REFERENCE_2_VIDEO
+        // Docs: 1-3 görsel, sadece veo3_fast, 16:9 ve 9:16 destekler
+        veoGenerationType = "REFERENCE_2_VIDEO";
+      } else if (veoImageUrls && veoImageUrls.length > 0) {
+        // image-to-video modu → FIRST_AND_LAST_FRAMES_2_VIDEO
+        // 1 görsel: animasyon, 2 görsel: ilk ve son kare arası geçiş
+        veoGenerationType = "FIRST_AND_LAST_FRAMES_2_VIDEO";
       }
 
       response = await generateVeo31Video({
@@ -984,6 +1072,30 @@ export async function generateVideo(
       });
       break;
 
+    case "kling-30":
+      // Kling 3.0 - Advanced video model with multi-shot and element references
+      // API model: kling-3.0/video (unified for both text-to-video and image-to-video)
+      model = "kling-3.0/video";
+      pricingModel = "kling-3.0";
+      const kling30ImageUrl = combinedImageUrls?.[0];
+      response = await generateGenericVideo({
+        model: model as VideoModel,
+        prompt,
+        imageUrl: kling30ImageUrl,
+        aspectRatio,
+        duration,
+        sound,
+        mode:
+          quality === "pro" || quality === "high" || quality === "quality"
+            ? "pro"
+            : "std",
+        callBackUrl,
+        multiShots,
+        multiPrompt,
+        klingElements,
+      });
+      break;
+
     case "grok":
       // Grok Imagine - Sadece tek görsel destekler
       model =
@@ -996,6 +1108,8 @@ export async function generateVideo(
         prompt,
         imageUrl: grokImageUrl,
         aspectRatio,
+        duration,
+        quality,
         mode: "normal",
         callBackUrl,
       });
@@ -1052,7 +1166,6 @@ export async function generateVideo(
         prompt,
         imageUrl: wan26ImageUrl,
         videoUrl, // Pass videoUrl for video-to-video
-        aspectRatio,
         duration,
         sound,
         quality,
@@ -1080,7 +1193,7 @@ export async function generateVideo(
         model: model as VideoModel,
         prompt,
         imageUrl: hailuoImageUrl,
-        aspectRatio,
+        duration,
         quality,
         callBackUrl,
       });

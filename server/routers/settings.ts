@@ -420,12 +420,32 @@ export const settingsRouter = router({
         }),
         videoModels: videoModels.map(m => {
           const config = parseModelConfig(m.configJson);
-          const isSora2 = m.modelKey === "sora2";
+          const isSora2 = m.modelKey === "sora2" || m.modelKey === "sora-2-pro" || m.modelKey === "sora-2-pro-storyboard";
+          const isVeo3 = m.modelKey === "veo3";
+
+          // Known defaults for resolution/duration when configJson is empty
+          const KNOWN_DEFAULTS: Record<string, { resolutions?: string[]; durations?: string[] }> = {
+            "kling-30": { resolutions: ["1080p"], durations: ["3", "5", "10", "15"] },
+            "kling": { resolutions: ["1080p"], durations: ["5", "10"] },
+            "kling-2.5": { resolutions: ["1080p"], durations: ["5", "10"] },
+            "veo3": { resolutions: ["720p"], durations: ["5", "8"] },
+            "sora2": { resolutions: ["1080p"], durations: ["10", "15"] },
+            "sora-2-pro": { resolutions: ["1080p"], durations: ["10", "15", "20"] },
+            "sora-2-pro-storyboard": { resolutions: ["1080p"], durations: ["10", "15", "20"] },
+            "wan-2.6": { resolutions: ["1080p"], durations: ["5", "10", "15"] },
+            "wan-2.5": { resolutions: ["1080p"], durations: ["5", "10"] },
+            "wan-2.2": { resolutions: ["720p"], durations: ["5"] },
+            "hailuo-2.3": { resolutions: ["1080p"], durations: ["5", "10"] },
+            "seedance/1.5-pro": { resolutions: ["720p"], durations: ["4", "8", "12"] },
+          };
+          const known = KNOWN_DEFAULTS[m.modelKey];
+
           return {
             id: m.id,
             modelKey: m.modelKey,
             modelName: m.modelName,
             provider: m.provider,
+            priority: m.priority ?? 99,
             description: m.description,
             coverImageDesktop: m.coverImageDesktop,
             coverImageMobile: m.coverImageMobile,
@@ -434,23 +454,29 @@ export const settingsRouter = router({
             // Model-specific configuration
             supportedAspectRatios: isSora2
               ? ["16:9", "9:16", "1:1"]
-              : config.supportedAspectRatios,
+              : isVeo3
+                ? config.supportedAspectRatios || ["16:9", "9:16"]
+                : config.supportedAspectRatios,
             supportedDurations: isSora2
               ? ["10", "15"]
-              : config.supportedDurations,
+              : isVeo3
+                ? config.supportedDurations || ["auto"]
+                : config.supportedDurations || known?.durations,
             supportedQualities: isSora2
               ? ["standard", "pro"]
-              : config.supportedQualities,
-            supportedResolutions: config.supportedResolutions,
-            defaultAspectRatio: isSora2 ? "16:9" : config.defaultAspectRatio,
-            defaultDuration: isSora2 ? "10" : config.defaultDuration,
-            defaultQuality: isSora2 ? "standard" : config.defaultQuality,
+              : isVeo3
+                ? config.supportedQualities || ["fast", "quality"]
+                : config.supportedQualities,
+            supportedResolutions: config.supportedResolutions || known?.resolutions,
+            defaultAspectRatio: isSora2 ? "16:9" : isVeo3 ? (config.defaultAspectRatio || "16:9") : config.defaultAspectRatio,
+            defaultDuration: isSora2 ? "10" : isVeo3 ? (config.defaultDuration || "auto") : config.defaultDuration,
+            defaultQuality: isSora2 ? "standard" : isVeo3 ? (config.defaultQuality || "fast") : config.defaultQuality,
             defaultResolution: config.defaultResolution,
             // Generation mode support
             supportsTextToVideo: config.supportsTextToVideo !== false,
             supportsImageToVideo: config.supportsImageToVideo !== false,
             supportsVideoToVideo: config.supportsVideoToVideo || false,
-            supportsReferenceVideo: config.supportsReferenceVideo || false,
+            supportsReferenceVideo: isVeo3 ? (config.supportsReferenceVideo !== false) : (config.supportsReferenceVideo || false),
             // Additional features
             hasAudioSupport: isSora2 ? false : config.hasAudioSupport || false,
             hasMultiShotSupport: config.hasMultiShotSupport || false,

@@ -10,6 +10,7 @@ import {
   Video,
   Sparkles,
   ChevronDown,
+  ChevronRight,
   Zap,
   Upload,
   Check,
@@ -17,6 +18,14 @@ import {
   Settings2,
   Play,
   Search,
+  Plus,
+  Trash2,
+  Film,
+  Users,
+  Volume2,
+  Diamond,
+  Clock,
+  Star,
 } from "lucide-react";
 import InsufficientCreditsDialog from "@/components/InsufficientCreditsDialog";
 import Header from "@/components/Header";
@@ -30,14 +39,67 @@ const MODEL_DISPLAY_INFO: Record<
 > = {
   veo3: { icon: "🎬", color: "#4285F4", isFeatured: true },
   sora2: { icon: "🎥", color: "#10A37F", isFeatured: true },
+  "sora-2-pro": { icon: "🎥", color: "#10A37F", isFeatured: true },
+  "sora-2-pro-storyboard": { icon: "📖", color: "#10A37F" },
+  "sora-watermark-remover": { icon: "✨", color: "#10A37F" },
   kling: { icon: "⚡", color: "#F59E0B" },
+  "kling-2.5": { icon: "⚡", color: "#F59E0B" },
+  "kling-30": { icon: "🔥", color: "#FF6B00", isNew: true },
+  "wan-2.2": { icon: "🐉", color: "#EF4444" },
+  "wan-2.5": { icon: "🐉", color: "#EF4444" },
+  "wan-2.6": { icon: "🐉", color: "#EF4444", isNew: true },
   "wan-26": { icon: "🐉", color: "#EF4444" },
   grok: { icon: "🤖", color: "#8B5CF6" },
   hailuo: { icon: "🎭", color: "#EC4899" },
+  "hailuo-2.3": { icon: "🎭", color: "#EC4899" },
   "seedance-lite": { icon: "🌱", color: "#22C55E", isNew: true },
   "seedance-pro": { icon: "💎", color: "#06B6D4", isNew: true },
   "seedance-15-pro": { icon: "🚀", color: "#7C3AED", isNew: true },
+  "seedance/1.5-pro": { icon: "🚀", color: "#7C3AED", isNew: true },
 };
+
+// Company grouping for "Other models" section
+const COMPANY_GROUP_INFO: Record<
+  string,
+  { label: string; description: string; icon: string; color: string; order: number }
+> = {
+  Google: { label: "Google Veo", description: "Precision video with sound control", icon: "🎬", color: "#4285F4", order: 1 },
+  OpenAI: { label: "OpenAI Sora 2", description: "Multi-shot video with sound generation", icon: "🎥", color: "#10A37F", order: 2 },
+  Kuaishou: { label: "Kling", description: "Perfect motion with advanced video control", icon: "⚡", color: "#F59E0B", order: 3 },
+  Alibaba: { label: "Wan", description: "Camera-controlled video with sound, more freedom", icon: "🐉", color: "#EF4444", order: 4 },
+  ByteDance: { label: "Seedance", description: "Cinematic, multi-shot video creation", icon: "🌱", color: "#06B6D4", order: 5 },
+  MiniMax: { label: "Minimax Hailuo", description: "High-dynamic, VFX-ready, fastest and most affordable", icon: "🎭", color: "#EC4899", order: 6 },
+  Other: { label: "Diğer Araçlar", description: "Ek video araçları ve yardımcılar", icon: "🔧", color: "#6B7280", order: 99 },
+};
+
+/** Featured models threshold - priority <= this value shown in Featured section */
+const FEATURED_PRIORITY_THRESHOLD = 2;
+
+/** Extract company name from provider string like "Kie AI (Google)" → "Google" */
+function extractCompany(provider: string): string {
+  const match = provider.match(/\(([^)]+)\)/);
+  return match ? match[1] : "Other";
+}
+
+/** Format duration range from supported durations array */
+function formatDurationRange(durations?: string[]): string | null {
+  if (!durations || durations.length === 0) return null;
+  const nums = durations.map(d => parseInt(d.replace('s', ''))).filter(n => !isNaN(n)).sort((a, b) => a - b);
+  if (nums.length === 0) return null;
+  if (nums.length === 1) return `${nums[0]}s`;
+  return `${nums[0]}s-${nums[nums.length - 1]}s`;
+}
+
+/** Get best resolution from supported resolutions */
+function getResolutionLabel(resolutions?: string[]): string | null {
+  if (!resolutions || resolutions.length === 0) return null;
+  // Prefer showing the highest
+  const order = ['4K', '2K', '1080p', '720p', '480p'];
+  for (const r of order) {
+    if (resolutions.includes(r)) return r;
+  }
+  return resolutions[0];
+}
 
 const QUALITY_LABELS: Record<string, string> = {
   standard: "Standard",
@@ -79,6 +141,25 @@ export default function VideoGenerate() {
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [modelSearch, setModelSearch] = useState("");
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
+
+  // Kling 3.0 Multi-shot state
+  const [multiShotEnabled, setMultiShotEnabled] = useState(false);
+  const [multiPrompts, setMultiPrompts] = useState<
+    { prompt: string; duration: number }[]
+  >([{ prompt: "", duration: 3 }]);
+
+  // Kling 3.0 Element references state
+  const [klingElements, setKlingElements] = useState<
+    {
+      name: string;
+      description: string;
+      imageUrls: string[];
+      videoUrls: string[];
+    }[]
+  >([]);
+
+  // Expanded company groups in "Other models" section
+  const [expandedCompanies, setExpandedCompanies] = useState<Set<string>>(new Set());
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const modelSelectorRef = useRef<HTMLDivElement>(null);
@@ -208,8 +289,8 @@ export default function VideoGenerate() {
       if (selectedModel === "sora2") {
         setEnableAudio(false);
       }
-      // Kling 2.6 için ses varsayılan olarak açık
-      else if (selectedModel === "kling") {
+      // Kling 2.6 ve 3.0 için ses varsayılan olarak açık
+      else if (selectedModel === "kling" || selectedModel === "kling-30") {
         setEnableAudio(true);
       } else if (!hasAudioSupport) {
         setEnableAudio(false);
@@ -223,6 +304,13 @@ export default function VideoGenerate() {
         if (!["standard", "pro"].includes(quality)) {
           setQuality("standard");
         }
+      }
+
+      // Reset Kling 3.0 multi-shot/element state when switching away
+      if (selectedModel !== "kling-30") {
+        setMultiShotEnabled(false);
+        setMultiPrompts([{ prompt: "", duration: 3 }]);
+        setKlingElements([]);
       }
     }
   }, [selectedModel, activeVideoModels, duration, quality]);
@@ -398,10 +486,7 @@ export default function VideoGenerate() {
 
     generateMutation.mutate({
       modelType: selectedModel as any,
-      generationType:
-        generationType === "reference-to-video"
-          ? "image-to-video"
-          : (generationType as any),
+      generationType: generationType as any,
       prompt: prompt,
       imageUrl,
       imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
@@ -412,6 +497,29 @@ export default function VideoGenerate() {
       quality: quality as any,
       resolution, // ✨ NEW: Pass resolution
       feature: selectedModel === "sora2" ? soraFeature : undefined, // ✨ NEW: Pass Sora 2 feature
+      // Kling 3.0 multi-shot & element references
+      ...(selectedModel === "kling-30" && multiShotEnabled
+        ? {
+            multiShots: true,
+            multiPrompt: multiPrompts.filter(s => s.prompt.trim().length > 0),
+          }
+        : {}),
+      ...(selectedModel === "kling-30" && klingElements.length > 0
+        ? {
+            klingElements: klingElements
+              .filter(el => el.name.trim() && el.description.trim())
+              .map(el => ({
+                name: el.name,
+                description: el.description,
+                ...(el.imageUrls.length > 0
+                  ? { element_input_urls: el.imageUrls }
+                  : {}),
+                ...(el.videoUrls.length > 0
+                  ? { element_input_video_urls: el.videoUrls }
+                  : {}),
+              })),
+          }
+        : {}),
     });
   };
 
@@ -538,23 +646,8 @@ export default function VideoGenerate() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: -8 }}
                         transition={{ duration: 0.18 }}
-                        className="absolute left-0 right-0 z-50 mt-2 p-4 bg-[#0D0D0D]/98 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl"
+                        className="absolute left-0 right-0 z-50 mt-2 p-4 bg-[#0D0D0D]/98 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl min-w-[340px] lg:min-w-[420px]"
                       >
-                        <div className="flex items-center justify-between mb-4">
-                          <span className="text-sm font-semibold text-white/80">
-                            {t("generate.modelLabel")}
-                          </span>
-                          <button
-                            onClick={() => {
-                              setShowModelSelector(false);
-                              setModelSearch("");
-                            }}
-                            className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
-                          >
-                            <X className="w-4 h-4 text-white/40" />
-                          </button>
-                        </div>
-
                         {/* Search */}
                         <div className="relative mb-3">
                           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
@@ -563,8 +656,8 @@ export default function VideoGenerate() {
                             autoFocus
                             value={modelSearch}
                             onChange={e => setModelSearch(e.target.value)}
-                            placeholder="Model ara..."
-                            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/25 outline-none focus:border-white/20 focus:bg-white/8 transition-all"
+                            placeholder="Ara..."
+                            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/25 outline-none focus:border-white/20 focus:bg-white/[0.08] transition-all"
                           />
                           {modelSearch && (
                             <button
@@ -575,33 +668,55 @@ export default function VideoGenerate() {
                             </button>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[60vh] overflow-y-auto pr-1">
-                          {activeVideoModels
-                            .filter(model => !model.isMaintenanceMode)
-                            .filter(model => {
-                              if (!modelSearch.trim()) return true;
-                              const q = modelSearch.toLowerCase();
+
+                        {/* Higgsfield-style vertical model list */}
+                        <div className="max-h-[65vh] overflow-y-auto -mx-1 px-1">
+                          {(() => {
+                            const filteredModels = activeVideoModels
+                              .filter(model => !model.isMaintenanceMode)
+                              .filter(model => {
+                                if (!modelSearch.trim()) return true;
+                                const q = modelSearch.toLowerCase();
+                                return (
+                                  model.modelName.toLowerCase().includes(q) ||
+                                  model.provider.toLowerCase().includes(q) ||
+                                  model.modelKey.toLowerCase().includes(q)
+                                );
+                              });
+
+                            if (filteredModels.length === 0 && modelSearch.trim()) {
                               return (
-                                model.modelName.toLowerCase().includes(q) ||
-                                model.provider.toLowerCase().includes(q) ||
-                                model.modelKey.toLowerCase().includes(q)
+                                <div className="py-8 text-center text-white/30 text-sm">
+                                  "<span className="text-white/50">{modelSearch}</span>" için sonuç bulunamadı
+                                </div>
                               );
-                            })
-                            .map(model => {
-                              const displayInfo = MODEL_DISPLAY_INFO[
-                                model.modelKey
-                              ] || { icon: "🎬", color: "#7C3AED" };
-                              const isSelected =
-                                selectedModel === model.modelKey;
-                              const featureTags: string[] = [];
-                              if ((model as any).supportsTextToVideo !== false)
-                                featureTags.push("T2V");
-                              if ((model as any).supportsImageToVideo !== false)
-                                featureTags.push("I2V");
-                              if ((model as any).hasAudioSupport)
-                                featureTags.push("Audio");
-                              if ((model as any).supportsVideoToVideo)
-                                featureTags.push("V2V");
+                            }
+
+                            // Split into featured and other
+                            const featuredModels = filteredModels.filter(
+                              (m: any) => (m.priority ?? 99) <= FEATURED_PRIORITY_THRESHOLD
+                            );
+
+                            // Group ALL models by company for "Other models" section
+                            const allGroups = new Map<string, typeof filteredModels>();
+                            filteredModels.forEach((model: any) => {
+                              const company = extractCompany(model.provider);
+                              if (!allGroups.has(company)) {
+                                allGroups.set(company, []);
+                              }
+                              allGroups.get(company)!.push(model);
+                            });
+                            const sortedOtherGroups = Array.from(allGroups.entries()).sort(
+                              ([a], [b]) => (COMPANY_GROUP_INFO[a]?.order ?? 99) - (COMPANY_GROUP_INFO[b]?.order ?? 99)
+                            );
+
+                            // Render a single model row (used in both sections)
+                            const renderModelRow = (model: any) => {
+                              const displayInfo = MODEL_DISPLAY_INFO[model.modelKey] || { icon: "🎬", color: "#7C3AED" };
+                              const isSelected = selectedModel === model.modelKey;
+                              const hasAudio = (model as any).hasAudioSupport;
+                              const durationRange = formatDurationRange((model as any).supportedDurations);
+                              const resLabel = getResolutionLabel((model as any).supportedResolutions);
 
                               return (
                                 <button
@@ -610,113 +725,180 @@ export default function VideoGenerate() {
                                     setSelectedModel(model.modelKey);
                                     setShowModelSelector(false);
                                     setModelSearch("");
+                                    setExpandedCompanies(new Set());
                                   }}
                                   className={cn(
-                                    "relative text-left p-3.5 rounded-xl border transition-all duration-200 group",
+                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group",
                                     isSelected
-                                      ? "border-transparent bg-white/10 ring-1 ring-inset"
-                                      : "border-white/8 bg-white/[0.03] hover:bg-white/7 hover:border-white/15"
+                                      ? "bg-white/[0.08]"
+                                      : "hover:bg-white/[0.04]"
                                   )}
-                                  style={undefined}
                                 >
-                                  {/* Selected ring overlay */}
-                                  {isSelected && (
-                                    <div
-                                      className="absolute inset-0 rounded-xl ring-1 ring-inset pointer-events-none"
-                                      style={{
-                                        boxShadow: `inset 0 0 0 1.5px ${displayInfo.color}`,
-                                      }}
-                                    />
-                                  )}
-
-                                  {/* NEW / FEATURED badges */}
-                                  {(displayInfo.isNew ||
-                                    displayInfo.isFeatured) && (
-                                    <div className="absolute top-2 right-2">
-                                      <span
-                                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                                        style={{
-                                          background: `${displayInfo.color}30`,
-                                          color: displayInfo.color,
-                                        }}
-                                      >
-                                        {displayInfo.isNew ? "NEW" : "★"}
-                                      </span>
-                                    </div>
-                                  )}
-
                                   {/* Icon */}
                                   <div
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center text-2xl mb-3"
+                                    className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-lg border"
                                     style={{
-                                      background: `${displayInfo.color}18`,
+                                      background: `${displayInfo.color}12`,
+                                      borderColor: isSelected ? `${displayInfo.color}50` : `${displayInfo.color}20`,
                                     }}
                                   >
                                     {displayInfo.icon}
                                   </div>
 
-                                  {/* Name & Provider */}
-                                  <div className="mb-2.5">
-                                    <div
-                                      className={cn(
-                                        "text-sm font-bold leading-tight",
-                                        isSelected
-                                          ? "text-white"
-                                          : "text-white/80 group-hover:text-white"
+                                  {/* Name + specs */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5 mb-0.5">
+                                      <span className={cn(
+                                        "text-sm font-semibold truncate",
+                                        isSelected ? "text-white" : "text-white/80 group-hover:text-white"
+                                      )}>
+                                        {model.modelName}
+                                      </span>
+                                      {hasAudio && (
+                                        <Volume2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                                       )}
-                                    >
-                                      {model.modelName}
+                                      {displayInfo.isFeatured && (
+                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 flex-shrink-0 leading-none">
+                                          EXCLUSIVE
+                                        </span>
+                                      )}
+                                      {displayInfo.isNew && (
+                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#C8FF00]/20 text-[#C8FF00] flex-shrink-0 leading-none">
+                                          NEW
+                                        </span>
+                                      )}
+                                      {!displayInfo.isNew && !displayInfo.isFeatured && (model as any).priority >= 3 && (
+                                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 flex-shrink-0 leading-none">
+                                          PREMIUM
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      {resLabel && (
+                                        <span className="flex items-center gap-0.5 text-[10px] text-white/35 font-medium">
+                                          <Diamond className="w-2.5 h-2.5" />
+                                          {resLabel}
+                                        </span>
+                                      )}
+                                      {durationRange && (
+                                        <span className="flex items-center gap-0.5 text-[10px] text-white/35 font-medium">
+                                          <Clock className="w-2.5 h-2.5" />
+                                          {durationRange}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
 
-                                  {/* Feature Tags */}
-                                  <div className="flex flex-wrap gap-1">
-                                    {featureTags.map(tag => (
-                                      <span
-                                        key={tag}
-                                        className="text-[10px] font-medium px-1.5 py-0.5 rounded-md"
-                                        style={
-                                          tag === "Audio"
-                                            ? {
-                                                background: "#22C55E18",
-                                                color: "#22C55E",
-                                              }
-                                            : {
-                                                background: `${displayInfo.color}15`,
-                                                color: `${displayInfo.color}CC`,
-                                              }
-                                        }
-                                      >
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
+                                  {/* Checkmark */}
+                                  {isSelected && (
+                                    <div
+                                      className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center"
+                                      style={{ background: displayInfo.color }}
+                                    >
+                                      <Check className="w-3 h-3 text-white" />
+                                    </div>
+                                  )}
                                 </button>
                               );
-                            })}
-                          {/* Empty state */}
-                          {activeVideoModels
-                            .filter(model => !model.isMaintenanceMode)
-                            .filter(model => {
-                              if (!modelSearch.trim()) return false;
-                              const q = modelSearch.toLowerCase();
-                              return !(
-                                model.modelName.toLowerCase().includes(q) ||
-                                model.provider.toLowerCase().includes(q) ||
-                                model.modelKey.toLowerCase().includes(q)
-                              );
-                            }).length ===
-                            activeVideoModels.filter(m => !m.isMaintenanceMode)
-                              .length &&
-                            modelSearch.trim() && (
-                              <div className="col-span-3 py-8 text-center text-white/30 text-sm">
-                                "
-                                <span className="text-white/50">
-                                  {modelSearch}
-                                </span>
-                                " için sonuç bulunamadı
-                              </div>
-                            )}
+                            };
+
+                            return (
+                              <>
+                                {/* ── Featured models ── */}
+                                {featuredModels.length > 0 && (
+                                  <div className="mb-3">
+                                    <div className="flex items-center gap-2 px-3 py-2">
+                                      <Star className="w-3.5 h-3.5 text-yellow-500" />
+                                      <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">
+                                        Öne Çıkan Modeller
+                                      </span>
+                                    </div>
+                                    <div className="space-y-0.5">
+                                      {featuredModels.map(renderModelRow)}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* ── Other models (grouped by company) ── */}
+                                {sortedOtherGroups.length > 0 && (
+                                  <div>
+                                    {!modelSearch.trim() && (
+                                      <div className="flex items-center gap-2 px-3 py-2 mt-1">
+                                        <Film className="w-3.5 h-3.5 text-white/30" />
+                                        <span className="text-[11px] font-bold text-white/40 uppercase tracking-wider">
+                                          Diğer Modeller
+                                        </span>
+                                      </div>
+                                    )}
+                                    <div className="space-y-1">
+                                      {sortedOtherGroups.map(([company, models]) => {
+                                        const info = COMPANY_GROUP_INFO[company] || COMPANY_GROUP_INFO.Other;
+                                        const isExpanded = expandedCompanies.has(company) || !!modelSearch.trim();
+
+                                        return (
+                                          <div key={company}>
+                                            {/* Company header - clickable to expand */}
+                                            <button
+                                              onClick={() => {
+                                                setExpandedCompanies(prev => {
+                                                  const next = new Set(prev);
+                                                  if (next.has(company)) next.delete(company);
+                                                  else next.add(company);
+                                                  return next;
+                                                });
+                                              }}
+                                              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.04] transition-all group"
+                                            >
+                                              <div
+                                                className="w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-lg border"
+                                                style={{
+                                                  background: `${info.color}10`,
+                                                  borderColor: `${info.color}20`,
+                                                }}
+                                              >
+                                                {info.icon}
+                                              </div>
+                                              <div className="flex-1 min-w-0 text-left">
+                                                <div className="text-sm font-semibold text-white/70 group-hover:text-white/90 transition-colors">
+                                                  {info.label}
+                                                </div>
+                                                <div className="text-[11px] text-white/30 truncate">
+                                                  {info.description}
+                                                </div>
+                                              </div>
+                                              <ChevronRight
+                                                className={cn(
+                                                  "w-4 h-4 text-white/20 transition-transform flex-shrink-0",
+                                                  isExpanded && "rotate-90"
+                                                )}
+                                              />
+                                            </button>
+
+                                            {/* Expanded model list */}
+                                            <AnimatePresence>
+                                              {isExpanded && (
+                                                <motion.div
+                                                  initial={{ height: 0, opacity: 0 }}
+                                                  animate={{ height: "auto", opacity: 1 }}
+                                                  exit={{ height: 0, opacity: 0 }}
+                                                  transition={{ duration: 0.2 }}
+                                                  className="overflow-hidden"
+                                                >
+                                                  <div className="pl-4 space-y-0.5 pb-1">
+                                                    {models.map(renderModelRow)}
+                                                  </div>
+                                                </motion.div>
+                                              )}
+                                            </AnimatePresence>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       </motion.div>
                     </>
@@ -1242,6 +1424,318 @@ export default function VideoGenerate() {
                     </button>
                   </div>
                 )}
+
+              {/* ── Kling 3.0 Multi-Shot Mode ── */}
+              {selectedModel === "kling-30" && (
+                <div className="space-y-3">
+                  {/* Multi-shot Toggle */}
+                  <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08]">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className={cn(
+                          "w-7 h-7 rounded-lg flex items-center justify-center text-base",
+                          multiShotEnabled
+                            ? "bg-[#FF6B00]/15 text-[#FF6B00]"
+                            : "bg-white/5 text-white/30"
+                        )}
+                      >
+                        <Film className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-semibold leading-tight">
+                          Multi-Shot
+                        </div>
+                        <div className="text-[11px] text-white/30">
+                          Birden fazla sahne ile video
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setMultiShotEnabled(!multiShotEnabled)}
+                      className={cn(
+                        "w-10 h-5 rounded-full relative transition-colors",
+                        multiShotEnabled ? "bg-[#FF6B00]" : "bg-white/15"
+                      )}
+                    >
+                      <motion.div
+                        animate={{ x: multiShotEnabled ? 20 : 1 }}
+                        className="absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow-sm"
+                      />
+                    </button>
+                  </div>
+
+                  {/* Multi-shot Editor */}
+                  <AnimatePresence>
+                    {multiShotEnabled && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-2 overflow-hidden"
+                      >
+                        <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">
+                          Sahneler ({multiPrompts.length})
+                        </label>
+                        {multiPrompts.map((shot, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-3 space-y-2"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-white/40">
+                                Sahne {idx + 1}
+                              </span>
+                              {multiPrompts.length > 1 && (
+                                <button
+                                  onClick={() =>
+                                    setMultiPrompts(prev =>
+                                      prev.filter((_, i) => i !== idx)
+                                    )
+                                  }
+                                  className="w-5 h-5 rounded-md bg-white/5 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+                                >
+                                  <Trash2 className="w-3 h-3 text-white/30 hover:text-red-400" />
+                                </button>
+                              )}
+                            </div>
+                            <Textarea
+                              value={shot.prompt}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setMultiPrompts(prev =>
+                                  prev.map((s, i) =>
+                                    i === idx ? { ...s, prompt: val } : s
+                                  )
+                                );
+                              }}
+                              placeholder={`Sahne ${idx + 1} açıklaması (max 500 karakter)`}
+                              className="bg-transparent border-white/[0.06] focus-visible:ring-0 resize-none text-xs min-h-[60px] placeholder:text-white/15"
+                              rows={2}
+                              maxLength={500}
+                            />
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-white/30 whitespace-nowrap">
+                                Süre:
+                              </span>
+                              <input
+                                type="range"
+                                min={1}
+                                max={12}
+                                value={shot.duration}
+                                onChange={e => {
+                                  const val = parseInt(e.target.value);
+                                  setMultiPrompts(prev =>
+                                    prev.map((s, i) =>
+                                      i === idx ? { ...s, duration: val } : s
+                                    )
+                                  );
+                                }}
+                                className="flex-1 h-1 accent-[#FF6B00]"
+                              />
+                              <span className="text-[11px] font-bold text-white/50 min-w-[28px] text-right">
+                                {shot.duration}s
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                        {multiPrompts.length < 10 && (
+                          <button
+                            onClick={() =>
+                              setMultiPrompts(prev => [
+                                ...prev,
+                                { prompt: "", duration: 3 },
+                              ])
+                            }
+                            className="w-full py-2 rounded-xl border border-dashed border-white/10 hover:border-white/20 text-xs text-white/30 hover:text-white/60 transition-all flex items-center justify-center gap-1.5"
+                          >
+                            <Plus className="w-3 h-3" />
+                            Sahne Ekle
+                          </button>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* ── Kling 3.0 Element References ── */}
+              {selectedModel === "kling-30" && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                      Element Referansları
+                    </label>
+                    {klingElements.length < 5 && (
+                      <button
+                        onClick={() =>
+                          setKlingElements(prev => [
+                            ...prev,
+                            {
+                              name: "",
+                              description: "",
+                              imageUrls: [],
+                              videoUrls: [],
+                            },
+                          ])
+                        }
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] text-white/40 hover:text-white/70 transition-all"
+                      >
+                        <Plus className="w-3 h-3" />
+                        Ekle
+                      </button>
+                    )}
+                  </div>
+                  {klingElements.length === 0 && (
+                    <div className="text-[11px] text-white/20 px-1">
+                      Karakter/obje ekleyerek prompt'ta @isim ile referans
+                      verebilirsiniz.
+                    </div>
+                  )}
+                  <AnimatePresence>
+                    {klingElements.map((element, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: -8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                        className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-3 space-y-2"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-[#FF6B00]/60" />
+                            <span className="text-[11px] font-bold text-white/40">
+                              Element {idx + 1}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() =>
+                              setKlingElements(prev =>
+                                prev.filter((_, i) => i !== idx)
+                              )
+                            }
+                            className="w-5 h-5 rounded-md bg-white/5 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+                          >
+                            <Trash2 className="w-3 h-3 text-white/30" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={element.name}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setKlingElements(prev =>
+                              prev.map((el, i) =>
+                                i === idx ? { ...el, name: val } : el
+                              )
+                            );
+                          }}
+                          placeholder="Element adı (ör: kedi)"
+                          className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-white placeholder:text-white/15 outline-none focus:border-white/15 transition-colors"
+                          maxLength={50}
+                        />
+                        <input
+                          type="text"
+                          value={element.description}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setKlingElements(prev =>
+                              prev.map((el, i) =>
+                                i === idx ? { ...el, description: val } : el
+                              )
+                            );
+                          }}
+                          placeholder="Açıklama (ör: turuncu kedi)"
+                          className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-white placeholder:text-white/15 outline-none focus:border-white/15 transition-colors"
+                          maxLength={200}
+                        />
+                        <div className="text-[10px] text-white/20">
+                          Prompt'ta{" "}
+                          <span className="text-[#FF6B00]/80 font-mono">
+                            @{element.name || "isim"}
+                          </span>{" "}
+                          ile referans verin. 2-4 resim veya 1 video yükleyin.
+                        </div>
+                        {/* Element image upload */}
+                        <div className="flex flex-wrap gap-1.5">
+                          {element.imageUrls.map((url, imgIdx) => (
+                            <div
+                              key={imgIdx}
+                              className="relative w-12 h-12 rounded-lg overflow-hidden bg-white/5 border border-white/10 group"
+                            >
+                              <img
+                                src={url}
+                                alt={`Element ${idx + 1} ref ${imgIdx + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                onClick={() =>
+                                  setKlingElements(prev =>
+                                    prev.map((el, i) =>
+                                      i === idx
+                                        ? {
+                                            ...el,
+                                            imageUrls: el.imageUrls.filter(
+                                              (_, j) => j !== imgIdx
+                                            ),
+                                          }
+                                        : el
+                                    )
+                                  )
+                                }
+                                className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="w-3 h-3 text-white" />
+                              </button>
+                            </div>
+                          ))}
+                          {element.imageUrls.length < 4 &&
+                            element.videoUrls.length === 0 && (
+                              <label className="w-12 h-12 rounded-lg border border-dashed border-white/10 hover:border-white/20 flex items-center justify-center cursor-pointer transition-colors bg-white/[0.02]">
+                                <Upload className="w-3.5 h-3.5 text-white/25" />
+                                <input
+                                  type="file"
+                                  accept="image/jpeg,image/png"
+                                  className="hidden"
+                                  onChange={async e => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    try {
+                                      const formData = new FormData();
+                                      formData.append("file", file);
+                                      const res = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formData,
+                                      });
+                                      if (!res.ok)
+                                        throw new Error("Upload failed");
+                                      const data = await res.json();
+                                      setKlingElements(prev =>
+                                        prev.map((el, i) =>
+                                          i === idx
+                                            ? {
+                                                ...el,
+                                                imageUrls: [
+                                                  ...el.imageUrls,
+                                                  data.url,
+                                                ],
+                                              }
+                                            : el
+                                        )
+                                      );
+                                    } catch {
+                                      toast.error("Resim yüklenemedi");
+                                    }
+                                    e.target.value = "";
+                                  }}
+                                />
+                              </label>
+                            )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              )}
             </div>
             {/* end space-y-5 (scrollable content) */}
 
