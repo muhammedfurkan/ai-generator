@@ -322,9 +322,9 @@ const ICON_TYPES = [
 
 // Çözünürlük seçenekleri
 const RESOLUTIONS = [
-  { value: "1K", label: "1K", credits: 15, description: "512x512 px" },
-  { value: "2K", label: "2K", credits: 22, description: "1024x1024 px" },
-  { value: "4K", label: "4K", credits: 30, description: "2048x2048 px" },
+  { value: "1K", label: "1K", credits: 18, description: "512x512 px" },
+  { value: "2K", label: "2K", credits: 18, description: "1024x1024 px" },
+  { value: "4K", label: "4K", credits: 24, description: "2048x2048 px" },
 ];
 
 export default function LogoGenerator() {

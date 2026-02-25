@@ -4487,6 +4487,26 @@ export const adminPanelRouter = router({
       return { success: true, updated };
     }),
 
+  syncKieAiPricing: adminProcedure.mutation(async ({ ctx }) => {
+    const { syncKieAiPricingToDb, refreshPricingMapsFromDb } =
+      await import("../kieAiPricingSync");
+    const result = await syncKieAiPricingToDb();
+
+    // Also refresh in-memory pricing maps
+    const mapResult = await refreshPricingMapsFromDb();
+
+    await logActivity(
+      ctx.user.id,
+      "pricing.syncKieAi",
+      "featurePricing",
+      undefined,
+      undefined,
+      { ...result, ...mapResult }
+    );
+
+    return result;
+  }),
+
   importKieAiModels: adminProcedure
     .input(
       z.object({

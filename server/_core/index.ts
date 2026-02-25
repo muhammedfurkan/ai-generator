@@ -432,6 +432,18 @@ async function startServer() {
 
   // Start video status updater background job
   startVideoStatusUpdater();
+
+  // Load pricing from DB into in-memory maps (non-blocking)
+  import("../kieAiPricingSync")
+    .then(m => m.refreshPricingMapsFromDb())
+    .then(result =>
+      console.log(
+        `[App] Pricing maps loaded from DB: ${result.videoUpdated} video, ${result.imageUpdated} image`
+      )
+    )
+    .catch(err =>
+      console.warn("[App] Failed to load pricing from DB (using defaults):", err.message)
+    );
 }
 
 startServer().catch(console.error);

@@ -206,13 +206,13 @@ export default function Generate() {
       return creditCostsQuery.data?.seedream?.[quality] || 8;
     }
     if (isQwenTextModelKey(modelId) && editModeEnabled) {
-      return creditCostsQuery.data?.allModels?.["qwen/image-edit"] || 10;
+      return creditCostsQuery.data?.allModels?.["qwen/image-edit"] || 5;
     }
     if (modelId === "nano-banana-pro") {
-      return creditCostsQuery.data?.["nano-banana-pro"]?.[res] || 12;
+      return creditCostsQuery.data?.["nano-banana-pro"]?.[res] || 18;
     }
     if (isQwenTextModelKey(modelId)) {
-      return creditCostsQuery.data?.qwen?.[res] || 10;
+      return creditCostsQuery.data?.qwen?.[res] || 4;
     }
 
     if (creditCostsQuery.data?.allModels?.[modelId]) {

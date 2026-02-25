@@ -108,51 +108,51 @@ function parseDurationSeconds(duration?: string, fallback = 5): number {
 async function getVideoCreditSettings(): Promise<VideoCreditSettings> {
   const { getFeaturePricingByKey } = await import("../db");
   return {
-    veo3Fast: await getFeaturePricingByKey("video_veo3_fast", 50),
-    veo3Quality: await getFeaturePricingByKey("video_veo3_quality", 75),
-    veo3Fast4k: await getFeaturePricingByKey("video_veo3_fast_4k", 100),
-    veo3Quality4k: await getFeaturePricingByKey("video_veo3_quality_4k", 150),
-    grok: await getFeaturePricingByKey("video_grok_standard", 15),
-    kling5s: await getFeaturePricingByKey("video_kling_5s", 45),
-    kling5sAudio: await getFeaturePricingByKey("video_kling_5s_audio", 90),
-    kling10s: await getFeaturePricingByKey("video_kling_10s", 75),
-    kling10sAudio: await getFeaturePricingByKey("video_kling_10s_audio", 150),
-    sora10s: await getFeaturePricingByKey("video_sora_10s", 24),
-    sora15s: await getFeaturePricingByKey("video_sora_15s", 30),
-    sora2Pro10s: await getFeaturePricingByKey("video_sora2_pro_10s", 40),
-    sora2Pro15s: await getFeaturePricingByKey("video_sora2_pro_15s", 50),
-    sora2Pro20s: await getFeaturePricingByKey("video_sora2_pro_20s", 65),
+    veo3Fast: await getFeaturePricingByKey("video_veo3_fast", 60),
+    veo3Quality: await getFeaturePricingByKey("video_veo3_quality", 250),
+    veo3Fast4k: await getFeaturePricingByKey("video_veo3_fast_4k", 180),
+    veo3Quality4k: await getFeaturePricingByKey("video_veo3_quality_4k", 370),
+    grok: await getFeaturePricingByKey("video_grok_standard", 20),
+    kling5s: await getFeaturePricingByKey("video_kling_5s", 55),
+    kling5sAudio: await getFeaturePricingByKey("video_kling_5s_audio", 110),
+    kling10s: await getFeaturePricingByKey("video_kling_10s", 110),
+    kling10sAudio: await getFeaturePricingByKey("video_kling_10s_audio", 220),
+    sora10s: await getFeaturePricingByKey("video_sora_10s", 35),
+    sora15s: await getFeaturePricingByKey("video_sora_15s", 40),
+    sora2Pro10s: await getFeaturePricingByKey("video_sora2_pro_10s", 150),
+    sora2Pro15s: await getFeaturePricingByKey("video_sora2_pro_15s", 270),
+    sora2Pro20s: await getFeaturePricingByKey("video_sora2_pro_20s", 270),
     sora2ProStoryboard: await getFeaturePricingByKey(
       "video_sora2_pro_storyboard",
-      80
+      150
     ),
     soraWatermarkRemover: await getFeaturePricingByKey(
       "video_sora_watermark_remover",
-      20
+      10
     ),
-    kling21_5s: await getFeaturePricingByKey("video_kling21_5s", 35),
-    kling21_10s: await getFeaturePricingByKey("video_kling21_10s", 60),
-    kling25_5s: await getFeaturePricingByKey("video_kling25_5s", 40),
-    kling25_10s: await getFeaturePricingByKey("video_kling25_10s", 70),
-    kling30Std5s: await getFeaturePricingByKey("video_kling30_std_5s", 65),
+    kling21_5s: await getFeaturePricingByKey("video_kling21_5s", 25),
+    kling21_10s: await getFeaturePricingByKey("video_kling21_10s", 50),
+    kling25_5s: await getFeaturePricingByKey("video_kling25_5s", 42),
+    kling25_10s: await getFeaturePricingByKey("video_kling25_10s", 84),
+    kling30Std5s: await getFeaturePricingByKey("video_kling30_std_5s", 100),
     kling30Std5sAudio: await getFeaturePricingByKey(
       "video_kling30_std_5s_audio",
-      130
+      150
     ),
-    kling30Std10s: await getFeaturePricingByKey("video_kling30_std_10s", 130),
+    kling30Std10s: await getFeaturePricingByKey("video_kling30_std_10s", 200),
     kling30Std10sAudio: await getFeaturePricingByKey(
       "video_kling30_std_10s_audio",
-      260
+      300
     ),
-    kling30Pro5s: await getFeaturePricingByKey("video_kling30_pro_5s", 85),
+    kling30Pro5s: await getFeaturePricingByKey("video_kling30_pro_5s", 135),
     kling30Pro5sAudio: await getFeaturePricingByKey(
       "video_kling30_pro_5s_audio",
-      170
+      200
     ),
-    kling30Pro10s: await getFeaturePricingByKey("video_kling30_pro_10s", 170),
+    kling30Pro10s: await getFeaturePricingByKey("video_kling30_pro_10s", 270),
     kling30Pro10sAudio: await getFeaturePricingByKey(
       "video_kling30_pro_10s_audio",
-      340
+      400
     ),
     seedanceLite3s: await getFeaturePricingByKey("video_seedance_lite_3s", 20),
     seedanceLite6s: await getFeaturePricingByKey("video_seedance_lite_6s", 35),
@@ -166,13 +166,13 @@ async function getVideoCreditSettings(): Promise<VideoCreditSettings> {
       "video_seedance_15_pro_10s",
       95
     ),
-    hailuo6s: await getFeaturePricingByKey("video_hailuo_6s", 25),
-    wan22_5s: await getFeaturePricingByKey("video_wan22_5s", 30),
-    wan22_10s: await getFeaturePricingByKey("video_wan22_10s", 55),
-    wan25_5s: await getFeaturePricingByKey("video_wan25_5s", 35),
-    wan25_10s: await getFeaturePricingByKey("video_wan25_10s", 60),
-    wan26_5s: await getFeaturePricingByKey("video_wan26_5s", 40),
-    wan26_10s: await getFeaturePricingByKey("video_wan26_10s", 70),
+    hailuo6s: await getFeaturePricingByKey("video_hailuo_6s", 30),
+    wan22_5s: await getFeaturePricingByKey("video_wan22_5s", 40),
+    wan22_10s: await getFeaturePricingByKey("video_wan22_10s", 80),
+    wan25_5s: await getFeaturePricingByKey("video_wan25_5s", 60),
+    wan25_10s: await getFeaturePricingByKey("video_wan25_10s", 120),
+    wan26_5s: await getFeaturePricingByKey("video_wan26_5s", 70),
+    wan26_10s: await getFeaturePricingByKey("video_wan26_10s", 140),
   };
 }
 

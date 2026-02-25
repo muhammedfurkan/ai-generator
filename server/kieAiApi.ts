@@ -75,42 +75,54 @@ export type VideoModel =
   // Runway
   | "runway-gen3-alpha";
 
-// Model pricing (in credits) - Based on Kie.ai official pricing
+// Model pricing (in credits) - Based on Kie.ai official pricing (synced 2026-02-25)
 export const VIDEO_MODEL_PRICING: Record<string, number> = {
   // Veo 3.1 (Google) - Always 8s, pricing varies by mode
   "veo3.1-fast": 60,
   "veo3.1-quality": 250,
   "veo3.1-4k-upgrade": 120, // Additional cost for 4K
+  "veo3.1-1080p-upgrade": 5, // Additional cost for 1080p
   // Legacy model names for backward compatibility
   veo3_fast: 60,
   veo3: 250,
 
-  // Grok Imagine (6s video)
-  "grok-imagine/text-to-video": 15,
-  "grok-imagine/image-to-video": 15,
+  // Grok Imagine (6s/10s video) - KIE: 6s 720p=20, 10s 720p=30
+  "grok-imagine/text-to-video": 20,
+  "grok-imagine/image-to-video": 20,
+  "grok-imagine/text-to-video-10s": 30,
+  "grok-imagine/image-to-video-10s": 30,
 
-  // Sora 2
-  "sora-2-image-to-video-10s": 24,
-  "sora-2-image-to-video-15s": 30,
+  // Sora 2 - KIE: stable-10s=35, stable-15s=40, Standard-10s=30, Standard-15s=35
+  "sora-2-image-to-video-10s": 35,
+  "sora-2-image-to-video-15s": 40,
+  "sora-2-text-to-video-10s": 35,
+  "sora-2-text-to-video-15s": 40,
 
   // Sora 2 Pro - Quality and Duration based
   "sora-2-pro-standard-10s": 150,
   "sora-2-pro-standard-15s": 270,
   "sora-2-pro-high-10s": 330,
   "sora-2-pro-high-15s": 630,
-  "sora-2-pro-storyboard": 80, // Storyboard mode
+  "sora-2-pro-storyboard-10s": 150,
+  "sora-2-pro-storyboard-15s": 270,
 
-  // Kling 2.1 (5s/10s video)
-  "kling-2.1/text-to-video-5s": 35,
-  "kling-2.1/text-to-video-10s": 60,
-  "kling-2.1/image-to-video-5s": 35,
-  "kling-2.1/image-to-video-10s": 60,
+  // Kling 2.1 - KIE: Standard-5s=25, Standard-10s=50, Pro-5s=50, Pro-10s=100
+  "kling-2.1/text-to-video-5s": 25,
+  "kling-2.1/text-to-video-10s": 50,
+  "kling-2.1/image-to-video-5s": 25,
+  "kling-2.1/image-to-video-10s": 50,
+  // Kling 2.1 Pro - KIE: Pro-5s=50, Pro-10s=100
+  "kling-2.1/pro-5s": 50,
+  "kling-2.1/pro-10s": 100,
+  // Kling 2.1 Master - KIE: Master-5s=160, Master-10s=320
+  "kling-2.1/master-5s": 160,
+  "kling-2.1/master-10s": 320,
 
-  // Kling 2.5 (5s/10s video)
-  "kling-2.5/text-to-video-5s": 40,
-  "kling-2.5/text-to-video-10s": 70,
-  "kling-2.5/image-to-video-5s": 40,
-  "kling-2.5/image-to-video-10s": 70,
+  // Kling 2.5 Turbo - KIE: Turbo Pro-5s=42, Turbo Pro-10s=84
+  "kling-2.5/text-to-video-5s": 42,
+  "kling-2.5/text-to-video-10s": 84,
+  "kling-2.5/image-to-video-5s": 42,
+  "kling-2.5/image-to-video-10s": 84,
 
   // Kling 2.6 - Duration and Audio based (audio doubles the price)
   "kling-2.6-5s": 55,
@@ -121,15 +133,21 @@ export const VIDEO_MODEL_PRICING: Record<string, number> = {
   "kling-2.6-motion-720p-per-sec": 6,
   "kling-2.6-motion-1080p-per-sec": 9,
 
-  // Kling 3.0 - Mode (std/pro), Duration and Audio based
-  "kling-3.0-std-5s": 65,
-  "kling-3.0-std-5s-audio": 130,
-  "kling-3.0-std-10s": 130,
-  "kling-3.0-std-10s-audio": 260,
-  "kling-3.0-pro-5s": 85,
-  "kling-3.0-pro-5s-audio": 170,
-  "kling-3.0-pro-10s": 170,
-  "kling-3.0-pro-10s-audio": 340,
+  // Kling 3.0 - per second pricing: 720p=20/30(audio), 1080p=27/40(audio)
+  // Calculated as duration * per-second rate (720p base)
+  "kling-3.0-std-5s": 100, // 5 * 20
+  "kling-3.0-std-5s-audio": 150, // 5 * 30
+  "kling-3.0-std-10s": 200, // 10 * 20
+  "kling-3.0-std-10s-audio": 300, // 10 * 30
+  "kling-3.0-pro-5s": 135, // 5 * 27 (1080p)
+  "kling-3.0-pro-5s-audio": 200, // 5 * 40 (1080p)
+  "kling-3.0-pro-10s": 270, // 10 * 27 (1080p)
+  "kling-3.0-pro-10s-audio": 400, // 10 * 40 (1080p)
+  // Per-second rates (synced from KIE.AI DB)
+  "kling-3.0-per-sec-720p": 20,
+  "kling-3.0-per-sec-720p-audio": 30,
+  "kling-3.0-per-sec-1080p": 27,
+  "kling-3.0-per-sec-1080p-audio": 40,
 
   // Seedance 1.0 (ByteDance)
   "seedance/1.0-lite-3s": 20,
@@ -151,9 +169,23 @@ export const VIDEO_MODEL_PRICING: Record<string, number> = {
   "seedance-1.5-pro-720p-12s": 42,
   "seedance-1.5-pro-720p-12s-audio": 84,
 
-  // Hailuo (MiniMax AI video model)
-  "hailuo-2.3/text-to-video-6s": 25,
-  "hailuo-2.3/image-to-video-6s": 25,
+  // Hailuo 2.3 - KIE: Standard-6s-768p=30, Standard-10s-768p=50, Pro-6s-768p=45, Pro-6s-1080p=80
+  "hailuo-2.3/text-to-video-6s": 30,
+  "hailuo-2.3/image-to-video-6s": 30,
+  "hailuo-2.3/image-to-video-10s": 50,
+  "hailuo-2.3/image-to-video-6s-1080p": 50,
+  "hailuo-2.3/image-to-video-pro-6s": 45,
+  "hailuo-2.3/image-to-video-pro-6s-1080p": 80,
+  "hailuo-2.3/image-to-video-pro-10s": 90,
+
+  // Hailuo 02 - KIE: Standard-6s-768p=30, Standard-10s-768p=50, Pro-6s-1080p=57
+  "hailuo-02/text-to-video-6s": 30,
+  "hailuo-02/text-to-video-10s": 50,
+  "hailuo-02/image-to-video-6s-512p": 12,
+  "hailuo-02/image-to-video-10s-512p": 20,
+  "hailuo-02/image-to-video-10s": 50,
+  "hailuo-02/text-to-video-pro-6s-1080p": 57,
+  "hailuo-02/image-to-video-pro-6s-1080p": 57,
 
   // Wan 2.6 (Alibaba) - Resolution and Duration based
   "wan-2.6-720p-5s": 70,
@@ -162,19 +194,28 @@ export const VIDEO_MODEL_PRICING: Record<string, number> = {
   "wan-2.6-1080p-5s": 104.5,
   "wan-2.6-1080p-10s": 209.5,
   "wan-2.6-1080p-15s": 315,
-  // Wan 2.2 and 2.5 (older versions)
-  "wan-2.2-5s": 30,
-  "wan-2.2-10s": 55,
-  "wan2.5-t2v-preview-5s": 35,
-  "wan2.5-t2v-preview-10s": 60,
-  "wan2.5-i2v-preview-5s": 35,
-  "wan2.5-i2v-preview-10s": 60,
+  // Wan 2.2 - KIE: 5s-480p=40, 5s-720p=80
+  "wan-2.2-5s": 40,
+  "wan-2.2-10s": 80,
+  // Wan 2.5 - KIE: 5s-720p=60, 10s-720p=120, 5s-1080p=100, 10s-1080p=200
+  "wan2.5-t2v-preview-5s": 60,
+  "wan2.5-t2v-preview-10s": 120,
+  "wan2.5-i2v-preview-5s": 60,
+  "wan2.5-i2v-preview-10s": 120,
+  // Wan 2.5 1080p - KIE: 5s=100, 10s=200
+  "wan2.5-t2v-preview-5s-1080p": 100,
+  "wan2.5-t2v-preview-10s-1080p": 200,
+  "wan2.5-i2v-preview-5s-1080p": 100,
+  "wan2.5-i2v-preview-10s-1080p": 200,
 
-  // Sora Watermark Remover
-  "sora-watermark-remover": 20,
+  // Sora Watermark Remover - KIE: 10 per removal
+  "sora-watermark-remover": 10,
 
-  // Runway Gen-3 Alpha
-  "runway-gen3-alpha": 60,
+  // Runway - KIE: 5s-720p=12, 10s-720p=30, 5s-1080p=30, Aleph=110
+  "runway-gen3-alpha": 12,
+  "runway-gen3-alpha-10s": 30,
+  "runway-gen3-alpha-1080p": 30,
+  "runway-aleph": 110,
 };
 
 // Calculate credit cost based on model and options
@@ -206,9 +247,9 @@ export function calculateVideoCreditCost(
     return cost;
   }
 
-  // Grok Imagine (always 6s)
+  // Grok Imagine (6s 720p = 20 credits)
   if (model.startsWith("grok-imagine")) {
-    return 15;
+    return 20;
   }
 
   // Sora 2 Pro - Quality and duration based
@@ -224,31 +265,32 @@ export function calculateVideoCreditCost(
 
   // Sora 2 Pro Storyboard
   if (model === "sora-2-pro-storyboard") {
-    return VIDEO_MODEL_PRICING["sora-2-pro-storyboard"] || 80;
+    const durationKey = duration === "15" || duration === "15s" ? "15s" : "10s";
+    return VIDEO_MODEL_PRICING[`sora-2-pro-storyboard-${durationKey}`] || 150;
   }
 
-  // Sora 2 Normal (Standard quality)
+  // Sora 2 Normal (Standard quality) - KIE: 10s=35, 15s=40
   if (model.startsWith("sora-2")) {
     const durationKey = duration === "15" || duration === "15s" ? "15s" : "10s";
-    const key = `${model}-${durationKey}`;
-    return VIDEO_MODEL_PRICING[key] || 24;
-  }
-
-  // Kling 2.1
-  if (model.startsWith("kling-2.1")) {
-    const durationKey = duration === "10" ? "10s" : "5s";
     const key = `${model}-${durationKey}`;
     return VIDEO_MODEL_PRICING[key] || 35;
   }
 
-  // Kling 2.5
+  // Kling 2.1 - KIE: Standard-5s=25, Standard-10s=50
+  if (model.startsWith("kling-2.1")) {
+    const durationKey = duration === "10" ? "10s" : "5s";
+    const key = `${model}-${durationKey}`;
+    return VIDEO_MODEL_PRICING[key] || 25;
+  }
+
+  // Kling 2.5 - KIE: Turbo Pro-5s=42, 10s=84
   if (model.startsWith("kling-2.5")) {
     const durationKey = duration === "10" ? "10s" : "5s";
     const key = `${model}-${durationKey}`;
-    return VIDEO_MODEL_PRICING[key] || 40;
+    return VIDEO_MODEL_PRICING[key] || 42;
   }
 
-  // Kling 3.0 - Mode (std/pro), Duration and audio based
+  // Kling 3.0 - per second pricing (720p=20, 1080p=27)
   if (model.startsWith("kling-3.0")) {
     const mode =
       quality === "pro" || quality === "high" || quality === "quality"
@@ -256,7 +298,20 @@ export function calculateVideoCreditCost(
         : "std";
     const dur = parseInt(duration) >= 10 ? "10s" : "5s";
     const audio = sound ? "-audio" : "";
-    return VIDEO_MODEL_PRICING[`kling-3.0-${mode}-${dur}${audio}`] || 65;
+
+    // First try pre-calculated key
+    const preCalcKey = `kling-3.0-${mode}-${dur}${audio}`;
+    if (VIDEO_MODEL_PRICING[preCalcKey]) {
+      return VIDEO_MODEL_PRICING[preCalcKey];
+    }
+
+    // Fallback: calculate from per-second rates
+    const res = mode === "pro" ? "1080p" : "720p";
+    const audioSuffix = sound ? "-audio" : "";
+    const perSecRate =
+      VIDEO_MODEL_PRICING[`kling-3.0-per-sec-${res}${audioSuffix}`] ||
+      (mode === "pro" ? (sound ? 40 : 27) : sound ? 30 : 20);
+    return perSecRate * parseInt(duration || "5");
   }
 
   // Kling 2.6 - Duration and audio based
@@ -294,9 +349,9 @@ export function calculateVideoCreditCost(
     return VIDEO_MODEL_PRICING[`seedance-1.5-pro-${res}-${dur}${audio}`] || 14;
   }
 
-  // Hailuo 2.3 (always 6s)
+  // Hailuo 2.3 - KIE: Standard-6s-768p=30
   if (model.startsWith("hailuo-2.3")) {
-    return VIDEO_MODEL_PRICING[`${model}-6s`] || 25;
+    return VIDEO_MODEL_PRICING[`${model}-6s`] || 30;
   }
 
   // Wan 2.6 - Resolution and duration based
@@ -317,25 +372,26 @@ export function calculateVideoCreditCost(
     return VIDEO_MODEL_PRICING[`wan-2.6-${res}-${dur}`] || 70;
   }
 
-  // Wan 2.2 and 2.5 (older versions)
+  // Wan 2.2 - KIE: 5s-480p=40, 5s-720p=80
   if (model.startsWith("wan-2.2")) {
     const durationKey = duration === "10" ? "10s" : "5s";
-    return VIDEO_MODEL_PRICING[`wan-2.2-${durationKey}`] || 30;
+    return VIDEO_MODEL_PRICING[`wan-2.2-${durationKey}`] || 40;
   }
+  // Wan 2.5 - KIE: 5s-720p=60, 10s-720p=120
   if (model.startsWith("wan2.5")) {
     const durationKey = duration === "10" ? "10s" : "5s";
     const key = `${model}-${durationKey}`;
-    return VIDEO_MODEL_PRICING[key] || 35;
+    return VIDEO_MODEL_PRICING[key] || 60;
   }
 
-  // Sora Watermark Remover
+  // Sora Watermark Remover - KIE: 10
   if (model === "sora-watermark-remover") {
-    return VIDEO_MODEL_PRICING["sora-watermark-remover"] || 20;
+    return VIDEO_MODEL_PRICING["sora-watermark-remover"] || 10;
   }
 
-  // Runway
-  if (model === "runway-gen3-alpha") {
-    return VIDEO_MODEL_PRICING["runway-gen3-alpha"] || 60;
+  // Runway - KIE: 5s-720p=12, 10s-720p=30, Aleph=110
+  if (model === "runway-gen3-alpha" || model.startsWith("runway")) {
+    return VIDEO_MODEL_PRICING["runway-gen3-alpha"] || 12;
   }
 
   return 50; // Default
@@ -1441,12 +1497,12 @@ export async function getVideoStatus(
 
 export type UpscaleFactor = "1" | "2" | "4" | "8";
 
-// Upscale pricing (in credits) - with 50% markup
+// Upscale pricing (in credits) - KIE.AI: 2K=10, 4K=20, 8K=40
 export const UPSCALE_PRICING: Record<UpscaleFactor, number> = {
-  "1": 15, // 1x (no upscale, just enhancement) - 10 credits base + 50%
-  "2": 15, // 2x upscale (≤2K output) - 10 credits base + 50%
-  "4": 30, // 4x upscale (4K output) - 20 credits base + 50%
-  "8": 60, // 8x upscale (8K output) - 40 credits base + 50%
+  "1": 10, // 1x (no upscale, just enhancement)
+  "2": 10, // 2x upscale (≤2K output) - KIE: 10
+  "4": 20, // 4x upscale (4K output) - KIE: 20
+  "8": 40, // 8x upscale (8K output) - KIE: 40
 };
 
 export function calculateUpscaleCreditCost(factor: UpscaleFactor): number {
@@ -1833,17 +1889,23 @@ export type ImageAspectRatio =
   | "21:9";
 export type ImageQuality = "basic" | "standard" | "high" | "ultra";
 
-// Model-specific pricing (in credits)
+// Model-specific pricing (in credits) - Based on Kie.ai official pricing (synced 2026-02-25)
 export const IMAGE_MODEL_PRICING: Record<string, number> = {
-  // Flux Models
-  "flux-2/pro-image-to-image": 12,
-  "flux-2/pro-text-to-image": 12,
-  "flux-2/flex-text-to-image": 10,
-  "flux-2/flex-image-to-image": 10,
-  "flux-kontext-pro": 15,
-  "flux-kontext-max": 20,
-  "flux-1.1-pro": 15,
-  "flux-1.1-pro-ultra": 25,
+  // Flux 2 Pro - KIE: 1K=5, 2K=7
+  "flux-2/pro-image-to-image": 5,
+  "flux-2/pro-text-to-image": 5,
+  "flux-2/pro-image-to-image-2k": 7,
+  "flux-2/pro-text-to-image-2k": 7,
+  // Flux 2 Flex - KIE: 1K=14, 2K=24
+  "flux-2/flex-text-to-image": 14,
+  "flux-2/flex-image-to-image": 14,
+  "flux-2/flex-text-to-image-2k": 24,
+  "flux-2/flex-image-to-image-2k": 24,
+  // Flux Kontext - KIE: Pro=5, Max=10
+  "flux-kontext-pro": 5,
+  "flux-kontext-max": 10,
+  "flux-1.1-pro": 5,
+  "flux-1.1-pro-ultra": 10,
 
   // Seedream Models
   "bytedance/seedream": 10,
@@ -1852,43 +1914,78 @@ export const IMAGE_MODEL_PRICING: Record<string, number> = {
   "bytedance/seedream-4.5-text-to-image": 14,
   "bytedance/seedream-4.5-edit": 14,
 
-  // Google/Imagen Models
-  "google/imagen4": 15,
-  "google/imagen4-fast": 12,
-  "google/imagen4-ultra": 20,
-  "google/nano-banana": 10,
-  "google/nano-banana-edit": 12,
+  // Google/Imagen Models - KIE: imagen4 Fast=4, Ultra=12, default=8
+  "google/imagen4": 8,
+  "google/imagen4-fast": 4,
+  "google/imagen4-ultra": 12,
+  // Nano Banana - KIE: text=4, edit=4, pro 1/2K=18, pro 4K=24
+  "google/nano-banana": 4,
+  "google/nano-banana-edit": 4,
   "google/pro-image-to-image": 15,
-  "nano-banana": 10,
-  "nano-banana-pro": 15,
+  "nano-banana": 4,
+  "nano-banana-pro": 18,
+  "nano-banana-pro-4k": 24,
 
-  // GPT Image Models
-  "4o-image": 10,
-  "gpt-image/1.5-text-to-image": 10,
-  "gpt-image/1.5-image-to-image": 12,
+  // GPT Image Models - KIE: 4o=6, gpt-1.5 medium=4, high=22
+  "4o-image": 6,
+  "gpt-image/1.5-text-to-image": 4,
+  "gpt-image/1.5-text-to-image-high": 22,
+  "gpt-image/1.5-image-to-image": 4,
+  "gpt-image/1.5-image-to-image-high": 22,
 
-  // Grok Imagine
-  "grok-imagine/text-to-image": 12,
-  "grok-imagine/image-to-image": 14,
+  // Grok Imagine - KIE: t2i=4/6images (~0.67), i2i=4/2images (2)
+  "grok-imagine/text-to-image": 4,
+  "grok-imagine/image-to-image": 4,
 
-  // Ideogram Models
-  "ideogram/v3-reframe": 10,
-  "ideogram/character": 12,
-  "ideogram/character-edit": 14,
-  "ideogram/character-remix": 14,
+  // Ideogram V3 - KIE: TURBO=3.5, BALANCED=7, QUALITY=10
+  "ideogram/v3-turbo": 3.5,
+  "ideogram/v3-balanced": 7,
+  "ideogram/v3-quality": 10,
+  "ideogram/v3-reframe-turbo": 3.5,
+  "ideogram/v3-reframe-balanced": 7,
+  "ideogram/v3-reframe-quality": 10,
+  "ideogram/v3-reframe": 7,
+  "ideogram/v3-remix-turbo": 3.5,
+  "ideogram/v3-remix-balanced": 7,
+  "ideogram/v3-remix-quality": 10,
+  "ideogram/v3-edit-turbo": 3.5,
+  "ideogram/v3-edit-balanced": 7,
+  "ideogram/v3-edit-quality": 10,
+  // Ideogram Character - KIE: TURBO=12, BALANCED=18, QUALITY=24
+  "ideogram/character-turbo": 12,
+  "ideogram/character-balanced": 18,
+  "ideogram/character-quality": 24,
+  "ideogram/character": 18,
+  "ideogram/character-edit-turbo": 12,
+  "ideogram/character-edit-balanced": 18,
+  "ideogram/character-edit-quality": 24,
+  "ideogram/character-edit": 18,
+  "ideogram/character-remix-turbo": 12,
+  "ideogram/character-remix-balanced": 18,
+  "ideogram/character-remix-quality": 24,
+  "ideogram/character-remix": 18,
 
-  // Qwen Models
-  "qwen/text-to-image": 8,
-  "qwen/image-to-image": 10,
-  "qwen/image-edit": 10,
+  // Qwen Models - KIE: t2i=4, i2i=4, edit=5
+  "qwen/text-to-image": 4,
+  "qwen/image-to-image": 4,
+  "qwen/image-edit": 5,
 
-  // Recraft Models
-  "recraft/remove-background": 8,
+  // Recraft Models - KIE: remove-bg=1, crisp-upscale=0.5
+  "recraft/remove-background": 1,
+  "recraft/crisp-upscale": 0.5,
   "recraft-v3": 15,
   "recraft-20b": 12,
 
-  // Z-Image
-  "z-image": 10,
+  // Z-Image - KIE: 0.8
+  "z-image": 0.8,
+
+  // Midjourney - KIE: fast=8, turbo=16, relaxed=3
+  "midjourney/text-to-image-fast": 8,
+  "midjourney/text-to-image-turbo": 16,
+  "midjourney/text-to-image-relaxed": 3,
+  "midjourney/image-to-image-fast": 8,
+  "midjourney/image-to-image-turbo": 16,
+  "midjourney/image-to-image-relaxed": 3,
 };
 
 export function calculateImageModelCreditCost(modelKey: string): number {
@@ -2417,7 +2514,7 @@ export async function generateGrokImagineImage(
 
   return {
     taskId: response.data.taskId,
-    creditCost: IMAGE_MODEL_PRICING["grok-imagine/text-to-image"] || 12,
+    creditCost: IMAGE_MODEL_PRICING["grok-imagine/text-to-image"] || 4,
   };
 }
 

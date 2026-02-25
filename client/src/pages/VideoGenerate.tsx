@@ -75,6 +75,9 @@ const COMPANY_GROUP_INFO: Record<
 /** Featured models threshold - priority <= this value shown in Featured section */
 const FEATURED_PRIORITY_THRESHOLD = 2;
 
+
+/** Kling 3.0 Multi-shot total duration budget in seconds */
+const MULTI_SHOT_TOTAL_SECONDS = 15;
 /** Extract company name from provider string like "Kie AI (Google)" → "Google" */
 function extractCompany(provider: string): string {
   const match = provider.match(/\(([^)]+)\)/);
@@ -1473,85 +1476,132 @@ export default function VideoGenerate() {
                         exit={{ opacity: 0, height: 0 }}
                         className="space-y-2 overflow-hidden"
                       >
-                        <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest block">
-                          Sahneler ({multiPrompts.length})
-                        </label>
-                        {multiPrompts.map((shot, idx) => (
-                          <div
-                            key={idx}
-                            className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-3 space-y-2"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] font-bold text-white/40">
-                                Sahne {idx + 1}
-                              </span>
-                              {multiPrompts.length > 1 && (
+                        {(() => {
+                          const totalUsed = multiPrompts.reduce((sum, s) => sum + s.duration, 0);
+                          const totalRemaining = MULTI_SHOT_TOTAL_SECONDS - totalUsed;
+                          const usedPercent = Math.min(100, (totalUsed / MULTI_SHOT_TOTAL_SECONDS) * 100);
+
+                          return (
+                            <>
+                              {/* Total budget bar */}
+                              <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                  <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                                    Sahneler ({multiPrompts.length})
+                                  </label>
+                                  <span className={cn(
+                                    "text-[11px] font-bold",
+                                    totalRemaining <= 0 ? "text-red-400" : totalRemaining <= 3 ? "text-amber-400" : "text-white/40"
+                                  )}>
+                                    {totalUsed}s / {MULTI_SHOT_TOTAL_SECONDS}s
+                                  </span>
+                                </div>
+                                <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                                  <motion.div
+                                    className={cn(
+                                      "h-full rounded-full transition-colors",
+                                      totalRemaining <= 0 ? "bg-red-500" : totalRemaining <= 3 ? "bg-amber-500" : "bg-[#FF6B00]"
+                                    )}
+                                    initial={false}
+                                    animate={{ width: `${usedPercent}%` }}
+                                    transition={{ duration: 0.2 }}
+                                  />
+                                </div>
+                              </div>
+
+                              {multiPrompts.map((shot, idx) => {
+                                const othersTotal = multiPrompts.reduce((sum, s, i) => i === idx ? sum : sum + s.duration, 0);
+                                const maxForShot = Math.max(1, Math.min(12, MULTI_SHOT_TOTAL_SECONDS - othersTotal));
+
+                                return (
+                                  <div
+                                    key={idx}
+                                    className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-3 space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[11px] font-bold text-white/40">
+                                        Sahne {idx + 1}
+                                      </span>
+                                      {multiPrompts.length > 1 && (
+                                        <button
+                                          onClick={() =>
+                                            setMultiPrompts(prev =>
+                                              prev.filter((_, i) => i !== idx)
+                                            )
+                                          }
+                                          className="w-5 h-5 rounded-md bg-white/5 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+                                        >
+                                          <Trash2 className="w-3 h-3 text-white/30 hover:text-red-400" />
+                                        </button>
+                                      )}
+                                    </div>
+                                    <Textarea
+                                      value={shot.prompt}
+                                      onChange={e => {
+                                        const val = e.target.value;
+                                        setMultiPrompts(prev =>
+                                          prev.map((s, i) =>
+                                            i === idx ? { ...s, prompt: val } : s
+                                          )
+                                        );
+                                      }}
+                                      placeholder={`Sahne ${idx + 1} açıklaması (max 500 karakter)`}
+                                      className="bg-transparent border-white/[0.06] focus-visible:ring-0 resize-none text-xs min-h-[60px] placeholder:text-white/15"
+                                      rows={2}
+                                      maxLength={500}
+                                    />
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-[10px] text-white/30 whitespace-nowrap">
+                                        Süre:
+                                      </span>
+                                      <input
+                                        type="range"
+                                        min={1}
+                                        max={maxForShot}
+                                        value={Math.min(shot.duration, maxForShot)}
+                                        onChange={e => {
+                                          const val = parseInt(e.target.value);
+                                          setMultiPrompts(prev =>
+                                            prev.map((s, i) =>
+                                              i === idx ? { ...s, duration: val } : s
+                                            )
+                                          );
+                                        }}
+                                        className="flex-1 h-1 accent-[#FF6B00]"
+                                      />
+                                      <span className="text-[11px] font-bold text-white/50 min-w-[28px] text-right">
+                                        {shot.duration}s
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+
+                              {multiPrompts.length < 10 && totalRemaining >= 1 && (
                                 <button
-                                  onClick={() =>
-                                    setMultiPrompts(prev =>
-                                      prev.filter((_, i) => i !== idx)
-                                    )
-                                  }
-                                  className="w-5 h-5 rounded-md bg-white/5 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+                                  onClick={() => {
+                                    const remaining = MULTI_SHOT_TOTAL_SECONDS - multiPrompts.reduce((s, p) => s + p.duration, 0);
+                                    if (remaining < 1) return;
+                                    setMultiPrompts(prev => [
+                                      ...prev,
+                                      { prompt: "", duration: Math.min(3, remaining) },
+                                    ]);
+                                  }}
+                                  className="w-full py-2 rounded-xl border border-dashed border-white/10 hover:border-white/20 text-xs text-white/30 hover:text-white/60 transition-all flex items-center justify-center gap-1.5"
                                 >
-                                  <Trash2 className="w-3 h-3 text-white/30 hover:text-red-400" />
+                                  <Plus className="w-3 h-3" />
+                                  Sahne Ekle ({totalRemaining}s kaldı)
                                 </button>
                               )}
-                            </div>
-                            <Textarea
-                              value={shot.prompt}
-                              onChange={e => {
-                                const val = e.target.value;
-                                setMultiPrompts(prev =>
-                                  prev.map((s, i) =>
-                                    i === idx ? { ...s, prompt: val } : s
-                                  )
-                                );
-                              }}
-                              placeholder={`Sahne ${idx + 1} açıklaması (max 500 karakter)`}
-                              className="bg-transparent border-white/[0.06] focus-visible:ring-0 resize-none text-xs min-h-[60px] placeholder:text-white/15"
-                              rows={2}
-                              maxLength={500}
-                            />
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-white/30 whitespace-nowrap">
-                                Süre:
-                              </span>
-                              <input
-                                type="range"
-                                min={1}
-                                max={12}
-                                value={shot.duration}
-                                onChange={e => {
-                                  const val = parseInt(e.target.value);
-                                  setMultiPrompts(prev =>
-                                    prev.map((s, i) =>
-                                      i === idx ? { ...s, duration: val } : s
-                                    )
-                                  );
-                                }}
-                                className="flex-1 h-1 accent-[#FF6B00]"
-                              />
-                              <span className="text-[11px] font-bold text-white/50 min-w-[28px] text-right">
-                                {shot.duration}s
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                        {multiPrompts.length < 10 && (
-                          <button
-                            onClick={() =>
-                              setMultiPrompts(prev => [
-                                ...prev,
-                                { prompt: "", duration: 3 },
-                              ])
-                            }
-                            className="w-full py-2 rounded-xl border border-dashed border-white/10 hover:border-white/20 text-xs text-white/30 hover:text-white/60 transition-all flex items-center justify-center gap-1.5"
-                          >
-                            <Plus className="w-3 h-3" />
-                            Sahne Ekle
-                          </button>
-                        )}
+
+                              {totalRemaining <= 0 && multiPrompts.length < 10 && (
+                                <div className="text-center text-[11px] text-red-400/60 py-1">
+                                  Toplam süre limiti doldu ({MULTI_SHOT_TOTAL_SECONDS}s)
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                       </motion.div>
                     )}
                   </AnimatePresence>

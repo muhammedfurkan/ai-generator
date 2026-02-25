@@ -97,17 +97,17 @@ function normalizeAiModel(aiModel: AIModel): AIModel {
   return AI_MODEL_ALIASES[aiModel] || aiModel;
 }
 
-// Default kredi maliyetleri (veritabanında yoksa kullanılır)
+// Default kredi maliyetleri (veritabanında yoksa kullanılır) - KIE.AI synced
 const DEFAULT_QWEN_CREDIT_COSTS: Record<string, number> = {
-  "1K": 10,
-  "2K": 15,
-  "4K": 20,
+  "1K": 4, // KIE: Qwen Image text-to-image = 4
+  "2K": 4,
+  "4K": 4,
 };
 
 const DEFAULT_NANO_BANANA_PRO_CREDIT_COSTS: Record<string, number> = {
-  "1K": 12,
+  "1K": 18, // KIE: nano banana pro 1/2K = 18
   "2K": 18,
-  "4K": 25,
+  "4K": 24, // KIE: nano banana pro 4K = 24
 };
 
 const DEFAULT_SEEDREAM_CREDIT_COSTS: Record<string, number> = {

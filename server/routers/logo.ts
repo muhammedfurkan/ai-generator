@@ -14,15 +14,15 @@ import { nanoid } from "nanoid";
 import { notifyCreditSpending, notifyGenerationFailure } from "../telegramBot";
 import { createNotification } from "./notification";
 
-// Logo kredi maliyetleri
+// Logo kredi maliyetleri - KIE.AI nano banana pro synced
 const LOGO_CREDIT_COSTS: Record<string, number> = {
-  "1K": 15,
-  "2K": 22,
-  "4K": 30,
+  "1K": 18, // KIE: nano banana pro 1/2K = 18
+  "2K": 18,
+  "4K": 24, // KIE: nano banana pro 4K = 24
 };
 
 function getCreditsForResolution(resolution: string): number {
-  return LOGO_CREDIT_COSTS[resolution] || 22;
+  return LOGO_CREDIT_COSTS[resolution] || 18;
 }
 
 // Arka planda logo işleme

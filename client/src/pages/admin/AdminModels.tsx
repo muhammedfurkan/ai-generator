@@ -691,12 +691,14 @@ export default function AdminModels() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-zinc-900 border-white/10 max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="bg-zinc-900 border-white/10 max-w-[95vw] w-full sm:max-w-2xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-0 shrink-0">
             <DialogTitle>
               {isEditing ? "Model Düzenle" : "Yeni Model Ekle"}
             </DialogTitle>
           </DialogHeader>
+
+          <div className="overflow-y-auto px-6 pb-6 flex-1">
 
           {/* Kie.ai Model Picker - only for new models */}
           {!isEditing && (
@@ -1142,6 +1144,7 @@ export default function AdminModels() {
                     : "Ekle"}
               </Button>
             </div>
+          </div>
           </div>
         </DialogContent>
       </Dialog>

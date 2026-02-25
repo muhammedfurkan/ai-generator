@@ -62,6 +62,8 @@ const categories = [
   { value: "image", label: "Görsel" },
   { value: "video", label: "Video" },
   { value: "upscale", label: "Upscale" },
+  { value: "music", label: "Müzik/Ses" },
+  { value: "chat", label: "Chat/LLM" },
   { value: "ai_character", label: "AI Karakter" },
   { value: "viral_app", label: "Viral App" },
   { value: "multi_angle", label: "Multi-Angle" },
@@ -116,6 +118,16 @@ export default function AdminPricing() {
       },
       onError: error => toast.error(error.message),
     });
+
+  const syncKieAiMutation = trpc.adminPanel.syncKieAiPricing.useMutation({
+    onSuccess: data => {
+      toast.success(
+        `KIE.AI senkronizasyonu tamamlandı! ${data.inserted} yeni eklendi, ${data.updated} güncellendi (Toplam: ${data.total})`
+      );
+      utils.adminPanel.getFeaturePricing.invalidate();
+    },
+    onError: error => toast.error(`Senkronizasyon hatası: ${error.message}`),
+  });
 
   const closeDialog = () => {
     setDialogOpen(false);
@@ -179,6 +191,10 @@ export default function AdminPricing() {
         return <Video className="h-5 w-5" />;
       case "upscale":
         return <Wand2 className="h-5 w-5" />;
+      case "music":
+        return <Zap className="h-5 w-5" />;
+      case "chat":
+        return <Wand2 className="h-5 w-5" />;
       case "ai_character":
         return <Camera className="h-5 w-5" />;
       case "viral_app":
@@ -201,6 +217,10 @@ export default function AdminPricing() {
         return "bg-[#FF2E97]/20 text-[#FF2E97] border-[#FF2E97]/30";
       case "upscale":
         return "bg-[#00F5FF]/20 text-[#00F5FF] border-[#00F5FF]/30";
+      case "music":
+        return "bg-purple-500/20 text-purple-400 border-purple-500/30";
+      case "chat":
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "ai_character":
         return "bg-green-500/20 text-green-400 border-green-500/30";
       case "viral_app":
@@ -315,6 +335,35 @@ export default function AdminPricing() {
             />
             Yenile
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 border-amber-500/30 text-amber-400 hover:bg-amber-500/10"
+            onClick={() => syncKieAiMutation.mutate()}
+            disabled={syncKieAiMutation.isPending}
+          >
+            {syncKieAiMutation.isPending ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            KIE.AI'den Senkronize Et
+          </Button>
+          {/* Son senkronizasyon tarihi */}
+          {pricingQuery.data?.some((p: any) => p.lastSyncedAt) && (
+            <span className="text-xs text-zinc-500 self-center">
+              Son sync:{" "}
+              {new Date(
+                pricingQuery.data
+                  ?.filter((p: any) => p.lastSyncedAt)
+                  .sort(
+                    (a: any, b: any) =>
+                      new Date(b.lastSyncedAt!).getTime() -
+                      new Date(a.lastSyncedAt!).getTime()
+                  )[0]?.lastSyncedAt!
+              ).toLocaleString("tr-TR")}
+            </span>
+          )}
           {totalFeatures === 0 && (
             <Button
               variant="outline"

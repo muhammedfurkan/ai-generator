@@ -20,7 +20,7 @@ async function checkAndRefundMotionControlCredits(
   actualDuration?: number
 ): Promise<number> {
   try {
-    const baseRate = quality === "high" ? 8 : 5;
+    const baseRate = quality === "high" ? 9 : 6; // KIE: 720P=6, 1080P=9
     const estimatedCost = baseRate * estimatedDuration;
 
     // Eğer API'den gerçek süre bilgisi gelmişse, onu kullan

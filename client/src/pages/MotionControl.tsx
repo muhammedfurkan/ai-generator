@@ -238,9 +238,9 @@ export default function MotionControl() {
       return;
     }
 
-    // Kredi hesaplama: Standard = 5 kredi/sn, Pro = 8 kredi/sn
+    // Kredi hesaplama: 720P = 6 kredi/sn, 1080P (Pro) = 9 kredi/sn (KIE.AI synced)
     // UYARI: Motion Control API otomatik video süresi belirler - tahminiden farklı olabilir
-    const baseRate = mode === "pro" ? 8 : 5;
+    const baseRate = mode === "pro" ? 9 : 6;
     const creditCost = baseRate * estimatedDuration;
 
     if (user.credits < creditCost) {
